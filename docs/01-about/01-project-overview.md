@@ -134,4 +134,4 @@ Ultimately, the vision is to make AI governance continuous, measurable, and tran
 
 ---
 
-[Next →](docs/01-about/02-market-analysis.md)
+[Next →](02-market-analysis.md)
