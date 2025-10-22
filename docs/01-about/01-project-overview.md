@@ -1,27 +1,30 @@
-# TL;DR
-The objective of this project is to build an **AI Governance and Compliance Platform** that automates compliance assessments, provides measurable governance scores aligned with global frameworks (EU AI Act, NIST AI RMF, ISO 42001), and enables continuous monitoring of AI systems. It addresses critical pain points such as lack of standardization, manual evidence collection, fragmented processes, and limited visibility into compliance posture. The solution integrates probes, checks, and a framework mapping engine to generate compliance scores, identify risks and gaps, and enable real-time governance intelligence. Target users include enterprise AI teams, compliance and risk officers, IT/security teams, product owners, consulting firms, and regulated industries. The strategic vision is to establish this platform as the **“AI Compliance Cloud”**, the global standard for continuous, measurable, and transparent AI governance over the next 2–3 years.
+# 1. Project Overview<!-- omit in toc -->
 
-# Jump to
-- [TL;DR](#tldr)
-- [Jump to](#jump-to)
-- [1. Project Overview](#1-project-overview)
-  - [1.1 Objective](#11-objective)
-  - [1.2 Problem Statement](#12-problem-statement)
-  - [1.3 Proposed Solution](#13-proposed-solution)
-  - [1.4 Target Users / Customers](#14-target-users--customers)
-    - [Primary Users](#primary-users)
-    - [Secondary Users](#secondary-users)
-  - [1.5 Strategic Vision](#15-strategic-vision)
-- [Navigation](#navigation)
+>### TL;DR
+>- Automates AI compliance assessments and scoring  
+>- Aligns with EU AI Act, NIST AI RMF, ISO 42001  
+>- Solves manual, fragmented compliance challenges  
+>- Uses probes, checks, framework mapping engine  
+>- Target users: AI teams, compliance, IT, regulated industries  
+>- Vision: become “AI Compliance Cloud” with continuous monitoring and predictive analytics
 
-# 1. Project Overview
+- [1.1 Objective](#11-objective)
+- [1.2 Problem Statement](#12-problem-statement)
+- [1.3 Proposed Solution](#13-proposed-solution)
+- [1.4 Target Users / Customers](#14-target-users--customers)
+  - [Primary Users](#primary-users)
+  - [Secondary Users](#secondary-users)
+- [1.5 Strategic Vision](#15-strategic-vision)
+
+
 
 ## 1.1 Objective
-What is the main goal of this platform?  
-Examples:
 
-- To automate compliance assessment for AI systems.  
-- To provide organizations with measurable AI governance scores aligned to global frameworks.
+> ### TL;DR
+> What is the main goal of this platform?  
+> Examples:
+>- To automate compliance assessment for AI systems.  
+>- To provide organizations with measurable AI governance scores aligned to global frameworks.
 
 The objective of this project is to develop an AI Governance and Compliance Platform that enables organizations to assess, monitor, and demonstrate responsible AI practices across their products, tools, and systems.
 
@@ -37,7 +40,9 @@ By translating complex AI regulatory frameworks and ethical guidelines into meas
 Ultimately, the goal is to make AI governance operational, measurable, and continuous, rather than a one-time audit exercise.
 
 ## 1.2 Problem Statement
-What pain points or gaps are we addressing?
+
+>### TL;DR
+> What pain points or gaps are we addressing?
 
 - Lack of standardization in AI compliance processes.  
 - Manual, time-consuming audits and evidence collection.  
@@ -129,5 +134,4 @@ Ultimately, the vision is to make AI governance continuous, measurable, and tran
 
 ---
 
-# Navigation
-[← Previous](#) | [Next →](#)
+[Next →](01-about/02-market-analysis.md)
