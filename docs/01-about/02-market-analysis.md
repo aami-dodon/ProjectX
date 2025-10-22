@@ -136,5 +136,5 @@ The 24–36 month window ahead is the prime opportunity for platforms that offer
 
 ---
 
-[← Previous](01-project-overview.md) | [Next →](#)
+[← Previous](01-project-overview.md) | [Next →](03-concept-summary.md)
 
