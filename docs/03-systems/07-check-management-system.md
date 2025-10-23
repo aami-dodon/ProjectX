@@ -1,11 +1,13 @@
 # Check Management System <!-- omit in toc -->
 
-## Location: /server/src/modules/governance/checks
+## Location: /server/src/modules/governance
 
 >### TL;DR
 > The check management system operationalizes governance requirements inside the Governance Engine.
 > It coordinates check definitions, execution workflows, evidence capture, and publication workflows across automated and manual paths.
 > Use this runbook to understand data models, lifecycle states, and operational playbooks for managing compliance checks.
+
+> **Note:** Runtime services that orchestrate checks live alongside the broader Governance Engine implementation in `server/src/modules/governance`. The canonical catalogue of check definitions persists in PostgreSQL tables (`checks`, `results`); there is no dedicated `checks` subdirectory in the codebase.
 
 ---
 
