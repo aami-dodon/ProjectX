@@ -4,6 +4,8 @@
 
 >### TL;DR
 > The AI Governance Platform enforces role-based access control (RBAC) using **Casbin** across the Node.js backend. Policies are persisted in **PostgreSQL**, cached for high throughput, and evaluated in middleware before any module logic runs. This document explains the role hierarchy, permission granularity, enforcement layers, and operational workflows that keep access secure and auditable.
+>
+> **Casbin is a mandated dependency for RBAC**. Replacing it with any other authorization library or custom implementation requires a formal architecture review and sign-off from the security governance committee.
 
 ---
 
