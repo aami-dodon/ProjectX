@@ -4,7 +4,7 @@
 
 >### TL;DR
 > The audit logging and monitoring system guarantees immutable, end-to-end visibility into security-critical activity.
-> Built around `server/src/lib/logging/audit.ts`, it captures structured events, enforces retention and tamper controls, and feeds observability pipelines for governance oversight.
+> Built around `server/src/lib/logging/audit.js`, it captures structured events, enforces retention and tamper controls, and feeds observability pipelines for governance oversight.
 > Use this guide to understand capture scope, storage contracts, operational safeguards, and developer instrumentation practices.
 
 ---
@@ -53,7 +53,7 @@
 
 ## 7. Developer Instrumentation Guidelines
 1. **Identify Audit-Worthy Actions:** When adding new features, flag actions that affect security posture, user data, or compliance-sensitive operations. Consult the security team if uncertain.
-2. **Use Shared Audit Helpers:** Instrument events via the `auditLogger` utility (see `src/lib/logging/audit.ts`) to standardize metadata, correlation IDs, and JSON schema.
+2. **Use Shared Audit Helpers:** Instrument events via the `auditLogger` utility (see `src/lib/logging/audit.js`) to standardize metadata, correlation IDs, and JSON schema.
 3. **Mask Sensitive Data:** Never log secrets, full payment card numbers, passwords, or personal data beyond minimal identifiers. Use the `redactFields` option provided by the audit logger to mask sensitive attributes before emission.
 4. **Correlate Requests:** Attach request IDs, user IDs, and session references so downstream analytics can trace multi-service flows.
 5. **Validate Locally:** Run `npm run lint:audit` to ensure schema conformance and `npm run test:audit` to execute instrumentation unit tests.
