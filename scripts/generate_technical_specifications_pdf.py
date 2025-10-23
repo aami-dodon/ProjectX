@@ -33,6 +33,7 @@ try:
         PageBreak,
         PageTemplate,
         Paragraph,
+        Preformatted,
         Spacer,
         Table,
         TableStyle,
@@ -408,7 +409,8 @@ def format_inline(text: str) -> str:
         .replace("<ul>", "")
         .replace("</ul>", "")
         .replace("</li>", "\n")
-        .replace("<li>", "• ")
+        # Avoid U+2022 (•) which built-in Helvetica can't render; use ASCII dash
+        .replace("<li>", "- ")
     )
 
     # 1) Extract inline code spans first and replace with placeholders
@@ -523,7 +525,8 @@ def flush_bullets(bullets: List[str], styles) -> ListFlowable | None:
         list_items.append(ListItem(Paragraph(formatted, styles["AboutBody"])))
     if not list_items:
         return None
-    return ListFlowable(list_items, bulletType="bullet", start="•", leftIndent=24)
+    # Avoid U+2022 (•) to prevent missing-glyph squares; use ASCII dash
+    return ListFlowable(list_items, bulletType="bullet", start="-", leftIndent=24)
 
 
 def build_tldr_list_flowable(items: List[str], styles) -> ListFlowable | None:
@@ -535,12 +538,41 @@ def build_tldr_list_flowable(items: List[str], styles) -> ListFlowable | None:
         list_items.append(ListItem(Paragraph(formatted, styles["TldrBody"])))
     if not list_items:
         return None
+    # Avoid U+2022 (•) to prevent missing-glyph squares; use ASCII dash
     return ListFlowable(
         list_items,
         bulletType="bullet",
-        start="•",
+        start="-",
         leftIndent=16,
     )
+
+
+def build_code_block(lines: List[str], styles) -> Table:
+    """Render a fenced code block using a monospace font with background.
+
+    We wrap a Preformatted flowable in a one-cell Table to get padding,
+    background, and border similar to TL;DR blocks. We also constrain the
+    font to the built-in Courier to ensure glyph availability.
+    """
+    code_text = "\n".join(lines)
+    pre = Preformatted(code_text, style=ParagraphStyle(
+        name="CodeBlock",
+        parent=styles["BodyText"],
+        fontName="Courier",
+        fontSize=8.5,
+        leading=11,
+    ))
+    table = Table([[pre]])
+    table.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#F5F5F5")),
+        ("BOX", (0, 0), (-1, -1), 0.5, colors.HexColor("#DDDDDD")),
+        ("LEFTPADDING", (0, 0), (-1, -1), 10),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 10),
+        ("TOPPADDING", (0, 0), (-1, -1), 8),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+    ]))
+    return table
 
 
 def build_tldr_block(lines: List[str], start_index: int, styles) -> tuple[Table | None, int]:
@@ -651,6 +683,26 @@ def parse_markdown(markdown_path: Path, styles) -> Iterable:
                 flowables.append(bullet_flowable)
             flowables.append(Spacer(1, 6))
             index += 1
+            continue
+
+        # Fenced code block (```lang ... ```)
+        if stripped_line.startswith("```"):
+            bullet_flowable = flush_bullets(bullets, styles)
+            bullets.clear()
+            if bullet_flowable:
+                flowables.append(bullet_flowable)
+            index += 1
+            code_lines: List[str] = []
+            while index < len(lines):
+                fence_candidate = lines[index].rstrip("\n")
+                if fence_candidate.strip().startswith("```"):
+                    index += 1
+                    break
+                code_lines.append(fence_candidate)
+                index += 1
+            if code_lines:
+                flowables.append(build_code_block(code_lines, styles))
+                flowables.append(Spacer(1, 12))
             continue
 
         if stripped_line.startswith("|"):
