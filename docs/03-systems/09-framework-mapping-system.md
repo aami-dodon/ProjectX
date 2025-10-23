@@ -7,7 +7,8 @@
 ---
 
 - [1. Module Overview](#1-module-overview)
-- [2. Data Model & Metadata Contracts](#2-data-model--metadata-contracts)
+- [2. Data Model \& Metadata Contracts](#2-data-model--metadata-contracts)
+  - [Metadata Schema Highlights](#metadata-schema-highlights)
 - [3. CRUD Flows](#3-crud-flows)
   - [3.1 Framework Lifecycle](#31-framework-lifecycle)
   - [3.2 Control Registration](#32-control-registration)
@@ -15,7 +16,7 @@
   - [3.4 Version Governance](#34-version-governance)
 - [4. Multi-Framework Compliance Support](#4-multi-framework-compliance-support)
   - [4.1 Metadata Alignment Layer](#41-metadata-alignment-layer)
-  - [4.2 Import & Export Pipelines](#42-import--export-pipelines)
+  - [4.2 Import \& Export Pipelines](#42-import--export-pipelines)
   - [4.3 Update Governance](#43-update-governance)
 - [5. End-to-End Examples](#5-end-to-end-examples)
   - [5.1 Onboarding a New Framework](#51-onboarding-a-new-framework)
