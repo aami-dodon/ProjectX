@@ -1,7 +1,10 @@
-We will now code and implement below system:
+Code and Implement:  {system-name} – {documentation path}
 
-## "system-name" - {documentation path}
+1. Check for Conflicts
+- Review existing implementations to ensure no overlaps or conflicts.
 
-1. You will review if the implementation conflicts with any other previous implementation
-2. You will divide the system implmentetaion into one or many tasks, so that I can test the functionality after each task is complete.
-3. You must not deviate from instructios and guideline present in agents.md.
+1. Break Down Work
+- Split the implementation into clear, testable tasks so functionality can be verified after each step.
+
+1. Follow Guidelines
+- Do not deviate from the instructions and standards in agents.md.
