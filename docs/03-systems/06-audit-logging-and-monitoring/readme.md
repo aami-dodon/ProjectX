@@ -61,4 +61,4 @@
 
 ---
 
-[← Previous](05-admin-and-configuration-system.md) | [Next →](07-probe-management-system.md)
+[← Previous](../05-admin-and-configuration-system/readme.md) | [Next →](../07-probe-management-system/readme.md)

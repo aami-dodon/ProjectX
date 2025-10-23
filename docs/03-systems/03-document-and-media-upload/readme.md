@@ -37,7 +37,7 @@
 
 ## 1. Purpose and Scope
 
-The Document and Media Upload system provides a single entry point for files that must be preserved as governance evidence or shared artifacts. It issues short-lived MinIO presigned URLs, enforces content validation rules, compresses images, and anchors immutable metadata in PostgreSQL so downstream services (Evidence Repository, Governance Engine, Reporting) can reference a consistent record.【F:docs/02-technical-specifications/01-system-architecture.md†L173-L202】【F:docs/03-systems/11-evidence-management-system.md†L7-L115】
+The Document and Media Upload system provides a single entry point for files that must be preserved as governance evidence or shared artifacts. It issues short-lived MinIO presigned URLs, enforces content validation rules, compresses images, and anchors immutable metadata in PostgreSQL so downstream services (Evidence Repository, Governance Engine, Reporting) can reference a consistent record.【F:docs/02-technical-specifications/01-system-architecture.md†L173-L202】【F:docs/03-systems/11-evidence-management-system/readme.md†L7-L115】
 
 ## 2. Storage Architecture
 
@@ -46,18 +46,18 @@ The Document and Media Upload system provides a single entry point for files tha
 - **Upload Controller (`server/src/modules/uploads/controller.js`):** Receives intake requests, validates RBAC scopes, and coordinates presigned URL issuance.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L44-L135】
 - **MinIO Integration (`server/src/integrations/minio.js`):** Wraps the official SDK, exposing helpers for presigned PUT URLs, lifecycle inspection, and bucket health checks.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L57-L135】
 - **Evidence Metadata (`evidence` and `evidence_snapshots` tables):** Stores file fingerprints, compression status, and version lineage to guarantee deterministic retrievals.【F:docs/02-technical-specifications/04-database-design.md†L88-L146】
-- **BullMQ Worker (`server/src/modules/uploads/worker.js`):** Processes completion callbacks, triggers compression jobs, and publishes status events to the Governance Engine.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L124-L171】【F:docs/03-systems/12-governance-engine.md†L7-L104】
+- **BullMQ Worker (`server/src/modules/uploads/worker.js`):** Processes completion callbacks, triggers compression jobs, and publishes status events to the Governance Engine.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L124-L171】【F:docs/03-systems/12-governance-engine/readme.md†L7-L104】
 
 ### 2.2 Bucket Strategy and Namespacing
 
-MinIO buckets follow a three-level namespace: `{tenant}/{classification}/{yyyy}/{mm}`. Classification covers `evidence`, `policy`, `report`, and `media` segments so lifecycle policies can diverge per content type. Buckets are provisioned during tenant onboarding alongside access policies maintained by the Admin & Configuration system.【F:docs/03-systems/05-admin-and-configuration-system.md†L65-L154】 Versioning is enabled globally to maintain immutable audit history and allow controlled rollbacks without data loss.【F:docs/02-technical-specifications/05-devops-infrastructure.md†L60-L119】
+MinIO buckets follow a three-level namespace: `{tenant}/{classification}/{yyyy}/{mm}`. Classification covers `evidence`, `policy`, `report`, and `media` segments so lifecycle policies can diverge per content type. Buckets are provisioned during tenant onboarding alongside access policies maintained by the Admin & Configuration system.【F:docs/03-systems/05-admin-and-configuration-system/readme.md†L65-L154】 Versioning is enabled globally to maintain immutable audit history and allow controlled rollbacks without data loss.【F:docs/02-technical-specifications/05-devops-infrastructure.md†L60-L119】
 
 ## 3. Upload Lifecycle
 
 ### 3.1 Intake and Metadata Validation
 
 1. Client submits metadata (`filename`, `mimeType`, `checksum`, `classification`, `sizeBytes`) to `/api/uploads/request`.
-2. Service validates payload against allowed MIME types, maximum file size (512 MB for documents, 50 MB for images), and verifies that the calling user has the `evidence:write` or `media:write` scope granted by RBAC.【F:docs/03-systems/02-rbac-system.md†L7-L192】
+2. Service validates payload against allowed MIME types, maximum file size (512 MB for documents, 50 MB for images), and verifies that the calling user has the `evidence:write` or `media:write` scope granted by RBAC.【F:docs/03-systems/02-rbac-system/readme.md†L7-L192】
 3. If the upload is replacing existing evidence, the service resolves the parent record and ensures status allows edits (e.g., not locked for audit review).
 
 ### 3.2 Presigned URL Issuance
@@ -70,8 +70,8 @@ MinIO buckets follow a three-level namespace: `{tenant}/{classification}/{yyyy}/
 
 - Clients call `/api/uploads/complete` with the upload ID after MinIO acknowledges the PUT.
 - The worker queues compression tasks for images, calculates SHA-256 fingerprints for all files, and persists metadata (size, checksum, path, uploader) into PostgreSQL.
-- If a prior version exists, the service increments the `version` column, retains the previous object path, and marks the latest version as active while preserving history for auditors.【F:docs/03-systems/11-evidence-management-system.md†L47-L111】
-- Completion event (`evidence.uploaded`) is published to the Governance Engine and Task Service to trigger follow-up workflows.【F:docs/03-systems/12-governance-engine.md†L52-L113】【F:docs/03-systems/13-task-management-system.md†L7-L226】
+- If a prior version exists, the service increments the `version` column, retains the previous object path, and marks the latest version as active while preserving history for auditors.【F:docs/03-systems/11-evidence-management-system/readme.md†L47-L111】
+- Completion event (`evidence.uploaded`) is published to the Governance Engine and Task Service to trigger follow-up workflows.【F:docs/03-systems/12-governance-engine/readme.md†L52-L113】【F:docs/03-systems/13-task-management-system/readme.md†L7-L226】
 
 ## 4. Media Compression and Transformations
 
@@ -79,7 +79,7 @@ MinIO buckets follow a three-level namespace: `{tenant}/{classification}/{yyyy}/
 
 - All images are routed through the BullMQ worker, which invokes the `sharp` library with tenant-specific presets (max width 2560px, 85% quality for JPEG/WEBP, lossless PNG quantization).【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L124-L171】
 - Compression results update the `compression_status` field (`pending`, `compressed`, `failed`). Uploads remain hidden from the Evidence Repository until compression succeeds.
-- Failed compression jobs automatically retry three times with exponential backoff; persistent failures notify the Notification system for manual remediation.【F:docs/03-systems/04-notification-system.md†L7-L222】
+- Failed compression jobs automatically retry three times with exponential backoff; persistent failures notify the Notification system for manual remediation.【F:docs/03-systems/04-notification-system/readme.md†L7-L222】
 
 ### 4.2 Supported Formats and Rejections
 
@@ -90,55 +90,55 @@ MinIO buckets follow a three-level namespace: `{tenant}/{classification}/{yyyy}/
 ### 4.3 Derivatives and Accessibility
 
 - Thumbnail derivatives (320px) are generated for UI previews and stored under the `media/derived` prefix with inherited retention rules.
-- Text-based uploads capture extracted plain text (via Tika) to support search indexing; metadata records track extraction timestamps for the Reporting service.【F:docs/03-systems/14-dashboard-and-reporting-system.md†L7-L118】
+- Text-based uploads capture extracted plain text (via Tika) to support search indexing; metadata records track extraction timestamps for the Reporting service.【F:docs/03-systems/14-dashboard-and-reporting-system/readme.md†L7-L118】
 - Alt-text metadata is required for all imagery surfaced in customer-facing dashboards to maintain accessibility commitments.【F:docs/01-about/04-security-and-data-protection.md†L206-L259】
 
 ## 5. Security, Compliance, and Governance
 
 ### 5.1 Access Control Integration
 
-- RBAC middleware enforces scope checks before presigned URL issuance; machine users leverage service-to-service tokens issued by the Auth service.【F:docs/03-systems/02-rbac-system.md†L7-L192】【F:docs/03-systems/01-user-management-system.md†L7-L214】
-- Tenants may restrict uploads to approved MIME types and enforce data classification tags that propagate into the Governance Engine for control mappings.【F:docs/03-systems/09-control-management-system.md†L7-L133】
+- RBAC middleware enforces scope checks before presigned URL issuance; machine users leverage service-to-service tokens issued by the Auth service.【F:docs/03-systems/02-rbac-system/readme.md†L7-L192】【F:docs/03-systems/01-user-management-system/readme.md†L7-L214】
+- Tenants may restrict uploads to approved MIME types and enforce data classification tags that propagate into the Governance Engine for control mappings.【F:docs/03-systems/09-control-management-system/readme.md†L7-L133】
 
 ### 5.2 Data Protection and Retention
 
 - MinIO buckets enforce server-side encryption (SSE-S3) with keys rotated quarterly through the DevOps pipeline.【F:docs/02-technical-specifications/05-devops-infrastructure.md†L60-L226】
-- Retention policies align with regulatory obligations (default seven years) and can be extended per control requirement; legal holds are tracked in the Evidence Repository UI.【F:docs/03-systems/11-evidence-management-system.md†L92-L115】
+- Retention policies align with regulatory obligations (default seven years) and can be extended per control requirement; legal holds are tracked in the Evidence Repository UI.【F:docs/03-systems/11-evidence-management-system/readme.md†L92-L115】
 - Cross-region replication follows DevOps guidance to satisfy durability and disaster recovery targets.【F:docs/02-technical-specifications/05-devops-infrastructure.md†L168-L226】
 
 ### 5.3 Auditability and Chain of Custody
 
-- Every upload writes to the audit log with user, IP, object key, checksum, and compression result. Logs flow into the central monitoring stack for retention and anomaly detection.【F:docs/03-systems/06-audit-logging-and-monitoring.md†L7-L200】
-- Evidence snapshots capture diff metadata (who replaced what, when) so auditors can reconstruct history without accessing underlying objects.【F:docs/03-systems/11-evidence-management-system.md†L47-L111】
-- Download links reuse presigned URLs with scoped expirations and watermarking; requests are rate-limited and tracked for governance review.【F:docs/03-systems/10-framework-mapping-system.md†L55-L217】
+- Every upload writes to the audit log with user, IP, object key, checksum, and compression result. Logs flow into the central monitoring stack for retention and anomaly detection.【F:docs/03-systems/06-audit-logging-and-monitoring/readme.md†L7-L200】
+- Evidence snapshots capture diff metadata (who replaced what, when) so auditors can reconstruct history without accessing underlying objects.【F:docs/03-systems/11-evidence-management-system/readme.md†L47-L111】
+- Download links reuse presigned URLs with scoped expirations and watermarking; requests are rate-limited and tracked for governance review.【F:docs/03-systems/10-framework-mapping-system/readme.md†L55-L217】
 
 ## 6. Operational Playbook
 
 ### 6.1 Monitoring and Alerting
 
 - Dashboards track upload throughput, compression latency, presigned URL error rates, and MinIO 5xx responses.
-- Alert thresholds: presigned issuance failures >2% for 5 minutes, compression job backlog >1000 tasks, or MinIO latency >800 ms triggers PagerDuty escalation to the Evidence squad.【F:docs/03-systems/04-notification-system.md†L7-L222】【F:docs/03-systems/06-audit-logging-and-monitoring.md†L7-L200】
-- Synthetic probes periodically attempt uploads for each classification to validate policy enforcement.【F:docs/03-systems/07-probe-management-system.md†L7-L226】
+- Alert thresholds: presigned issuance failures >2% for 5 minutes, compression job backlog >1000 tasks, or MinIO latency >800 ms triggers PagerDuty escalation to the Evidence squad.【F:docs/03-systems/04-notification-system/readme.md†L7-L222】【F:docs/03-systems/06-audit-logging-and-monitoring/readme.md†L7-L200】
+- Synthetic probes periodically attempt uploads for each classification to validate policy enforcement.【F:docs/03-systems/07-probe-management-system/readme.md†L7-L226】
 
 ### 6.2 Incident Response
 
-- For failed uploads, support staff review audit trails, retry compression manually if needed, and coordinate with the Notification service for stakeholder updates.【F:docs/03-systems/04-notification-system.md†L7-L222】
+- For failed uploads, support staff review audit trails, retry compression manually if needed, and coordinate with the Notification service for stakeholder updates.【F:docs/03-systems/04-notification-system/readme.md†L7-L222】
 - Malware detection escalations follow the Security Implementation playbook; quarantined objects remain inaccessible until the security team clears them.【F:docs/02-technical-specifications/06-security-implementation.md†L108-L196】
 - Data loss scenarios (e.g., MinIO outage) trigger failover runbooks managed by DevOps, including restoring from backups and verifying object integrity via stored checksums.【F:docs/02-technical-specifications/05-devops-infrastructure.md†L168-L226】
 
 ### 6.3 Capacity and Cost Management
 
 - Monthly reviews evaluate bucket growth, compression savings, and storage class utilization; anomalies prompt remediation actions such as deduplication or additional lifecycle tiers.
-- Cost allocation tags on buckets roll up to finance dashboards maintained by the Reporting team for transparency and budgeting.【F:docs/03-systems/14-dashboard-and-reporting-system.md†L7-L118】
+- Cost allocation tags on buckets roll up to finance dashboards maintained by the Reporting team for transparency and budgeting.【F:docs/03-systems/14-dashboard-and-reporting-system/readme.md†L7-L118】
 - Pre-signed URL traffic is cached through the API gateway; scaling decisions align with the Deployment & Environment guide’s sizing matrix.【F:docs/02-technical-specifications/08-deployment-and-environment-guide.md†L53-L186】
 
 ## 7. Related Documentation
 
-- [Evidence Management System](11-evidence-management-system.md) — downstream repository behavior, legal holds, and retrieval workflows.
-- [Audit Logging & Monitoring](06-audit-logging-and-monitoring.md) — centralized observability pipelines and retention policies.
-- [Security Implementation](../02-technical-specifications/06-security-implementation.md) — encryption, malware scanning, and incident response procedures.
-- [DevOps Infrastructure](../02-technical-specifications/05-devops-infrastructure.md) — MinIO provisioning, lifecycle policies, and disaster recovery planning.
+- [Evidence Management System](../11-evidence-management-system/readme.md) — downstream repository behavior, legal holds, and retrieval workflows.
+- [Audit Logging & Monitoring](../06-audit-logging-and-monitoring/readme.md) — centralized observability pipelines and retention policies.
+- [Security Implementation](../../02-technical-specifications/06-security-implementation.md) — encryption, malware scanning, and incident response procedures.
+- [DevOps Infrastructure](../../02-technical-specifications/05-devops-infrastructure.md) — MinIO provisioning, lifecycle policies, and disaster recovery planning.
 
 ---
 
-[← Previous](02-rbac-system.md) | [Next →](04-notification-system.md)
+[← Previous](../02-rbac-system/readme.md) | [Next →](../04-notification-system/readme.md)

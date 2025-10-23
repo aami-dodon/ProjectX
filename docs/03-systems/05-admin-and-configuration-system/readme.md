@@ -74,15 +74,15 @@ This runbook aligns operations, security, and partner engineering teams when ada
 
 ### 3.2 Environment Bootstrapping
 
-1. Async jobs (dispatched through the Probe Management scheduler described in the [Probe Management System runbook](07-probe-management-system.md#3-probe-scheduling)) create baseline evidence repositories, notification templates, and dashboards.
+1. Async jobs (dispatched through the Probe Management scheduler described in the [Probe Management System runbook](../07-probe-management-system/readme.md#3-probe-scheduling)) create baseline evidence repositories, notification templates, and dashboards.
 2. Infrastructure automation provisions isolated secrets namespaces and configures environment variables using the Security Implementation standards.
 3. Seed data scripts register default frameworks, task templates, and integrations flagged as mandatory in the Technical Specification.
 
 ### 3.3 Delegated Administration
 
-1. Customer administrators invite team members via the admin console, invoking RBAC policies defined in the [RBAC System runbook](02-rbac-system.md).
+1. Customer administrators invite team members via the admin console, invoking RBAC policies defined in the [RBAC System runbook](../02-rbac-system/readme.md).
 2. Delegation scopes (support-only, auditor, full admin) are enforced through shared middleware to prevent privilege escalation.
-3. The Governance Engine admin UI surfaces configuration diffs and pending approvals, mirroring the workflows documented in the [Governance Engine runbook](12-governance-engine.md#4-admin-ui-operations).
+3. The Governance Engine admin UI surfaces configuration diffs and pending approvals, mirroring the workflows documented in the [Governance Engine runbook](../12-governance-engine/readme.md#4-admin-ui-operations).
 
 ## 4. Global Settings Management
 
@@ -100,7 +100,7 @@ This runbook aligns operations, security, and partner engineering teams when ada
 
 ### 4.3 Secrets and Credential Rotation
 
-- Secrets are brokered through the integration control plane; rotations are orchestrated via the `rotateCredential` workflow that integrates with the [Integration System runbook](15-external-integrations-system.md#4-security-and-compliance).
+- Secrets are brokered through the integration control plane; rotations are orchestrated via the `rotateCredential` workflow that integrates with the [Integration System runbook](../15-external-integrations-system/readme.md#4-security-and-compliance).
 - Credential metadata (issuer, expiration, rotation history) is replicated to the Evidence Repository for downstream audits.
 - Emergency rotations trigger the Notification System to alert on-call engineers and tenant admins.
 
@@ -108,13 +108,13 @@ This runbook aligns operations, security, and partner engineering teams when ada
 
 ### 5.1 Authorization Flows
 
-- OAuth-based connectors (e.g., ServiceNow, Jira, Slack) follow the authorization journey described in the [External Integrations runbook](15-external-integrations-system.md#3-authorization-flows); tokens are stored per-tenant with least-privilege scopes.
+- OAuth-based connectors (e.g., ServiceNow, Jira, Slack) follow the authorization journey described in the [External Integrations runbook](../15-external-integrations-system/readme.md#3-authorization-flows); tokens are stored per-tenant with least-privilege scopes.
 - API key integrations require encrypted uploads through the admin console; validation checks confirm scope and expiry dates before enabling probes.
 - The control plane exposes a `POST /admin/integrations/:id/authorize` endpoint that records grant metadata and cascades configuration updates to dependent services.
 
 ### 5.2 Health and Scheduling
 
-- Integration health checks run via the Probe Management scheduler using intervals defined in tenant settings; failures escalate according to the [Probe Management runbook](07-probe-management-system.md#5-failure-handling-and-retries).
+- Integration health checks run via the Probe Management scheduler using intervals defined in tenant settings; failures escalate according to the [Probe Management runbook](../07-probe-management-system/readme.md#5-failure-handling-and-retries).
 - Each connector maintains heartbeat metrics emitted through `admin/telemetry` to the observability pipelines referenced in the Audit Logging runbook.
 - Scheduled jobs respect tenant blackout windows configured in `admin_settings` to avoid maintenance conflicts.
 
@@ -129,7 +129,7 @@ This runbook aligns operations, security, and partner engineering teams when ada
 ### 6.1 Activity Logging
 
 - Every configuration change emits a structured event (`admin.audit`) containing actor, tenant, payload diff, and correlation IDs.
-- Logs stream to the central pipeline described in the [Audit Logging & Monitoring runbook](06-audit-logging-and-monitoring.md) with retention policies aligned to regulatory commitments.
+- Logs stream to the central pipeline described in the [Audit Logging & Monitoring runbook](../06-audit-logging-and-monitoring/readme.md) with retention policies aligned to regulatory commitments.
 - The Governance Engine admin UI provides an immutable change log view for tenant administrators and internal auditors.
 
 ### 6.2 Evidence Collection
@@ -146,10 +146,10 @@ This runbook aligns operations, security, and partner engineering teams when ada
 
 ## 7. Related Runbooks and Specifications
 
-- [Probe Management System](07-probe-management-system.md) — provisioning and scheduler interactions for automated evidence collection.
-- [Governance Engine](12-governance-engine.md) — admin UI embedding, control workflows, and dependency expectations.
-- [External Integrations System](15-external-integrations-system.md) — connector catalog, authorization flows, and security posture.
-- [Security Implementation Specification](../02-technical-specifications/06-security-implementation.md) — encryption, key management, and administrative access controls.
-- [Integration Architecture Specification](../02-technical-specifications/07-integration-architecture.md) — event-driven patterns and contract guarantees for configuration propagation.
+- [Probe Management System](../07-probe-management-system/readme.md) — provisioning and scheduler interactions for automated evidence collection.
+- [Governance Engine](../12-governance-engine/readme.md) — admin UI embedding, control workflows, and dependency expectations.
+- [External Integrations System](../15-external-integrations-system/readme.md) — connector catalog, authorization flows, and security posture.
+- [Security Implementation Specification](../../02-technical-specifications/06-security-implementation.md) — encryption, key management, and administrative access controls.
+- [Integration Architecture Specification](../../02-technical-specifications/07-integration-architecture.md) — event-driven patterns and contract guarantees for configuration propagation.
 
-[← Previous](04-notification-system.md) | [Next →](06-audit-logging-and-monitoring.md)
+[← Previous](../04-notification-system/readme.md) | [Next →](../06-audit-logging-and-monitoring/readme.md)
