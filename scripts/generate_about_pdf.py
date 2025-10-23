@@ -1,9 +1,12 @@
 # Usage: python scripts/generate_about_pdf.py
-"""Generate a professional PDF consolidating the docs/01-about markdown files.
+"""Generate a professional PDF consolidating markdown files from a folder.
 
-The script assembles all numbered markdown chapters from ``docs/01-about`` and
-creates a styled PDF that includes a cover page, table of contents, headers,
-footers, page numbering, and legal disclaimers.
+By default, the script reads all ``.md`` files (excluding ``readme.md``) from an
+input directory (default: ``docs/01-about``), and writes the PDF to the project
+``pdf`` directory. The document title is derived from the folder name with
+leading numbers removed (e.g., ``01-about`` → "About"), while the output
+filename retains the original folder name including numbers (e.g.,
+``docs/01-about`` → ``pdf/01-about.pdf``).
 """
 from __future__ import annotations
 
@@ -110,22 +113,54 @@ TOC_DIRECTIVES = {"[toc]", "[[toc]]", "{{toc}}", "<!-- toc -->", "<!--toc-->"}
 
 
 DEFAULT_INPUT_DIR = Path("docs/01-about")
-DEFAULT_OUTPUT = DEFAULT_INPUT_DIR / "about-dossier.pdf"
+DEFAULT_OUTPUT = DEFAULT_INPUT_DIR / "about-dossier.pdf"  # legacy default; not used when deriving from folder
+
+
+def _derive_title_from_folder_name(folder_name: str) -> str:
+    """Convert a folder name into a human-friendly document title.
+
+    Rules:
+    - Strip any leading digits and separators like '-', '_', or '.' (e.g., '01-about' -> 'about').
+    - Replace '-', '_' and multiple spaces with a single space.
+    - Title-case the result.
+    - Fallback to the raw folder name if normalization empties the string.
+    """
+    base = re.sub(r"^\d+[\-_.\s]*", "", folder_name or "").strip()
+    base = re.sub(r"[\-_.]+", " ", base)
+    base = re.sub(r"\s+", " ", base).strip()
+    if not base:
+        base = (folder_name or "Document").strip()
+    return base.title()
+
+
+def _derive_filename_from_folder_name(folder_name: str) -> str:
+    """Create a clean PDF filename from a folder name, keeping numbers.
+
+    Examples:
+    - '01-about' -> '01-about.pdf'
+    - '02-technical-specifications' -> '02-technical-specifications.pdf'
+    - 'docs_v2' -> 'docs-v2.pdf'
+    """
+    base = (folder_name or "").strip()
+    base = re.sub(r"[\s_]+", "-", base)
+    base = re.sub(r"[^A-Za-z0-9\-]+", "", base)
+    base = base.strip("-").lower() or "document"
+    return f"{base}.pdf"
 
 
 @dataclass(frozen=True)
 class DocumentBranding:
     """Configuration options for document branding and metadata."""
 
-    project_name: str = "Project X"
-    cover_subtitle: str = "Corporate Strategy & Market Intelligence Dossier"
-    prepared_for: str = "Project X Executive Leadership Team"
+    project_name: str = "Project-X"
+    cover_subtitle: str = "Corporate Strategy & Intelligence Dossier"
+    prepared_for: str = "Project-X Executive Leadership Team"
     prepared_by: str = "Strategy & Compliance Office"
     classification: str = "Strictly Confidential – Do Not Distribute"
     header_title: str = "Project X — Strategic Overview"
     header_date_format: str = "%B %d, %Y"
     confidentiality_notice: str = "Confidential – Attorney-Client Privileged & Proprietary"
-    rights_notice_template: str = "© {year} {project} Holdings. All rights reserved."
+    rights_notice_template: str = "© {year} {project} - Innovista. All rights reserved."
 
 # Edit the values in ``DEFAULT_BRANDING`` to customize the header, footer, and
 # cover page without touching the rendering logic.
@@ -162,6 +197,11 @@ class AboutDocTemplate(BaseDocTemplate):
         canvas.rotate(45)
         canvas.drawCentredString(0, 0, "CONFIDENTIAL")
         canvas.restoreState()
+        # Set PDF metadata title based on branding
+        try:
+            canvas.setTitle(self.branding.project_name)
+        except Exception:
+            pass
         header_title = self.branding.header_title
         header_date = datetime.now().strftime(self.branding.header_date_format)
         canvas.setFont("Helvetica-Bold", 11)
@@ -829,8 +869,11 @@ def parse_args(argv: List[str] | None = None):
     parser.add_argument(
         "--output",
         type=Path,
-        default=DEFAULT_OUTPUT,
-        help="Output PDF path (default: docs/01-about/about-dossier.pdf)",
+        default=None,
+        help=(
+            "Output PDF path. If omitted, the PDF will be created in the project 'pdf' directory "
+            "and named after the input folder (e.g., 'pdf/01-about.pdf')."
+        ),
     )
     return parser.parse_args(argv)
 
@@ -847,9 +890,27 @@ if __name__ == "__main__":  # pragma: no cover
     args = parse_args()
     input_dir = prompt_for_input_dir(args.input_dir)
     input_dir = input_dir.resolve()
-    output_path = args.output
-    if output_path == DEFAULT_OUTPUT and input_dir != DEFAULT_INPUT_DIR:
-        output_path = input_dir / DEFAULT_OUTPUT.name
+    # Derive default output path from folder name when not provided
+    if args.output is None:
+        repo_root = Path(__file__).resolve().parents[1]
+        output_dir = repo_root / "pdf"
+        output_path = output_dir / _derive_filename_from_folder_name(input_dir.name)
+    else:
+        output_path = args.output
 
-    output_path = generate_pdf(input_dir, output_path.expanduser())
+    # Derive document title from folder name and use it for branding
+    derived_title = _derive_title_from_folder_name(input_dir.name)
+    dynamic_branding = DocumentBranding(
+        project_name=derived_title,
+        cover_subtitle=DEFAULT_BRANDING.cover_subtitle,
+        prepared_for=DEFAULT_BRANDING.prepared_for,
+        prepared_by=DEFAULT_BRANDING.prepared_by,
+        classification=DEFAULT_BRANDING.classification,
+        header_title=f"{derived_title} — Strategic Overview",
+        header_date_format=DEFAULT_BRANDING.header_date_format,
+        confidentiality_notice=DEFAULT_BRANDING.confidentiality_notice,
+        rights_notice_template=DEFAULT_BRANDING.rights_notice_template,
+    )
+
+    output_path = generate_pdf(input_dir, output_path.expanduser(), branding=dynamic_branding)
     print(f"Created PDF dossier at: {output_path}")
