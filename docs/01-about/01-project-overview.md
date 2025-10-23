@@ -11,7 +11,7 @@
 - [1.1 Objective](#11-objective)
 - [1.2 Problem Statement](#12-problem-statement)
 - [1.3 Proposed Solution](#13-proposed-solution)
-- [1.4 Target Users / Customers](#14-target-users--customers)
+- [1.4 Target Users / Customers](#14-target-users-customers)
   - [Primary Users](#primary-users)
   - [Secondary Users](#secondary-users)
 - [1.5 Strategic Vision](#15-strategic-vision)

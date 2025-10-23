@@ -26,7 +26,7 @@
   - [1. Starter (Growth-Stage Organizations)](#1-starter-growth-stage-organizations)
   - [2. Professional (Expanding Governance Teams)](#2-professional-expanding-governance-teams)
   - [3. Enterprise (Multi-Domain, Multi-Framework)](#3-enterprise-multi-domain-multi-framework)
-  - [4. Regulated / Private Cloud (Government, BFSI, Healthcare)](#4-regulated--private-cloud-government-bfsi-healthcare)
+  - [4. Regulated / Private Cloud (Government, BFSI, Healthcare)](#4-regulated-private-cloud-government-bfsi-healthcare)
   - [5. Comparative Overview](#5-comparative-overview)
   - [6. Tier Design Rationale](#6-tier-design-rationale)
 - [5.4 Adoption and Growth Levers](#54-adoption-and-growth-levers)
