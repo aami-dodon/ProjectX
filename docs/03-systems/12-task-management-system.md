@@ -1,5 +1,7 @@
 # Task Management System <!-- omit in toc -->
 
+## Location: /server/src/modules/tasks
+
 >### TL;DR
 > The task management system converts governance signals into actionable remediation work.
 > It orchestrates task lifecycle states, assignments, escalations, and evidence capture across internal and external tooling.
@@ -218,3 +220,7 @@ Open → In Progress → Ready for Review → Resolved → Closed
 ---
 
 This document defines the operational blueprint for managing remediation tasks, ensuring that governance gaps are tracked, remediated, and verified with full auditability.
+
+---
+
+[← Previous](11-governance-engine.md) | [Next →](13-dashboard-and-reporting-system.md)

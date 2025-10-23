@@ -1,8 +1,11 @@
 # Framework Mapping System <!-- omit in toc -->
 
-> **Location:** `server/src/modules/frameworks`
->
-> This document explains how the Framework Mapping System orchestrates framework lifecycle management, control mappings, and version governance within the AI Governance Platform.
+## Location: /server/src/modules/frameworks
+
+>### TL;DR
+> The framework mapping system governs lifecycle management for regulatory frameworks and their control mappings.
+> It centralizes metadata, aligns controls across standards, and exposes APIs for onboarding, versioning, and exporting frameworks.
+> Use this guide to understand data contracts, CRUD flows, and operational guardrails that keep mappings authoritative.
 
 ---
 
@@ -211,4 +214,4 @@ The module exposes REST + event-driven interfaces that allow:
 
 ---
 
-_Last updated: 2025-10-23_
+[← Previous](08-control-management-system.md) | [Next →](10-evidence-management-system.md)

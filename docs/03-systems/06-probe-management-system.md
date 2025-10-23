@@ -1,5 +1,7 @@
 # Probe Management System <!-- omit in toc -->
 
+## Location: /server/src/modules/probes
+
 >### TL;DR
 > The Probe Management System orchestrates how evidence-collection probes are registered, deployed, scheduled, and monitored across environments.
 > It exposes a Probe SDK (implemented in `server/src/modules/probes`) that standardizes authentication, retries, payload schemas, and version negotiation.
@@ -218,3 +220,7 @@ This document targets platform engineers, integration teams, and partner develop
 ---
 
 The Probe Management System aligns probe development, deployment, and monitoring with the platform's compliance objectives, ensuring trustworthy evidence collection across diverse enterprise environments.
+
+---
+
+[← Previous](05-audit-logging-and-monitoring.md) | [Next →](07-check-management-system.md)
