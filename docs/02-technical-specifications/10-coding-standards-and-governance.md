@@ -113,3 +113,7 @@ Version control follows **Git Flow**, providing a structured release process and
 Commit messages document intent and simplify traceability for code changes.
 
 ### Format
+
+---
+
+[← Previous](09-testing-and-qa.md) | [Next →](11-future-expansions.md)

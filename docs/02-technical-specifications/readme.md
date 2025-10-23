@@ -33,7 +33,7 @@ Includes:
 - Deployment layers  
 - Cross-cutting concerns  
 
-📄 File: `01-system-architecture.md`
+📄 File: [01-system-architecture.md](01-system-architecture.md)
 
 ---
 
@@ -46,7 +46,7 @@ Includes:
 - Database schema overview  
 - Error handling, logging, and versioning  
 
-📄 File: `02-backend-architecture-and-apis.md`
+📄 File: [02-backend-architecture-and-apis.md](02-backend-architecture-and-apis.md)
 
 ---
 
@@ -59,7 +59,7 @@ Includes:
 - API integration workflow  
 - Security and accessibility standards  
 
-📄 File: `03-frontend-architecture.md`
+📄 File: [03-frontend-architecture.md](03-frontend-architecture.md)
 
 ---
 
@@ -72,7 +72,7 @@ Includes:
 - Backup and retention strategy  
 - Encryption and access control policies  
 
-📄 File: `04-database-design.md`
+📄 File: [04-database-design.md](04-database-design.md)
 
 ---
 
@@ -85,7 +85,7 @@ Includes:
 - CI/CD pipelines  
 - Monitoring, secrets management, and DR strategy  
 
-📄 File: `05-devops-and-infrastructure.md`
+📄 File: [05-devops-infrastructure.md](05-devops-infrastructure.md)
 
 ---
 
@@ -99,7 +99,7 @@ Includes:
 - API hardening and DDoS prevention  
 - Penetration testing and vulnerability management  
 
-📄 File: `06-security-implementation.md`
+📄 File: [06-security-implementation.md](06-security-implementation.md)
 
 ---
 
@@ -113,7 +113,7 @@ Includes:
 - Webhooks and partner APIs  
 - Security and governance of integrations  
 
-📄 File: `07-integration-architecture.md`
+📄 File: [07-integration-architecture.md](07-integration-architecture.md)
 
 ---
 
@@ -126,7 +126,7 @@ Includes:
 - Cloud deployment checklist  
 - Verification and post-deployment procedures  
 
-📄 File: `08-deployment-and-environment-guide.md`
+📄 File: [08-deployment-and-environment-guide.md](08-deployment-and-environment-guide.md)
 
 ---
 
@@ -139,7 +139,7 @@ Includes:
 - Test data management and fixtures  
 - Continuous testing pipelines and coverage metrics  
 
-📄 File: `09-testing-and-qa-framework.md`
+📄 File: [09-testing-and-qa.md](09-testing-and-qa.md)
 
 ---
 
@@ -152,7 +152,7 @@ Includes:
 - Code review and PR workflow  
 - Documentation and security review protocols  
 
-📄 File: `10-coding-standards-and-governance.md`
+📄 File: [10-coding-standards-and-governance.md](10-coding-standards-and-governance.md)
 
 ---
 
@@ -165,7 +165,7 @@ Includes:
 - AI-powered analytics and predictive governance  
 - Multi-region deployment and data localization plans  
 
-📄 File: `11-future-extensions.md`
+📄 File: [11-future-expansions.md](11-future-expansions.md)
 
 ---
 

@@ -177,6 +177,10 @@ The database design incorporates multiple layers of security to ensure complianc
 - Secrets managed via environment variables and cloud secret vaults.
 
 ### Audit and Monitoring
-- All connections logged with user identity, source IP, and timestamp.  
-- Database audit logs integrated with backend observability pipelines.  
-- Alerts configured for unauthorized access attempts or schema modifications.
+ - All connections logged with user identity, source IP, and timestamp.  
+ - Database audit logs integrated with backend observability pipelines.  
+ - Alerts configured for unauthorized access attempts or schema modifications.
+
+---
+
+[← Previous](03-frontend-architecture.md) | [Next →](05-devops-infrastructure.md)

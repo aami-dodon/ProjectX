@@ -178,3 +178,7 @@ The platform’s architecture is designed for long-term sustainability, maintain
 
 ### Vision
 The platform will evolve into a **global governance ecosystem** — intelligent, distributed, and standards-aligned — empowering organizations to achieve continuous compliance and ethical AI governance at scale.
+
+---
+
+[← Previous](10-coding-standards-and-governance.md)

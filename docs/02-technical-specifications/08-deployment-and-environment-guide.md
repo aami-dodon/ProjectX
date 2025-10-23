@@ -200,6 +200,10 @@ The platform is containerized and deployed using CI/CD pipelines defined under t
 - Tag release in Git and document version in release notes.  
 - Archive old build artifacts for traceability.  
 - Rotate JWT and API keys if required.  
-- Conduct security scan to confirm no new vulnerabilities introduced.  
+ - Conduct security scan to confirm no new vulnerabilities introduced.  
+ 
+ This standardized deployment guide ensures all developers and DevOps engineers follow a unified process, minimizing risk and maintaining operational consistency across all environments.
 
-This standardized deployment guide ensures all developers and DevOps engineers follow a unified process, minimizing risk and maintaining operational consistency across all environments.
+---
+
+[← Previous](07-integration-architecture.md) | [Next →](09-testing-and-qa.md)

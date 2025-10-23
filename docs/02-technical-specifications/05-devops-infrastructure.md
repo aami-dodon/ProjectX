@@ -222,6 +222,10 @@ Comprehensive observability ensures proactive detection and analysis of system h
 - **Horizontal Scaling:** Add containers/pods based on resource metrics.  
 - **Vertical Scaling:** Adjust compute resources for specific workloads.  
 - **Database Scaling:** Read replicas for query optimization; connection pooling via Prisma.  
-- **Storage Scaling:** MinIO bucket lifecycle management and object versioning.  
+ - **Storage Scaling:** MinIO bucket lifecycle management and object versioning.  
+ 
+ The **DevOps and Infrastructure layer**, centered around the `infra/` directory, ensures the platform remains secure, scalable, and reproducible — enabling continuous delivery and operational resilience across all environments.
 
-The **DevOps and Infrastructure layer**, centered around the `infra/` directory, ensures the platform remains secure, scalable, and reproducible — enabling continuous delivery and operational resilience across all environments.
+---
+
+[← Previous](04-database-design.md) | [Next →](06-security-implementation.md)

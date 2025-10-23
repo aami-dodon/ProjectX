@@ -370,15 +370,31 @@ def format_inline(text: str) -> str:
         .replace("</li>", "\n")
         .replace("<li>", "• ")
     )
-    escaped = escape(cleaned, {"'": "&apos;"})
+
+    # 1) Extract inline code spans first and replace with placeholders
+    code_chunks: List[str] = []
+
+    def _code_placeholder(m: Match[str]) -> str:
+        idx = len(code_chunks)
+        code_chunks.append(m.group(1))
+        return f"\x00CODE{idx}\x00"
+
+    with_placeholders = CODE_RE.sub(_code_placeholder, cleaned)
+
+    # 2) Escape and apply other inline formatting (bold/italic/links)
+    escaped = escape(with_placeholders, {"'": "&apos;"})
     escaped = re.sub(r"__(.+?)__", r"<b>\1</b>", escaped)
     escaped = BOLD_RE.sub(r"<b>\1</b>", escaped)
     escaped = ITALIC_RE.sub(r"<i>\1</i>", escaped)
-    # Render inline code safely without using <font face=...> to avoid ps2tt issues.
-    # Use a light background + underline for visual distinction.
-    escaped = CODE_RE.sub('<span backcolor="#F5F5F5"><u>\\1</u></span>', escaped)
     escaped = LINK_RE.sub(_replace_markdown_link, escaped)
     escaped = FONT_FACE_RE.sub(_normalize_font_face, escaped)
+
+    # 3) Restore code spans with safe markup (avoid <font face=...>)
+    for idx, raw in enumerate(code_chunks):
+        safe = escape(raw, {"'": "&apos;"})
+        code_html = f'<span backcolor="#F5F5F5"><u>{safe}</u></span>'
+        escaped = escaped.replace(f"\x00CODE{idx}\x00", code_html)
+
     return escaped.replace("\n", "<br/>")
 
 

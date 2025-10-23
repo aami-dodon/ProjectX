@@ -7,6 +7,9 @@
 
 ---
 
+---
+
+
 
 - [2.1 Purpose and Overview](#21-purpose-and-overview)
 - [2.2 Folder Structure and Conventions](#22-folder-structure-and-conventions)
@@ -246,3 +249,6 @@ The backend uses unified error management and structured logging for observabili
 
 ---
 
+---
+
+[← Previous](01-system-architecture.md) | [Next →](03-frontend-architecture.md)

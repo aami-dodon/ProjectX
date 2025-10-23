@@ -224,6 +224,10 @@ All services communicate over RESTful APIs secured by HTTPS.
 - **Language Standardization:** 100% JavaScript — no TypeScript used anywhere in the platform.  
 - **Security:** JWT authentication, Casbin-based RBAC, and SSL-secured connections.  
 - **Performance:** Optimized builds with Vite, efficient queries via Prisma ORM.  
-- **Reliability:** External Postgres and MinIO ensure durability, redundancy, and backup coverage.  
-- **Scalability:** Stateless backend, containerized components, and distributed deployment model.  
-- **Monitoring:** Structured JSON logs with Winston and Morgan for traceability and audit readiness.
+ - **Reliability:** External Postgres and MinIO ensure durability, redundancy, and backup coverage.  
+ - **Scalability:** Stateless backend, containerized components, and distributed deployment model.  
+ - **Monitoring:** Structured JSON logs with Winston and Morgan for traceability and audit readiness.
+
+---
+
+[Next →](02-backend-architecture-and-apis.md)

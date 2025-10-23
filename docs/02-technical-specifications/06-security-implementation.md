@@ -197,6 +197,10 @@ The platform follows a proactive approach to vulnerability management, aligned w
 - Results tracked in the platform’s risk register for follow-up and remediation.  
 
 ### Continuous Improvement
-- Security posture reviewed after every major release.  
-- Incident response drills conducted quarterly.  
-- Bug bounty program planned post-production to engage ethical researchers.
+ - Security posture reviewed after every major release.  
+ - Incident response drills conducted quarterly.  
+ - Bug bounty program planned post-production to engage ethical researchers.
+
+---
+
+[← Previous](05-devops-infrastructure.md) | [Next →](07-integration-architecture.md)

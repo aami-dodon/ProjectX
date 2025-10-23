@@ -176,3 +176,6 @@ Localization ensures that the interface can adapt to different languages and reg
 
 ---
 
+---
+
+[← Previous](02-backend-architecture-and-apis.md) | [Next →](04-database-design.md)

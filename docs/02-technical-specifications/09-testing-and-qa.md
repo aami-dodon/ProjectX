@@ -198,6 +198,10 @@ Coverage metrics define the minimum acceptable test coverage for all services.
 ### Continuous Improvement
 - Weekly QA retrospectives to identify testing gaps.  
 - Monthly quality reports track metrics like pass rate, MTTR, and defect density.  
-- Feedback loop integrated into sprint planning for process enhancement.
+ - Feedback loop integrated into sprint planning for process enhancement.
+ 
+ The Testing & QA Framework ensures the AI Governance Platform maintains high levels of reliability and security through structured, automated, and continuously improving testing practices.
 
-The Testing & QA Framework ensures the AI Governance Platform maintains high levels of reliability and security through structured, automated, and continuously improving testing practices.
+---
+
+[← Previous](08-deployment-and-environment-guide.md) | [Next →](10-coding-standards-and-governance.md)
