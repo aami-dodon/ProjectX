@@ -335,6 +335,8 @@ def _replace_markdown_link(match: Match[str]) -> str:
 def _sanitize_font_name(font: str) -> str:
     """Return a ReportLab-safe font name, defaulting to Courier when unknown."""
 
+    # Strip any accidental surrounding quotes and normalize spaces
+    font = font.strip().strip("'\"")
     normalized = FONT_FACE_ALIASES.get(font.lower(), font)
     normalized = re.sub(r"\s+", " ", normalized).strip()
     if not normalized:
@@ -372,7 +374,9 @@ def format_inline(text: str) -> str:
     escaped = re.sub(r"__(.+?)__", r"<b>\1</b>", escaped)
     escaped = BOLD_RE.sub(r"<b>\1</b>", escaped)
     escaped = ITALIC_RE.sub(r"<i>\1</i>", escaped)
-    escaped = CODE_RE.sub(r"<font face=\"Courier\">\1</font>", escaped)
+    # Render inline code safely without using <font face=...> to avoid ps2tt issues.
+    # Use a light background + underline for visual distinction.
+    escaped = CODE_RE.sub('<span backcolor="#F5F5F5"><u>\\1</u></span>', escaped)
     escaped = LINK_RE.sub(_replace_markdown_link, escaped)
     escaped = FONT_FACE_RE.sub(_normalize_font_face, escaped)
     return escaped.replace("\n", "<br/>")
