@@ -1,7 +1,8 @@
 """Generate a consolidated Systems PDF from docs/03-systems.
 
 This script compiles the Systems documentation where each subsystem lives in its
-own folder with a `readme.md`. It reuses the rendering engine from
+own folder with a `readme.md`, and may include a `stories/` directory of
+additional markdown chapters. It reuses the rendering engine from
 `scripts/generate_about_pdf.py` (cover page, TOC, headings, tables, lists) and
 just changes how markdown sources are collected.
 
@@ -16,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import importlib.util
+import sys
 from pathlib import Path
 from typing import List
 
@@ -34,10 +36,15 @@ def _load_about_module():
         raise FileNotFoundError(
             f"Expected '{about_path}' to exist so we can reuse its PDF renderer."
         )
-    spec = importlib.util.spec_from_file_location("about_pdf", str(about_path))
+    # Use a stable, importable name and ensure the module is registered in sys.modules
+    module_name = "about_pdf"
+    spec = importlib.util.spec_from_file_location(module_name, str(about_path))
     if spec is None or spec.loader is None:  # pragma: no cover - defensive
         raise ImportError("Unable to load PDF renderer module from generate_about_pdf.py")
     module = importlib.util.module_from_spec(spec)
+    # Register the module before execution so frameworks like dataclasses can
+    # resolve cls.__module__ via sys.modules during class decoration on import.
+    sys.modules[module_name] = module
     spec.loader.exec_module(module)  # type: ignore[assignment]
     return module
 
@@ -47,9 +54,11 @@ def collect_system_markdown_files(input_dir: Path, include_root_readme: bool = T
 
     Rules:
     - Optionally include the root `readme.md` at the start when present.
-    - Then include each child folder's `readme.md`, ordered lexicographically
-      (works with `01-`, `02-` prefixes used in this repo).
-    - Ignore other files.
+    - Then, for each child system directory (sorted lexicographically):
+      - Include the system's `readme.md` when present.
+      - Include all markdown files under its `stories/` directory (if present),
+        ordered lexicographically (e.g., `01-...md`, `02-...md`, ...).
+    - Ignore other files and folders.
     """
     if not input_dir.exists():
         raise FileNotFoundError(f"Input directory '{input_dir}' does not exist")
@@ -61,9 +70,19 @@ def collect_system_markdown_files(input_dir: Path, include_root_readme: bool = T
         files.append(root_readme)
 
     for child in sorted(p for p in input_dir.iterdir() if p.is_dir()):
+        # System overview
         readme = child / "readme.md"
         if readme.exists():
             files.append(readme)
+
+        # System stories (optional)
+        stories_dir = child / "stories"
+        if stories_dir.exists() and stories_dir.is_dir():
+            story_files = sorted(
+                (p for p in stories_dir.iterdir() if p.is_file() and p.suffix.lower() == ".md"),
+                key=lambda p: p.name,
+            )
+            files.extend(story_files)
 
     if not files:
         raise FileNotFoundError(
@@ -130,7 +149,29 @@ def generate_systems_pdf(input_dir: Path, output_path: Path) -> Path:
     story: list = []
     about.add_cover_page(story, styles, branding)
     about.add_table_of_contents(story, styles, toc)
-    story.extend(about.build_story(markdown_files, styles))
+
+    # Build story with per-file TOC behavior: exclude headings from 'stories/' files.
+    for md_file in markdown_files:
+        is_story_file = (md_file.parent.name.lower() == "stories")
+        if is_story_file:
+            # Temporarily disable TOC outline levels for H1/H2 while parsing stories
+            h1 = styles["AboutHeading1"]
+            h2 = styles["AboutHeading2"]
+            old_h1_level = getattr(h1, "outline_level", None)
+            old_h2_level = getattr(h2, "outline_level", None)
+            h1.outline_level = None
+            h2.outline_level = None
+            try:
+                story.extend(about.parse_markdown(md_file, styles))
+            finally:
+                h1.outline_level = old_h1_level
+                h2.outline_level = old_h2_level
+        else:
+            story.extend(about.parse_markdown(md_file, styles))
+        story.append(about.PageBreak())
+
+    if story and isinstance(story[-1], about.PageBreak):
+        story.pop()
 
     doc.multiBuild(story)
     return output_path
@@ -157,4 +198,3 @@ def main():  # pragma: no cover - CLI entry
 
 if __name__ == "__main__":
     main()
-
