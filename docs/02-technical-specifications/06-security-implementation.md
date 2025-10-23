@@ -136,9 +136,9 @@ The audit logging subsystem ensures that all critical actions are captured, time
 - Cryptographic hashing ensures integrity and non-repudiation.  
 
 ### Retention and Access
-- Logs retained for 36 months by default.  
-- Read access restricted to Admins and Auditors only.  
-- Archived logs stored in encrypted cold storage for regulatory audits.
+- Logs retained for a minimum of 36 months by default, exceeding the 400-day regulatory floor and configurable for longer jurisdictional requirements.
+- Read access restricted to Admins and Auditors only.
+- Archived logs stored in encrypted cold storage for regulatory audits, with immutable snapshots preserved for at least 7 years.
 
 ---
 

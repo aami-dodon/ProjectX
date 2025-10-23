@@ -31,7 +31,7 @@
 - **Centralized Logging:** Stream Winston output to the centralized logging pipeline (e.g., Elasticsearch/OpenSearch, Loki, or Splunk) via HTTPS or sidecar agents. Ensure dedicated audit index/stream with role-based access separation from general application logs.
 
 ## 3. Retention Policies
-- Maintain audit logs in centralized storage for a minimum of 400 days to satisfy regulatory requirements; extend per jurisdictional mandates.
+- Maintain audit logs in centralized storage for a minimum of 36 months by default, satisfying the regulatory floor of 400 days and extending per jurisdictional mandates when required.
 - Archive immutable snapshots to cold storage (object store with write-once, read-many policies) every 30 days for a minimum of 7 years.
 - Automatically purge local file transport logs after 24 hours and confirm centralized lifecycle policies enforce retention schedules.
 

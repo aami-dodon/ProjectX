@@ -156,8 +156,8 @@ Backup and recovery policies ensure business continuity and data durability.
 - Disaster recovery environment preconfigured with replicated Postgres instance.  
 
 ### Data Retention
-- Evidence and audit data retained for configurable periods (default 36 months).  
-- Automatic archival to cold storage for older records.  
+- Evidence and audit data retained for configurable periods with a default of 36 months, satisfying the 400-day regulatory minimum while allowing jurisdiction-specific extensions.
+- Automatic archival to cold storage for older records, with immutable copies preserved for at least 7 years.
 - GDPR-compliant deletion workflows for user and evidence data.  
 
 ---
