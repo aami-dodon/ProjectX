@@ -559,6 +559,9 @@ def parse_markdown(markdown_path: Path, styles) -> Iterable:
                 index += 1
                 continue
             if skip_section_level is not None:
+                if level > skip_section_level:
+                    index += 1
+                    continue
                 skip_section_level = None
             normalized_heading = text.lower().rstrip(":")
             if normalized_heading in TOC_HEADING_TITLES:
@@ -695,7 +698,10 @@ def configure_toc_tracking(doc: AboutDocTemplate, styles):
             bookmark_name = getattr(flowable, "_bookmarkName", None)
             if bookmark_name:
                 doc.canv.bookmarkPage(bookmark_name)
-            doc.notify("TOCEntry", (level, text, doc.canv.getPageNumber()))
+            entry = (level, text, doc.canv.getPageNumber())
+            if bookmark_name:
+                entry += (bookmark_name,)
+            doc.notify("TOCEntry", entry)
 
     doc.afterFlowable = after_flowable
 
