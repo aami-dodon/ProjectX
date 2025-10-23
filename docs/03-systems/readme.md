@@ -19,6 +19,7 @@ The Systems documentation set bridges the gap between business intent and engine
 - **Strategic grounding.** Use the [About documentation overview](../01-about/01-project-overview.md) and related market, roadmap, and risk briefs to understand *why* the subsystems exist and what outcomes they must deliver.
 - **Implementation detail.** Pair each subsystem article with the matching section in the [Technical Specifications suite](../02-technical-specifications/readme.md) for API contracts, infrastructure choices, and coding standards.
 - **Bidirectional updates.** Changes captured here should cascade back into the `about` and `technical-specifications` folders so strategy, architecture, and operations never drift apart.
+- **Environment constraints.** All persistence layers run on the externally hosted PostgreSQL and MinIO services described in the [Technical Specifications](../02-technical-specifications/01-system-architecture.md). Operational steps that reference migrations, schema updates, or storage policies assume coordination through the DevOps pipeline against those managed services rather than direct instance administration.
 
 ---
 
@@ -88,7 +89,7 @@ The Systems documentation set bridges the gap between business intent and engine
 
 #### Runbook checklist
 1. Vet new or updated framework content with legal and compliance reviewers before publishing.
-2. Execute migration scripts in staging before production rollout.
+2. Submit Prisma migration packages through the DevOps pipeline so they run against the provider-managed staging database before production rollout.
 3. Update change logs and notify downstream teams of breaking changes.
 
 ---
@@ -176,7 +177,7 @@ The Systems documentation set bridges the gap between business intent and engine
 - **Service ownership:** Workflow automation squad.
 - **Data flows:** Consumes events from the Governance Engine, persists task assignments and states, emits notifications, and exposes APIs for frontend task boards.
 - **SLAs:** Persist new tasks within 5 seconds of triggering event; deliver state changes to dependent services in near real-time.
-- **Dependencies:** Integrates with Auth for ownership permissions, Notification Service for updates, and DevOps pipelines for automated migrations.
+- **Dependencies:** Integrates with Auth for ownership permissions, Notification Service for updates, and DevOps pipelines that execute automated migrations against the externally hosted PostgreSQL service.
 
 #### Runbook checklist
 1. Validate that task state transitions comply with governance policies every sprint.
