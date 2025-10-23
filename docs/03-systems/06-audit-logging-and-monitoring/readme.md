@@ -9,55 +9,99 @@
 
 ---
 
-- [Location: /server/src/lib/logging](#location-serversrcliblogging)
-- [1. Log Capture Scope](#1-log-capture-scope)
-- [2. Storage Targets](#2-storage-targets)
-- [3. Retention Policies](#3-retention-policies)
-- [4. Immutability Controls](#4-immutability-controls)
-- [5. Monitoring and Alerting Integration](#5-monitoring-and-alerting-integration)
-- [6. Access Restrictions and Review Processes](#6-access-restrictions-and-review-processes)
-- [7. Developer Instrumentation Guidelines](#7-developer-instrumentation-guidelines)
+- [Backend Specification](#backend-specification)
+  - [Location & Directory Layout](#backend-location--directory-layout)
+  - [Capture Scope & Storage Pipelines](#capture-scope--storage-pipelines)
+  - [Retention & Immutability Controls](#retention--immutability-controls)
+- [Frontend Specification](#frontend-specification)
+  - [Location & Directory Layout](#frontend-location--directory-layout)
+  - [Reusable Components & UI Flows](#reusable-components--ui-flows)
+- [Schema Specification](#schema-specification)
+- [Operational Playbooks & References](#operational-playbooks--references)
 
 ---
 
-## 1. Log Capture Scope
-- Capture all authentication events (login, logout, MFA challenges, failures) across user-facing and service-to-service flows.
-- Record privileged actions, configuration changes, data exports, and any alteration of access controls in administrative interfaces.
-- Instrument critical business operations, including financial transactions, data mutations, workflow state transitions, and API calls flagged as high risk.
-- Track system-level events such as deployment lifecycle actions, infrastructure scaling, and security control updates.
-- Ensure each audit entry includes timestamp (UTC), actor identity, action, target resource, request origin, and success or failure context.
+## Backend Specification
 
-## 2. Storage Targets
-- **Application Layer:** Use Winston transports for structured JSON logs, tagging audit events with `category: "audit"` and unique correlation IDs. Deliver to rolling file transport for local debugging with rotation configured (<24 h of retention) and to standard output for container orchestration capture.
-- **Centralized Logging:** Stream Winston output to the centralized logging pipeline (e.g., Elasticsearch/OpenSearch, Loki, or Splunk) via HTTPS or sidecar agents. Ensure dedicated audit index/stream with role-based access separation from general application logs.
+### Backend Location & Directory Layout
+Audit instrumentation is implemented under `server/src/lib/logging`, exposing shared helpers and transports that every service consumes for structured event capture.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L124-L171】
 
-## 3. Retention Policies
-- Maintain audit logs in centralized storage for a minimum of 36 months by default, satisfying the regulatory floor of 400 days and extending per jurisdictional mandates when required.
-- Archive immutable snapshots to cold storage (object store with write-once, read-many policies) every 30 days for a minimum of 7 years.
-- Automatically purge local file transport logs after 24 hours and confirm centralized lifecycle policies enforce retention schedules.
+```
+server/src/lib/logging/
+├── audit.ts
+├── transports/
+│   ├── winston-console.ts
+│   ├── winston-file.ts
+│   └── winston-https.ts
+├── formatters/
+│   ├── redact-fields.ts
+│   └── correlation.ts
+├── retention/
+│   └── glacier-archiver.ts
+└── tests/
+    └── audit.logger.spec.ts
+```
 
-## 4. Immutability Controls
-- Enable append-only permissions on audit indices and restrict deletion capabilities to the security/compliance team with change control approval.
-- Utilize object storage retention policies or S3 Glacier Vault Lock-style controls to enforce WORM on archived snapshots.
-- Sign audit batches with cryptographic hashes and store hash manifests in a separate integrity ledger to detect tampering.
+### Capture Scope & Storage Pipelines
+- **Capture Scope:** Log authentication events, privileged actions, configuration changes, data exports, workflow transitions, critical business operations, and system lifecycle events. Each entry includes timestamp (UTC), actor identity, action, target resource, request origin, and outcome.
+- **Application Layer:** Winston transports emit structured JSON tagged with `category: "audit"` and correlation IDs. Logs write to rotating files (≤24 hours) for local debugging and to stdout for container capture.
+- **Centralized Logging:** HTTPS or sidecar agents stream audit events into dedicated indices/streams (OpenSearch, Loki, Splunk) with RBAC-separated access from general application logs.
+- **Developer Instrumentation:** Teams use `auditLogger` helpers, mask sensitive fields via `redactFields`, attach request/session IDs, and validate with `npm run lint:audit` and `npm run test:audit` before merging.
 
-## 5. Monitoring and Alerting Integration
-- Feed audit streams into the security information and event management (SIEM) stack for correlation with security alerts and anomaly detection.
-- Configure alerting rules for high-risk audit events (privilege escalations, repeated access denials, failed administrative logins) with notification channels to on-call security and operations teams.
-- Link dashboards in the observability platform to audit log metrics (event volumes, failure rates) and include runbooks for triaging anomalous patterns.
+### Retention & Immutability Controls
+- **Retention Policies:** Maintain centralized audit data for ≥36 months (minimum regulatory floor 400 days) and extend per jurisdiction. Archive immutable snapshots to object storage (WORM) every 30 days for at least seven years; purge local file transports after 24 hours once uploads succeed.
+- **Tamper Protection:** Enforce append-only permissions on audit indices; restrict delete rights to security/compliance with change-control approval. WORM storage (S3 Glacier Vault Lock equivalents) protects archives, while batch hashes stored in an integrity ledger detect tampering.
+- **Monitoring & Alerting:** Feed audit streams into the SIEM for correlation. Alert on privilege escalations, repeated denials, or failed admin logins, with dashboards tracking event volume and failure rates linked to triage runbooks.
 
-## 6. Access Restrictions and Review Processes
-- Grant read-only access to audit indices to the security, compliance, and incident response teams via least-privilege roles; deny direct access to engineering by default.
-- Require break-glass procedures with approval logging for temporary investigative access outside the security team.
-- Schedule quarterly formal reviews of audit log health, retention adherence, and sample integrity checks. Document findings and remediation actions in the compliance tracker.
-- Implement weekly automated reports summarizing critical audit events, reviewed by security leadership with sign-off recorded in governance tooling.
+## Frontend Specification
 
-## 7. Developer Instrumentation Guidelines
-1. **Identify Audit-Worthy Actions:** When adding new features, flag actions that affect security posture, user data, or compliance-sensitive operations. Consult the security team if uncertain.
-2. **Use Shared Audit Helpers:** Instrument events via the `auditLogger` utility (see `src/lib/logging/audit.js`) to standardize metadata, correlation IDs, and JSON schema.
-3. **Mask Sensitive Data:** Never log secrets, full payment card numbers, passwords, or personal data beyond minimal identifiers. Use the `redactFields` option provided by the audit logger to mask sensitive attributes before emission.
-4. **Correlate Requests:** Attach request IDs, user IDs, and session references so downstream analytics can trace multi-service flows.
-5. **Validate Locally:** Run `npm run lint:audit` to ensure schema conformance and `npm run test:audit` to execute instrumentation unit tests.
+### Frontend Location & Directory Layout
+Audit visibility surfaces in the governance console under `client/src/features/observability/audit`, providing dashboards and review tooling for security teams.【F:docs/02-technical-specifications/03-frontend-architecture.md†L96-L160】
+
+```
+client/src/features/observability/audit/
+├── pages/
+│   ├── AuditTimelinePage.tsx
+│   ├── AuditReviewQueuePage.tsx
+│   └── RetentionPolicyPage.tsx
+├── components/
+│   ├── AuditEventTable.tsx
+│   ├── IntegrityHashViewer.tsx
+│   └── BreakGlassRequestModal.tsx
+├── hooks/
+│   ├── useAuditStream.ts
+│   └── useRetentionPolicies.ts
+└── api/
+    └── auditClient.ts
+
+client/src/components/security/
+└── CriticalAlertBanner.tsx
+```
+
+### Reusable Components & UI Flows
+- **Audit Timeline:** `AuditEventTable` streams events with filters for actor, resource, and outcome, embedding links to SIEM dashboards for deeper analysis.
+- **Review Queue:** `AuditReviewQueuePage` manages quarterly integrity checks, break-glass approvals, and remediation tracking, using `BreakGlassRequestModal` to capture justification and expiry.
+- **Retention Administration:** `RetentionPolicyPage` visualizes lifecycle status (hot, warm, archive) and integrates with `useRetentionPolicies` to modify schedules under dual-control workflows.
+- **Critical Alerts:** `CriticalAlertBanner` surfaces SIEM-driven incidents, linking responders to runbooks and providing context from correlated audit entries.
+
+## Schema Specification
+- **`audit_events` (central index/table):** Timestamp, actor, action, target, request origin, outcome, correlation ID, hash, and redaction metadata.
+- **`audit_archives`:** Records monthly snapshot manifests, storage location, hash digests, and WORM lock identifiers.
+- **`audit_access_requests`:** Tracks break-glass approvals, requester, approver, reason, scope, and expiration.
+- **`audit_integrity_ledger`:** Stores cryptographic signatures for batches, enabling tamper verification across archives.
+- Relationships integrate with RBAC subjects, Notification escalations, and Task Service remediation tickets to maintain traceability.【F:docs/03-systems/13-task-management-system/readme.md†L7-L226】
+
+## Operational Playbooks & References
+
+### Access Restrictions & Review Processes
+- Grant read-only access to security, compliance, and incident response roles; default-deny engineering access. Temporary investigative access follows break-glass procedures with approval logging and expiry enforcement.
+- Schedule weekly automated reports summarizing critical events for security leadership sign-off, plus quarterly formal reviews documenting retention adherence, integrity checks, and remediation status in the compliance tracker.
+
+### Related Documentation
+- [Admin & Configuration System](../05-admin-and-configuration-system/readme.md) — change governance and audit event producers.
+- [Notification System](../04-notification-system/readme.md) — escalation channels for high-risk events.
+- [Security Implementation Specification](../../02-technical-specifications/06-security-implementation.md) — SIEM integrations and tamper controls.
+- [Deployment & Environment Guide](../../02-technical-specifications/08-deployment-and-environment-guide.md) — logging sidecar and retention configuration per environment.
 
 ---
 

@@ -9,144 +9,111 @@
 
 ---
 
-- [Location: /server/src/modules/auth](#location-serversrcmodulesauth)
-- [1. System Overview](#1-system-overview)
-- [2. Role Hierarchy](#2-role-hierarchy)
-  - [2.1 Built-in Roles](#21-built-in-roles)
-  - [2.2 Custom Roles](#22-custom-roles)
-  - [2.3 Separation-of-Duty Rules](#23-separation-of-duty-rules)
-- [3. Permission Granularity](#3-permission-granularity)
-- [4. Enforcement Layers](#4-enforcement-layers)
-  - [4.1 Request Lifecycle](#41-request-lifecycle)
-  - [4.2 Module-Specific Enforcement](#42-module-specific-enforcement)
-- [5. Policy Storage and Caching](#5-policy-storage-and-caching)
-- [6. Access Reviews and Governance Workflows](#6-access-reviews-and-governance-workflows)
-- [7. Updating Casbin Policies](#7-updating-casbin-policies)
-- [8. Testing RBAC Scenarios](#8-testing-rbac-scenarios)
-- [9. Related Documentation](#9-related-documentation)
+- [Backend Specification](#backend-specification)
+  - [Location & Directory Layout](#backend-location--directory-layout)
+  - [Role Model & Enforcement](#role-model--enforcement)
+- [Frontend Specification](#frontend-specification)
+  - [Location & Directory Layout](#frontend-location--directory-layout)
+  - [Reusable Components & UI Flows](#reusable-components--ui-flows)
+- [Schema Specification](#schema-specification)
+- [Operational Playbooks & References](#operational-playbooks--references)
 
 ---
 
-## 1. System Overview
+## Backend Specification
 
-The RBAC system resides primarily in `server/src/modules/auth`, where controllers orchestrate login, token issuance, and authorization decisions. A dedicated Casbin adapter loads policies from PostgreSQL into an in-memory enforcer instance that is shared across Express middleware. Although PostgreSQL is provided as an externally hosted managed service, Project X owns a dedicated schema with DDL privileges; Prisma migrations are executed through the release pipeline so the adapter always sees the latest policy tables.
+### Backend Location & Directory Layout
+Casbin-backed RBAC logic ships with the Auth module in `server/src/modules/auth`, with cross-cutting middleware under `server/src/middleware` to enforce permissions before feature handlers execute.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L52-L86】
 
-Key characteristics:
+```
+server/src/modules/auth/
+├── casbin/
+│   ├── rbac_with_domains_model.conf
+│   └── policy.seed.json
+├── controllers/
+│   └── rbac.controller.ts
+├── services/
+│   ├── role.service.ts
+│   └── policy.service.ts
+├── repositories/
+│   ├── role.repository.ts
+│   └── policy.repository.ts
+├── casbin-adapter.ts
+└── routes/rbac.routes.ts
 
-- **Policy Model:** `rbac_with_domains_model.conf` implements subject ⟶ domain ⟶ object ⟶ action rules, enabling tenant-specific scoping.
-- **Policy Persistence:** The Casbin adapter writes to and reads from the `auth_policies` table via Prisma. Batched transactions ensure atomic role updates, and migrations published through the managed database change queue keep the external host’s schema aligned with Casbin requirements.
-- **Enforcement Surface:** Middleware in `server/src/middleware/authorization.js` checks each request before handing control to feature controllers (Auth, Governance Engine, Frameworks, Evidence, Notifications, Tasks).
-- **Observability:** Authorization decisions are logged to `audit_logs` with request metadata to satisfy compliance requirements and support forensic analysis.
+server/src/middleware/
+└── authorization.ts
+```
 
-## 2. Role Hierarchy
+### Role Model & Enforcement
+The RBAC system resides within the Auth Service, where controllers orchestrate login, token issuance, and authorization decisions. A dedicated Casbin adapter loads policies from PostgreSQL into an in-memory enforcer shared across Express middleware. Prisma migrations run through the release pipeline to keep the managed PostgreSQL schema aligned with Casbin’s tables.
 
-RBAC follows a hierarchical inheritance model. Each role inherits the permissions of the roles beneath it while adding scoped abilities aligned with least-privilege principles.
+#### Role Hierarchy
+RBAC follows hierarchical inheritance. Built-in roles include **Super Admin**, **Admin**, **Compliance Officer**, **Auditor**, **Engineer**, and **System Service**, each inheriting capabilities from the role below it to uphold least-privilege principles. Custom roles derive from these definitions or from other custom roles, storing metadata in `auth_roles` (owner tenant, description, review cadence) and mapping to granular policies for scoped privileges. Separation-of-duty rules ensure approval actions require distinct users, impersonation is audited, and conflicting admin/auditor assignments trigger automated reviews.
 
-### 2.1 Built-in Roles
+#### Permission Granularity
+Policies combine resource type, identifier, and action verb (e.g., `framework:123:update`, `control:*:approve`). Casbin domains provide tenant scoping, wildcards enable read vs. write bundles, and middleware-level attribute checks add ABAC-style conditions for contextual enforcement.
 
-| Role | Inherits | Core Capabilities |
-| --- | --- | --- |
-| **Super Admin** | Admin | Platform configuration, tenant provisioning, policy bootstrap.
-| **Admin** | Compliance Officer | Role management, policy authoring, integration secrets, manual overrides.
-| **Compliance Officer** | Auditor | Framework CRUD, control mapping, evidence approval, access reviews.
-| **Auditor** | Engineer | Read-only dashboards, report exports, audit log retrieval.
-| **Engineer** | System Service | Evidence submission, probe configuration, remediation task updates.
-| **System Service** | _None_ | Machine-to-machine automation (ingest controls, run scheduled jobs).
+#### Enforcement Surface
+Middleware in `server/src/middleware/authorization.ts` validates JWTs, builds Casbin subjects/domains/objects/actions, and denies or allows requests with audit logging. Module-specific helpers extend enforcement into Governance Engine, Evidence, Notifications, and Tasks modules to guarantee consistent authorization. Observability hooks log decisions to `audit_logs` for compliance and forensics.
 
-Role inheritance is expressed through Casbin `g` and `g2` relationships and synchronized automatically when seeding or updating policies.
+## Frontend Specification
 
-### 2.2 Custom Roles
+### Frontend Location & Directory Layout
+Role management experiences live inside the admin area of the React client under `client/src/features/admin/rbac`, alongside shared guard components that protect routes and dashboards based on evaluated permissions.【F:docs/02-technical-specifications/03-frontend-architecture.md†L96-L139】
 
-- Tenants can define custom roles that derive from any built-in role or another custom definition.
-- Custom roles are stored in the `auth_roles` table with metadata about owner tenant, description, and review cadence.
-- Administrators assign capabilities by mapping custom roles to granular policies (e.g., `data steward` with read/write access to AI datasets but no policy authoring rights).
-- Casbin domains ensure that custom roles remain isolated per tenant while still benefiting from shared policy templates.
+```
+client/src/features/admin/rbac/
+├── pages/
+│   ├── RoleListPage.tsx
+│   ├── RoleDetailPage.tsx
+│   └── PolicyEditorPage.tsx
+├── components/
+│   ├── PermissionMatrix.tsx
+│   ├── RoleInheritanceGraph.tsx
+│   └── AccessReviewSummary.tsx
+├── hooks/
+│   └── useRoleAssignments.ts
+└── api/
+    └── rbacClient.ts
 
-### 2.3 Separation-of-Duty Rules
+client/src/components/guards/
+└── RequirePermission.tsx
+```
 
-To prevent conflicts of interest:
+### Reusable Components & UI Flows
+- **Shared Guards:** `RequirePermission` and `RequireRole` components gate admin navigation, dashboards, and inline actions with Casbin-backed checks exposed via the Auth Context.【F:docs/02-technical-specifications/03-frontend-architecture.md†L96-L139】
+- **Policy Management Screens:** Admin pages provide CRUD experiences for roles, inheritance, and policies, invoking `/auth/roles`, `/auth/policies`, and `/auth/access-reviews` endpoints with optimistic updates and conflict resolution modals.
+- **Access Review Workflows:** `AccessReviewSummary` surfaces outstanding reviews, integrates with task notifications, and links into the Governance Engine for remediation triggers.
+- **Visualizations:** Components such as `RoleInheritanceGraph` and `PermissionMatrix` reuse charting primitives from `client/src/components/charts` to display effective permissions per tenant.
 
-- Approval actions (e.g., evidence sign-off, framework publication) require a role different from the one that initiated the change. Casbin policies enforce this via `rule_effect = deny` conditions when subject and initiator match.
-- Super Admins can impersonate users for troubleshooting, but impersonation tokens are logged and require post-event approval by a second Admin.
-- Automated checks validate that no user simultaneously holds `Admin` and `Auditor` roles within the same tenant unless explicitly whitelisted for break-glass scenarios.
+## Schema Specification
+- **`auth_roles`:** Stores role metadata (id, tenant domain, name, inheritance parent, review cadence) and drives UI listings.
+- **`auth_role_assignments`:** Links users or service accounts to roles with effective and expiry timestamps for delegation tracking.
+- **`auth_policies`:** Canonical Casbin policy rules (`p`, `g`, `g2`) with resource/action descriptors and domain segmentation.
+- **`auth_policy_revisions`:** Append-only audit ledger capturing change metadata, justification, and reviewer approvals.
+- **Redis Cache (`casbin:tenant:<id>`):** Maintains short-lived policy snapshots to reduce database load, invalidated via `policy.updated` events.
 
-## 3. Permission Granularity
+## Operational Playbooks & References
 
-Permissions are defined using a combination of resource type, resource identifier, and action verb. Examples include:
+### Access Reviews and Governance Workflows
+- Quarterly access reviews snapshot current assignments, send review tasks to Compliance Officers, and require sign-off before completion.
+- Event-driven reviews detect dormant or conflicting privileges and open remediation tasks in the Task Service.
+- Certification exports write reports to the Evidence Repository, while delegations create time-bound policies enforced by scheduled jobs.
 
-- `framework:123:update` – modify metadata for framework `123`.
-- `control:*:approve` – approve any control evidence submission.
-- `governance-engine:run-evaluation` – trigger recalculation of risk scores.
-- `user:tenant-456:assign-role` – manage user roles within tenant `456`.
+### Updating Casbin Policies
+1. **Plan:** Document desired permission updates and map the affected endpoints using the [Auth Service specification](../../02-technical-specifications/02-backend-architecture-and-apis.md#auth-service).
+2. **Edit:** Use the Admin UI or `/auth/policies` API to adjust `p` (permission) or `g` (inheritance) rules; bulk updates leverage the RBAC sync CLI to push YAML manifests through the adapter.
+3. **Validate:** Run `/auth/policies/dry-run` to preview effects and confirm separation-of-duty constraints.
+4. **Deploy:** Ship accompanying migrations when introducing new roles/resources and coordinate cache invalidation across regions.
+5. **Audit:** Verify `auth_policy_revisions` captures the change with justification and reviewer sign-off.
 
-Casbin policies support:
+### Testing RBAC Scenarios
+- **Unit Tests:** `server/src/modules/auth/__tests__/authorization.spec.ts` mocks the Casbin enforcer to cover allow/deny paths.
+- **Integration Tests:** API tests under `server/src/routes/__tests__` seed PostgreSQL with fixtures to verify middleware and module-specific enforcement.
+- **Manual Verification:** Leverage the shared Postman collection and run `npm run test:rbac` before releases; cross-validate Governance Engine workflows using its regression suite.
 
-- **Row-level constraints** via domains (tenant, framework, control).
-- **Action wildcards** for read-only vs. read-write bundles.
-- **Conditional ABAC checks** (e.g., verifying that a user is assigned to the same control as the request) implemented through middleware context resolvers.
-
-## 4. Enforcement Layers
-
-### 4.1 Request Lifecycle
-
-1. **Authentication Middleware** validates the JWT issued by the Auth Service and attaches `userId`, `roleIds`, and tenant metadata to `req.authContext`.
-2. **Casbin Enforcement Middleware** (`requirePermission` helper) builds a subject string (`user` or `role`), domain (tenant/framework), object, and action from the request.
-3. Casbin evaluates the tuple; on deny, it returns HTTP 403 with an audit log entry.
-4. On allow, request handlers in the target module execute business logic, optionally making **secondary checks** (e.g., verifying framework status or workflow stage).
-
-### 4.2 Module-Specific Enforcement
-
-- **Auth Module (`server/src/modules/auth`)** – Houses Casbin adapter, role management APIs, and onboarding workflows. Controllers expose `/roles`, `/policies`, and `/access-reviews` endpoints that are themselves guarded by meta-policies to avoid privilege escalation.
-- **Governance Engine (`server/src/modules/governance`)** – Uses helper utilities to ensure only authorized roles can evaluate controls, publish governance scores, or override outcomes. Sensitive operations such as forced remediation triggers require dual-authorization tokens generated by the Auth module.
-- **Middleware Layer (`server/src/middleware`)** – Provides shared `requireRole`, `requirePermission`, and `enforceSoD` middleware functions reused across routers. Middleware caches policy decisions per request to minimize redundant Casbin calls.
-
-## 5. Policy Storage and Caching
-
-- **Database Tables:**
-  - `auth_policies` – Canonical Casbin policy rules (p, g, g2 records).
-  - `auth_roles` – Role metadata, inheritance trees, custom attributes.
-  - `auth_policy_revisions` – Append-only log tracking who changed a policy, when, and why.
-- **Adapter:** `server/src/modules/auth/casbin-adapter.js` implements the Casbin adapter interface using Prisma for transactional reads/writes.
-- **Caching:**
-  - Policy sets cached in Redis under `casbin:tenant:<id>` keys with a 5-minute TTL.
-  - Local in-process cache (LRU) avoids repeated adapter calls during burst traffic.
-- **Invalidation:**
-  - Cache entries invalidated automatically on policy mutation events via a message bus (`policy.updated` topic) published from the Auth module.
-  - Manual invalidation available through `/auth/policies/refresh` (Admin-only) to handle cross-region synchronization.
-
-## 6. Access Reviews and Governance Workflows
-
-- **Quarterly Access Reviews:** Admins trigger campaigns that snapshot current role assignments, send review tasks to Compliance Officers, and require sign-off before completion.
-- **Event-Driven Reviews:** Detect anomalies (e.g., dormant high-privilege accounts, overlapping Admin/Auditor assignments) and open remediation tasks in the Task Service.
-- **Certification Evidence:** Completed reviews export certified reports stored in the Evidence Repository for audit readiness.
-- **Delegation:** Temporary delegations create time-bound policies with automatic expiry enforced by scheduled jobs.
-
-## 7. Updating Casbin Policies
-
-1. **Plan the Change:** Document desired permission updates, referencing the [User Management & Auth Service](../../02-technical-specifications/02-backend-architecture-and-apis.md#auth-service) guidance for API endpoints and controllers involved.
-2. **Edit Policies:**
-   - Use the Admin UI or call the `/auth/policies` API to add/update `p` (permission) or `g` (role inheritance) rules.
-   - For bulk updates, utilize the RBAC sync CLI from the developer tooling repository to read YAML policy manifests and push them through the Casbin adapter.
-3. **Validate:** Run the `/auth/policies/dry-run` endpoint to preview the effect on target subjects and ensure separation-of-duty constraints remain intact.
-4. **Deploy:** Commit accompanying migration scripts if new roles or resources are introduced. Coordinate with DevOps to schedule cache invalidation.
-5. **Audit:** Confirm that a new entry appears in `auth_policy_revisions` with justification details and reviewer sign-off.
-
-## 8. Testing RBAC Scenarios
-
-- **Unit Tests:**
-  - Located in `server/src/modules/auth/__tests__/authorization.spec.js` to cover policy evaluation logic.
-  - Mock the Casbin enforcer to simulate allow/deny paths.
-- **Integration Tests:**
-  - API-level tests under `server/src/routes/__tests__` exercise middleware with real policies loaded from the PostgreSQL test database.
-  - Use fixtures to seed tenants, roles, and policies per scenario.
-- **Manual Verification:**
-  - Employ the shared Postman collection published with the API workspace for exploratory testing.
-  - Run `npm run test:rbac` to execute the focused RBAC test suite before releases.
-- **Governance Engine Alignment:**
-  - Cross-validate that Governance Engine workflows respect RBAC outcomes by running the evaluation regression suite described in the [Governance Engine documentation](../../02-technical-specifications/02-backend-architecture-and-apis.md#governance-engine).
-
-## 9. Related Documentation
-
+### Related Documentation
 - [User Management & Auth Service](../../02-technical-specifications/02-backend-architecture-and-apis.md#auth-service)
 - [Governance Engine](../../02-technical-specifications/02-backend-architecture-and-apis.md#governance-engine)
 - [Security Implementation – RBAC](../../02-technical-specifications/06-security-implementation.md#63-role-based-access-control-rbac)

@@ -9,147 +9,119 @@
 
 ---
 
-- [Location: /server/src/modules/admin](#location-serversrcmodulesadmin)
-- [1. Purpose and Scope](#1-purpose-and-scope)
-- [2. Architecture Overview](#2-architecture-overview)
-  - [2.1 Key Services](#21-key-services)
-  - [2.2 Configuration Domains](#22-configuration-domains)
-- [3. Tenant Provisioning Lifecycle](#3-tenant-provisioning-lifecycle)
-  - [3.1 Intake and Verification](#31-intake-and-verification)
-  - [3.2 Environment Bootstrapping](#32-environment-bootstrapping)
-  - [3.3 Delegated Administration](#33-delegated-administration)
-- [4. Global Settings Management](#4-global-settings-management)
-  - [4.1 Policy Controls](#41-policy-controls)
-  - [4.2 Feature Flag Governance](#42-feature-flag-governance)
-  - [4.3 Secrets and Credential Rotation](#43-secrets-and-credential-rotation)
-- [5. Integration Control Plane](#5-integration-control-plane)
-  - [5.1 Authorization Flows](#51-authorization-flows)
-  - [5.2 Health and Scheduling](#52-health-and-scheduling)
-  - [5.3 Incident Response Playbooks](#53-incident-response-playbooks)
-- [6. Audit and Compliance Requirements](#6-audit-and-compliance-requirements)
-  - [6.1 Activity Logging](#61-activity-logging)
-  - [6.2 Evidence Collection](#62-evidence-collection)
-  - [6.3 Periodic Reviews](#63-periodic-reviews)
-- [7. Related Runbooks and Specifications](#7-related-runbooks-and-specifications)
+- [Backend Specification](#backend-specification)
+  - [Location & Directory Layout](#backend-location--directory-layout)
+  - [Tenant Provisioning Lifecycle](#tenant-provisioning-lifecycle)
+  - [Global Settings & Secrets Management](#global-settings--secrets-management)
+  - [Integration Control Plane](#integration-control-plane)
+- [Frontend Specification](#frontend-specification)
+  - [Location & Directory Layout](#frontend-location--directory-layout)
+  - [Reusable Components & UI Flows](#reusable-components--ui-flows)
+- [Schema Specification](#schema-specification)
+- [Operational Playbooks & References](#operational-playbooks--references)
 
 ---
 
-## 1. Purpose and Scope
+## Backend Specification
 
-The admin and configuration system provides the governance backbone for multi-tenant deployments. It centralises:
+### Backend Location & Directory Layout
+Administrative capabilities live in `server/src/modules/admin`, exposing REST APIs, workflow orchestration, and integration control services secured by RBAC scopes.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L86-L171】
 
-- Tenant lifecycle automation from intake forms through operational readiness.
-- Global settings, feature flags, and platform policy enforcement.
-- Control-plane workflows for third-party integrations, probes, and secrets.
-- Compliance logging and audit evidence collection for regulator review.
+```
+server/src/modules/admin/
+├── api/
+│   ├── tenants.controller.ts
+│   ├── settings.controller.ts
+│   └── integrations.controller.ts
+├── workflows/
+│   ├── verifyTenant.workflow.ts
+│   ├── bootstrapEnvironment.workflow.ts
+│   └── rotateCredential.workflow.ts
+├── services/
+│   ├── tenant.service.ts
+│   ├── configuration.service.ts
+│   └── integration.service.ts
+├── persistence/
+│   ├── tenant.repository.ts
+│   ├── settings.repository.ts
+│   └── integrations.repository.ts
+├── telemetry/
+│   └── admin.audit.ts
+└── ui/
+    └── embedded-console/
+```
 
-This runbook aligns operations, security, and partner engineering teams when adapting the platform for new geographies, industries, or regulatory programs.
+### Tenant Provisioning Lifecycle
+- **Intake & Verification:** `POST /admin/tenants` and the Governance Engine admin wizard trigger the `verifyTenant` workflow, validating identity, compliance, and billing signals. Failures raise Notification events for remediation.
+- **Environment Bootstrapping:** Asynchronous jobs create baseline evidence repositories, notification templates, dashboards, and secrets namespaces aligned with Security Implementation standards. Seed scripts register default frameworks, tasks, and mandatory integrations.【F:docs/03-systems/07-probe-management-system/readme.md†L39-L156】
+- **Delegated Administration:** Customer admins invite team members under RBAC enforcement, with delegation scopes (support-only, auditor, full admin) preventing privilege escalation. Governance Engine surfaces configuration diffs and pending approvals for review.【F:docs/03-systems/02-rbac-system/readme.md†L7-L229】【F:docs/03-systems/12-governance-engine/readme.md†L90-L187】
 
-## 2. Architecture Overview
+### Global Settings & Secrets Management
+- **Policy Controls:** `admin_settings` stores platform policies (password rules, MFA, session expiry) with per-tenant overrides. Changes propagate via configuration events and require dual approval for high-risk updates.
+- **Feature Flags:** `admin_flags` integrates with LaunchDarkly, following Testing & QA safe rollout guidance (canary cohorts, automated rollback, change ticket references).
+- **Secrets & Credential Rotation:** `rotateCredential.workflow.ts` coordinates secrets manager updates, evidence replication, and Notification alerts. Emergency rotations notify on-call engineers and tenant admins, aligning with the External Integrations runbook.【F:docs/03-systems/15-external-integrations-system/readme.md†L96-L211】
 
-### 2.1 Key Services
+### Integration Control Plane
+- **Authorization Flows:** OAuth connectors (ServiceNow, Jira, Slack) follow the authorization journeys described in the External Integrations guide, storing least-privilege tokens per tenant. API key uploads validate scope and expiry before enabling probes.【F:docs/03-systems/15-external-integrations-system/readme.md†L52-L211】
+- **Health & Scheduling:** Probe Management schedulers execute integration health checks respecting blackout windows and escalation rules. Connectors emit heartbeat metrics via `admin/telemetry` into the Audit Logging pipelines.【F:docs/03-systems/07-probe-management-system/readme.md†L139-L226】【F:docs/03-systems/06-audit-logging-and-monitoring/readme.md†L7-L200】
+- **Incident Response:** Critical outages trigger remediation—revoking credentials, disabling probes, notifying stakeholders, and opening Task Service follow-ups. Post-incident reviews capture configuration drift and corrective actions for the audit trail.【F:docs/03-systems/13-task-management-system/readme.md†L7-L226】
 
-| Component | Description |
-| --- | --- |
-| `server/src/modules/admin/api` | Express controllers that expose tenant, configuration, and integration management endpoints secured behind RBAC scopes. |
-| `server/src/modules/admin/workflows` | Orchestrates provisioning pipelines, including async jobs executed via the shared queue infrastructure. |
-| `server/src/modules/admin/ui` | React views embedded in the Governance Engine admin console for delegated configuration and audit review tasks. |
-| `server/src/modules/admin/telemetry` | Emits structured audit events and health metrics consumed by the observability stack. |
-| `server/src/modules/admin/persistence` | Data mappers that coordinate PostgreSQL schemas (`admin_tenants`, `admin_settings`, `admin_integrations`) and Redis caches. |
+## Frontend Specification
 
-### 2.2 Configuration Domains
+### Frontend Location & Directory Layout
+The admin console is embedded within the Governance Engine UI under `client/src/features/admin`, providing configuration dashboards, onboarding wizards, and audit views.【F:docs/02-technical-specifications/03-frontend-architecture.md†L96-L160】
 
-1. **Tenant metadata** — identifiers, plan tier, jurisdiction, and compliance context.
-2. **Global policies** — password complexity, session duration, retention windows, and privacy defaults.
-3. **Integration catalogue** — approved SaaS services, connector credentials, and probe scheduling settings.
-4. **Delegated administration** — roles, scopes, and approval chains for customer administrators.
+```
+client/src/features/admin/
+├── pages/
+│   ├── TenantOnboardingWizard.tsx
+│   ├── SettingsOverviewPage.tsx
+│   ├── IntegrationCatalogPage.tsx
+│   └── AuditTrailPage.tsx
+├── components/
+│   ├── DelegatedAdminTable.tsx
+│   ├── FeatureFlagToggle.tsx
+│   ├── SecretRotationModal.tsx
+│   └── IntegrationHealthCard.tsx
+├── hooks/
+│   ├── useTenantProvisioning.ts
+│   ├── useAdminSettings.ts
+│   └── useIntegrationHealth.ts
+└── api/
+    └── adminClient.ts
 
-## 3. Tenant Provisioning Lifecycle
+client/src/components/governance/
+└── ConfigDiffViewer.tsx
+```
 
-### 3.1 Intake and Verification
+### Reusable Components & UI Flows
+- **Onboarding Wizard:** Guides operators through tenant metadata intake, compliance checks, and provisioning tasks, reusing `useTenantProvisioning` to poll workflow progress.
+- **Settings Management:** `FeatureFlagToggle` and `SecretRotationModal` surface approvals, change ticket capture, and dual-control confirmations before persisting policy updates.
+- **Integration Catalog:** `IntegrationHealthCard` lists connector status, last heartbeat, and authorization state, linking into Probe Management runbooks for remediation.
+- **Audit Visibility:** `ConfigDiffViewer` and `AuditTrailPage` present immutable change histories with filters for actor, tenant, and timeframe, aligning with audit requirements.
 
-1. Sales or partner operations submit a provisioning request using the `POST /admin/tenants` endpoint or through the Governance Engine admin UI wizard.
-2. The request triggers identity, compliance, and billing checks handled via the `verifyTenant` workflow. Failures are surfaced to the Notification System for remediation.
-3. Approved tenants receive a unique tenant slug, default RBAC roles, and linkage to billing metadata in accordance with the RBAC and Monetization policies.
+## Schema Specification
+- **`admin_tenants`:** Tenant metadata (slug, plan, jurisdiction, compliance context) plus lifecycle timestamps.
+- **`admin_settings`:** Global and per-tenant policy values with approval metadata, change ticket references, and effective windows.
+- **`admin_flags`:** Feature toggle definitions, rollout cohorts, and audit annotations.
+- **`admin_integrations`:** Connector credentials, scope details, scheduling intervals, and health status history.
+- **`admin_audit_events`:** Structured change logs capturing actor, payload diff, correlation IDs, and downstream evidence references.
+- Relationships tie into RBAC assignments, Notification templates, Probe schedules, and Evidence Repository records for holistic governance.
 
-### 3.2 Environment Bootstrapping
+## Operational Playbooks & References
 
-1. Async jobs (dispatched through the Probe Management scheduler described in the [Probe Management System runbook](../07-probe-management-system/readme.md#3-probe-scheduling)) create baseline evidence repositories, notification templates, and dashboards.
-2. Infrastructure automation provisions isolated secrets namespaces and configures environment variables using the Security Implementation standards.
-3. Seed data scripts register default frameworks, task templates, and integrations flagged as mandatory in the Technical Specification.
+### Audit & Compliance Requirements
+- Activity logging emits `admin.audit` events to the central pipeline with retention matching regulatory commitments, surfaced in the Governance Engine for internal auditors.【F:docs/03-systems/06-audit-logging-and-monitoring/readme.md†L7-L200】
+- Provisioning and configuration actions create evidence records tagged with control IDs and supporting artifacts (screenshots, agreements) stored in the Evidence Repository.【F:docs/03-systems/11-evidence-management-system/readme.md†L47-L115】
+- Quarterly and annual reviews validate roles, overrides, integration scopes, and security findings; dormant tenants trigger deprovisioning notices before retention policies purge assets.
 
-### 3.3 Delegated Administration
+### Related Runbooks & Specifications
+- [Probe Management System](../07-probe-management-system/readme.md) — scheduler coordination and health checks.
+- [Governance Engine](../12-governance-engine/readme.md) — embedded admin UI flows and approval chains.
+- [External Integrations System](../15-external-integrations-system/readme.md) — connector catalog and security posture.
+- [Security Implementation Specification](../../02-technical-specifications/06-security-implementation.md) — key management, admin access controls, and incident response expectations.
+- [Integration Architecture Specification](../../02-technical-specifications/07-integration-architecture.md) — event-driven contracts for configuration propagation.
 
-1. Customer administrators invite team members via the admin console, invoking RBAC policies defined in the [RBAC System runbook](../02-rbac-system/readme.md).
-2. Delegation scopes (support-only, auditor, full admin) are enforced through shared middleware to prevent privilege escalation.
-3. The Governance Engine admin UI surfaces configuration diffs and pending approvals, mirroring the workflows documented in the [Governance Engine runbook](../12-governance-engine/readme.md#4-admin-ui-operations).
-
-## 4. Global Settings Management
-
-### 4.1 Policy Controls
-
-- Central policies (password rules, MFA requirements, session expiry) are stored in `admin_settings` with per-tenant overrides.
-- Changes propagate to the Auth Service via the configuration event bus; consumers cache settings with a 5-minute TTL to prevent stale reads.
-- The admin UI requires dual-approval for high-risk policy changes, satisfying governance requirements for segregation of duties.
-
-### 4.2 Feature Flag Governance
-
-- Feature toggles reside in `admin_flags` and leverage the shared LaunchDarkly integration when available.
-- Releases follow the safe rollout guidelines from the Testing & QA specification, including canary cohorts and automated rollback triggers.
-- All flag mutations require a change ticket reference stored alongside the configuration payload for auditability.
-
-### 4.3 Secrets and Credential Rotation
-
-- Secrets are brokered through the integration control plane; rotations are orchestrated via the `rotateCredential` workflow that integrates with the [Integration System runbook](../15-external-integrations-system/readme.md#4-security-and-compliance).
-- Credential metadata (issuer, expiration, rotation history) is replicated to the Evidence Repository for downstream audits.
-- Emergency rotations trigger the Notification System to alert on-call engineers and tenant admins.
-
-## 5. Integration Control Plane
-
-### 5.1 Authorization Flows
-
-- OAuth-based connectors (e.g., ServiceNow, Jira, Slack) follow the authorization journey described in the [External Integrations runbook](../15-external-integrations-system/readme.md#3-authorization-flows); tokens are stored per-tenant with least-privilege scopes.
-- API key integrations require encrypted uploads through the admin console; validation checks confirm scope and expiry dates before enabling probes.
-- The control plane exposes a `POST /admin/integrations/:id/authorize` endpoint that records grant metadata and cascades configuration updates to dependent services.
-
-### 5.2 Health and Scheduling
-
-- Integration health checks run via the Probe Management scheduler using intervals defined in tenant settings; failures escalate according to the [Probe Management runbook](../07-probe-management-system/readme.md#5-failure-handling-and-retries).
-- Each connector maintains heartbeat metrics emitted through `admin/telemetry` to the observability pipelines referenced in the Audit Logging runbook.
-- Scheduled jobs respect tenant blackout windows configured in `admin_settings` to avoid maintenance conflicts.
-
-### 5.3 Incident Response Playbooks
-
-- Critical integration outages trigger automated remediation steps: revoke compromised credentials, disable dependent probes, and notify stakeholders using predefined Notification templates.
-- The admin console surfaces incident status, linked runbooks, and recovery SLAs while integrating with the Task Service to track follow-up work.
-- Post-incident reviews ensure configuration drift is captured and corrective actions are logged in the audit trail.
-
-## 6. Audit and Compliance Requirements
-
-### 6.1 Activity Logging
-
-- Every configuration change emits a structured event (`admin.audit`) containing actor, tenant, payload diff, and correlation IDs.
-- Logs stream to the central pipeline described in the [Audit Logging & Monitoring runbook](../06-audit-logging-and-monitoring/readme.md) with retention policies aligned to regulatory commitments.
-- The Governance Engine admin UI provides an immutable change log view for tenant administrators and internal auditors.
-
-### 6.2 Evidence Collection
-
-- Provisioning and configuration events automatically create evidence records stored in the Evidence Repository, tagged with the originating control ID.
-- Integration authorizations capture consent artifacts (screenshots, signed agreements) uploaded during the workflow.
-- Quarterly exports package configuration baselines and change histories for regulator reviews, aligning with the Compliance Reporting specification.
-
-### 6.3 Periodic Reviews
-
-- Quarterly tenant governance reviews verify role assignments, configuration overrides, and integration scopes.
-- Annual penetration test outcomes feed into the security settings backlog with remediation tracked through the Task Service.
-- A `reviewTenants` job audits dormant tenants for deprovisioning, notifying stakeholders before data retention policies purge assets.
-
-## 7. Related Runbooks and Specifications
-
-- [Probe Management System](../07-probe-management-system/readme.md) — provisioning and scheduler interactions for automated evidence collection.
-- [Governance Engine](../12-governance-engine/readme.md) — admin UI embedding, control workflows, and dependency expectations.
-- [External Integrations System](../15-external-integrations-system/readme.md) — connector catalog, authorization flows, and security posture.
-- [Security Implementation Specification](../../02-technical-specifications/06-security-implementation.md) — encryption, key management, and administrative access controls.
-- [Integration Architecture Specification](../../02-technical-specifications/07-integration-architecture.md) — event-driven patterns and contract guarantees for configuration propagation.
+---
 
 [← Previous](../04-notification-system/readme.md) | [Next →](../06-audit-logging-and-monitoring/readme.md)
