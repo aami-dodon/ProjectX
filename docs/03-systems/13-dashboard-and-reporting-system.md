@@ -3,22 +3,23 @@
 ## Location: /client/src/features/dashboards, /server/src/modules/reports
 
 >### TL;DR
-> The dashboard and reporting system transforms governance telemetry into actionable insights and exports.
-> React dashboards in `client/src/features/dashboards` consume APIs backed by `server/src/modules/reports` to visualize scores, observations, and remediation progress.
-> This runbook describes the data pipelines, UI components, report generators, and extensibility patterns that keep analytics current and trustworthy.
+> The dashboard and reporting system transforms compliance telemetry—framework scores, control status, remediation progress, and evidence freshness—into actionable insights and exports.
+> React dashboards in `client/src/features/dashboards` consume APIs backed by `server/src/modules/reports` to visualize control health, remediation execution, and evidence coverage.
+> This runbook describes the data pipelines, UI components, report generators, and extensibility patterns that keep analytics current and audit-ready.
 
 ---
 
 - [1. Overview](#1-overview)
 - [2. Data Pipelines Feeding Dashboards](#2-data-pipelines-feeding-dashboards)
-  - [2.1 Scores Pipeline](#21-scores-pipeline)
-  - [2.2 Observations Pipeline](#22-observations-pipeline)
-  - [2.3 Tasks Pipeline](#23-tasks-pipeline)
+  - [2.1 Framework Score Pipeline](#21-framework-score-pipeline)
+  - [2.2 Control Status Pipeline](#22-control-status-pipeline)
+  - [2.3 Remediation Pipeline](#23-remediation-pipeline)
+  - [2.4 Evidence Snapshot Pipeline](#24-evidence-snapshot-pipeline)
 - [3. Front-End Visualization Components](#3-front-end-visualization-components)
 - [4. Report Types and Backend Relationships](#4-report-types-and-backend-relationships)
-  - [4.1 Scorecards](#41-scorecards)
-  - [4.2 Gap Analyses](#42-gap-analyses)
-  - [4.3 Risk Heatmaps](#43-risk-heatmaps)
+  - [4.1 Framework Attestation Packs](#41-framework-attestation-packs)
+  - [4.2 Control Breakdown Reports](#42-control-breakdown-reports)
+  - [4.3 Remediation & Evidence Digest](#43-remediation--evidence-digest)
 - [5. Extensibility Guidance](#5-extensibility-guidance)
   - [5.1 Adding New Dashboard Widgets](#51-adding-new-dashboard-widgets)
   - [5.2 Adding New Report Exports](#52-adding-new-report-exports)
@@ -28,73 +29,80 @@
 ---
 
 ## 1. Overview
-The dashboard and reporting system consolidates program assessment data, turning ongoing evaluation activities into actionable visuals and exportable reports. This document outlines the source pipelines for the key dashboard feeds, the front-end components that render them, and the relationships between report types, backend services, and data storage. Guidance for extending the system with new widgets or exports is also provided.
+The dashboard and reporting system consolidates governance engine outputs into control- and framework-aligned analytics. Framework scores, control health, remediation execution, and evidence coverage all flow through `server/src/modules/reports` before landing in React widgets and export workflows. This document outlines the source pipelines for each dashboard feed, the front-end components that render them, and the relationships between report types, backend services, and data storage. Guidance for extending the system with new widgets or exports is also provided.
 
 ## 2. Data Pipelines Feeding Dashboards
 
-### 2.1 Scores Pipeline
-- **Source Events:** Assessment submissions, rubric scoring events, automated performance checks.
-- **Ingestion:** Events captured through the `assessment_service` Kafka topic are normalized in the `score_processor` job.
-- **Transformation:** The processor calculates aggregated scores (per site, per program, per evaluator) and writes results into the `assessment_scores` table.
-- **Serving Layer:** The `GET /api/v1/dashboards/scores` endpoint exposes denormalized score summaries with pagination, filters for date range, evaluator, and program cohorts.
+### 2.1 Framework Score Pipeline
+- **Source Events:** Published check results and control aggregations emitted by the Governance Engine (`governance.check.completed`, `governance.control.updated`).【F:docs/03-systems/11-governance-engine.md†L28-L71】
+- **Ingestion:** Events are consumed by the reporting service’s BullMQ worker (`server/src/modules/reports/score-aggregator`), which normalizes payloads against the Framework Service to resolve framework mappings.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L103-L135】【F:docs/03-systems/09-framework-mapping-system.md†L55-L188】
+- **Transformation:** Aggregations calculate framework, domain, and control family scores, persisting records in the `scores` and `metrics` tables for trend analysis and dashboard consumption.【F:docs/02-technical-specifications/04-database-design.md†L91-L113】
+- **Serving Layer:** `GET /api/v1/dashboards/framework-scores` returns paginated score snapshots with filters for framework, domain, timeframe, and control maturity. Results feed the Framework Overview widgets via `client/src/features/dashboards/api.js`.【F:docs/02-technical-specifications/03-frontend-architecture.md†L125-L139】
 
-### 2.2 Observations Pipeline
-- **Source Events:** Classroom observations, on-site audits, follow-up notes.
-- **Ingestion:** Observation forms are submitted via `POST /api/v1/observations` and queued for enrichment by the `observation_enricher` worker.
-- **Transformation:** Natural-language tagging, sentiment extraction, and categorical labeling are stored in `observation_tags`. Consolidated observation records live in `observation_facts` with foreign keys to the original submissions.
-- **Serving Layer:** The dashboard reads from `GET /api/v1/dashboards/observations`, which combines facts and tag metadata to generate summaries by site, observer, and theme.
+### 2.2 Control Status Pipeline
+- **Source Events:** Control state transitions produced when checks publish outcomes and when remediation closes (`governance.control.status_changed`).【F:docs/03-systems/11-governance-engine.md†L52-L85】
+- **Ingestion:** The reporting module listens to the control event stream and merges it with the Control Management Service catalog to ensure severity and enforcement metadata stay current.【F:docs/03-systems/08-control-management-system.md†L7-L131】
+- **Transformation:** Latest status, residual risk, and enforcement level are denormalized into the `control_status_view` materialized view (backed by `controls`, `results`, and `scores`) refreshed on every event batch.【F:docs/02-technical-specifications/04-database-design.md†L80-L113】
+- **Serving Layer:** `GET /api/v1/dashboards/control-status` exposes filterable control grids with attributes for framework, product line, risk tier, and freshness windows, aligning with front-end data hooks in `client/src/features/dashboards/api.js`.【F:docs/02-technical-specifications/03-frontend-architecture.md†L125-L139】
 
-### 2.3 Tasks Pipeline
-- **Source Events:** Corrective action items, follow-up tasks spawned from observations, scheduled compliance tasks.
-- **Ingestion:** Tasks originate in `POST /api/v1/tasks` and are propagated through the `task_dispatcher` queue.
-- **Transformation:** The `task_sync` job enriches tasks with SLA deadlines, status rollups, and dependency chains, storing results in `task_ledger` and `task_dependencies` tables.
-- **Serving Layer:** The `GET /api/v1/dashboards/tasks` endpoint exposes grouped task metrics (open vs. closed, SLA breaches, responsible owners) and powers the task completion widgets.
+### 2.3 Remediation Pipeline
+- **Source Events:** Remediation tasks generated by failed controls (`task.created`) and lifecycle updates from the Task Service (`task.updated`, `task.sla_breached`).【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L142-L165】【F:docs/03-systems/12-task-management-system.md†L30-L226】
+- **Ingestion:** Events enter the `remediation-rollup` worker, which joins task metadata with linked controls and evidence via the `evidence_links` table.【F:docs/02-technical-specifications/04-database-design.md†L86-L99】
+- **Transformation:** SLA adherence, ownership, reopen counts, and mitigation progress are persisted in `task_metrics` and appended to the `metrics` table for longitudinal analysis.【F:docs/03-systems/12-task-management-system.md†L149-L204】
+- **Serving Layer:** `GET /api/v1/dashboards/remediation` surfaces burndown, SLA breach, and reassignment metrics scoped by framework, team, or control type, powering remediation widgets on the compliance dashboard.【F:docs/02-technical-specifications/03-frontend-architecture.md†L125-L139】
+
+### 2.4 Evidence Snapshot Pipeline
+- **Source Events:** Evidence uploads and archival actions from the Evidence Repository (`evidence.uploaded`, `evidence.versioned`, `evidence.archived`).【F:docs/03-systems/10-evidence-management-system.md†L47-L70】
+- **Ingestion:** The reporting worker fetches evidence metadata through the Evidence Repository API, enriching it with linked controls, tasks, and frameworks.
+- **Transformation:** Evidence freshness scores, validation status, and reviewer sign-off timestamps are written to the `evidence_snapshots` table to provide audit-ready registries.【F:docs/02-technical-specifications/04-database-design.md†L86-L113】
+- **Serving Layer:** `GET /api/v1/dashboards/evidence-snapshots` delivers sortable inventories with filters for control, framework, review date, and storage lifecycle, enabling evidence coverage visuals in the dashboard.【F:docs/02-technical-specifications/03-frontend-architecture.md†L125-L139】
 
 ## 3. Front-End Visualization Components
 
 | Component | Responsibility | Primary Data Source |
 | --- | --- | --- |
-| `ScoreTrendWidget` | Line and bar charts for aggregate scores across cohorts and time ranges. | `/api/v1/dashboards/scores` |
-| `ObservationInsightPanel` | Displays sentiment trends, most frequent tags, and qualitative highlights. | `/api/v1/dashboards/observations` |
-| `TaskComplianceMatrix` | Matrix view showing status of tasks by owner and due date bucket. | `/api/v1/dashboards/tasks` |
-| `ProgramDrilldownModal` | Contextual details for selected site/program, aggregating scores, observations, and tasks in a single view. | Combination of dashboard endpoints plus `/api/v1/programs/:id` |
+| `FrameworkScoreOverview` | Trend and comparative charts for framework, domain, and control family scores. | `/api/v1/dashboards/framework-scores` |
+| `ControlHealthMatrix` | Heatmap showing control status by enforcement level, risk tier, and freshness. | `/api/v1/dashboards/control-status` |
+| `RemediationBurndown` | Burn-up/burn-down visuals for remediation workload, SLA breaches, and reopen rates. | `/api/v1/dashboards/remediation` |
+| `EvidenceCoveragePanel` | Timeline of evidence submissions, review status, and freshness indicators. | `/api/v1/dashboards/evidence-snapshots` |
+| `ComplianceDrilldownModal` | Aggregates framework scores, control findings, linked tasks, and supporting evidence for a selected control or framework obligation. | Combination of dashboard endpoints plus `/api/v1/frameworks/:id`, `/api/v1/controls/:id`, `/api/v1/tasks/:id`, `/api/v1/evidence/:id/metadata` |
 | `ExportMenu` | Allows exporting current views and reports; integrates with report generation endpoints. | `/api/v1/reports/*` |
 
-All widgets use a shared `DashboardDataContext` for state management, ensuring consistent filters (date range, program, evaluator) across panels.
+All widgets use a shared `DashboardDataContext` for state management, ensuring consistent filters (date range, framework, product line, severity) across panels. Widgets fetch via typed hooks in `client/src/features/dashboards/api.js`, aligning with the JavaScript-only architecture defined in the frontend specifications.【F:docs/02-technical-specifications/03-frontend-architecture.md†L91-L139】
 
 ## 4. Report Types and Backend Relationships
 
-### 4.1 Scorecards
-- **Purpose:** Provide a snapshot of performance metrics for a single site or program.
-- **Endpoint:** `POST /api/v1/reports/scorecards` initiates generation; `GET /api/v1/reports/scorecards/:job_id` returns the finished PDF/CSV.
-- **Database Tables:** Relies on `assessment_scores` for quantitative metrics and `program_metadata` for contextual details.
-- **Front-End Integration:** The `ScorecardReportModal` allows users to configure filters and launch scorecard exports directly from score widgets.
+### 4.1 Framework Attestation Packs
+- **Purpose:** Provide auditor-ready summaries of framework alignment, including control coverage, residual risk, and supporting evidence links.
+- **Endpoint:** `POST /api/v1/reports/framework-attestations` initiates generation; `GET /api/v1/reports/framework-attestations/:job_id` returns the finished PDF/CSV bundle.
+- **Database Tables:** Reads from `frameworks`, `scores`, `metrics`, and `evidence_snapshots` to correlate framework requirements with measured outcomes.【F:docs/02-technical-specifications/04-database-design.md†L80-L113】
+- **Front-End Integration:** The `FrameworkAttestationModal` mounts from the Framework Score widget, passing selected framework, timeframe, and required signatories.
 
-### 4.2 Gap Analyses
-- **Purpose:** Highlight discrepancies between target benchmarks and actual performance across programs or standards.
-- **Endpoint:** `POST /api/v1/reports/gap-analyses` with benchmark parameters; `GET /api/v1/reports/gap-analyses/:job_id` fetches the resulting report.
-- **Database Tables:** Uses `benchmark_targets`, `assessment_scores`, and `observation_facts` to compute variance and qualitative explanations.
-- **Front-End Integration:** The `GapAnalysisBuilder` component surfaces recommended actions based on the generated report and cross-links to task creation.
+### 4.2 Control Breakdown Reports
+- **Purpose:** Highlight control-by-control status, severity, and remediation ownership for governance leads.
+- **Endpoint:** `POST /api/v1/reports/control-breakdowns` with filter payload; `GET /api/v1/reports/control-breakdowns/:job_id` fetches the resulting report.
+- **Database Tables:** Joins `controls`, `control_status_view`, `scores`, `results`, and `task_metrics` to show context and current action plan.【F:docs/03-systems/08-control-management-system.md†L74-L131】【F:docs/03-systems/12-task-management-system.md†L149-L204】
+- **Front-End Integration:** The `ControlBreakdownBuilder` component launches from Control Health Matrix selections and offers quick links to task reassignment.
 
-### 4.3 Risk Heatmaps
-- **Purpose:** Visualize compounded risk by combining compliance gaps, open tasks, and negative observation trends.
-- **Endpoint:** `POST /api/v1/reports/risk-heatmaps`; status retrieval through `GET /api/v1/reports/risk-heatmaps/:job_id`.
-- **Database Tables:** Aggregates data from `risk_thresholds`, `task_ledger`, `observation_tags`, and `assessment_scores`.
-- **Front-End Integration:** The `RiskHeatmapView` renders the produced heatmap tiles and enables drilldowns into contributing factors.
+### 4.3 Remediation & Evidence Digest
+- **Purpose:** Summarize remediation throughput alongside evidence freshness to demonstrate closure quality.
+- **Endpoint:** `POST /api/v1/reports/remediation-digests`; status retrieval through `GET /api/v1/reports/remediation-digests/:job_id`.
+- **Database Tables:** Aggregates `task_metrics`, `tasks`, `evidence_links`, and `evidence_snapshots` to align remediation actions with uploaded proof and review timestamps.【F:docs/03-systems/10-evidence-management-system.md†L47-L70】【F:docs/03-systems/12-task-management-system.md†L149-L204】
+- **Front-End Integration:** The `RemediationDigestLauncher` surfaces from Remediation Burndown and Evidence Coverage panels, enabling combined exports for audit packets.
 
 ## 5. Extensibility Guidance
 
 ### 5.1 Adding New Dashboard Widgets
-1. **Define Data Contract:** Expose a new backend endpoint (e.g., `/api/v1/dashboards/<resource>`) returning normalized JSON with filter metadata compatible with `DashboardDataContext`.
-2. **Extend Context:** Update `DashboardDataContext` to register the new dataset, ensuring global filters propagate appropriately.
-3. **Create Visualization Component:** Build a dedicated widget leveraging shared chart primitives (e.g., `useChartTheme`, `BaseCard`). Follow accessibility guidelines (keyboard navigation, ARIA labels for interactive elements).
-4. **Register Widget:** Add the widget to the dashboard layout configuration with responsive breakpoints and loading/error states.
+1. **Define Data Contract:** Expose a new backend endpoint (e.g., `/api/v1/dashboards/<resource>`) returning normalized JSON aligned with framework/control identifiers so that widgets can cross-reference governance entities.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L90-L135】
+2. **Extend Context:** Update `DashboardDataContext` to register the new dataset, ensuring global filters (framework, severity, product line, timeframe) propagate appropriately.
+3. **Create Visualization Component:** Build a dedicated widget leveraging shared chart primitives (e.g., `useChartTheme`, `BaseCard`). Follow accessibility guidelines (keyboard navigation, ARIA labels for interactive elements) and include textual summaries for auditors.
+4. **Register Widget:** Add the widget to the dashboard layout configuration with responsive breakpoints, skeleton loaders, and error states.
 
 ### 5.2 Adding New Report Exports
 1. **Backend Pipeline:** Implement a new report generator job under `/api/v1/reports/<type>` with asynchronous processing and job tracking in `report_jobs`.
-2. **Data Model Alignment:** Introduce or reuse database tables for required metrics; define indexes for heavy aggregation queries.
-3. **Front-End Entry Points:** Update `ExportMenu` and relevant widgets to present the new export option, ensuring the request payload matches the backend contract.
-4. **File Formats and Localization:** Support PDF and CSV exports where applicable, using shared templates for branding and locale-aware formatting.
+2. **Data Model Alignment:** Introduce or reuse governance tables (`scores`, `metrics`, `controls`, `tasks`, `evidence_snapshots`) and define indexes for heavy aggregation queries.【F:docs/02-technical-specifications/04-database-design.md†L80-L130】
+3. **Front-End Entry Points:** Update `ExportMenu` and relevant widgets to present the new export option, ensuring the request payload matches the backend contract and includes framework/control identifiers.
+4. **File Formats and Localization:** Support PDF and CSV exports where applicable, using shared templates for branding, locale-aware formatting, and evidence citation numbering.
 
 ### 5.3 Accessibility and Performance Standards
 - **Accessibility:** All widgets must meet WCAG 2.1 AA; ensure semantic HTML, ARIA annotations for charts (`role="img"` with descriptive labels), and keyboard-accessible controls. Provide text alternatives for visualizations via summary tables or descriptive captions.
