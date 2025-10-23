@@ -432,8 +432,8 @@ Each policy is reviewed annually, approved by executive leadership, and enforced
 ### 6. Future Certifications Roadmap
 The platform is on a continuous compliance roadmap, targeting formal certifications as it scales.  
 Planned milestones include:
-- ISO/IEC 27001 certification (targeted within first operational year).  
-- SOC 2 Type II attestation (within 12 months of production launch).  
+- ISO/IEC 27001 certification (targeted for Q3 2028, aligning with the third operational year).
+- SOC 2 Type II attestation (targeted for Q3 2028, reflecting the certification phase in the roadmap).
 - ISO 42001 alignment (AI governance management standard).  
 - Continuous vulnerability disclosure and bug bounty program rollout.
 
