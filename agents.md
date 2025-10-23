@@ -7,8 +7,7 @@
 ## Tech Stack & Module Ownership
 - **Language:** 100% JavaScript across frontend, backend, tests, and tooling (no TypeScript anywhere).
 - **Frontend:** React (Vite toolchain) with React Router, TailwindCSS + shadcn/ui, Lucide icons, and Tiptap editor for evidence authoring/upload.
-  - For shadcn reference use: reference/shadcn.md
-  - For Tiptap refernec use: reference/tiptap.md
+  - For UI reference and guidelines you must comply with: `reference/ui-reference.md`
 - **Backend:** Express on Node.js organized by feature modules (Auth, Governance Engine, Frameworks, Evidence, Notifications, Tasks) with Casbin RBAC, JWT auth, Nodemailer, and structured logging (Winston + Morgan).
 - **Data:** Prisma ORM talking to externally hosted PostgreSQL; evidence binaries stored in externally hosted MinIO via presigned URLs.
 - **Shared Logic:** Place cross-cutting utilities in `shared/`; keep integrations in `server/src/integrations/`.
@@ -19,8 +18,7 @@
 - Validate and track evidence uploads with checksums, audit logs, and linkage back to PostgreSQL metadata.
 
 ## Development Workflow
-- Feature branches off `develop`; use descriptive, compliance-aware commit messages and squash merges into protected branches.
-- Follow JavaScript linting/formatting conventions (ESLint, Prettier) and keep `.env` configuration templates current.
+- Follow JavaScript linting/formatting conventions (ESLint, Prettier) and keep `.env.example` configuration templates current.
 - Preserve API contracts with OpenAPI specs and JSON schemas; coordinate breaking changes with versioning and migration notes.
 
 ## Testing & Quality
@@ -35,5 +33,5 @@
 
 ## Documentation & Collaboration
 - Treat `/docs` as the canonical source: update ADRs, runbooks, and compliance artifacts alongside code changes.
-- Capture integration details, change logs, and governance impacts in PR descriptions and release notes.
-- Uphold cross-functional reviews (engineering + compliance) and post-incident retros to reinforce continuous improvement.
+- Capture integration details, change logs, and governance impacts in PR descriptions and release notes. You will not add any chatgpt url in the PR.
+- Capture all changes in "changelog.md" in the root of repo with timestamps in Indian Standard Time.

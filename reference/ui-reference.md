@@ -1,176 +1,235 @@
 # UI Design Reference
 
-This document consolidates UI component references for both **Tiptap** and **shadcn/ui**. Use this as a single source of truth for editor setup and UI component integration.
+This document defines UI standards for the frontend: Tiptap editor integration, shadcn/ui components, Tailwind theming, and icons — aligned with Project X guidelines.
+
+- Language: 100% JavaScript (no TypeScript)
+- Tooling: React (Vite), React Router, TailwindCSS + shadcn/ui
+- Icons: Lucide React Icons only (no other icon sets)
 
 ---
 
-## 📄 Tiptap Editor Reference
+## 📄 Tiptap Editor (React + Vite + JavaScript)
 
-# TipTap template
+Use Tiptap directly in a Vite + React JavaScript app. Do not use TS/Next.js templates or scaffolds.
 
-We will use below simple editor with full toolbar support.The Simple Editor Template is a fully working setup for the Tiptap editor. It includes commonly used open source extensions and UI components, all MIT licensed and ready to customize.
+### Installation (JavaScript)
 
-(https://template.tiptap.dev/preview/templates/simple)
-
-## [](#installation)Installation
-
-### [](#for-existing-projects)For existing projects
+Install editor dependencies explicitly:
 
 ```
-npx @tiptap/cli@latest add simple-editor
+npm install @tiptap/react @tiptap/starter-kit @tiptap/extension-link @tiptap/extension-underline @tiptap/extension-image
 ```
 
-### [](#for-new-projects)For new projects
+### Minimal usage example
 
 ```
-npx @tiptap/cli@latest init simple-editor
-```
+// src/components/editor/Editor.jsx
+import { useEditor, EditorContent } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
+import Link from '@tiptap/extension-link'
+import Underline from '@tiptap/extension-underline'
+import Image from '@tiptap/extension-image'
 
-## [](#styling)Styling
+export default function Editor() {
+  const editor = useEditor({
+    extensions: [StarterKit, Underline, Link.configure({ openOnClick: true }), Image],
+    content: '<p>Start writing…</p>'
+  })
 
-This template requires styling setup. We stay unopinionated about styling frameworks, so you'll need to integrate it with your setup. Follow the [style setup guide](/docs/ui-components/getting-started/style) to ensure the editor displays correctly.
-
-## [](#usage)Usage
-
-After installation, use the SimpleEditor component in your React or Next.js project:
-
-```
-import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor'
-
-export default function App() {
-  return <SimpleEditor />
+  return (
+    <div className="prose dark:prose-invert max-w-none">
+      <EditorContent editor={editor} />
+    </div>
+  )
 }
 ```
 
-## [](#features)Features
+If using `@/` imports, configure aliases (see “Project Conventions” below).
 
-A fully responsive rich text editor with built-in support for common formatting and layout tools. All components are open source and easy to extend.
+### Features and required behaviors
 
--   **Responsive design**: Mobile-friendly by default
--   **Dark and light mode**: Supported out-of-the-box
--   **Formatting**: Bold, Italic, Underline
--   **Lists**: Bullet, Ordered, Checkboxes
--   **Text alignment**: Left, Center, Right, Justified
--   **Headings**: Multiple levels via dropdown
--   **Image upload**
--   **Link editing:** UI for adding and editing links
--   **Undo / Redo:** History management
+- Responsive editing surface, light/dark modes via Tailwind classes
+- Formatting: Bold, Italic, Underline; Headings; Lists; Text alignment
+- Links: Add/edit with UI affordances
+- Undo/Redo via history
+- Image upload integrated with presigned Evidence flow (see below)
 
-### [](#used-reference-components)Used reference components
+### Image upload integration with Evidence service
 
-#### [](#hooks)Hooks
+All editor uploads must follow the Evidence Management flow: presigned URLs, checksums, metadata, and audit logging.
 
--   `use-mobile`
--   `use-window-size`
+Process outline:
 
-#### [](#icons)Icons
+1) Request an upload session from `/api/v1/evidence/upload` with filename, size, mime_type, and checksum (e.g., SHA-256).
+2) Receive presigned PUT URL + evidence id.
+3) PUT the binary directly to storage using the presigned URL.
+4) Notify the backend to finalize the upload (evidence id, computed checksum) so metadata and audit events are persisted.
+5) Insert the resulting public path or signed GET link (when needed) into the document via the Tiptap Image extension.
 
--   `arrow-left-icon`
--   `highlighter-icon`
--   `link-icon`
--   `moon-star-icon`
--   `sun-icon`
+Sketch for a client helper (pseudocode, JS):
 
-#### [](#extensions)Extensions
+```
+async function uploadImage(file) {
+  const checksum = await sha256(file) // compute in browser
+  const start = await fetch('/api/v1/evidence/upload', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ filename: file.name, size: file.size, mime_type: file.type, checksum })
+  }).then(r => r.json())
 
--   `selection-extension`
--   `link-extension`
--   `trailing-node-extension`
+  await fetch(start.uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } })
 
-#### [](#lib)Lib
+  const finalize = await fetch(`/api/v1/evidence/upload/${start.id}/complete`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ checksum })
+  }).then(r => r.json())
 
--   `tiptap-utils`
+  return finalize.publicUrl // or key to resolve via signed GET
+}
+```
 
-#### [](#ui-components)UI Components
-
--   `blockquote-button`
--   `code-block-button`
--   `color-highlight-button`
--   `color-highlight-popover`
--   `heading-button`
--   `heading-dropdown-menu`
--   `image-upload-button`
--   `link-popover`
--   `list-button`
--   `list-dropdown-menu`
--   `mark-button`
--   `text-align-button`
--   `undo-redo-button`
-
-#### [](#node-components)Node Components
-
--   `code-block-node`
--   `image-node`
--   `image-upload-node`
--   `list-node`
--   `paragraph-node`
-
-#### [](#primitives)Primitives
-
--   `button`
--   `spacer`
--   `toolbar`
-
-## [](#license)License
-
-The Simple Editor Template and all included components are MIT licensed. You’re free to use, modify, and extend the code as needed.
-
-## [](#future-compatibility)Future compatibility
-
-You can extend this template with additional features as your needs grow.
-
-Paid Tiptap Cloud features will have matching UI components that integrate just as easily! No rework needed.
+Wire this helper into a custom Image menu action or upload button that calls `editor.chain().focus().setImage({ src: url }).run()`.
 
 ---
 
-## 🧱 shadcn/ui Reference
+## 🧱 shadcn/ui Components (JS + Vite)
 
-# shadcn/ui reference code
+Use shadcn/ui primitives as JavaScript components. Do not keep TypeScript types or Next.js-specific code. When copying examples, convert `.tsx` → `.jsx` and remove types.
 
-This document shows refernce for components and blocks including sidebar, login for shadcn/ui.
+Curated components we rely on:
 
-## Components
+- Button, Input, Label, Select, Textarea
+- Dialog, Drawer/Sheet, Dropdown Menu, Tooltip, Tabs
+- Toast/Toaster, Badge, Avatar, Card, Skeleton
+- Table/Data Table (with TanStack Table), Breadcrumb
+- Form patterns (React Hook Form) coded in JS
 
-For components, you must refer to the URLs mentioned in for each compnent in the table below:
+Layout building blocks used across the app:
 
-| Component | URL |
-|-----------|-----|
-| Accordion | https://ui.shadcn.com/docs/components/accordion |
-| Alert | https://ui.shadcn.com/docs/components/alert |
-| Alert Dialog | https://ui.shadcn.com/docs/components/alert-dialog |
-| Aspect Ratio | https://ui.shadcn.com/docs/components/aspect-ratio |
-| Avatar | https://ui.shadcn.com/docs/components/avatar |
-| Badge | https://ui.shadcn.com/docs/components/badge |
-| Breadcrumb | https://ui.shadcn.com/docs/components/breadcrumb |
-| Button | https://ui.shadcn.com/docs/components/button |
-| Button Group | https://ui.shadcn.com/docs/components/button-group |
-| Calendar | https://ui.shadcn.com/docs/components/calendar |
-| Card | https://ui.shadcn.com/docs/components/card |
-| Carousel | https://ui.shadcn.com/docs/components/carousel |
-| Chart | https://ui.shadcn.com/docs/components/chart |
-| Checkbox | https://ui.shadcn.com/docs/components/checkbox |
-| Collapsible | https://ui.shadcn.com/docs/components/collapsible |
-| Combobox | https://ui.shadcn.com/docs/components/combobox |
-| Command | https://ui.shadcn.com/docs/components/command |
-| Context Menu | https://ui.shadcn.com/docs/components/context-menu |
-| Data Table | https://ui.shadcn.com/docs/components/data-table |
-| Date Picker | https://ui.shadcn.com/docs/components/date-picker |
-| Dialog | https://ui.shadcn.com/docs/components/dialog |
-| Drawer | https://ui.shadcn.com/docs/components/drawer |
-| Dropdown Menu | https://ui.shadcn.com/docs/components/dropdown-menu |
-| ... (full list continues)
+- App Shell: Sidebar (collapsible) + Top Header + Content area
+- Page Header: Title, breadcrumbs, and primary actions
+- Content Panels: Cards/tables; use Drawer/Sheet for create/edit flows
 
-## Building Blocks
-
-Refer to https://ui.shadcn.com/blocks page for the Page Layout
+Refer to official docs for usage details: https://ui.shadcn.com
 
 ---
 
-## 🎨 Tailwind Theme Integration
+## 🎨 Tailwind Theme
 
-We will use a **centralized Tailwind CSS theme** for the entire website to maintain visual consistency.  
-This theme will be integrated with **shadcn/ui**, supporting:
+We use a centralized Tailwind theme wired to shadcn/ui tokens with dark mode via `class` strategy and a primary green palette.
 
-- 🌞 **Light Mode** and 🌚 **Dark Mode**  
-- 🎨 **Primary Color Palette**: Shades of **green**  
-- 🧭 Centralized design tokens for spacing, typography, and component styling.
+- Tailwind dark mode: `darkMode: 'class'` in `tailwind.config.js`
+- Primary color: green shades; map to shadcn tokens
+- Keep tokens in a global CSS file and reference via CSS variables
+
+Example token setup:
+
+```
+/* src/styles/theme.css */
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --primary: 142 71% 45%;        /* green-500 */
+  --primary-foreground: 0 0% 100%;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+}
+.dark {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+  --primary: 142 72% 29%;        /* green-700 */
+  --primary-foreground: 0 0% 100%;
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+}
+```
+
+Tailwind config excerpt:
+
+```
+// tailwind.config.js
+export default {
+  darkMode: 'class',
+  content: ['index.html', 'src/**/*.{js,jsx}'],
+  theme: {
+    extend: {
+      colors: {
+        background: 'hsl(var(--background))',
+        foreground: 'hsl(var(--foreground))',
+        primary: 'hsl(var(--primary))',
+        muted: 'hsl(var(--muted))'
+      }
+    }
+  },
+  plugins: [require('tailwindcss-animate')]
+}
+```
+
+---
+
+## 🔤 Icons — Lucide React Only
+
+Use Lucide React Icons exclusively. Do not introduce other icon sets.
+
+Installation:
+
+```
+npm install lucide-react
+```
+
+Usage:
+
+```
+import { Sun, MoonStar, Link as LinkIcon, Highlighter, ArrowLeft } from 'lucide-react'
+
+export function ThemeToggle() {
+  return (
+    <button className="inline-flex items-center gap-2">
+      <Sun className="h-4 w-4" /> Light
+    </button>
+  )
+}
+```
+
+---
+
+## 📦 Project Conventions (Vite + JS)
+
+- Imports: If using `@/` alias, configure both Vite and `jsconfig.json`.
+
+`vite.config.js` alias:
+
+```
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import path from 'path'
+
+export default defineConfig({
+  plugins: [react()],
+  resolve: { alias: { '@': path.resolve(__dirname, 'src') } }
+})
+```
+
+`jsconfig.json` paths:
+
+```
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": { "@/*": ["src/*"] }
+  }
+}
+```
+
+---
+
+## ✅ Compliance with Platform Standards
+
+- JavaScript-only across all frontend code (no TS files or types)
+- React (Vite) and React Router for navigation (no Next.js)
+- TailwindCSS + shadcn/ui for all styling and components
+- Lucide React Icons exclusively for icons
+- Editor uploads must use presigned Evidence flows with checksums and audit logging
+
+This page supersedes template-specific references and removes TypeScript/Next.js guidance to stay aligned with our platform.
