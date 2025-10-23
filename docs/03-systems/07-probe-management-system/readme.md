@@ -65,7 +65,7 @@ server/src/modules/probes/
 - Scheduler workers consume the platform-wide external PostgreSQL and MinIO endpoints (`DATABASE_URL`, `MINIO_ENDPOINT`, etc.), ensuring probes never embed infrastructure coordinates directly in code.【F:docs/02-technical-specifications/01-system-architecture.md†L50-L180】【F:docs/02-technical-specifications/08-deployment-and-environment-guide.md†L51-L188】
 
 ### System Components
-- **Registry Service:** Persists probe metadata (ID, owner, framework bindings, evidence types, version) and exposes `/api/probes` CRUD operations, lifecycle transitions, credential issuance, and environment overlays.
+- **Registry Service:** Persists probe metadata (ID, owner, framework bindings, evidence types, version) and exposes `/api/v1/probes` CRUD operations, lifecycle transitions, credential issuance, and environment overlays.
 - **Deployment Coordinator:** Generates manifests from registry templates and environment overlays, integrates with CI/CD to build/tag artifacts, publishes deployment intents, and tracks rollout states for auditability.
 - **Scheduler & Execution Plane:** Maintains cron, event-driven, and ad-hoc schedules through `ProbeScheduler`, translating definitions into orchestration primitives (Kubernetes CronJobs, Airflow DAGs, serverless invocations) with tenant-isolated sandboxes.
 - **Observability & Alerting:** Streams heartbeat, status, and metrics into OpenTelemetry collectors (Prometheus + Loki), normalizing logs with probe identifiers and control mappings for correlation.
@@ -75,20 +75,20 @@ The REST layer follows the platform's resource-first patterns, JSON payload enve
 
 | Method | Path | Purpose | Required RBAC Role | Sample Payload |
 | --- | --- | --- | --- | --- |
-| `GET` | `/api/probes` | Paginated list with filters (`status`, `frameworkId`, `owner`). | Compliance Officer / Engineer | `GET /api/probes?status=active&frameworkId=nist-800-53` |
-| `POST` | `/api/probes` | Register probe drafts, attach frameworks, set evidence schema references. | Engineer | `{ "name": "probe-snowflake", "frameworkBindings": ["nist-800-53"], "evidenceSchema": { ... } }` |
-| `POST` | `/api/probes/:id/deployments` | Kick off rollout with artifact version, environment overlay, and canary ratio. | Engineer | `{ "version": "2.1.0", "environment": "prod", "overlayId": "overlay-prod", "canaryPercent": 10 }` |
-| `POST` | `/api/probes/:id/schedules` | Manage cron/event/ad-hoc schedules, priorities, and control bindings. | Compliance Officer | `{ "type": "cron", "expression": "0 */6 * * *", "priority": "high", "controls": ["CTRL-1001"] }` |
-| `POST` | `/api/probes/:id/run` | Execute on-demand runs with contextual metadata (e.g., remediation ticket). | Compliance Officer / Admin | `{ "trigger": "manual", "context": { "taskId": "TASK-123" } }` |
-| `GET` | `/api/probes/:id/metrics` | Surface heartbeat, failure, latency aggregates for dashboards. | Auditor / Compliance Officer | — |
+| `GET` | `/api/v1/probes` | Paginated list with filters (`status`, `frameworkId`, `owner`). | Compliance Officer / Engineer | `GET /api/v1/probes?status=active&frameworkId=nist-800-53` |
+| `POST` | `/api/v1/probes` | Register probe drafts, attach frameworks, set evidence schema references. | Engineer | `{ "name": "probe-snowflake", "frameworkBindings": ["nist-800-53"], "evidenceSchema": { ... } }` |
+| `POST` | `/api/v1/probes/:id/deployments` | Kick off rollout with artifact version, environment overlay, and canary ratio. | Engineer | `{ "version": "2.1.0", "environment": "prod", "overlayId": "overlay-prod", "canaryPercent": 10 }` |
+| `POST` | `/api/v1/probes/:id/schedules` | Manage cron/event/ad-hoc schedules, priorities, and control bindings. | Compliance Officer | `{ "type": "cron", "expression": "0 */6 * * *", "priority": "high", "controls": ["CTRL-1001"] }` |
+| `POST` | `/api/v1/probes/:id/run` | Execute on-demand runs with contextual metadata (e.g., remediation ticket). | Compliance Officer / Admin | `{ "trigger": "manual", "context": { "taskId": "TASK-123" } }` |
+| `GET` | `/api/v1/probes/:id/metrics` | Surface heartbeat, failure, latency aggregates for dashboards. | Auditor / Compliance Officer | — |
 
 Errors return the shared `{ status, message, data, error }` envelope, and mutation endpoints publish audit logs for immutability and forensic review.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L200-L216】【F:docs/02-technical-specifications/06-security-implementation.md†L124-L144】
 
 ### Probe Lifecycle
-1. **Registration:** Engineers submit metadata, evidence schemas, and supported frameworks via `/api/probes` or the admin UI. `registerProbe.workflow.ts` validates schemas, capabilities, and authentication modes before Governance admins approve environments.
+1. **Registration:** Engineers submit metadata, evidence schemas, and supported frameworks via `/api/v1/probes` or the admin UI. `registerProbe.workflow.ts` validates schemas, capabilities, and authentication modes before Governance admins approve environments.
 2. **Credential Issuance:** Upon approval, the registry issues scoped API keys or mTLS certificates per environment and transitions the probe to `active`.
 3. **Deployment:** CI builds artifacts (e.g., `probe-snowflake@2.1.0`), the coordinator merges defaults with environment overrides, performs `selfTest()` preflight checks, and applies manifests. Health checks confirm heartbeats and ingestion, recording audit events.
-4. **Scheduling:** Schedules include cron expressions, webhook-driven triggers, and ad-hoc executions (`/api/probes/:id/run`). Priority queues consider risk tiers and regulatory deadlines.
+4. **Scheduling:** Schedules include cron expressions, webhook-driven triggers, and ad-hoc executions (`/api/v1/probes/:id/run`). Priority queues consider risk tiers and regulatory deadlines.
 5. **Deprecation & Rollback:** Deprecated probes retain historical evidence but cannot run new jobs. Failed rollouts revert to prior versions and alert owners.
 
 ### Workflow Coordination & Integrations
@@ -99,7 +99,7 @@ Errors return the shared `{ status, message, data, error }` envelope, and mutati
 
 ### Probe SDK & Platform Behaviors
 - **Core Classes:** `ProbeClient` handles authentication and payload signing (`submitEvidence`, `submitHeartbeat`); `ProbeScheduler` registers schedules; `ProbeHealthClient` runs `selfTest` and reports diagnostics; `ProbeConfigLoader` merges environment overlays; `ProbeVersionManager` negotiates compatibility.
-- **REST Endpoints:** `/api/probes` (register/update), `/api/probes/:id/deployments` (trigger rollout), `/api/probes/:id/schedules` (manage schedules), `/api/probes/:id/run` (ad-hoc), `/api/probes/:id/metrics` (heartbeat/failure telemetry).
+- **REST Endpoints:** `/api/v1/probes` (register/update), `/api/v1/probes/:id/deployments` (trigger rollout), `/api/v1/probes/:id/schedules` (manage schedules), `/api/v1/probes/:id/run` (ad-hoc), `/api/v1/probes/:id/metrics` (heartbeat/failure telemetry).
 - **Event Contracts:** `probe.heartbeat.v1`, `probe.evidence.v1`, `probe.failure.v1`, and `probe.deployment.v1` propagate health, payload, failure, and rollout events to downstream systems.
 - **Authentication & Secrets:** Probes authenticate via signed JWTs or mTLS; credentials rotate every 30 days and are revocable. Secrets load from vault providers; payloads include SHA-256 HMAC headers for verification.
 - **Retry Semantics:** SDK applies exponential backoff with jitter (2 s start, max 2 min, five attempts), idempotency keys, and circuit breakers. Scheduler retries transient failures up to three times; systemic failures escalate to alerting.
@@ -162,7 +162,7 @@ client/src/components/evidence/
 
 ### Deployment & Runbook Checklist
 - **Pre-Deployment:** Confirm probe-specific environment variables and secrets through CI pipelines, run Prisma migrations, and validate container images in staging per the platform deployment checklist.【F:docs/02-technical-specifications/08-deployment-and-environment-guide.md†L151-L188】
-- **Rollout Verification:** Execute SDK `selfTest()` routines, monitor `/api/probes/:id/metrics`, and verify webhook/event delivery with retry telemetry enabled in observability tooling.【F:docs/02-technical-specifications/07-integration-architecture.md†L123-L143】
+- **Rollout Verification:** Execute SDK `selfTest()` routines, monitor `/api/v1/probes/:id/metrics`, and verify webhook/event delivery with retry telemetry enabled in observability tooling.【F:docs/02-technical-specifications/07-integration-architecture.md†L123-L143】
 - **Failure Recovery:** Publish `probe.deployment.v1` with revert status, disable schedules, notify stakeholders through Notification adapters, and open remediation tasks when thresholds are exceeded.【F:docs/03-systems/04-notification-system/readme.md†L7-L200】【F:docs/03-systems/13-task-management-system/readme.md†L51-L109】
 
 ### Related Documentation

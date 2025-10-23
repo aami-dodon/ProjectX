@@ -35,12 +35,12 @@ The User Management backend lives under `server/src/modules/auth`, following the
 
 ```
 server/src/modules/auth/
-├── controllers/        # Express handlers for /auth endpoints
+├── controllers/        # Express handlers for /api/v1/auth endpoints
 ├── services/           # Registration, login, token rotation, and email orchestration
 ├── repositories/       # Prisma data access for users, sessions, and roles
 ├── middleware/         # JWT validation, rate limiting, MFA hooks
 ├── emails/             # Nodemailer templates and delivery helpers
-└── routes.ts           # Mounts the /auth router into the application
+└── routes.ts           # Mounts the /api/v1/auth router into the application
 ```
 
 ### Service Responsibilities & Collaborators
@@ -52,51 +52,51 @@ Within this module the Auth Service owns identity storage, credential verificati
 ### Authentication & Session Flows
 The Auth Service coordinates user lifecycle operations, session control, and security integrations for the AI Governance Platform. It relies on JWT-based authentication, Casbin RBAC enforcement, and Nodemailer to deliver transactional emails.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L74-L86】【F:docs/02-technical-specifications/06-security-implementation.md†L54-L75】
 
-#### Registration (`POST /auth/register`)
+#### Registration (`POST /api/v1/auth/register`)
 1. Validate input payload (email, password, organization context).
 2. Hash the password with bcrypt (≥12 rounds) and persist the user record with default RBAC role assignments.
 3. Trigger optional verification or welcome emails via Nodemailer integration.
 4. Log the event for audit purposes and apply rate limiting to prevent abuse.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L74-L86】【F:docs/02-technical-specifications/06-security-implementation.md†L54-L75】
 
-#### Login (`POST /auth/login`)
+#### Login (`POST /api/v1/auth/login`)
 1. Authenticate credentials against stored bcrypt hashes.
 2. Issue a signed JWT containing user ID, role, and expiration, and generate a refresh token with longer validity for session continuity.
 3. Store refresh token metadata (device, IP, expiry) for revocation and anomaly monitoring.
 4. Enforce rate limiting and log attempts for security analytics.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L74-L86】【F:docs/02-technical-specifications/06-security-implementation.md†L54-L75】
 
-#### Logout (`POST /auth/logout`)
+#### Logout (`POST /api/v1/auth/logout`)
 1. Invalidate the active refresh token by removing or flagging the record in the session store.
 2. Record the logout event in audit logs, including device and timestamp.
 3. Optionally revoke other active sessions through administrative controls when suspicious activity is detected.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L74-L86】【F:docs/01-about/04-security-and-data-protection.md†L230-L249】
 
-#### Refresh Tokens (`POST /auth/refresh`)
+#### Refresh Tokens (`POST /api/v1/auth/refresh`)
 1. Validate the refresh token against stored metadata and enforce rotation policies.
 2. Issue a new access token and (optionally) a new refresh token with updated expiry limits.
 3. Reject reused or expired tokens and log invalidation attempts to support threat detection.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L74-L86】【F:docs/02-technical-specifications/06-security-implementation.md†L54-L75】
 
-#### Password Reset Emails (`POST /auth/forgot-password`, `POST /auth/reset-password`)
+#### Password Reset Emails (`POST /api/v1/auth/forgot-password`, `POST /api/v1/auth/reset-password`)
 1. Generate a time-bound reset token stored alongside user metadata.
 2. Send password reset instructions via Nodemailer using templated content and secure links.
 3. Validate the token, enforce password strength policies, and update the hashed password upon completion.
 4. Log successful and failed reset attempts for compliance tracking.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L74-L80】
 
 #### Enterprise Authentication Methods
-- **SSO callbacks (`/auth/sso/:provider/callback`):** Validate SAML or OIDC assertions, map identity claims to existing tenants, provision just-in-time accounts, and fall back to MFA enrolment when role policies demand it.【F:docs/01-about/04-security-and-data-protection.md†L206-L259】【F:docs/02-technical-specifications/06-security-implementation.md†L54-L96】
-- **MFA challenge (`POST /auth/mfa/verify`):** Enforce secondary factors for privileged roles with TOTP or WebAuthn checks before final JWT issuance, persisting device metadata for governance reporting.【F:docs/01-about/04-security-and-data-protection.md†L206-L216】【F:docs/02-technical-specifications/06-security-implementation.md†L54-L96】
-- **Service and partner tokens (`POST /auth/service-tokens`):** Issue scoped API credentials used by probes and integrations under the shared Partner API governance model, including rotation and revocation hooks.【F:docs/01-about/04-security-and-data-protection.md†L219-L226】【F:docs/02-technical-specifications/07-integration-architecture.md†L145-L187】
+- **SSO callbacks (`/api/v1/auth/sso/:provider/callback`):** Validate SAML or OIDC assertions, map identity claims to existing tenants, provision just-in-time accounts, and fall back to MFA enrolment when role policies demand it.【F:docs/01-about/04-security-and-data-protection.md†L206-L259】【F:docs/02-technical-specifications/06-security-implementation.md†L54-L96】
+- **MFA challenge (`POST /api/v1/auth/mfa/verify`):** Enforce secondary factors for privileged roles with TOTP or WebAuthn checks before final JWT issuance, persisting device metadata for governance reporting.【F:docs/01-about/04-security-and-data-protection.md†L206-L216】【F:docs/02-technical-specifications/06-security-implementation.md†L54-L96】
+- **Service and partner tokens (`POST /api/v1/auth/service-tokens`):** Issue scoped API credentials used by probes and integrations under the shared Partner API governance model, including rotation and revocation hooks.【F:docs/01-about/04-security-and-data-protection.md†L219-L226】【F:docs/02-technical-specifications/07-integration-architecture.md†L145-L187】
 
 ### API Surface & Contracts
 The module exposes REST endpoints aligned with the platform’s OpenAPI standards; controllers reside in `controllers/` and leverage shared error handlers to return the canonical `{ status, message, data, error }` response shape.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L74-L118】
 
 | Endpoint | Purpose | Expected Inputs | Responses & Side Effects |
 |----------|---------|-----------------|--------------------------|
-| `POST /auth/register` | Create a local account and bootstrap RBAC assignments. | Email, password, tenant metadata, optional SSO hints. | `201` with user profile payload, emits welcome email, seeds `auth_role_assignments`, enqueues audit event.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L74-L118】【F:docs/02-technical-specifications/06-security-implementation.md†L54-L96】 |
-| `POST /auth/login` | Authenticate user credentials or SSO handoff. | Email + password or provider token, MFA hints. | `200` with access/refresh tokens, writes session row, logs attempt, triggers risk checks and notifications on anomalies.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L74-L86】【F:docs/01-about/04-security-and-data-protection.md†L206-L239】 |
-| `POST /auth/logout` | Terminate active session. | Refresh token identifier. | `204`, revokes session records, cascades token invalidation, and records audit entry for traceability.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L74-L86】【F:docs/01-about/04-security-and-data-protection.md†L243-L259】 |
-| `POST /auth/refresh` | Rotate access tokens. | Refresh token, device info. | `200` with new tokens, rotation metadata updated, invalid attempts flagged for monitoring.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L74-L86】【F:docs/02-technical-specifications/06-security-implementation.md†L54-L96】 |
-| `POST /auth/forgot-password` / `POST /auth/reset-password` | Manage password recovery workflow. | Email for initiation; token + password for completion. | `202` for initiation, `200` for reset, schedule email send, enforce password policies, log completion.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L74-L118】 |
-| `POST /auth/mfa/enroll` / `POST /auth/mfa/verify` | Manage MFA secrets and verifications. | TOTP seed or WebAuthn challenge data. | `200`, persists MFA factors, flags accounts requiring step-up auth, records governance review items.【F:docs/01-about/04-security-and-data-protection.md†L206-L239】【F:docs/02-technical-specifications/06-security-implementation.md†L54-L96】 |
-| `POST /auth/service-tokens` / `DELETE /auth/service-tokens/:id` | Issue and revoke service credentials. | Token label, scope, expiry. | `201` with credential metadata or `204` on revoke, updates integration registry, emits webhook for dependent services.【F:docs/01-about/04-security-and-data-protection.md†L219-L226】【F:docs/02-technical-specifications/07-integration-architecture.md†L145-L187】 |
+| `POST /api/v1/auth/register` | Create a local account and bootstrap RBAC assignments. | Email, password, tenant metadata, optional SSO hints. | `201` with user profile payload, emits welcome email, seeds `auth_role_assignments`, enqueues audit event.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L74-L118】【F:docs/02-technical-specifications/06-security-implementation.md†L54-L96】 |
+| `POST /api/v1/auth/login` | Authenticate user credentials or SSO handoff. | Email + password or provider token, MFA hints. | `200` with access/refresh tokens, writes session row, logs attempt, triggers risk checks and notifications on anomalies.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L74-L86】【F:docs/01-about/04-security-and-data-protection.md†L206-L239】 |
+| `POST /api/v1/auth/logout` | Terminate active session. | Refresh token identifier. | `204`, revokes session records, cascades token invalidation, and records audit entry for traceability.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L74-L86】【F:docs/01-about/04-security-and-data-protection.md†L243-L259】 |
+| `POST /api/v1/auth/refresh` | Rotate access tokens. | Refresh token, device info. | `200` with new tokens, rotation metadata updated, invalid attempts flagged for monitoring.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L74-L86】【F:docs/02-technical-specifications/06-security-implementation.md†L54-L96】 |
+| `POST /api/v1/auth/forgot-password` / `POST /api/v1/auth/reset-password` | Manage password recovery workflow. | Email for initiation; token + password for completion. | `202` for initiation, `200` for reset, schedule email send, enforce password policies, log completion.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L74-L118】 |
+| `POST /api/v1/auth/mfa/enroll` / `POST /api/v1/auth/mfa/verify` | Manage MFA secrets and verifications. | TOTP seed or WebAuthn challenge data. | `200`, persists MFA factors, flags accounts requiring step-up auth, records governance review items.【F:docs/01-about/04-security-and-data-protection.md†L206-L239】【F:docs/02-technical-specifications/06-security-implementation.md†L54-L96】 |
+| `POST /api/v1/auth/service-tokens` / `DELETE /api/v1/auth/service-tokens/:id` | Issue and revoke service credentials. | Token label, scope, expiry. | `201` with credential metadata or `204` on revoke, updates integration registry, emits webhook for dependent services.【F:docs/01-about/04-security-and-data-protection.md†L219-L226】【F:docs/02-technical-specifications/07-integration-architecture.md†L145-L187】 |
 
 ### Background Jobs & Event Hooks
 - **Session cleanup worker:** Scheduled task revokes stale refresh tokens, enforces inactivity policies, and notifies users about forced sign-outs through the Notification System.【F:docs/03-systems/04-notification-system/readme.md†L1-L153】【F:docs/02-technical-specifications/06-security-implementation.md†L54-L96】
@@ -136,7 +136,7 @@ client/src/state/auth/
 
 ### Reusable Components & UI Flows
 - **Shared Components:** `client/src/components/forms/ControlledInput.tsx`, `client/src/components/layout/AuthGuard.tsx`, and `client/src/components/feedback/SessionTimeoutModal.tsx` are reused across login, registration, and MFA flows to deliver consistent experiences.
-- **Authentication Screens:** Login, registration, password reset, and MFA setup pages mirror backend `/auth` endpoints with form validation, CSRF headers, and contextual messaging for account states.【F:docs/02-technical-specifications/03-frontend-architecture.md†L50-L139】
+- **Authentication Screens:** Login, registration, password reset, and MFA setup pages mirror backend `/api/v1/auth` endpoints with form validation, CSRF headers, and contextual messaging for account states.【F:docs/02-technical-specifications/03-frontend-architecture.md†L50-L139】
 - **Session Awareness:** Global `AuthContext` persists JWT tokens, handles refresh logic, and surfaces role metadata so protected routes can enforce access in layouts and navigation.【F:docs/02-technical-specifications/03-frontend-architecture.md†L96-L139】
 - **Security UX:** UI flows integrate security feedback (password strength meter, device trust prompts, session timeout modals) to align user experience with backend governance controls.【F:docs/02-technical-specifications/03-frontend-architecture.md†L143-L160】
 - **Admin Adjacent Screens:** Auth screens link to RBAC and admin consoles for privilege reviews, reusing guard components defined in the RBAC feature set to keep enforcement consistent in client routing.【F:docs/03-systems/02-rbac-system/readme.md†L60-L88】【F:docs/02-technical-specifications/03-frontend-architecture.md†L52-L140】
