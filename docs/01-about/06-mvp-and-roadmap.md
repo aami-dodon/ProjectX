@@ -523,3 +523,7 @@ By 2032, the platform is envisioned to be:
 - **Trusted Ecosystem Partner:** Powering AI audits, certifications, and continuous compliance operations.
 
 This long-term roadmap transforms the platform from a product into an **industry-defining governance utility** — an indispensable layer of trust and accountability in the global AI ecosystem.
+
+---
+
+[← Previous](05-moneytization-model.md) | [Next →](07-marketing-strategy.md)

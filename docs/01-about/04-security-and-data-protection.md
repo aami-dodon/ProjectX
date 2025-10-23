@@ -545,4 +545,4 @@ By embedding security across design, development, and operations, the platform e
 
 ---
 
-[← Previous](03-concept-summary.md)
+[← Previous](03-concept-summary.md) | [Next →](05-moneytization-model.md)

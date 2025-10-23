@@ -49,7 +49,7 @@
 
 >### TL;DR  
 > The platform follows a flexible, value-based SaaS pricing model combining predictable annual subscriptions with modular, usage-based and add-on options.  
-> Entry pricing starts at $25,000/year, scaling to $300,000+ for large enterprise deployments.
+> Entry pricing starts at ₹21,00,000/year, scaling to ₹2,50,00,000+ for large enterprise deployments.
 
 The pricing model is structured to align with how organizations scale their governance and compliance programs.  
 It balances **predictable subscriptions** with **pay-as-you-grow modularity**, ensuring customers can start small and expand as their compliance maturity increases.  
@@ -70,11 +70,11 @@ This hybrid model supports both mid-market and enterprise customers while mainta
 ### 2. Core SaaS Subscription
 Each customer begins with a base annual subscription that includes access to standard platform features.
 
-| Plan Type | Description | Annual Pricing (USD) | Inclusions |
+| Plan Type | Description | Annual Pricing (INR) | Inclusions |
 |------------|--------------|----------------------|-------------|
-| **Standard Cloud** | Multi-tenant SaaS deployment for small to mid-size organizations | **$25,000 – $45,000 / year** | Core modules (Probes, Checks, Controls, Dashboards), up to 10 users, 1 framework |
-| **Enterprise Cloud** | Dedicated cloud instance with premium SLA and support | **$60,000 – $120,000 / year** | Includes 3 frameworks, 25 users, extended analytics |
-| **Private Cloud / On-Prem** | Self-managed or dedicated tenant deployment for regulated sectors | **Starting at $100,000 / year** | Full control, data residency, custom SLAs, audit assistance |
+| **Standard Cloud** | Multi-tenant SaaS deployment for small to mid-size organizations | **₹21,00,000 – ₹38,00,000 / year** | Core modules (Probes, Checks, Controls, Dashboards), up to 10 users, 1 framework |
+| **Enterprise Cloud** | Dedicated cloud instance with premium SLA and support | **₹50,00,000 – ₹1,00,00,000 / year** | Includes 3 frameworks, 25 users, extended analytics |
+| **Private Cloud / On-Prem** | Self-managed or dedicated tenant deployment for regulated sectors | **Starting at ₹84,00,000 / year** | Full control, data residency, custom SLAs, audit assistance |
 
 The base plan includes system hosting, maintenance, security management, and regulatory framework updates.
 
@@ -85,11 +85,11 @@ To enable flexible scaling, customers can add modules and integrations as their 
 
 | Add-On Type | Description | Pricing |
 |--------------|--------------|----------|
-| **Additional Frameworks** | EU AI Act, ISO 42001, NIST RMF, or custom internal frameworks | **$3,000 – $7,500 / framework / year** |
-| **Additional Users** | Beyond the base user limit | **$300 – $800 / user / year** |
-| **Governed Systems / Probes** | Usage-based pricing per integrated system or probe | **$100 – $250 / system / month** |
-| **Integrations & Connectors** | Pre-built integrations with ServiceNow, OneTrust, Jira, etc. | **$1,500 – $3,000 / integration / year** |
-| **Advanced Reporting Module** | Cross-framework benchmarking and governance maturity analytics | **$5,000 – $10,000 / year** |
+| **Additional Frameworks** | EU AI Act, ISO 42001, NIST RMF, or custom internal frameworks | **₹2,50,000 – ₹6,30,000 / framework / year** |
+| **Additional Users** | Beyond the base user limit | **₹25,000 – ₹67,000 / user / year** |
+| **Governed Systems / Probes** | Usage-based pricing per integrated system or probe | **₹8,400 – ₹21,000 / system / month** |
+| **Integrations & Connectors** | Pre-built integrations with ServiceNow, OneTrust, Jira, etc. | **₹1,26,000 – ₹2,52,000 / integration / year** |
+| **Advanced Reporting Module** | Cross-framework benchmarking and governance maturity analytics | **₹4,20,000 – ₹8,40,000 / year** |
 
 These add-ons allow organizations to tailor the platform precisely to their governance landscape.
 
@@ -100,20 +100,20 @@ Professional services support implementation, customization, and audit preparati
 
 | Service Type | Description | Pricing |
 |---------------|-------------|----------|
-| **Implementation & Onboarding** | Initial setup, framework mapping, and user training | **$10,000 – $25,000 / project** |
-| **Custom Integrations** | Building and validating organization-specific connectors | **$200 – $300 / hour** |
-| **Governance Advisory** | Framework gap analysis and compliance alignment consulting | **$5,000 – $15,000 / engagement** |
+| **Implementation & Onboarding** | Initial setup, framework mapping, and user training | **₹8,40,000 – ₹21,00,000 / project** |
+| **Custom Integrations** | Building and validating organization-specific connectors | **₹16,800 – ₹25,200 / hour** |
+| **Governance Advisory** | Framework gap analysis and compliance alignment consulting | **₹4,20,000 – ₹12,60,000 / engagement** |
 
-These services accelerate adoption and ensure seamless alignment with each organization’s governance objectives.
+These services accelerate adoption and ensure seamless alignment with each organization's governance objectives.
 
 ---
 
 ### 5. Example Annual Pricing Scenarios
-| Customer Type | Setup Example | Estimated Annual Cost (USD) |
+| Customer Type | Setup Example | Estimated Annual Cost (INR) |
 |----------------|----------------|-----------------------------|
-| **Mid-Market Organization** | 1 framework, 10 users, 5 systems | **$30,000 – $45,000** |
-| **Enterprise (Multi-Framework)** | 3 frameworks, 25 users, 15 systems | **$75,000 – $120,000** |
-| **Highly Regulated Industry (Private Cloud)** | Dedicated tenant, 4 frameworks, 40 systems, 50 users | **$200,000 – $300,000+** |
+| **Mid-Market Organization** | 1 framework, 10 users, 5 systems | **₹25,00,000 – ₹38,00,000** |
+| **Enterprise (Multi-Framework)** | 3 frameworks, 25 users, 15 systems | **₹63,00,000 – ₹1,00,00,000** |
+| **Highly Regulated Industry (Private Cloud)** | Dedicated tenant, 4 frameworks, 40 systems, 50 users | **₹1,68,00,000 – ₹2,52,00,000+** |
 
 ---
 
@@ -134,11 +134,11 @@ This mix ensures predictable annual recurring revenue (ARR) while maintaining ex
 ---
 
 ### 1. Core SaaS Subscriptions (70–75% of ARR)
-The primary revenue source is annual or multi-year SaaS subscriptions for access to the platform’s core modules.
+The primary revenue source is annual or multi-year SaaS subscriptions for access to the platform's core modules.
 
-- Typical Pricing: **$25,000 – $120,000 per year** depending on plan and deployment type.  
+- Typical Pricing: **₹21,00,000 – ₹1,00,00,000 per year** depending on plan and deployment type.  
 - Subscription Term: Annual, with multi-year discounts (up to 10%).  
-- Average Customer ARR: **$60,000 – $80,000** for enterprise clients after the first year.  
+- Average Customer ARR: **₹50,00,000 – ₹67,00,000** for enterprise clients after the first year.  
 - Renewal Rate Target: **>90%**, driven by framework updates and compliance dependency.  
 
 As customers expand frameworks and integrations, ARR naturally compounds without requiring new customer acquisition.
@@ -151,8 +151,8 @@ Usage-based billing complements the subscription model, charging customers for t
 - Metered by:  
   - Number of active **probes or governed systems**.  
   - Number of **frameworks in use** beyond the base plan.  
-- Typical Pricing: **$100 – $250 per system per month** or **$3,000 – $7,500 per framework annually**.  
-- Average Upsell: **$12,000 – $25,000 per enterprise per year** through incremental usage growth.  
+- Typical Pricing: **₹8,400 – ₹21,000 per system per month** or **₹2,50,000 – ₹6,30,000 per framework annually**.  
+- Average Upsell: **₹10,00,000 – ₹21,00,000 per enterprise per year** through incremental usage growth.  
 
 This model captures value as clients expand governance coverage across business units or product lines.
 
@@ -161,9 +161,9 @@ This model captures value as clients expand governance coverage across business 
 ### 3. Add-On Integrations and Modules (5–10% of ARR)
 Revenue is generated from pre-built integrations and premium reporting modules.
 
-- Integration Pricing: **$1,500 – $3,000 per connector per year** (e.g., ServiceNow, OneTrust, Jira, Slack).  
-- Advanced Reporting & Analytics Modules: **$5,000 – $10,000 per year**.  
-- Forecast Contribution: **Up to $15,000 per customer annually** in optional add-ons.  
+- Integration Pricing: **₹1,26,000 – ₹2,52,000 per connector per year** (e.g., ServiceNow, OneTrust, Jira, Slack).  
+- Advanced Reporting & Analytics Modules: **₹4,20,000 – ₹8,40,000 per year**.  
+- Forecast Contribution: **Up to ₹12,60,000 per customer annually** in optional add-ons.  
 
 These modules enhance platform stickiness by embedding governance workflows directly into customer ecosystems.
 
@@ -174,11 +174,11 @@ Professional and advisory services generate both onboarding revenue and long-ter
 
 | Service Type | Pricing Range | Contribution |
 |---------------|----------------|---------------|
-| Implementation & Onboarding | **$10,000 – $25,000 / project** | 60% of service revenue |
-| Custom Integration Development | **$200 – $300 / hour** | 25% |
-| Governance & Compliance Advisory | **$5,000 – $15,000 / engagement** | 15% |
+| Implementation & Onboarding | **₹8,40,000 – ₹21,00,000 / project** | 60% of service revenue |
+| Custom Integration Development | **₹16,800 – ₹25,200 / hour** | 25% |
+| Governance & Compliance Advisory | **₹4,20,000 – ₹12,60,000 / engagement** | 15% |
 
-Average professional services engagement yields **$20,000 – $30,000** in first-year non-recurring revenue per enterprise customer.  
+Average professional services engagement yields **₹16,80,000 – ₹25,20,000** in first-year non-recurring revenue per enterprise customer.  
 While smaller in proportion, this stream supports high-margin consulting and reinforces platform adoption.
 
 ---
@@ -186,7 +186,7 @@ While smaller in proportion, this stream supports high-margin consulting and rei
 ### 5. Enterprise Licensing and Private Deployments (High-Margin Upside)
 Dedicated or on-premise deployments generate substantial premium revenue due to customization, isolation, and regulatory assurance.
 
-- Annual License: **$100,000 – $300,000+**  
+- Annual License: **₹84,00,000 – ₹2,52,00,000+**  
 - Margins: 60–70% due to limited incremental cost.  
 - Target Market: Financial services, government, defense, and healthcare sectors.  
 - Renewal Rate: 3–5 year contracts, negotiated with enterprise procurement teams.  
@@ -198,30 +198,30 @@ These deployments contribute significantly to long-term recurring revenue stabil
 ### 6. Long-Term Expansion Streams
 As the platform ecosystem matures, additional monetization opportunities can include:
 - **Marketplace Revenue:** Commission on third-party frameworks or integrations.  
-- **Benchmarking Subscriptions:** Industry compliance scoring and analytics packages (**$10,000 – $25,000 / year**).  
-- **Training and Certification Programs:** Compliance maturity courses and role-based training (**$500 – $2,000 per user**).  
-- **API Monetization:** Premium API calls for external audit or GRC system access (**$0.01 – $0.05 per API call**).
+- **Benchmarking Subscriptions:** Industry compliance scoring and analytics packages (**₹8,40,000 – ₹21,00,000 / year**).  
+- **Training and Certification Programs:** Compliance maturity courses and role-based training (**₹42,000 – ₹1,68,000 per user**).  
+- **API Monetization:** Premium API calls for external audit or GRC system access (**₹0.84 – ₹4.20 per API call**).
 
 These emerging streams will diversify revenue while increasing platform engagement and brand authority in the AI governance domain.
 
 ---
 
 ### 7. Revenue Composition (Year 3 Target Projection)
-| **Revenue Stream** | **% Contribution** | **Margin Profile** | **Example Annual Revenue (USD)** |
+| **Revenue Stream** | **% Contribution** | **Margin Profile** | **Example Annual Revenue (INR)** |
 |--------------------|-------------------|--------------------|----------------------------------|
-| Core SaaS Subscriptions | 70% | 80% | $7,000,000 |
-| Usage-Based Billing | 10% | 85% | $1,000,000 |
-| Add-Ons & Integrations | 5% | 75% | $500,000 |
-| Professional Services | 10% | 60% | $1,000,000 |
-| Private / Enterprise Deployments | 5% | 65% | $500,000 |
-| **Total Estimated Revenue (Year 3)** | **—** | **—** | **$10,000,000+** |
+| Core SaaS Subscriptions | 70% | 80% | ₹58.8 Crore |
+| Usage-Based Billing | 10% | 85% | ₹8.4 Crore |
+| Add-Ons & Integrations | 5% | 75% | ₹4.2 Crore |
+| Professional Services | 10% | 60% | ₹8.4 Crore |
+| Private / Enterprise Deployments | 5% | 65% | ₹4.2 Crore |
+| **Total Estimated Revenue (Year 3)** | **—** | **—** | **₹84 Crore+** |
 
 ---
 ## 5.3 Pricing Tiers and Packaging
 
 >### TL;DR  
 > The platform offers tiered packages tailored to governance maturity and organizational scale — from small compliance teams to global enterprises.  
-> Pricing ranges from $25,000 to $300,000+ per year depending on deployment size, frameworks, and security requirements.
+> Pricing ranges from ₹21,00,000 to ₹2,52,00,000+ per year depending on deployment size, frameworks, and security requirements.
 
 The tiered structure allows customers to adopt the platform at their current level of governance maturity and scale seamlessly as their compliance scope expands.  
 Each tier includes baseline capabilities, with additional frameworks, probes, and integrations available as modular upgrades.
@@ -229,7 +229,7 @@ Each tier includes baseline capabilities, with additional frameworks, probes, an
 ---
 
 ### 1. Starter (Growth-Stage Organizations)
-**Annual Price:** **$25,000 – $40,000**  
+**Annual Price:** **₹21,00,000 – ₹33,60,000**  
 **Target:** Early adopters, AI teams, and small to mid-size organizations beginning their governance journey.  
 
 **Includes:**
@@ -241,9 +241,9 @@ Each tier includes baseline capabilities, with additional frameworks, probes, an
 - Email Support and Quarterly Reviews  
 
 **Optional Add-Ons:**
-- Additional Framework: $3,000 – $5,000 / year  
-- Extra Users: $300 / user / year  
-- Additional Systems: $100 / system / month  
+- Additional Framework: ₹2,50,000 – ₹4,20,000 / year  
+- Extra Users: ₹25,000 / user / year  
+- Additional Systems: ₹8,400 / system / month  
 
 **Ideal For:**  
 Organizations validating their AI governance processes or preparing for regulatory readiness.
@@ -251,7 +251,7 @@ Organizations validating their AI governance processes or preparing for regulato
 ---
 
 ### 2. Professional (Expanding Governance Teams)
-**Annual Price:** **$45,000 – $90,000**  
+**Annual Price:** **₹38,00,000 – ₹75,60,000**  
 **Target:** Mid-size enterprises managing multiple AI systems across departments.  
 
 **Includes:**
@@ -263,9 +263,9 @@ Organizations validating their AI governance processes or preparing for regulato
 - Dedicated Customer Success Manager  
 
 **Optional Add-Ons:**
-- Integration Connectors (ServiceNow, Jira, OneTrust): $1,500 – $3,000 / connector / year  
-- API Access and Custom Dashboards: $5,000 / year  
-- Annual Compliance Health Assessment: $7,500  
+- Integration Connectors (ServiceNow, Jira, OneTrust): ₹1,26,000 – ₹2,52,000 / connector / year  
+- API Access and Custom Dashboards: ₹4,20,000 / year  
+- Annual Compliance Health Assessment: ₹6,30,000  
 
 **Ideal For:**  
 Organizations expanding governance scope to enterprise-wide AI operations with cross-framework reporting.
@@ -273,7 +273,7 @@ Organizations expanding governance scope to enterprise-wide AI operations with c
 ---
 
 ### 3. Enterprise (Multi-Domain, Multi-Framework)
-**Annual Price:** **$100,000 – $200,000**  
+**Annual Price:** **₹84,00,000 – ₹1,68,00,000**  
 **Target:** Large organizations with mature governance processes and regulatory oversight.  
 
 **Includes:**
@@ -287,9 +287,9 @@ Organizations expanding governance scope to enterprise-wide AI operations with c
 - Priority Support (24/7 SLA)  
 
 **Optional Add-Ons:**
-- Additional Frameworks: $5,000 / year each  
-- Custom Integrations: $200 – $300 / hour  
-- Governance Advisory Package: $10,000 – $15,000 / year  
+- Additional Frameworks: ₹4,20,000 / year each  
+- Custom Integrations: ₹16,800 – ₹25,200 / hour  
+- Governance Advisory Package: ₹8,40,000 – ₹12,60,000 / year  
 
 **Ideal For:**  
 Global enterprises with internal audit teams or regulated operations needing detailed visibility and control.
@@ -297,7 +297,7 @@ Global enterprises with internal audit teams or regulated operations needing det
 ---
 
 ### 4. Regulated / Private Cloud (Government, BFSI, Healthcare)
-**Annual Price:** **$250,000 – $350,000+**  
+**Annual Price:** **₹2,10,00,000 – ₹2,94,00,000+**  
 **Target:** Organizations with strict data residency or regulatory mandates requiring private or on-prem deployments.  
 
 **Includes:**
@@ -310,9 +310,9 @@ Global enterprises with internal audit teams or regulated operations needing det
 - 3-Year Contract Options with Volume Discounts  
 
 **Optional Add-Ons:**
-- Managed Compliance Service (continuous monitoring and updates): $50,000+ / year  
-- Custom Regulatory Mappings or Local Frameworks: $7,500 / framework  
-- Enhanced SLA with Dedicated Security Liaison: $15,000 / year  
+- Managed Compliance Service (continuous monitoring and updates): ₹42,00,000+ / year  
+- Custom Regulatory Mappings or Local Frameworks: ₹6,30,000 / framework  
+- Enhanced SLA with Dedicated Security Liaison: ₹12,60,000 / year  
 
 **Ideal For:**  
 Banks, healthcare providers, defense contractors, and government entities requiring maximum assurance and control.
@@ -323,7 +323,7 @@ Banks, healthcare providers, defense contractors, and government entities requir
 
 | Feature / Tier | Starter | Professional | Enterprise | Regulated / Private |
 |-----------------|----------|---------------|-------------|----------------------|
-| Annual Price | $25K–$40K | $45K–$90K | $100K–$200K | $250K–$350K+ |
+| Annual Price | ₹21L–₹34L | ₹38L–₹76L | ₹84L–₹1.68Cr | ₹2.1Cr–₹2.94Cr+ |
 | Frameworks Included | 1 | 3 | 5 | All Available |
 | Users | 10 | 25 | 50 | Unlimited |
 | Systems / Probes | 5 | 15 | Unlimited | Unlimited |
@@ -344,7 +344,7 @@ The tiered approach ensures:
 ## 5.4 Adoption and Growth Levers
 
 >### TL;DR  
-> The platform’s growth strategy focuses on rapid adoption through accessible entry points, framework-based expansion, and ecosystem integrations — driving strong recurring revenue and long-term retention.
+> The platform's growth strategy focuses on rapid adoption through accessible entry points, framework-based expansion, and ecosystem integrations — driving strong recurring revenue and long-term retention.
 
 The adoption model is designed to convert early compliance use cases into long-term, enterprise-wide governance programs.  
 It leverages a combination of entry-level accessibility, value-driven upselling, and network effects through partnerships and integrations.
@@ -356,8 +356,8 @@ It leverages a combination of entry-level accessibility, value-driven upselling,
 
 **Tactics:**
 - **Free Limited Trial (30–45 days):** Full access to one framework, 5 users, and 3 probes to demonstrate value.  
-- **“Quick Start” Implementation Packages:** Fixed-price setup ($5,000) including probe integration and framework configuration.  
-- **AI Governance Readiness Assessment:** A one-time $2,500 engagement providing an executive-level compliance scorecard and gap summary.  
+- **"Quick Start" Implementation Packages:** Fixed-price setup (₹4,20,000) including probe integration and framework configuration.  
+- **AI Governance Readiness Assessment:** A one-time ₹2,10,000 engagement providing an executive-level compliance scorecard and gap summary.  
 
 These initiatives encourage organizations to test the platform and convert trials into paid subscriptions within 60–90 days.
 
@@ -367,8 +367,8 @@ These initiatives encourage organizations to test the platform and convert trial
 **Objective:** Drive natural upselling through the addition of new frameworks and governance domains.
 
 **Tactics:**
-- Introduce **regulation-specific bundles** (e.g., “EU AI Act Compliance Pack” or “NIST AI RMF Suite”) for $3,000–$7,500 each.  
-- Offer **cross-framework comparison dashboards** as a premium analytics module ($5,000–$10,000).  
+- Introduce **regulation-specific bundles** (e.g., "EU AI Act Compliance Pack" or "NIST AI RMF Suite") for ₹2,50,000–₹6,30,000 each.  
+- Offer **cross-framework comparison dashboards** as a premium analytics module (₹4,20,000–₹8,40,000).  
 - Regularly release new frameworks (ISO 42001, OECD AI, National AI policies) to create continuous upgrade opportunities.
 
 This model ensures recurring revenue expansion as compliance requirements evolve globally.
@@ -379,9 +379,9 @@ This model ensures recurring revenue expansion as compliance requirements evolve
 **Objective:** Build stickiness through integrations and ecosystem partnerships.
 
 **Tactics:**
-- **Integration Marketplace:** Offer connectors to systems like ServiceNow, OneTrust, Jira, Slack, and Snowflake for $1,500–$3,000 each per year.  
+- **Integration Marketplace:** Offer connectors to systems like ServiceNow, OneTrust, Jira, Slack, and Snowflake for ₹1,26,000–₹2,52,000 each per year.  
 - **Partner-Led Deployments:** Collaborate with consulting and audit firms for joint client onboarding.  
-- **OEM and White-Label Licensing:** Allow GRC vendors or regulators to embed core modules under their brand, priced at $100,000+ per deployment.
+- **OEM and White-Label Licensing:** Allow GRC vendors or regulators to embed core modules under their brand, priced at ₹84,00,000+ per deployment.
 
 These partnerships accelerate enterprise credibility and expand the distribution footprint without direct sales overhead.
 
@@ -416,9 +416,9 @@ Average expansion potential: **25–40% annual increase in ARR per customer** af
 **Objective:** Establish sustainable long-term revenue growth channels.
 
 **Levers:**
-- **Compliance Benchmarking Reports:** Industry comparison reports sold as subscriptions ($10,000 – $25,000 / year).  
-- **Certification Partnerships:** Collaborate with standards bodies for recognized “AI Governance Certified” programs.  
-- **Training and Enablement:** Offer modular training packages for AI ethics and compliance officers ($500 – $2,000 / user).  
+- **Compliance Benchmarking Reports:** Industry comparison reports sold as subscriptions (₹8,40,000 – ₹21,00,000 / year).  
+- **Certification Partnerships:** Collaborate with standards bodies for recognized "AI Governance Certified" programs.  
+- **Training and Enablement:** Offer modular training packages for AI ethics and compliance officers (₹42,000 – ₹1,68,000 / user).  
 - **Regional Partnerships:** Target specific markets (EU, MENA, APAC) through localized frameworks and reseller programs.
 
 These initiatives create multiple paths for recurring and high-margin revenue while positioning the platform as the ecosystem leader in AI governance.
@@ -438,7 +438,7 @@ By combining low-friction onboarding, continuous framework expansion, and strong
 ## 5.5 Long-Term Monetization Outlook
 
 >### TL;DR  
-> The platform’s long-term monetization strategy focuses on scaling recurring revenue, expanding data-driven products, and developing ecosystem-led growth models that position it as the global standard for AI governance automation.
+> The platform's long-term monetization strategy focuses on scaling recurring revenue, expanding data-driven products, and developing ecosystem-led growth models that position it as the global standard for AI governance automation.
 
 As regulatory and ethical governance requirements continue to expand globally, the platform is designed to evolve from a compliance tool into an **enterprise infrastructure layer for AI assurance**.  
 The monetization strategy over the next 3–5 years prioritizes compounding Annual Recurring Revenue (ARR), high-margin ecosystem expansion, and the creation of new data-driven revenue streams.
@@ -458,9 +458,9 @@ The monetization strategy over the next 3–5 years prioritizes compounding Annu
 **Projection Example (Year 1–3):**
 | Year | Customers | Avg. ARR / Customer | Projected ARR | YoY Growth |
 |------|------------|----------------------|----------------|-------------|
-| 1 | 40 | $45,000 | $1.8M | — |
-| 2 | 70 | $80,000 | $5.6M | +210% |
-| 3 | 100 | $100,000 | $10M+ | +80% |
+| 1 | 40 | ₹38,00,000 | ₹15.2 Crore | — |
+| 2 | 70 | ₹67,00,000 | ₹46.9 Crore | +210% |
+| 3 | 100 | ₹84,00,000 | ₹84 Crore+ | +80% |
 
 ---
 
@@ -469,15 +469,15 @@ The monetization strategy over the next 3–5 years prioritizes compounding Annu
 
 - **Marketplace for Frameworks and Connectors:**  
   Enable third-party providers to list and monetize frameworks, earning platform commissions (10–20% per sale).  
-  Potential annual ecosystem GMV: **$1M – $3M** by Year 4.  
+  Potential annual ecosystem GMV: **₹8.4 Crore – ₹25.2 Crore** by Year 4.  
 
 - **OEM / White-Label Partnerships:**  
-  Licensing platform modules to audit firms, regulators, or industry bodies at **$100,000+ per license**.  
-  Estimated revenue potential: **$2M – $5M annually** by Year 5.  
+  Licensing platform modules to audit firms, regulators, or industry bodies at **₹84,00,000+ per license**.  
+  Estimated revenue potential: **₹16.8 Crore – ₹42 Crore annually** by Year 5.  
 
 - **Certification and Training Marketplace:**  
-  Offer organization-level certification and user-level accreditation (e.g., “Certified AI Governance Practitioner”).  
-  Pricing: **$500 – $2,000 per user**, targeting large enterprises and consultancies.  
+  Offer organization-level certification and user-level accreditation (e.g., "Certified AI Governance Practitioner").  
+  Pricing: **₹42,000 – ₹1,68,000 per user**, targeting large enterprises and consultancies.  
 
 ---
 
@@ -486,17 +486,17 @@ The monetization strategy over the next 3–5 years prioritizes compounding Annu
 
 - **Benchmarking Subscriptions:**  
   Sell cross-industry governance performance reports and compliance maturity indices.  
-  Pricing: **$10,000 – $25,000 / year** for enterprises and research bodies.  
+  Pricing: **₹8,40,000 – ₹21,00,000 / year** for enterprises and research bodies.  
 
 - **Regulatory Intelligence Feed:**  
   Subscription API providing real-time framework updates, control mappings, and regulatory changes.  
-  Pricing: **$1,000 / month** per subscriber.  
+  Pricing: **₹84,000 / month** per subscriber.  
 
 - **Risk Scoring as a Service:**  
   Provide external APIs for risk and compliance scoring integrations into other systems.  
-  Transaction-based pricing: **$0.01 – $0.05 per API call**, high margin and scalable.
+  Transaction-based pricing: **₹0.84 – ₹4.20 per API call**, high margin and scalable.
 
-These data-driven models create continuous, compounding value from the platform’s governance dataset.
+These data-driven models create continuous, compounding value from the platform's governance dataset.
 
 ---
 
@@ -530,6 +530,10 @@ Projected EBITDA Margin: **30–35% by Year 4**, improving to **40%+** as ecosys
 ### 6. Long-Term Strategic Positioning
 By Year 5, the platform aims to:
 - Serve **250+ enterprise customers** globally.  
-- Achieve **$25M+ ARR** with diversified income sources.  
+- Achieve **₹210 Crore+ ARR** with diversified income sources.  
 - Operate as a **de facto compliance infrastructure layer** for AI governance ecosystems.  
-- Build network effects through framework providers, regulators, and audit partners.  
+- Build network effects through framework providers, regulators, and audit partners.
+
+---
+
+[← Previous](04-security-and-data-protection.md) | [Next →](06-mvp-and-roadmap.md)
