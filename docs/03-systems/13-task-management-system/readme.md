@@ -84,14 +84,14 @@ Controller endpoints conform to REST contracts documented in the backend specifi
 
 | Method | Endpoint | Description | Request Shape (JSON) | Response Shape |
 |--------|----------|-------------|----------------------|----------------|
-| POST | `/tasks` | Create remediation task from governance trigger, mapping control/check/context metadata. | `{ title, description, priority, source, controlId, checkId, frameworkId, slaDueAt, assigneeId/teamId, tags, evidenceHints[] }` | `{ status, message, data: { task } }` |
-| GET | `/tasks` | List/filter tasks by status, severity, framework, owner, SLA state, escalation tier. | Query params `status`, `priority`, `frameworkId`, `assigneeId`, `escalationLevel`, `search` | `{ status, message, data: { tasks, pagination, aggregates } }` |
-| GET | `/tasks/:id` | Retrieve task detail, lifecycle events, evidence links, external sync state. | N/A | `{ status, message, data: { task, timeline, metrics } }` |
-| PATCH | `/tasks/:id/status` | Transition task state; enforces lifecycle rules and evidence prerequisites. | `{ status, comment, evidenceIds[], reopenReason }` | `{ status, message, data: { task } }` |
-| POST | `/tasks/:id/reassign` | Reassign or delegate to user/team, capturing expiry and audit context. | `{ assigneeId, teamId, delegationExpiresAt, justification }` | `{ status, message, data: { task, assignments } }` |
-| POST | `/tasks/:id/escalate` | Manually escalate with reason (auto-escalations handled by scheduler). | `{ escalationLevel, reason }` | `{ status, message, data: { task } }` |
-| POST | `/tasks/:id/evidence` | Attach or detach evidence references after validation. | `{ action: "add" | "remove", evidenceIds[] }` | `{ status, message, data: { task, evidenceLinks } }` |
-| POST | `/tasks/:id/sync` | Force external issue sync (Jira/ServiceNow) and return status. | `{ provider, forceRefresh }` | `{ status, message, data: { syncState } }` |
+| POST | `/api/v1/tasks` | Create remediation task from governance trigger, mapping control/check/context metadata. | `{ title, description, priority, source, controlId, checkId, frameworkId, slaDueAt, assigneeId/teamId, tags, evidenceHints[] }` | `{ status, message, data: { task } }` |
+| GET | `/api/v1/tasks` | List/filter tasks by status, severity, framework, owner, SLA state, escalation tier. | Query params `status`, `priority`, `frameworkId`, `assigneeId`, `escalationLevel`, `search` | `{ status, message, data: { tasks, pagination, aggregates } }` |
+| GET | `/api/v1/tasks/:id` | Retrieve task detail, lifecycle events, evidence links, external sync state. | N/A | `{ status, message, data: { task, timeline, metrics } }` |
+| PATCH | `/api/v1/tasks/:id/status` | Transition task state; enforces lifecycle rules and evidence prerequisites. | `{ status, comment, evidenceIds[], reopenReason }` | `{ status, message, data: { task } }` |
+| POST | `/api/v1/tasks/:id/reassign` | Reassign or delegate to user/team, capturing expiry and audit context. | `{ assigneeId, teamId, delegationExpiresAt, justification }` | `{ status, message, data: { task, assignments } }` |
+| POST | `/api/v1/tasks/:id/escalate` | Manually escalate with reason (auto-escalations handled by scheduler). | `{ escalationLevel, reason }` | `{ status, message, data: { task } }` |
+| POST | `/api/v1/tasks/:id/evidence` | Attach or detach evidence references after validation. | `{ action: "add" | "remove", evidenceIds[] }` | `{ status, message, data: { task, evidenceLinks } }` |
+| POST | `/api/v1/tasks/:id/sync` | Force external issue sync (Jira/ServiceNow) and return status. | `{ provider, forceRefresh }` | `{ status, message, data: { syncState } }` |
 
 All responses follow the unified JSON envelope (`status`, `message`, `data`, `error`) defined for the API server.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L182-L205】
 
@@ -159,7 +159,7 @@ Shared governance components such as `TaskControlPanel.jsx` reside in `client/sr
 The frontend follows the platform’s React architecture (Vite, React Router, Tailwind, shadcn). Data fetching uses Axios clients wrapped in feature-specific hooks; React Context supplies auth tokens, theming, and notification preferences.【F:docs/02-technical-specifications/03-frontend-architecture.md†L9-L140】
 
 Key flows:
-- **Task Intake:** `task-form.jsx` renders dynamic fields (control/check lookups, SLA pickers) and leverages validation helpers shared via `shared/validation`. Automation auto-populates context when invoked from governance alerts; manual users can attach initial evidence placeholders. Submission posts to `/tasks` and on success routes to `task-detail-page.jsx`.
+- **Task Intake:** `task-form.jsx` renders dynamic fields (control/check lookups, SLA pickers) and leverages validation helpers shared via `shared/validation`. Automation auto-populates context when invoked from governance alerts; manual users can attach initial evidence placeholders. Submission posts to `/api/v1/tasks` and on success routes to `task-detail-page.jsx`.
 - **Inbox & Board Views:** `task-inbox-page.jsx` supports filters (status, framework, owner, SLA state). `task-board-page.jsx` renders a Kanban board aligned with lifecycle statuses using drag-and-drop interactions; dropping triggers status mutations that respect lifecycle rules (confirmation modals for cross-tier moves). Aggregates (counts, breach totals) update via `use-sla-metrics.js`.
 - **Detail & Timeline:** `task-detail-page.jsx` composes `task-timeline.jsx`, `evidence-attachment-list.jsx`, and `external-sync-status.jsx` to show history, linked evidence, and external ticket state. Verification actions and delegation modals check Casbin permissions returned by the backend before enabling UI controls.
 - **Escalation Awareness:** `escalation-banner.jsx` surfaces SLA urgency (time remaining, current level) with quick actions to reassign, escalate, or add evidence. The component subscribes to notification context to display realtime alerts from WebSocket or polling channels configured globally.【F:docs/03-systems/04-notification-system/readme.md†L7-L170】
