@@ -1,0 +1,23 @@
+{
+  // ─── JavaScript & TypeScript ───────────────────────────────
+  "javascript.validate.enable": false,
+  "typescript.validate.enable": false,
+
+  // ─── Python Linting (Pylint, Flake8, Mypy, etc.) ─────────────
+  "python.linting.enabled": false,
+  "python.linting.pylintEnabled": false,
+  "python.linting.flake8Enabled": false,
+  "python.linting.mypyEnabled": false,
+
+  // ─── Python Pylance (IntelliSense & Type Checking) ───────────
+  "python.analysis.diagnosticMode": "openFilesOnly",
+  "python.analysis.typeCheckingMode": "off",
+  "python.languageServer": "None",
+
+  // ─── C / C++ Error Squiggles ────────────────────────────────
+  "C_Cpp.errorSquiggles": "disabled",
+
+  // ─── Problems Panel (Optional UI Clean-Up) ──────────────────
+  "problems.showCurrentInStatus": false,
+  "problems.autoReveal": false,
+}
