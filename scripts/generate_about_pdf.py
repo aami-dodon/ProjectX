@@ -932,18 +932,13 @@ def parse_args(argv: List[str] | None = None):
     return parser.parse_args(argv)
 
 
-def prompt_for_input_dir(default: Path) -> Path:
-    """Prompt the user for the documentation directory, defaulting if blank."""
-
-    prompt = f"Enter path to documentation directory [{default}]: "
-    response = input(prompt).strip()
-    return Path(response).expanduser() if response else default.expanduser()
+# Removed interactive prompt; scripts now use defaults or CLI args without prompting.
 
 
 if __name__ == "__main__":  # pragma: no cover
     args = parse_args()
-    input_dir = prompt_for_input_dir(args.input_dir)
-    input_dir = input_dir.resolve()
+    # Hard-coded default; no interactive prompt. CLI flag still supported.
+    input_dir = args.input_dir.expanduser().resolve()
     # Derive default output path from folder name when not provided
     if args.output is None:
         repo_root = Path(__file__).resolve().parents[1]

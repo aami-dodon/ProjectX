@@ -181,8 +181,8 @@ def main():  # pragma: no cover - CLI entry
     about = _load_about_module()
     args = parse_args()
 
-    # Prompt (with default) for the systems directory path
-    input_dir = about.prompt_for_input_dir(args.input_dir).resolve()
+    # Use default or CLI arg without any interactive prompt
+    input_dir = args.input_dir.expanduser().resolve()
 
     # Derive output path when not specified
     if args.output is None:

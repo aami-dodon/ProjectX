@@ -1,4 +1,4 @@
-# Usage: python scripts/generate_about_pdf.py
+# Usage: python scripts/generate_technical_specifications_pdf.py
 """Generate a professional PDF consolidating markdown files from a folder.
 
 By default, the script reads all ``.md`` files (excluding ``readme.md``) from an
@@ -113,8 +113,8 @@ TOC_HEADING_TITLES = {"table of contents", "contents"}
 TOC_DIRECTIVES = {"[toc]", "[[toc]]", "{{toc}}", "<!-- toc -->", "<!--toc-->"}
 
 
-DEFAULT_INPUT_DIR = Path("docs/01-about")
-DEFAULT_OUTPUT = DEFAULT_INPUT_DIR / "about-dossier.pdf"  # legacy default; not used when deriving from folder
+DEFAULT_INPUT_DIR = Path("docs/02-technical-specifications")
+DEFAULT_OUTPUT = DEFAULT_INPUT_DIR / "technical-specifications.pdf"  # legacy default; not used when deriving from folder
 
 
 def _derive_title_from_folder_name(folder_name: str) -> str:
@@ -930,18 +930,13 @@ def parse_args(argv: List[str] | None = None):
     return parser.parse_args(argv)
 
 
-def prompt_for_input_dir(default: Path) -> Path:
-    """Prompt the user for the documentation directory, defaulting if blank."""
-
-    prompt = f"Enter path to documentation directory [{default}]: "
-    response = input(prompt).strip()
-    return Path(response).expanduser() if response else default.expanduser()
+# Removed interactive prompt; scripts now use defaults or CLI args without prompting.
 
 
 if __name__ == "__main__":  # pragma: no cover
     args = parse_args()
-    input_dir = prompt_for_input_dir(args.input_dir)
-    input_dir = input_dir.resolve()
+    # Hard-coded default; no interactive prompt. CLI flag still supported.
+    input_dir = args.input_dir.expanduser().resolve()
     # Derive default output path from folder name when not provided
     if args.output is None:
         repo_root = Path(__file__).resolve().parents[1]
