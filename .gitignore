@@ -1,92 +1,24 @@
-# --- OS / Editor ---
+# OS
 .DS_Store
-Thumbs.db
-.idea/
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
 
-# --- Node / JavaScript (PERN) ---
+# Node (PERN)
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-.eslintcache
-.stylelintcache
-.cache/
-.parcel-cache/
-coverage/
-build/
 dist/
-lib/
-tmp/
-.turbo/
-.vercel/
-.next/
-out/
-storybook-static/
-*.tsbuildinfo
-.node_repl_history
+build/
+coverage/
+npm-debug.log*
+yarn-error.log*
 
-# Yarn v2+ (Berry)
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
-.pnp.*
-
-# --- Python ---
+# Python
 __pycache__/
 *.py[cod]
-*$py.class
-.Python
-*.so
 .venv/
 venv/
-env/
-ENV/
 .pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.nox/
-.tox/
-.pyre/
-.pytype/
-pip-wheel-metadata/
-site/
-htmlcov/
-.coverage
-.coverage.*
-coverage.xml
-*.cover
-*.py,cover
-*.log
-*.pot
-*.mo
-*.egg-info/
-.eggs/
-dist/*.whl
-build/
 
-# --- Docker / Env ---
+# Environment files
 .env
 .env.*
-!.env.example
-!.env.*.example
-docker-data/
-db-data/
-pgdata/
-postgres-data/
 
-# --- Postgres (local volumes or scratch) ---
-# Avoid ignoring SQL migration files by default.
-# Add specific dump names here if needed, e.g.:
-# dump.sql
-# backup.sql
-
+# Documents
+*.pdf
