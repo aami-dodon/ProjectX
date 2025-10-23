@@ -47,6 +47,15 @@ ITALIC_RE = re.compile(r"_(.+?)_")
 CODE_RE = re.compile(r"`([^`]+)`")
 LINK_RE = re.compile(r"\[(.+?)\]\((.+?)\)")
 EXTERNAL_LINK_SCHEME_RE = re.compile(r"^[a-z][a-z0-9+.-]*:", re.IGNORECASE)
+FONT_FACE_RE = re.compile(r"(face=)([\"'])([^\"']+)(\2)", re.IGNORECASE)
+
+
+FONT_FACE_ALIASES = {
+    "courier": "Courier",
+    "courier new": "Courier",
+    "courier-new": "Courier",
+    "monospace": "Courier",
+}
 
 
 _HEADING_SLUG_COUNTS: Counter[str] = Counter()
@@ -321,6 +330,16 @@ def _replace_markdown_link(match: Match[str]) -> str:
     return f'<link href="{href}">{text}</link>'
 
 
+def _normalize_font_face(match: Match[str]) -> str:
+    attr, quote, value, closing = match.groups()
+    fonts = [alias.strip() for alias in value.split(",") if alias.strip()]
+    normalized_fonts = []
+    for font in fonts:
+        normalized_fonts.append(FONT_FACE_ALIASES.get(font.lower(), font))
+    normalized = ", ".join(normalized_fonts) if normalized_fonts else value
+    return f"{attr}{quote}{normalized}{closing}"
+
+
 def format_inline(text: str) -> str:
     cleaned = (
         text.replace("<br />", "\n")
@@ -337,6 +356,7 @@ def format_inline(text: str) -> str:
     escaped = ITALIC_RE.sub(r"<i>\1</i>", escaped)
     escaped = CODE_RE.sub(r"<font face=\"Courier\">\1</font>", escaped)
     escaped = LINK_RE.sub(_replace_markdown_link, escaped)
+    escaped = FONT_FACE_RE.sub(_normalize_font_face, escaped)
     return escaped.replace("\n", "<br/>")
 
 
@@ -742,6 +762,11 @@ def generate_pdf(
     markdown_files = collect_markdown_files(input_dir)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    if output_path.exists():
+        if output_path.is_dir():
+            raise IsADirectoryError(f"Output path '{output_path}' is a directory, expected a file path.")
+        output_path.unlink()
+
     doc = AboutDocTemplate(output_path, branding)
     toc = TableOfContents()
     configure_toc_tracking(doc, styles)
