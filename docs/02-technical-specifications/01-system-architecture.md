@@ -147,7 +147,8 @@ All services communicate over RESTful APIs secured by HTTPS.
 
 ## 1.5 Core System Components
 
-### Frontend Application  
+### Frontend Application
+
 - Developed with **React.js (JavaScript)** using Vite as the build tool.  
 - Implements a single-page architecture with client-side routing.  
 - Provides dashboards, reports, and compliance workflows.  
@@ -156,27 +157,31 @@ All services communicate over RESTful APIs secured by HTTPS.
 - Integrates **Tiptap** for editable content with media uploads to **external MinIO storage**.  
 - Maintains authentication state with JWT.
 
-### API Server (Backend)  
+### API Server (Backend)
+
 - Built using **Express.js (JavaScript)** and Node.js.  
 - Hosts RESTful APIs for authentication, compliance scoring, framework mapping, and audit tracking.  
 - Utilizes Casbin for access control and JWT for authentication.  
 - Includes CORS middleware, structured error handling, and validation logic.  
 - Serves OpenAPI/Swagger documentation for all routes.
 
-### Database Layer (Externally Hosted)  
+### Database Layer (Externally Hosted)
+
 - **PostgreSQL is hosted externally** on a managed cloud service.  
 - Managed via Prisma ORM for schema, migrations, and queries.  
 - Stores users, roles, frameworks, compliance results, and evidence metadata.  
 - Secure SSL connection configured via environment variables.  
 - Backup and access control managed at the hosting provider level.
 
-### Object Storage (Externally Hosted MinIO)  
+### Object Storage (Externally Hosted MinIO)
+
 - **MinIO is hosted externally** as a secure object storage service.  
 - Used for document, image, and video storage.  
 - Files uploaded via presigned URLs, linked to metadata in PostgreSQL.  
 - Encryption at rest and in transit enabled by default.
 
-### Logging and Monitoring  
+### Logging and Monitoring
+
 - **Winston** and **Morgan** provide structured logs for backend activity.  
 - Logs integrated with application lifecycle and API monitoring tools.  
 - Optional integration with external observability systems.
