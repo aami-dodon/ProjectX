@@ -168,8 +168,8 @@ The backend follows a **feature-based modular structure**, ensuring clear separa
 
 ## 2.4 Database Schema Overview
 
-The backend interacts with an **externally hosted PostgreSQL** database managed through Prisma ORM.  
-Schema migrations are automated as part of deployment.
+The backend interacts with an **externally hosted PostgreSQL** database managed through Prisma ORM.
+Schema migrations are automated as part of deployment. The managed provider exposes a dedicated Project X schema, and our CI/CD pipeline submits Prisma migration bundles to the host’s change queue so that RBAC tables (e.g., `auth_policies`) and other structures remain under our governance despite the external hosting model.
 
 ### Core Tables
 - **users** – User profiles and credentials.  
