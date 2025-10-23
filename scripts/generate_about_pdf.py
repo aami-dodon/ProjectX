@@ -1,3 +1,4 @@
+# Usage: python scripts/generate_about_pdf.py
 """Generate a professional PDF consolidating the docs/01-about markdown files.
 
 The script assembles all numbered markdown chapters from ``docs/01-about`` and
@@ -7,6 +8,7 @@ footers, page numbering, and legal disclaimers.
 from __future__ import annotations
 
 import argparse
+from dataclasses import dataclass
 from datetime import datetime
 import re
 from xml.sax.saxutils import escape
@@ -48,11 +50,31 @@ DEFAULT_INPUT_DIR = Path("docs/01-about")
 DEFAULT_OUTPUT = DEFAULT_INPUT_DIR / "about-dossier.pdf"
 
 
+@dataclass(frozen=True)
+class DocumentBranding:
+    """Configuration options for document branding and metadata."""
+
+    project_name: str = "Project X"
+    cover_subtitle: str = "Corporate Strategy & Market Intelligence Dossier"
+    prepared_for: str = "Project X Executive Leadership Team"
+    prepared_by: str = "Strategy & Compliance Office"
+    classification: str = "Strictly Confidential – Do Not Distribute"
+    header_title: str = "Project X — Strategic Overview"
+    header_date_format: str = "%B %d, %Y"
+    confidentiality_notice: str = "Confidential – Attorney-Client Privileged & Proprietary"
+    rights_notice_template: str = "© {year} {project} Holdings. All rights reserved."
+
+# Edit the values in ``DEFAULT_BRANDING`` to customize the header, footer, and
+# cover page without touching the rendering logic.
+DEFAULT_BRANDING = DocumentBranding()
+
+
 class AboutDocTemplate(BaseDocTemplate):
     """Document template adding a uniform header, footer, and page numbers."""
 
-    def __init__(self, filename: Path):
+    def __init__(self, filename: Path, branding: DocumentBranding):
         super().__init__(str(filename), pagesize=LETTER)
+        self.branding = branding
         frame = Frame(
             self.leftMargin,
             self.bottomMargin,
@@ -70,15 +92,17 @@ class AboutDocTemplate(BaseDocTemplate):
     def _header_footer(self, canvas, doc) -> None:  # pragma: no cover - layout code
         canvas.saveState()
         page_width, page_height = LETTER
-        header_title = "Project X — Strategic Overview"
-        header_date = datetime.now().strftime("%B %d, %Y")
+        header_title = self.branding.header_title
+        header_date = datetime.now().strftime(self.branding.header_date_format)
         canvas.setFont("Helvetica-Bold", 11)
         canvas.drawString(doc.leftMargin, page_height - 0.65 * inch, header_title)
         canvas.setFont("Helvetica", 9)
         canvas.drawRightString(page_width - doc.rightMargin, page_height - 0.65 * inch, header_date)
 
-        footer_confidentiality = "Confidential – Attorney-Client Privileged & Proprietary"
-        footer_rights = "© {year} Project X Holdings. All rights reserved.".format(year=datetime.now().year)
+        footer_confidentiality = self.branding.confidentiality_notice
+        footer_rights = self.branding.rights_notice_template.format(
+            year=datetime.now().year, project=self.branding.project_name
+        )
         page_label = f"Page {canvas.getPageNumber()}"
         canvas.setFont("Helvetica", 8)
         canvas.drawString(doc.leftMargin, 0.65 * inch, footer_confidentiality)
@@ -370,17 +394,17 @@ def parse_markdown(markdown_path: Path, styles) -> Iterable:
     return flowables
 
 
-def add_cover_page(story: List, styles) -> None:
+def add_cover_page(story: List, styles, branding: DocumentBranding) -> None:
     today = datetime.now().strftime("%B %d, %Y")
     story.append(Spacer(1, 1.5 * inch))
-    story.append(Paragraph("Project X", styles["CoverTitle"]))
-    story.append(Paragraph("Corporate Strategy & Market Intelligence Dossier", styles["CoverSubtitle"]))
+    story.append(Paragraph(branding.project_name, styles["CoverTitle"]))
+    story.append(Paragraph(branding.cover_subtitle, styles["CoverSubtitle"]))
     metadata_table = Table(
         [
-            ["Prepared for", "Project X Executive Leadership Team"],
-            ["Prepared by", "Strategy & Compliance Office"],
+            ["Prepared for", branding.prepared_for],
+            ["Prepared by", branding.prepared_by],
             ["Document date", today],
-            ["Classification", "Strictly Confidential – Do Not Distribute"],
+            ["Classification", branding.classification],
         ],
         colWidths=[2.0 * inch, 4.0 * inch],
     )
@@ -456,17 +480,21 @@ def configure_toc_tracking(doc: AboutDocTemplate, styles):
     doc.afterFlowable = after_flowable
 
 
-def generate_pdf(input_dir: Path = DEFAULT_INPUT_DIR, output_path: Path = DEFAULT_OUTPUT) -> Path:
+def generate_pdf(
+    input_dir: Path = DEFAULT_INPUT_DIR,
+    output_path: Path = DEFAULT_OUTPUT,
+    branding: DocumentBranding = DEFAULT_BRANDING,
+) -> Path:
     styles = build_styles()
     markdown_files = collect_markdown_files(input_dir)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    doc = AboutDocTemplate(output_path)
+    doc = AboutDocTemplate(output_path, branding)
     toc = TableOfContents()
     configure_toc_tracking(doc, styles)
 
     story: List = []
-    add_cover_page(story, styles)
+    add_cover_page(story, styles, branding)
     add_table_of_contents(story, styles, toc)
     story.extend(build_story(markdown_files, styles))
 
@@ -491,7 +519,21 @@ def parse_args(argv: List[str] | None = None):
     return parser.parse_args(argv)
 
 
+def prompt_for_input_dir(default: Path) -> Path:
+    """Prompt the user for the documentation directory, defaulting if blank."""
+
+    prompt = f"Enter path to documentation directory [{default}]: "
+    response = input(prompt).strip()
+    return Path(response).expanduser() if response else default.expanduser()
+
+
 if __name__ == "__main__":  # pragma: no cover
     args = parse_args()
-    output_path = generate_pdf(args.input_dir, args.output)
+    input_dir = prompt_for_input_dir(args.input_dir)
+    input_dir = input_dir.resolve()
+    output_path = args.output
+    if output_path == DEFAULT_OUTPUT and input_dir != DEFAULT_INPUT_DIR:
+        output_path = input_dir / DEFAULT_OUTPUT.name
+
+    output_path = generate_pdf(input_dir, output_path.expanduser())
     print(f"Created PDF dossier at: {output_path}")
