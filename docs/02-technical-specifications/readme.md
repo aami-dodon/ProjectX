@@ -1,9 +1,11 @@
 # AI Governance Platform — Technical Documentation Suite <!-- omit in toc -->
 
->### TL;DR  
-> This master index provides a unified reference to all technical documentation for the AI Governance Platform.  
-> Each section focuses on a specific layer of the architecture, from system design to deployment, testing, and long-term scalability.  
+>### TL;DR
+> This master index provides a unified reference to all technical documentation for the AI Governance Platform.
+> Each section focuses on a specific layer of the architecture, from system design to deployment, testing, and long-term scalability.
 > The objective is to maintain a single, consistent source of truth for all developers, DevOps engineers, architects, and compliance teams contributing to the project.
+
+> **Looking for subsystem operations guidance?** Explore the [Systems Hub](../03-systems/readme.md) for runbooks that tie these specifications to day-to-day ownership.
 
 ---
 
