@@ -1,0 +1,497 @@
+"""Generate a professional PDF consolidating the docs/01-about markdown files.
+
+The script assembles all numbered markdown chapters from ``docs/01-about`` and
+creates a styled PDF that includes a cover page, table of contents, headers,
+footers, page numbering, and legal disclaimers.
+"""
+from __future__ import annotations
+
+import argparse
+from datetime import datetime
+import re
+from xml.sax.saxutils import escape
+from pathlib import Path
+from typing import Iterable, List
+
+try:
+    from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY
+    from reportlab.lib.pagesizes import LETTER
+    from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+    from reportlab.lib.units import inch
+    from reportlab.platypus import (
+        BaseDocTemplate,
+        Frame,
+        ListFlowable,
+        ListItem,
+        PageBreak,
+        PageTemplate,
+        Paragraph,
+        Spacer,
+        Table,
+        TableStyle,
+    )
+    from reportlab.platypus.tableofcontents import TableOfContents
+    from reportlab.lib import colors
+except ImportError as exc:  # pragma: no cover - guard for runtime execution
+    raise SystemExit(
+        "The 'reportlab' package is required to run this script. Install it with 'pip install reportlab'."
+    ) from exc
+
+
+BOLD_RE = re.compile(r"\*\*(.+?)\*\*")
+ITALIC_RE = re.compile(r"_(.+?)_")
+CODE_RE = re.compile(r"`([^`]+)`")
+LINK_RE = re.compile(r"\[(.+?)\]\((.+?)\)")
+
+
+DEFAULT_INPUT_DIR = Path("docs/01-about")
+DEFAULT_OUTPUT = DEFAULT_INPUT_DIR / "about-dossier.pdf"
+
+
+class AboutDocTemplate(BaseDocTemplate):
+    """Document template adding a uniform header, footer, and page numbers."""
+
+    def __init__(self, filename: Path):
+        super().__init__(str(filename), pagesize=LETTER)
+        frame = Frame(
+            self.leftMargin,
+            self.bottomMargin,
+            self.width,
+            self.height,
+            leftPadding=0,
+            rightPadding=0,
+            topPadding=0,
+            bottomPadding=0,
+        )
+        template = PageTemplate(id="normal", frames=[frame], onPage=self._header_footer)
+        self.addPageTemplates([template])
+        self._last_heading_level = 0
+
+    def _header_footer(self, canvas, doc) -> None:  # pragma: no cover - layout code
+        canvas.saveState()
+        page_width, page_height = LETTER
+        header_title = "Project X — Strategic Overview"
+        header_date = datetime.now().strftime("%B %d, %Y")
+        canvas.setFont("Helvetica-Bold", 11)
+        canvas.drawString(doc.leftMargin, page_height - 0.65 * inch, header_title)
+        canvas.setFont("Helvetica", 9)
+        canvas.drawRightString(page_width - doc.rightMargin, page_height - 0.65 * inch, header_date)
+
+        footer_confidentiality = "Confidential – Attorney-Client Privileged & Proprietary"
+        footer_rights = "© {year} Project X Holdings. All rights reserved.".format(year=datetime.now().year)
+        page_label = f"Page {canvas.getPageNumber()}"
+        canvas.setFont("Helvetica", 8)
+        canvas.drawString(doc.leftMargin, 0.65 * inch, footer_confidentiality)
+        canvas.drawString(doc.leftMargin, 0.5 * inch, footer_rights)
+        canvas.drawRightString(page_width - doc.rightMargin, 0.5 * inch, page_label)
+        canvas.restoreState()
+
+
+def build_styles():
+    styles = getSampleStyleSheet()
+    styles.add(
+        ParagraphStyle(
+            name="CoverTitle",
+            parent=styles["Title"],
+            alignment=TA_CENTER,
+            fontSize=32,
+            leading=36,
+            spaceAfter=24,
+        )
+    )
+    styles.add(
+        ParagraphStyle(
+            name="CoverSubtitle",
+            parent=styles["Title"],
+            alignment=TA_CENTER,
+            fontSize=16,
+            leading=20,
+            textColor=colors.HexColor("#2F5597"),
+            spaceAfter=48,
+        )
+    )
+    styles.add(
+        ParagraphStyle(
+            name="LegalBlock",
+            parent=styles["Normal"],
+            alignment=TA_JUSTIFY,
+            fontSize=9,
+            leading=12,
+            textColor=colors.HexColor("#555555"),
+            spaceBefore=24,
+        )
+    )
+
+    styles.add(
+        ParagraphStyle(
+            name="TableHeader",
+            parent=styles["Heading4"],
+            alignment=TA_CENTER,
+            fontSize=10,
+            leading=12,
+            textColor=colors.white,
+            spaceAfter=4,
+        )
+    )
+    styles.add(
+        ParagraphStyle(
+            name="TableCell",
+            parent=styles["BodyText"],
+            fontSize=10,
+            leading=12,
+            spaceAfter=4,
+        )
+    )
+
+    heading1 = ParagraphStyle(
+        name="AboutHeading1",
+        parent=styles["Heading1"],
+        spaceBefore=18,
+        spaceAfter=10,
+        leading=20,
+    )
+    heading1.outline_level = 0
+    styles.add(heading1)
+
+    heading2 = ParagraphStyle(
+        name="AboutHeading2",
+        parent=styles["Heading2"],
+        spaceBefore=14,
+        spaceAfter=8,
+        leading=18,
+    )
+    heading2.outline_level = 1
+    styles.add(heading2)
+
+    heading3 = ParagraphStyle(
+        name="AboutHeading3",
+        parent=styles["Heading3"],
+        spaceBefore=12,
+        spaceAfter=6,
+        leading=16,
+    )
+    heading3.outline_level = 2
+    styles.add(heading3)
+
+    styles.add(
+        ParagraphStyle(
+            name="AboutBody",
+            parent=styles["BodyText"],
+            leading=14,
+            spaceAfter=8,
+        )
+    )
+    styles.add(
+        ParagraphStyle(
+            name="AboutBullet",
+            parent=styles["BodyText"],
+            leftIndent=18,
+            bulletIndent=9,
+            spaceBefore=0,
+            spaceAfter=4,
+        )
+    )
+    styles.add(
+        ParagraphStyle(
+            name="AboutQuote",
+            parent=styles["Italic"],
+            leftIndent=18,
+            rightIndent=18,
+            textColor=colors.HexColor("#1F4E79"),
+            spaceBefore=6,
+            spaceAfter=6,
+        )
+    )
+    styles.add(
+        ParagraphStyle(
+            name="TOCTitle",
+            parent=styles["Heading1"],
+            alignment=TA_CENTER,
+            spaceAfter=18,
+        )
+    )
+    return styles
+
+
+def format_inline(text: str) -> str:
+    cleaned = (
+        text.replace("<br />", "\n")
+        .replace("<br/>", "\n")
+        .replace("<br>", "\n")
+        .replace("<ul>", "")
+        .replace("</ul>", "")
+        .replace("</li>", "\n")
+        .replace("<li>", "• ")
+    )
+    escaped = escape(cleaned, {"'": "&apos;"})
+    escaped = re.sub(r"__(.+?)__", r"<b>\1</b>", escaped)
+    escaped = BOLD_RE.sub(r"<b>\1</b>", escaped)
+    escaped = ITALIC_RE.sub(r"<i>\1</i>", escaped)
+    escaped = CODE_RE.sub(r"<font face=\"Courier\">\1</font>", escaped)
+    escaped = LINK_RE.sub(r"\1", escaped)
+    return escaped.replace("\n", "<br/>")
+
+
+def is_table_divider(cells: List[str]) -> bool:
+    for cell in cells:
+        stripped = cell.strip().replace(":", "").replace("-", "")
+        if stripped:
+            return False
+    return True
+
+
+def parse_table(lines: List[str], start_index: int) -> tuple[List[List[str]], int] | tuple[None, int]:
+    table_lines: List[str] = []
+    index = start_index
+    while index < len(lines):
+        candidate = lines[index].strip()
+        if not candidate or not candidate.startswith("|"):
+            break
+        table_lines.append(candidate)
+        index += 1
+
+    if len(table_lines) < 2:
+        return None, start_index
+
+    rows: List[List[str]] = []
+    for entry in table_lines:
+        cells = [cell.strip() for cell in entry.strip("|").split("|")]
+        rows.append(cells)
+
+    parsed_rows: List[List[str]] = []
+    for idx, row in enumerate(rows):
+        if idx == 1 and is_table_divider(row):
+            continue
+        parsed_rows.append([format_inline(cell) for cell in row])
+
+    return parsed_rows, index
+
+
+def build_table_flowable(rows: List[List[str]], styles) -> Table:
+    header = [Paragraph(cell, styles["TableHeader"]) for cell in rows[0]]
+    data = [header]
+    for row in rows[1:]:
+        data.append([Paragraph(cell, styles["TableCell"]) for cell in row])
+
+    table = Table(data, repeatRows=1)
+    table.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1F4E79")),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                ("ALIGN", (0, 0), (-1, -1), "LEFT"),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("FONTSIZE", (0, 0), (-1, -1), 9),
+                ("LINEBELOW", (0, 0), (-1, 0), 1, colors.HexColor("#16365D")),
+                ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.HexColor("#BFBFBF")),
+                ("BOX", (0, 0), (-1, -1), 0.5, colors.HexColor("#BFBFBF")),
+            ]
+        )
+    )
+    return table
+
+
+def flush_bullets(bullets: List[str], styles) -> ListFlowable | None:
+    if not bullets:
+        return None
+    list_items = [ListItem(Paragraph(format_inline(item), styles["AboutBody"])) for item in bullets]
+    return ListFlowable(list_items, bulletType="bullet", start="•", leftIndent=24)
+
+
+def parse_markdown(markdown_path: Path, styles) -> Iterable:
+    flowables = []
+    bullets: List[str] = []
+    lines = markdown_path.read_text(encoding="utf-8").splitlines()
+    index = 0
+    while index < len(lines):
+        raw_line = lines[index]
+        line = raw_line.rstrip()
+
+        if not line.strip():
+            bullet_flowable = flush_bullets(bullets, styles)
+            bullets.clear()
+            if bullet_flowable:
+                flowables.append(bullet_flowable)
+            flowables.append(Spacer(1, 6))
+            index += 1
+            continue
+
+        if line.strip().startswith("|"):
+            bullet_flowable = flush_bullets(bullets, styles)
+            bullets.clear()
+            if bullet_flowable:
+                flowables.append(bullet_flowable)
+            table_rows, next_index = parse_table(lines, index)
+            if table_rows:
+                flowables.append(build_table_flowable(table_rows, styles))
+                flowables.append(Spacer(1, 12))
+                index = next_index
+                continue
+
+        if line.startswith("#"):
+            bullet_flowable = flush_bullets(bullets, styles)
+            bullets.clear()
+            if bullet_flowable:
+                flowables.append(bullet_flowable)
+            level = len(line) - len(line.lstrip("#"))
+            text = line[level:].strip()
+            text = text.replace("<!-- omit in toc -->", "").strip()
+            if not text:
+                index += 1
+                continue
+            heading_style_name = {1: "AboutHeading1", 2: "AboutHeading2", 3: "AboutHeading3"}.get(level, "AboutHeading3")
+            paragraph = Paragraph(format_inline(text), styles[heading_style_name])
+            paragraph.outline_level = styles[heading_style_name].outline_level
+            flowables.append(paragraph)
+            index += 1
+            continue
+
+        normalized = line.lstrip("> ")
+        if normalized.startswith(("- ", "* ")):
+            bullets.append(normalized[2:].strip())
+            index += 1
+            continue
+
+        if raw_line.startswith(">"):
+            flowables.append(Paragraph(format_inline(normalized), styles["AboutQuote"]))
+            index += 1
+            continue
+
+        bullet_flowable = flush_bullets(bullets, styles)
+        bullets.clear()
+        if bullet_flowable:
+            flowables.append(bullet_flowable)
+        flowables.append(Paragraph(format_inline(normalized), styles["AboutBody"]))
+        index += 1
+
+    bullet_flowable = flush_bullets(bullets, styles)
+    if bullet_flowable:
+        flowables.append(bullet_flowable)
+    return flowables
+
+
+def add_cover_page(story: List, styles) -> None:
+    today = datetime.now().strftime("%B %d, %Y")
+    story.append(Spacer(1, 1.5 * inch))
+    story.append(Paragraph("Project X", styles["CoverTitle"]))
+    story.append(Paragraph("Corporate Strategy & Market Intelligence Dossier", styles["CoverSubtitle"]))
+    metadata_table = Table(
+        [
+            ["Prepared for", "Project X Executive Leadership Team"],
+            ["Prepared by", "Strategy & Compliance Office"],
+            ["Document date", today],
+            ["Classification", "Strictly Confidential – Do Not Distribute"],
+        ],
+        colWidths=[2.0 * inch, 4.0 * inch],
+    )
+    metadata_table.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#F2F2F2")),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.HexColor("#1F4E79")),
+                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                ("FONTNAME", (0, 1), (-1, -1), "Helvetica"),
+                ("FONTSIZE", (0, 0), (-1, -1), 10),
+                ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
+                ("BACKGROUND", (0, 1), (-1, -1), colors.white),
+                ("BOX", (0, 0), (-1, -1), 0.5, colors.HexColor("#CCCCCC")),
+                ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.HexColor("#CCCCCC")),
+            ]
+        )
+    )
+    story.append(metadata_table)
+    story.append(Spacer(1, 0.75 * inch))
+    legal_text = (
+        "This document contains proprietary, privileged, and confidential information belonging to Project X Holdings. "
+        "It is provided solely for the designated recipients and must not be copied, distributed, or disclosed to any "
+        "third party without prior written consent. By accepting this document you agree to maintain its confidentiality "
+        "and to use the information only for the purpose for which it was provided."
+    )
+    story.append(Paragraph(legal_text, styles["LegalBlock"]))
+    story.append(PageBreak())
+
+
+def add_table_of_contents(story: List, styles, toc: TableOfContents) -> None:
+    story.append(Paragraph("Table of Contents", styles["TOCTitle"]))
+    toc.levelStyles = [
+        ParagraphStyle(name="TOCHeading1", parent=styles["Normal"], fontSize=11, leftIndent=0, firstLineIndent=-18, spaceBefore=4, leading=14),
+        ParagraphStyle(name="TOCHeading2", parent=styles["Normal"], fontSize=10, leftIndent=12, firstLineIndent=-12, spaceBefore=2, leading=12),
+        ParagraphStyle(name="TOCHeading3", parent=styles["Normal"], fontSize=9, leftIndent=24, firstLineIndent=-12, spaceBefore=0, leading=11),
+    ]
+    story.append(toc)
+    story.append(PageBreak())
+
+
+def collect_markdown_files(input_dir: Path) -> List[Path]:
+    if not input_dir.exists():
+        raise FileNotFoundError(f"Input directory '{input_dir}' does not exist")
+    files = sorted(
+        (path for path in input_dir.iterdir() if path.suffix.lower() == ".md" and path.name.lower() != "readme.md"),
+        key=lambda p: p.name,
+    )
+    if not files:
+        raise FileNotFoundError(f"No markdown files found in '{input_dir}'.")
+    return files
+
+
+def build_story(markdown_files: Iterable[Path], styles) -> List:
+    story: List = []
+    for md_file in markdown_files:
+        story.extend(parse_markdown(md_file, styles))
+        story.append(PageBreak())
+    if story:
+        story.pop()  # remove trailing page break
+    return story
+
+
+def configure_toc_tracking(doc: AboutDocTemplate, styles):
+    def after_flowable(flowable):  # pragma: no cover - layout callback
+        if isinstance(flowable, Paragraph) and hasattr(flowable, "outline_level"):
+            text = flowable.getPlainText()
+            level = getattr(flowable, "outline_level", 0)
+            doc.notify("TOCEntry", (level, text, doc.canv.getPageNumber()))
+            key = text.replace(" ", "-").lower()
+            doc.canv.bookmarkPage(key)
+
+    doc.afterFlowable = after_flowable
+
+
+def generate_pdf(input_dir: Path = DEFAULT_INPUT_DIR, output_path: Path = DEFAULT_OUTPUT) -> Path:
+    styles = build_styles()
+    markdown_files = collect_markdown_files(input_dir)
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    doc = AboutDocTemplate(output_path)
+    toc = TableOfContents()
+    configure_toc_tracking(doc, styles)
+
+    story: List = []
+    add_cover_page(story, styles)
+    add_table_of_contents(story, styles, toc)
+    story.extend(build_story(markdown_files, styles))
+
+    doc.multiBuild(story)
+    return output_path
+
+
+def parse_args(argv: List[str] | None = None):
+    parser = argparse.ArgumentParser(description="Generate the consolidated about dossier PDF.")
+    parser.add_argument(
+        "--input-dir",
+        type=Path,
+        default=DEFAULT_INPUT_DIR,
+        help="Directory containing the markdown chapters (default: docs/01-about)",
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=DEFAULT_OUTPUT,
+        help="Output PDF path (default: docs/01-about/about-dossier.pdf)",
+    )
+    return parser.parse_args(argv)
+
+
+if __name__ == "__main__":  # pragma: no cover
+    args = parse_args()
+    output_path = generate_pdf(args.input_dir, args.output)
+    print(f"Created PDF dossier at: {output_path}")
