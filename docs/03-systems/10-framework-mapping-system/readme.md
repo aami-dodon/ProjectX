@@ -9,6 +9,7 @@
 
 ---
 
+- [Location: /server/src/modules/frameworks](#location-serversrcmodulesframeworks)
 - [1. Module Overview](#1-module-overview)
 - [2. Data Model \& Metadata Contracts](#2-data-model--metadata-contracts)
   - [Metadata Schema Highlights](#metadata-schema-highlights)

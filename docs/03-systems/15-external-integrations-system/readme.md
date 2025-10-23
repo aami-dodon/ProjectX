@@ -9,6 +9,7 @@
 
 ---
 
+- [Location: /server/src/integrations](#location-serversrcintegrations)
 - [1. System Overview](#1-system-overview)
 - [2. Integration Inventory](#2-integration-inventory)
   - [2.1 ServiceNow ITSM](#21-servicenow-itsm)

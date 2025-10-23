@@ -9,6 +9,7 @@
 
 ---
 
+- [Location: /server/src/lib/logging](#location-serversrcliblogging)
 - [1. Log Capture Scope](#1-log-capture-scope)
 - [2. Storage Targets](#2-storage-targets)
 - [3. Retention Policies](#3-retention-policies)

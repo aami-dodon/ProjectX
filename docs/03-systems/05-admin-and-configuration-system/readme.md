@@ -9,6 +9,7 @@
 
 ---
 
+- [Location: /server/src/modules/admin](#location-serversrcmodulesadmin)
 - [1. Purpose and Scope](#1-purpose-and-scope)
 - [2. Architecture Overview](#2-architecture-overview)
   - [2.1 Key Services](#21-key-services)

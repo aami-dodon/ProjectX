@@ -9,6 +9,7 @@
 
 ---
 
+- [Location: /server/src/modules/governance/controls](#location-serversrcmodulesgovernancecontrols)
 - [1. Overview](#1-overview)
 - [2. Control Taxonomy](#2-control-taxonomy)
 - [3. Controls Table Metadata](#3-controls-table-metadata)

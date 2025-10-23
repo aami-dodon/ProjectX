@@ -10,6 +10,7 @@
 
 ---
 
+- [Location: /server/src/modules/uploads](#location-serversrcmodulesuploads)
 - [1. Purpose and Scope](#1-purpose-and-scope)
 - [2. Storage Architecture](#2-storage-architecture)
   - [2.1 Core Components](#21-core-components)

@@ -9,6 +9,7 @@
 
 ---
 
+- [Location: /server/src/modules/auth](#location-serversrcmodulesauth)
 - [1. System Overview](#1-system-overview)
 - [2. Role Hierarchy](#2-role-hierarchy)
   - [2.1 Built-in Roles](#21-built-in-roles)

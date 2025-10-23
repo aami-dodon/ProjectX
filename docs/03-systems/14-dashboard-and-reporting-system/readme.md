@@ -9,6 +9,7 @@
 
 ---
 
+- [Location: /client/src/features/dashboards, /server/src/modules/reports](#location-clientsrcfeaturesdashboards-serversrcmodulesreports)
 - [1. Overview](#1-overview)
 - [2. Data Pipelines Feeding Dashboards](#2-data-pipelines-feeding-dashboards)
   - [2.1 Framework Score Pipeline](#21-framework-score-pipeline)
@@ -19,7 +20,7 @@
 - [4. Report Types and Backend Relationships](#4-report-types-and-backend-relationships)
   - [4.1 Framework Attestation Packs](#41-framework-attestation-packs)
   - [4.2 Control Breakdown Reports](#42-control-breakdown-reports)
-  - [4.3 Remediation & Evidence Digest](#43-remediation--evidence-digest)
+  - [4.3 Remediation \& Evidence Digest](#43-remediation--evidence-digest)
 - [5. Extensibility Guidance](#5-extensibility-guidance)
   - [5.1 Adding New Dashboard Widgets](#51-adding-new-dashboard-widgets)
   - [5.2 Adding New Report Exports](#52-adding-new-report-exports)

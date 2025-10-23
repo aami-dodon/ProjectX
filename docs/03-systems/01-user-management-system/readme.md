@@ -9,6 +9,7 @@
 
 ---
 
+- [Location: /server/src/modules/auth](#location-serversrcmodulesauth)
 - [1. System Overview](#1-system-overview)
 - [2. Module Structure](#2-module-structure)
   - [2.1 Registration](#21-registration)

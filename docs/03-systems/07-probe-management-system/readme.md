@@ -9,6 +9,7 @@
 
 ---
 
+- [Location: /server/src/modules/probes](#location-serversrcmodulesprobes)
 - [1. Purpose and Scope](#1-purpose-and-scope)
 - [2. System Components](#2-system-components)
   - [2.1 Registry Service](#21-registry-service)
@@ -39,6 +40,8 @@
   - [8.2 Alerting Playbooks](#82-alerting-playbooks)
   - [8.3 Continuous Improvement Loop](#83-continuous-improvement-loop)
 - [9. Appendix: Quick Reference Tables](#9-appendix-quick-reference-tables)
+  - [Lifecycle States](#lifecycle-states)
+  - [SDK Utility Methods](#sdk-utility-methods)
 
 ---
 

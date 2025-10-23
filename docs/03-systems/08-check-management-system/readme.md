@@ -11,6 +11,7 @@
 
 ---
 
+- [Location: /server/src/modules/governance](#location-serversrcmodulesgovernance)
 - [1. Conceptual Overview](#1-conceptual-overview)
 - [2. Check Types](#2-check-types)
 - [3. Execution Workflows](#3-execution-workflows)

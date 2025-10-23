@@ -9,6 +9,7 @@
 
 ---
 
+- [Location: /server/src/modules/governance](#location-serversrcmodulesgovernance)
 - [1. Module Overview](#1-module-overview)
 - [2. End-to-End Lifecycle](#2-end-to-end-lifecycle)
   - [2.1 Lifecycle Narrative](#21-lifecycle-narrative)
