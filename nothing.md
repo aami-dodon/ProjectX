@@ -33,7 +33,6 @@ Write Code:
 
 ## Infrastructure & Deployment
 - Build and run only the client and server services as Docker images.
-- Client must run on Port 6007 and Server on 6006.
 - Orchestrate local and shared development workflows exclusively with Docker Compose while PostgreSQL and MinIO stay externally hosted.
 
 ## Documentation & Collaboration
