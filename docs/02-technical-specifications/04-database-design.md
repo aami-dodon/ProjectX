@@ -41,7 +41,7 @@ The database design defines the persistent data model for the AI Governance Plat
 It stores and manages all core entities — user accounts, governance frameworks, compliance checks, evidence, and audit data.  
 The system uses **PostgreSQL** hosted externally, providing reliability, scalability, and compliance readiness.
 
-All data access is abstracted through **Prisma ORM**, ensuring schema consistency and version-controlled migrations.  
+All data access is abstracted through **Prisma ORM**, ensuring schema consistency and version-controlled migrations. Even though the PostgreSQL cluster is externally hosted, Project X operates within a dedicated schema and executes Prisma migrations through the provider’s managed change pipeline, giving the team full control over table structure and indices.
 The database adheres to relational design principles with normalized data models and clear referential relationships between entities.
 
 ---
@@ -52,7 +52,8 @@ The database follows a **modular, schema-driven structure** optimized for compli
 It supports high read and moderate write operations, aligning with the platform’s continuous governance monitoring model.
 
 ### Key Architectural Features
-- **Externally hosted PostgreSQL instance** for managed security, backups, and replication.  
+- **Externally hosted PostgreSQL instance** for managed security, backups, and replication.
+- **Dedicated Project X schema** provisioned on the managed instance, with migrations applied via Prisma through an automated change queue so tables such as `auth_policies` remain under first-party control.
 - **Prisma ORM layer** for data modeling, migrations, and query abstraction.  
 - **Normalized schema (3NF)** to avoid data duplication and ensure consistency.  
 - **Role-based access** to restrict data operations by service type.  

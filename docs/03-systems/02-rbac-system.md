@@ -26,12 +26,12 @@
 
 ## 1. System Overview
 
-The RBAC system resides primarily in `server/src/modules/auth`, where controllers orchestrate login, token issuance, and authorization decisions. A dedicated Casbin adapter loads policies from PostgreSQL into an in-memory enforcer instance that is shared across Express middleware.
+The RBAC system resides primarily in `server/src/modules/auth`, where controllers orchestrate login, token issuance, and authorization decisions. A dedicated Casbin adapter loads policies from PostgreSQL into an in-memory enforcer instance that is shared across Express middleware. Although PostgreSQL is provided as an externally hosted managed service, Project X owns a dedicated schema with DDL privileges; Prisma migrations are executed through the release pipeline so the adapter always sees the latest policy tables.
 
 Key characteristics:
 
 - **Policy Model:** `rbac_with_domains_model.conf` implements subject ⟶ domain ⟶ object ⟶ action rules, enabling tenant-specific scoping.
-- **Policy Persistence:** The Casbin adapter writes to and reads from the `auth_policies` table via Prisma. Batched transactions ensure atomic role updates.
+- **Policy Persistence:** The Casbin adapter writes to and reads from the `auth_policies` table via Prisma. Batched transactions ensure atomic role updates, and migrations published through the managed database change queue keep the external host’s schema aligned with Casbin requirements.
 - **Enforcement Surface:** Middleware in `server/src/middleware/authorization.js` checks each request before handing control to feature controllers (Auth, Governance Engine, Frameworks, Evidence, Notifications, Tasks).
 - **Observability:** Authorization decisions are logged to `audit_logs` with request metadata to satisfy compliance requirements and support forensic analysis.
 
