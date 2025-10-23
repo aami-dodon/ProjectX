@@ -18,7 +18,10 @@
 - [Frontend Specification](#frontend-specification)
   - [Location & Directory Layout](#frontend-location--directory-layout)
   - [Reusable Components & UI Flows](#reusable-components--ui-flows)
+- [API Endpoints & Contracts](#api-endpoints--contracts)
+- [Configuration & Dependencies](#configuration--dependencies)
 - [Schema Specification](#schema-specification)
+- [Testing & QA Expectations](#testing--qa-expectations)
 - [Operational Playbooks & References](#operational-playbooks--references)
 
 ---
@@ -62,6 +65,18 @@ The Document and Media Upload system provides a single entry point for governanc
 - **Supported Formats:** Documents (`.pdf`, `.docx`, `.rtf`, `.txt`, `.md`) and images (`.png`, `.jpg`, `.jpeg`, `.webp`) pass validation; oversize files, checksum mismatches, or blocked formats (e.g., `.heic`, `.nef`) return HTTP 422. Malware scanning integrates with asynchronous ClamAV, quarantining suspicious objects in a `hold` prefix.【F:docs/02-technical-specifications/06-security-implementation.md†L108-L196】
 - **Derivatives & Accessibility:** Thumbnails (320 px) support UI previews, extracted text feeds search indexing, and alt-text metadata is mandatory for imagery displayed in dashboards.【F:docs/03-systems/14-dashboard-and-reporting-system/readme.md†L7-L118】【F:docs/01-about/04-security-and-data-protection.md†L206-L259】 Notifications fire when compression repeatedly fails for manual remediation.【F:docs/03-systems/04-notification-system/readme.md†L7-L222】
 
+## API Endpoints & Contracts
+
+The service exposes REST endpoints under `/api/uploads`, conforming to the platform’s OpenAPI conventions and Express middleware stack (JWT auth + Casbin RBAC + Joi validation).【F:docs/02-technical-specifications/01-system-architecture.md†L160-L198】【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L1-L77】 Every route returns JSON envelopes with `{ status, data, error }` and consistent error codes (400 validation, 401/403 auth, 409 version conflicts, 422 payload issues, 500 internal).
+
+| Endpoint | Method | Description | Request Payload | Success Response |
+| --- | --- | --- | --- | --- |
+| `/api/uploads/request` | POST | Validate metadata, create `upload_requests` row, and issue presigned PUT contract. | `{ filename, mimeType, checksum, classification, sizeBytes, altText?, tags?, parentEvidenceId? }` | `{ uploadId, presignedUrl, headers, expiresAt, requiresCompression }` with `409` if the referenced evidence cannot be replaced.【F:docs/03-systems/02-rbac-system/readme.md†L7-L192】【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L44-L135】 |
+| `/api/uploads/complete` | POST | Confirm object persistence, enqueue compression, and persist `evidence` entry. | `{ uploadId, contentMd5, storageKey, sizeBytes }` | `{ evidenceId, version, compressionStatus }`; background worker emits `evidence.uploaded` event on success.【F:docs/03-systems/12-governance-engine/readme.md†L52-L113】【F:docs/03-systems/13-task-management-system/readme.md†L7-L226】 |
+| `/api/uploads/:id` | GET | Fetch metadata and status for UI history / retries. | `id` path param, optional `includeEvents` query flag. | `{ evidenceId, compressionStatus, events[] }`; respects RBAC scopes and redacts quarantined objects.【F:docs/03-systems/06-audit-logging-and-monitoring/readme.md†L7-L200】 |
+
+Webhook-style callbacks (`/api/uploads/callbacks/minio`) can be enabled for MinIO event listeners; they validate HMAC signatures from MinIO, translate events into worker jobs, and respond within 3 s to stay under MinIO retry thresholds.【F:docs/02-technical-specifications/07-integration-architecture.md†L88-L176】
+
 ## Frontend Specification
 
 ### Frontend Location & Directory Layout
@@ -94,11 +109,25 @@ client/src/components/evidence/
 - **Evidence Surfacing:** `EvidencePreviewCard` and `EvidenceTimeline` components show thumbnails, extracted text, and version history across the Evidence Repository and Reporting features.
 - **Accessibility & Guidance:** `PresignedUrlInstructions` educates users on compression requirements, alt-text capture, and failure recovery, reusing messaging from the Notification system for consistency.【F:docs/03-systems/04-notification-system/readme.md†L7-L222】
 
+## Configuration & Dependencies
+
+- **Environment Variables:** `MINIO_ENDPOINT`, `MINIO_ACCESS_KEY`, `MINIO_SECRET_KEY`, `MINIO_BUCKET_UPLOADS`, `UPLOADS_MAX_DOCUMENT_BYTES`, `UPLOADS_MAX_IMAGE_BYTES`, and `CLAMAV_HOST` are injected via `.env` per environment and sourced from the platform’s vault-backed configuration workflow.【F:docs/02-technical-specifications/05-devops-infrastructure.md†L60-L103】【F:docs/02-technical-specifications/01-system-architecture.md†L204-L223】 Workers additionally require `BULLMQ_REDIS_URL` and `COMPRESSION_QUEUE_CONCURRENCY` to throttle jobs.
+- **Service Integrations:** MinIO clients reuse shared connection pools under `server/src/integrations/minio.client.ts`; ClamAV scanning runs through the security integration bus defined for the broader platform to guarantee policy parity.【F:docs/02-technical-specifications/06-security-implementation.md†L108-L196】【F:docs/03-systems/11-evidence-management-system/readme.md†L7-L115】
+- **Deployment Footprint:** Upload controllers live in the API container, while compression workers run as dedicated queue consumers with autoscaling rules tuned to keep backlog under 1 000 jobs and latency below 800 ms, matching observability thresholds used across systems.【F:docs/02-technical-specifications/05-devops-infrastructure.md†L108-L140】【F:docs/03-systems/06-audit-logging-and-monitoring/readme.md†L7-L200】
+- **Language Standardization:** Backend and worker code remain JavaScript-only with Jest-based unit tests, aligning with the platform-wide ban on TypeScript to preserve tooling consistency.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L1-L32】【F:docs/02-technical-specifications/09-testing-and-qa.md†L40-L76】
+
 ## Schema Specification
 - **`evidence` & `evidence_snapshots`:** Persist file fingerprints, compression status, classifications, uploader identity, and version lineage for immutable history.【F:docs/02-technical-specifications/04-database-design.md†L88-L146】
 - **`upload_requests`:** Tracks presigned URL issuance, expiration, checksum expectations, and tenant scope to reconcile orphaned uploads.
 - **`upload_events`:** Append-only log capturing state transitions (`requested`, `completed`, `compressed`, `failed`) and correlation IDs for observability.
 - Relationships integrate with RBAC (`auth_roles`/`auth_role_assignments`) for scope validation and with Governance Engine entities to trigger evidence-driven workflows.【F:docs/03-systems/12-governance-engine/readme.md†L52-L113】
+
+## Testing & QA Expectations
+
+- **Unit & Integration Tests:** Controllers, services, and workers use Jest suites stored under `server/tests/uploads` to cover validation, presign issuance, and compression orchestration with ≥85 % coverage, mirroring platform targets.【F:docs/02-technical-specifications/09-testing-and-qa.md†L55-L176】
+- **API & Contract Tests:** Postman/Newman collections assert OpenAPI parity for `/api/uploads/*` and replay failure scenarios (checksum mismatch, oversized file) in CI to enforce shift-left validation.【F:docs/02-technical-specifications/09-testing-and-qa.md†L83-L158】
+- **E2E Flows:** Cypress tests under `client/tests/uploads` execute drag-and-drop, presign PUT, and completion confirmation, verifying accessibility cues (alt-text prompts, compression warnings) and integration with Evidence timelines.【F:docs/02-technical-specifications/09-testing-and-qa.md†L88-L154】【F:docs/03-systems/11-evidence-management-system/readme.md†L7-L104】
+- **Security & Performance:** OWASP ZAP scans ensure upload routes resist injection and auth bypass, while k6 load tests run against presign issuance to validate SLA commitments (≤800 ms P95 latency, ≤2 % failure rate).【F:docs/02-technical-specifications/09-testing-and-qa.md†L93-L154】【F:docs/03-systems/06-audit-logging-and-monitoring/readme.md†L154-L200】
 
 ## Operational Playbooks & References
 
