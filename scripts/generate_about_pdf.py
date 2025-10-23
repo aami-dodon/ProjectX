@@ -36,6 +36,7 @@ try:
     )
     from reportlab.platypus.tableofcontents import TableOfContents
     from reportlab.lib import colors
+    from reportlab.lib import fonts as rl_fonts
 except ImportError as exc:  # pragma: no cover - guard for runtime execution
     raise SystemExit(
         "The 'reportlab' package is required to run this script. Install it with 'pip install reportlab'."
@@ -54,6 +55,7 @@ FONT_FACE_ALIASES = {
     "courier": "Courier",
     "courier new": "Courier",
     "courier-new": "Courier",
+    "couriernew": "Courier",
     "monospace": "Courier",
 }
 
@@ -330,13 +332,29 @@ def _replace_markdown_link(match: Match[str]) -> str:
     return f'<link href="{href}">{text}</link>'
 
 
+def _sanitize_font_name(font: str) -> str:
+    """Return a ReportLab-safe font name, defaulting to Courier when unknown."""
+
+    normalized = FONT_FACE_ALIASES.get(font.lower(), font)
+    normalized = re.sub(r"\s+", " ", normalized).strip()
+    if not normalized:
+        return "Courier"
+    try:
+        rl_fonts.ps2tt(normalized)
+    except ValueError:
+        return "Courier"
+    return normalized
+
+
 def _normalize_font_face(match: Match[str]) -> str:
     attr, quote, value, closing = match.groups()
     fonts = [alias.strip() for alias in value.split(",") if alias.strip()]
     normalized_fonts = []
     for font in fonts:
-        normalized_fonts.append(FONT_FACE_ALIASES.get(font.lower(), font))
-    normalized = ", ".join(normalized_fonts) if normalized_fonts else value
+        normalized_fonts.append(_sanitize_font_name(font))
+    if not normalized_fonts:
+        normalized_fonts.append("Courier")
+    normalized = ", ".join(dict.fromkeys(normalized_fonts))
     return f"{attr}{quote}{normalized}{closing}"
 
 
