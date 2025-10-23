@@ -8,12 +8,13 @@ footers, page numbering, and legal disclaimers.
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime
 import re
 from xml.sax.saxutils import escape
 from pathlib import Path
-from typing import Iterable, List
+from typing import Iterable, List, Match
 
 try:
     from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY
@@ -45,6 +46,50 @@ BOLD_RE = re.compile(r"\*\*(.+?)\*\*")
 ITALIC_RE = re.compile(r"_(.+?)_")
 CODE_RE = re.compile(r"`([^`]+)`")
 LINK_RE = re.compile(r"\[(.+?)\]\((.+?)\)")
+
+
+_HEADING_SLUG_COUNTS: Counter[str] = Counter()
+_FALLBACK_HEADING_INDEX = 0
+
+
+def reset_heading_slug_tracking() -> None:
+    """Reset global heading slug state prior to building a document."""
+
+    _HEADING_SLUG_COUNTS.clear()
+    global _FALLBACK_HEADING_INDEX
+    _FALLBACK_HEADING_INDEX = 0
+
+
+def slugify_anchor(text: str) -> str:
+    """Create a URL-friendly anchor name similar to GitHub heading slugs."""
+
+    normalized = text.strip().lower()
+    normalized = re.sub(r"[^\w\s-]", "", normalized)
+    normalized = re.sub(r"\s+", "-", normalized)
+    normalized = re.sub(r"-+", "-", normalized)
+    return normalized.strip("-")
+
+
+def register_heading_anchor(text: str) -> str:
+    """Return a unique anchor name for a heading and track it globally."""
+
+    global _FALLBACK_HEADING_INDEX
+    base = slugify_anchor(text)
+    if not base:
+        _FALLBACK_HEADING_INDEX += 1
+        base = f"section-{_FALLBACK_HEADING_INDEX}"
+
+    count = _HEADING_SLUG_COUNTS[base]
+    _HEADING_SLUG_COUNTS[base] += 1
+    if count:
+        return f"{base}-{count}"
+    return base
+
+
+def normalize_internal_target(target: str) -> str:
+    """Normalize a markdown fragment identifier to match generated anchors."""
+
+    return slugify_anchor(target.lstrip("#"))
 
 
 NAVIGATION_MARKERS = ("← Previous", "Next →")
@@ -259,6 +304,16 @@ def build_styles():
     return styles
 
 
+def _replace_markdown_link(match: Match[str]) -> str:
+    text, href = match.groups()
+    if href.startswith("#"):
+        destination = normalize_internal_target(href)
+        if not destination:
+            return text
+        return f'<link destination="{destination}">{text}</link>'
+    return f'<link href="{href}">{text}</link>'
+
+
 def format_inline(text: str) -> str:
     cleaned = (
         text.replace("<br />", "\n")
@@ -274,7 +329,7 @@ def format_inline(text: str) -> str:
     escaped = BOLD_RE.sub(r"<b>\1</b>", escaped)
     escaped = ITALIC_RE.sub(r"<i>\1</i>", escaped)
     escaped = CODE_RE.sub(r"<font face=\"Courier\">\1</font>", escaped)
-    escaped = LINK_RE.sub(r'<link href="\2">\1</link>', escaped)
+    escaped = LINK_RE.sub(_replace_markdown_link, escaped)
     return escaped.replace("\n", "<br/>")
 
 
@@ -486,8 +541,10 @@ def parse_markdown(markdown_path: Path, styles) -> Iterable:
                 index += 1
                 continue
             heading_style_name = {1: "AboutHeading1", 2: "AboutHeading2", 3: "AboutHeading3"}.get(level, "AboutHeading3")
+            bookmark_name = register_heading_anchor(text)
             paragraph = Paragraph(format_inline(text), styles[heading_style_name])
             paragraph.outline_level = styles[heading_style_name].outline_level
+            paragraph._bookmarkName = bookmark_name
             flowables.append(paragraph)
             index += 1
             continue
@@ -607,6 +664,9 @@ def configure_toc_tracking(doc: AboutDocTemplate, styles):
         if isinstance(flowable, Paragraph) and hasattr(flowable, "outline_level"):
             text = flowable.getPlainText()
             level = getattr(flowable, "outline_level", 0)
+            bookmark_name = getattr(flowable, "_bookmarkName", None)
+            if bookmark_name:
+                doc.canv.bookmarkPage(bookmark_name)
             doc.notify("TOCEntry", (level, text, doc.canv.getPageNumber()))
 
     doc.afterFlowable = after_flowable
@@ -618,6 +678,7 @@ def generate_pdf(
     branding: DocumentBranding = DEFAULT_BRANDING,
 ) -> Path:
     styles = build_styles()
+    reset_heading_slug_tracking()
     markdown_files = collect_markdown_files(input_dir)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
