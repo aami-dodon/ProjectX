@@ -1,4 +1,4 @@
-# 1. System Architecture<!-- omit in toc -->
+# 1. System Architecture <!-- omit in toc -->
 
 >### TL;DR  
 > This section provides a complete overview of the platform’s technical architecture — describing how the frontend, backend, and infrastructure layers interact within a secure, modular, and scalable design.  
@@ -6,7 +6,6 @@
 > The objective is to provide developers and architects with a clear, end-to-end understanding of how the system is structured, deployed, and maintained.
 
 ---
-
 
 - [1.1 Purpose and Scope](#11-purpose-and-scope)
 - [1.2 Tech Stack Overview](#12-tech-stack-overview)
@@ -72,7 +71,7 @@ This applies to both frontend and backend layers to maintain simplicity, faster 
 
 ## 1.3 Code and Project Structure
 
-This section defines how the project repository and its codebase are organized across frontend, backend, and shared components.  
+This section defines how the project repository and its codebase are organized across frontend, backend, shared components, and infrastructure.  
 The goal is to maintain a consistent, modular, and scalable folder structure that aligns with the JavaScript-only architecture.
 
 ### Root Repository Structure
@@ -82,14 +81,16 @@ The project repository is organized at the root level as follows:
 - **client/** – Contains the React.js frontend application (built with Vite).  
 - **server/** – Contains the Express.js backend API service.  
 - **shared/** – Common logic, constants, and utilities shared between client and server.  
+- **infra/** – Infrastructure-as-Code, deployment automation, and operational configuration for DevOps and cloud environments.  
 - **docs/** – Product requirement documents (PRDs), feature specifications, and user stories.  
 - **.env.example** – Template file for environment variable configuration.
 
 ### Organizational Guidelines
 
 - The repository follows a **feature-based organization** to improve modularity and developer ownership.  
-- All components related to a specific business feature should exist together within their respective domains.  
-- Shared integrations (e.g., Nodemailer, MinIO, Casbin) are grouped under a single location for reusability.
+- All components related to a specific business feature are self-contained within their respective domain.  
+- Shared integrations (Nodemailer, MinIO, Casbin) are located under **`server/src/integrations/`** for reusability.  
+- All DevOps and infrastructure configurations reside in the **`infra/`** directory to centralize provisioning, automation, and environment management.  
 
 ### Directory Structure
 
@@ -100,10 +101,18 @@ The project repository is organized at the root level as follows:
 **Backend (Express Server)**  
 - Source code organized in `server/src/modules/<feature>`  
 - Each module includes its own controller, service, route, and validation logic.  
-- Shared integrations live in `server/src/integrations` and include:
+- Shared integrations live in `server/src/integrations` and include:  
   - **Nodemailer** for email delivery  
   - **MinIO** for file storage  
-  - **Casbin** for policy-based access control
+  - **Casbin** for policy-based access control  
+
+**Infrastructure (infra Directory)**  
+- **infra/terraform/** – Terraform configurations and reusable modules.  
+- **infra/kubernetes/** – Kubernetes manifests or Helm charts for deployment.  
+- **infra/scripts/** – Automation and deployment scripts.  
+- **infra/monitoring/** – Prometheus, Grafana, and alert configurations.  
+- **infra/policies/** – Policy-as-Code definitions for CI/CD compliance checks.  
+- **infra/backups/** – Backup management for PostgreSQL and MinIO.  
 
 ### Shared Logic
 
@@ -113,9 +122,9 @@ This includes constants, validation schemas, and helper functions to avoid dupli
 ### Environment Configuration
 
 - A single `.env` file is used for all services (frontend, backend, and shared).  
-- Environment variables control connections to:
-  - Externally hosted **PostgreSQL database**
-  - Externally hosted **MinIO storage**
+- Environment variables control connections to:  
+  - Externally hosted **PostgreSQL database**  
+  - Externally hosted **MinIO storage**  
   - Email and authentication services  
 - The `.env.example` file serves as the template for new environments.
 
@@ -218,5 +227,3 @@ All services communicate over RESTful APIs secured by HTTPS.
 - **Reliability:** External Postgres and MinIO ensure durability, redundancy, and backup coverage.  
 - **Scalability:** Stateless backend, containerized components, and distributed deployment model.  
 - **Monitoring:** Structured JSON logs with Winston and Morgan for traceability and audit readiness.
-
----
