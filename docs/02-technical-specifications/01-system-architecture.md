@@ -1,4 +1,4 @@
-# 1. System Architecture
+# 1. System Architecture<!-- omit in toc -->
 
 >### TL;DR  
 > This section provides a complete overview of the platform’s technical architecture — describing how the frontend, backend, and infrastructure layers interact within a secure, modular, and scalable design.  
@@ -7,32 +7,29 @@
 
 ---
 
-## Table of Contents
 
-- [1. System Architecture](#1-system-architecture)
-  - [Table of Contents](#table-of-contents)
-  - [1.1 Purpose and Scope](#11-purpose-and-scope)
-  - [1.2 Tech Stack Overview](#12-tech-stack-overview)
-  - [1.3 Code and Project Structure](#13-code-and-project-structure)
-    - [Root Repository Structure](#root-repository-structure)
-    - [Organizational Guidelines](#organizational-guidelines)
-    - [Directory Structure](#directory-structure)
-    - [Shared Logic](#shared-logic)
-    - [Environment Configuration](#environment-configuration)
-  - [1.4 Architectural Overview](#14-architectural-overview)
-  - [1.5 Core System Components](#15-core-system-components)
-    - [Frontend Application](#frontend-application)
-    - [API Server (Backend)](#api-server-backend)
-    - [Database Layer (Externally Hosted)](#database-layer-externally-hosted)
-    - [Object Storage (Externally Hosted MinIO)](#object-storage-externally-hosted-minio)
-    - [Logging and Monitoring](#logging-and-monitoring)
-  - [1.6 Data Flow](#16-data-flow)
-  - [1.7 Deployment Architecture](#17-deployment-architecture)
-    - [Environment Layers](#environment-layers)
-    - [Containerization](#containerization)
-    - [Configuration and Security](#configuration-and-security)
-    - [Networking](#networking)
-  - [1.8 Cross-Cutting Concerns](#18-cross-cutting-concerns)
+- [1.1 Purpose and Scope](#11-purpose-and-scope)
+- [1.2 Tech Stack Overview](#12-tech-stack-overview)
+- [1.3 Code and Project Structure](#13-code-and-project-structure)
+  - [Root Repository Structure](#root-repository-structure)
+  - [Organizational Guidelines](#organizational-guidelines)
+  - [Directory Structure](#directory-structure)
+  - [Shared Logic](#shared-logic)
+  - [Environment Configuration](#environment-configuration)
+- [1.4 Architectural Overview](#14-architectural-overview)
+- [1.5 Core System Components](#15-core-system-components)
+  - [Frontend Application](#frontend-application)
+  - [API Server (Backend)](#api-server-backend)
+  - [Database Layer (Externally Hosted)](#database-layer-externally-hosted)
+  - [Object Storage (Externally Hosted MinIO)](#object-storage-externally-hosted-minio)
+  - [Logging and Monitoring](#logging-and-monitoring)
+- [1.6 Data Flow](#16-data-flow)
+- [1.7 Deployment Architecture](#17-deployment-architecture)
+  - [Environment Layers](#environment-layers)
+  - [Containerization](#containerization)
+  - [Configuration and Security](#configuration-and-security)
+  - [Networking](#networking)
+- [1.8 Cross-Cutting Concerns](#18-cross-cutting-concerns)
 
 ---
 

@@ -1,4 +1,4 @@
-# 2. Backend Architecture & APIs
+# 2. Backend Architecture & APIs<!-- omit in toc -->
 
 >### TL;DR  
 > This section defines the backend architecture of the AI Governance Platform, explaining how the Node.js and Express.js backend is structured, organized, and connected to the external database and storage services.  
@@ -7,35 +7,31 @@
 
 ---
 
-## Table of Contents
 
-- [2. Backend Architecture \& APIs](#2-backend-architecture--apis)
-  - [Table of Contents](#table-of-contents)
-  - [2.1 Purpose and Overview](#21-purpose-and-overview)
-  - [2.2 Folder Structure and Conventions](#22-folder-structure-and-conventions)
-    - [Root-level directories](#root-level-directories)
-    - [Naming Conventions](#naming-conventions)
-  - [2.3 Core Backend Services](#23-core-backend-services)
-    - [Auth Service](#auth-service)
-    - [Governance Engine](#governance-engine)
-    - [Framework Service](#framework-service)
-    - [Evidence Repository](#evidence-repository)
-    - [Notification Service](#notification-service)
-    - [Task Service](#task-service)
-  - [2.4 Database Schema Overview](#24-database-schema-overview)
-    - [Core Tables](#core-tables)
-    - [Schema Design Principles](#schema-design-principles)
-  - [2.5 API Specification Standards](#25-api-specification-standards)
-    - [Design Principles](#design-principles)
-    - [Security](#security)
-    - [Documentation](#documentation)
-  - [2.6 Error Handling and Logging](#26-error-handling-and-logging)
-    - [Error Handling](#error-handling)
-    - [Logging](#logging)
-  - [2.7 Versioning and Documentation](#27-versioning-and-documentation)
-    - [API Versioning](#api-versioning)
-    - [Documentation and Change Management](#documentation-and-change-management)
-  - [2.8 Summary](#28-summary)
+- [2.1 Purpose and Overview](#21-purpose-and-overview)
+- [2.2 Folder Structure and Conventions](#22-folder-structure-and-conventions)
+  - [Root-level directories](#root-level-directories)
+  - [Naming Conventions](#naming-conventions)
+- [2.3 Core Backend Services](#23-core-backend-services)
+  - [Auth Service](#auth-service)
+  - [Governance Engine](#governance-engine)
+  - [Framework Service](#framework-service)
+  - [Evidence Repository](#evidence-repository)
+  - [Notification Service](#notification-service)
+  - [Task Service](#task-service)
+- [2.4 Database Schema Overview](#24-database-schema-overview)
+  - [Core Tables](#core-tables)
+  - [Schema Design Principles](#schema-design-principles)
+- [2.5 API Specification Standards](#25-api-specification-standards)
+  - [Design Principles](#design-principles)
+  - [Security](#security)
+  - [Documentation](#documentation)
+- [2.6 Error Handling and Logging](#26-error-handling-and-logging)
+  - [Error Handling](#error-handling)
+  - [Logging](#logging)
+- [2.7 Versioning and Documentation](#27-versioning-and-documentation)
+  - [API Versioning](#api-versioning)
+  - [Documentation and Change Management](#documentation-and-change-management)
 
 ---
 
@@ -250,9 +246,3 @@ The backend uses unified error management and structured logging for observabili
 
 ---
 
-## 2.8 Summary
-
-The backend architecture is a modular, containerized system built on **Node.js and Express.js**, with a strict **JavaScript-only** implementation.  
-It integrates with **externally hosted PostgreSQL** for structured data and **MinIO** for file storage.  
-Core services — Auth, Governance, Frameworks, Evidence, Notifications, and Tasks — operate independently while sharing consistent conventions for logging, error handling, and API documentation.  
-This design ensures a secure, scalable, and maintainable backend foundation for the AI Governance Platform.
