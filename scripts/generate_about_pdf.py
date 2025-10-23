@@ -46,6 +46,7 @@ BOLD_RE = re.compile(r"\*\*(.+?)\*\*")
 ITALIC_RE = re.compile(r"_(.+?)_")
 CODE_RE = re.compile(r"`([^`]+)`")
 LINK_RE = re.compile(r"\[(.+?)\]\((.+?)\)")
+EXTERNAL_LINK_SCHEME_RE = re.compile(r"^[a-z][a-z0-9+.-]*:", re.IGNORECASE)
 
 
 _HEADING_SLUG_COUNTS: Counter[str] = Counter()
@@ -315,11 +316,8 @@ def build_styles():
 
 def _replace_markdown_link(match: Match[str]) -> str:
     text, href = match.groups()
-    if href.startswith("#"):
-        destination = normalize_internal_target(href)
-        if not destination:
-            return text
-        return f'<link destination="{destination}">{text}</link>'
+    if href.startswith("#") or not EXTERNAL_LINK_SCHEME_RE.match(href):
+        return ""
     return f'<link href="{href}">{text}</link>'
 
 
@@ -419,12 +417,26 @@ def build_horizontal_rule() -> HRFlowable:
 def flush_bullets(bullets: List[str], styles) -> ListFlowable | None:
     if not bullets:
         return None
-    list_items = [ListItem(Paragraph(format_inline(item), styles["AboutBody"])) for item in bullets]
+    list_items: List[ListItem] = []
+    for item in bullets:
+        formatted = format_inline(item)
+        if not formatted.strip():
+            continue
+        list_items.append(ListItem(Paragraph(formatted, styles["AboutBody"])))
+    if not list_items:
+        return None
     return ListFlowable(list_items, bulletType="bullet", start="•", leftIndent=24)
 
 
-def build_tldr_list_flowable(items: List[str], styles) -> ListFlowable:
-    list_items = [ListItem(Paragraph(format_inline(item), styles["TldrBody"])) for item in items]
+def build_tldr_list_flowable(items: List[str], styles) -> ListFlowable | None:
+    list_items: List[ListItem] = []
+    for item in items:
+        formatted = format_inline(item)
+        if not formatted.strip():
+            continue
+        list_items.append(ListItem(Paragraph(formatted, styles["TldrBody"])))
+    if not list_items:
+        return None
     return ListFlowable(
         list_items,
         bulletType="bullet",
@@ -457,7 +469,9 @@ def build_tldr_block(lines: List[str], start_index: int, styles) -> tuple[Table 
         text = raw.strip()
         if not text:
             if bullet_items:
-                inner_flowables.append(build_tldr_list_flowable(bullet_items, styles))
+                tldr_list = build_tldr_list_flowable(bullet_items, styles)
+                if tldr_list:
+                    inner_flowables.append(tldr_list)
                 bullet_items = []
             inner_flowables.append(Spacer(1, 4))
             continue
@@ -465,12 +479,18 @@ def build_tldr_block(lines: List[str], start_index: int, styles) -> tuple[Table 
             bullet_items.append(text[2:].strip())
             continue
         if bullet_items:
-            inner_flowables.append(build_tldr_list_flowable(bullet_items, styles))
+            tldr_list = build_tldr_list_flowable(bullet_items, styles)
+            if tldr_list:
+                inner_flowables.append(tldr_list)
             bullet_items = []
-        inner_flowables.append(Paragraph(format_inline(text), styles["TldrBody"]))
+        formatted = format_inline(text)
+        if formatted.strip():
+            inner_flowables.append(Paragraph(formatted, styles["TldrBody"]))
 
     if bullet_items:
-        inner_flowables.append(build_tldr_list_flowable(bullet_items, styles))
+        tldr_list = build_tldr_list_flowable(bullet_items, styles)
+        if tldr_list:
+            inner_flowables.append(tldr_list)
 
     table_data = [[flowable] for flowable in inner_flowables]
     tldr_table = Table(table_data)
@@ -581,7 +601,9 @@ def parse_markdown(markdown_path: Path, styles) -> Iterable:
 
         normalized = line.lstrip("> ")
         if normalized.startswith(("- ", "* ")):
-            bullets.append(normalized[2:].strip())
+            bullet_text = normalized[2:].strip()
+            if bullet_text:
+                bullets.append(bullet_text)
             index += 1
             continue
 
@@ -598,7 +620,9 @@ def parse_markdown(markdown_path: Path, styles) -> Iterable:
                     flowables.append(Spacer(1, 12))
                 index = next_index
                 continue
-            flowables.append(Paragraph(format_inline(normalized), styles["AboutQuote"]))
+            formatted_quote = format_inline(normalized)
+            if formatted_quote.strip():
+                flowables.append(Paragraph(formatted_quote, styles["AboutQuote"]))
             index += 1
             continue
 
@@ -606,7 +630,9 @@ def parse_markdown(markdown_path: Path, styles) -> Iterable:
         bullets.clear()
         if bullet_flowable:
             flowables.append(bullet_flowable)
-        flowables.append(Paragraph(format_inline(normalized), styles["AboutBody"]))
+        formatted_paragraph = format_inline(normalized)
+        if formatted_paragraph.strip():
+            flowables.append(Paragraph(formatted_paragraph, styles["AboutBody"]))
         index += 1
 
     bullet_flowable = flush_bullets(bullets, styles)
