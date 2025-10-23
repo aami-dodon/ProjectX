@@ -210,4 +210,4 @@ These enums align with Governance Engine configuration files and should remain s
 
 ---
 
-[← Previous](06-probe-management-system.md) | [Next →](08-control-management-system.md)
+[← Previous](07-probe-management-system.md) | [Next →](09-control-management-system.md)

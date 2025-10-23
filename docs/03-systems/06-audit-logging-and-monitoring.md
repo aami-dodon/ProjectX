@@ -60,4 +60,4 @@
 
 ---
 
-[← Previous](04-admin-and-configuration-system.md) | [Next →](06-probe-management-system.md)
+[← Previous](05-admin-and-configuration-system.md) | [Next →](07-probe-management-system.md)

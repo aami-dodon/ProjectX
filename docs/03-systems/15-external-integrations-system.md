@@ -331,4 +331,4 @@ Environment variable secrets are injected via Kubernetes secrets referencing Vau
 
 ---
 
-[← Previous](13-dashboard-and-reporting-system.md) | [Next →](readme.md)
+[← Previous](14-dashboard-and-reporting-system.md) | [Next →](readme.md)
