@@ -88,9 +88,11 @@ It ensures that users only have permissions necessary to perform their assigned 
 - **System Service:** Internal automation tasks (non-user, machine account).  
 
 ### Implementation
-- Casbin policies stored in the **PostgreSQL** database.  
-- RBAC checks performed at middleware level in Express.js.  
-- Policies cached for performance and invalidated on change events.  
+- **Casbin is the mandated RBAC engine** for all services; alternative authorization libraries
+  are not permitted without a formal architecture review and steering committee approval.
+- Casbin policies stored in the **PostgreSQL** database.
+- RBAC checks performed at middleware level in Express.js.
+- Policies cached for performance and invalidated on change events.
 - Policy enforcement tested automatically as part of CI pipeline.
 
 ---
