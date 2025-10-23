@@ -7,6 +7,8 @@
 ## Tech Stack & Module Ownership
 - **Language:** 100% JavaScript across frontend, backend, tests, and tooling (no TypeScript anywhere).
 - **Frontend:** React (Vite toolchain) with React Router, TailwindCSS + shadcn/ui, Lucide icons, and Tiptap editor for evidence authoring/upload.
+  - For shadcn reference use: reference/shadcn.md
+  - For Tiptap refernec use: reference/tiptap.md
 - **Backend:** Express on Node.js organized by feature modules (Auth, Governance Engine, Frameworks, Evidence, Notifications, Tasks) with Casbin RBAC, JWT auth, Nodemailer, and structured logging (Winston + Morgan).
 - **Data:** Prisma ORM talking to externally hosted PostgreSQL; evidence binaries stored in externally hosted MinIO via presigned URLs.
 - **Shared Logic:** Place cross-cutting utilities in `shared/`; keep integrations in `server/src/integrations/`.

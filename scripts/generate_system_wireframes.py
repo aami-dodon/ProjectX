@@ -363,6 +363,54 @@ def composite_preview(system_key: str, out_path: Path, images: list):
     img.save(out_path)
 
 
+def make_auth_form_image(kind: str, out_path: Path):
+    # Reusable login/registration/reset/MFA form mock
+    img, draw = dark_canvas()
+    draw_sidebar(draw)
+    title = f"Auth — {kind}"
+    header(draw, title, subtitle="Form layout, role-agnostic")
+
+    # Center card
+    cx1, cy1, cx2, cy2 = 420, 160, 1080, 600
+    draw.rounded_rectangle((cx1, cy1, cx2, cy2), radius=18, outline=(70, 85, 100), width=2, fill=(22, 30, 40))
+    draw.text((cx1 + 24, cy1 + 18), kind, fill=(220, 235, 250), font=SUBTITLE_FONT)
+
+    # Fields (mock)
+    fields_by_kind = {
+        "Login": ["Email", "Password", "Remember me"],
+        "Registration": ["Full name", "Email", "Password", "Confirm password"],
+        "Password Reset": ["Email", "Reset token", "New password", "Confirm password"],
+        "MFA Setup": ["TOTP secret (QR)", "One-time code"],
+        "SSO Sign-in": ["Provider button(s)", "Fallback email"],
+    }
+    actions_by_kind = {
+        "Login": ["Sign in", "Use SSO", "Forgot password"],
+        "Registration": ["Create account", "Back to login"],
+        "Password Reset": ["Send reset link", "Submit new password"],
+        "MFA Setup": ["Verify code", "Use backup"],
+        "SSO Sign-in": ["Continue with SAML/OIDC", "Back to login"],
+    }
+    fields = fields_by_kind.get(kind, ["Field A", "Field B"])
+    actions = actions_by_kind.get(kind, ["Primary", "Secondary"])
+
+    y = cy1 + 70
+    for f in fields:
+        draw.text((cx1 + 28, y), f, fill=(170, 190, 210), font=BODY_FONT)
+        # input box
+        draw.rounded_rectangle((cx1 + 24, y + 18, cx2 - 24, y + 56), radius=10, outline=(70, 85, 100), width=2, fill=(16, 22, 30))
+        y += 64
+
+    # action buttons
+    bx = cx1 + 24
+    by = cy2 - 80
+    for a in actions:
+        bx, _ = draw_chip(draw, (bx, by), a)
+
+    # footer note
+    draw.text((cx1 + 24, cy2 - 40), "This is a mock wireframe; content derives from auth docs.", fill=(150, 170, 190), font=SMALL_FONT)
+    img.save(out_path)
+
+
 def extract_has_frontend_sections(readme_path: Path) -> bool:
     txt = readme_path.read_text(encoding="utf-8", errors="ignore")
     return bool(re.search(r"Frontend Specification|Reusable Components & UI Flows", txt, re.IGNORECASE))
@@ -411,6 +459,15 @@ def main():
 
         print(f"Generated: {overview_path}")
         print(f"Generated composite: {composite}")
+
+    # Extra: dedicated auth screens for User Management
+    ums = SYSTEM_SCREENS.get("01-user-management-system")
+    if ums:
+        sdir = SYSTEMS_DIR / "01-user-management-system"
+        for kind in ["Login", "Registration", "Password Reset", "MFA Setup", "SSO Sign-in"]:
+            out = sdir / f"{kind.replace(' ', '-')}.png"
+            make_auth_form_image(kind, out)
+            print(f"Generated auth form: {out}")
 
 
 if __name__ == "__main__":
