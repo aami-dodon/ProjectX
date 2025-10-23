@@ -47,6 +47,9 @@ CODE_RE = re.compile(r"`([^`]+)`")
 LINK_RE = re.compile(r"\[(.+?)\]\((.+?)\)")
 
 
+NAVIGATION_MARKERS = ("← Previous", "Next →")
+
+
 DEFAULT_INPUT_DIR = Path("docs/01-about")
 DEFAULT_OUTPUT = DEFAULT_INPUT_DIR / "about-dossier.pdf"
 
@@ -275,6 +278,17 @@ def format_inline(text: str) -> str:
     return escaped.replace("\n", "<br/>")
 
 
+def is_navigation_line(line: str) -> bool:
+    """Return ``True`` when the markdown line is a navigation breadcrumb."""
+
+    if not isinstance(line, str):  # defensive guard for unexpected input
+        return False
+    stripped = line.strip()
+    if not stripped:
+        return False
+    return any(marker in stripped for marker in NAVIGATION_MARKERS)
+
+
 def is_table_divider(cells: List[str]) -> bool:
     for cell in cells:
         stripped = cell.strip().replace(":", "").replace("-", "")
@@ -422,7 +436,7 @@ def parse_markdown(markdown_path: Path, styles) -> Iterable:
         line = raw_line.rstrip()
         stripped_line = line.strip()
 
-        if any(marker in line for marker in ("← Previous", "Next →")):
+        if is_navigation_line(line):
             bullet_flowable = flush_bullets(bullets, styles)
             bullets.clear()
             if bullet_flowable:
@@ -594,8 +608,6 @@ def configure_toc_tracking(doc: AboutDocTemplate, styles):
             text = flowable.getPlainText()
             level = getattr(flowable, "outline_level", 0)
             doc.notify("TOCEntry", (level, text, doc.canv.getPageNumber()))
-            key = text.replace(" ", "-").lower()
-            doc.canv.bookmarkPage(key)
 
     doc.afterFlowable = after_flowable
 
