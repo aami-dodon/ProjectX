@@ -23,6 +23,7 @@ try:
     from reportlab.platypus import (
         BaseDocTemplate,
         Frame,
+        HRFlowable,
         ListFlowable,
         ListItem,
         PageBreak,
@@ -228,6 +229,24 @@ def build_styles():
     )
     styles.add(
         ParagraphStyle(
+            name="TldrHeading",
+            parent=styles["Heading3"],
+            textColor=colors.HexColor("#1F4E79"),
+            spaceBefore=0,
+            spaceAfter=6,
+        )
+    )
+    styles.add(
+        ParagraphStyle(
+            name="TldrBody",
+            parent=styles["BodyText"],
+            leading=14,
+            spaceBefore=0,
+            spaceAfter=6,
+        )
+    )
+    styles.add(
+        ParagraphStyle(
             name="TOCTitle",
             parent=styles["Heading1"],
             alignment=TA_CENTER,
@@ -252,7 +271,7 @@ def format_inline(text: str) -> str:
     escaped = BOLD_RE.sub(r"<b>\1</b>", escaped)
     escaped = ITALIC_RE.sub(r"<i>\1</i>", escaped)
     escaped = CODE_RE.sub(r"<font face=\"Courier\">\1</font>", escaped)
-    escaped = LINK_RE.sub(r"\1", escaped)
+    escaped = LINK_RE.sub(r'<link href="\2">\1</link>', escaped)
     return escaped.replace("\n", "<br/>")
 
 
@@ -315,11 +334,82 @@ def build_table_flowable(rows: List[List[str]], styles) -> Table:
     return table
 
 
+def build_horizontal_rule() -> HRFlowable:
+    return HRFlowable(width="100%", thickness=1, color=colors.HexColor("#DDDDDD"), spaceBefore=8, spaceAfter=8)
+
+
 def flush_bullets(bullets: List[str], styles) -> ListFlowable | None:
     if not bullets:
         return None
     list_items = [ListItem(Paragraph(format_inline(item), styles["AboutBody"])) for item in bullets]
     return ListFlowable(list_items, bulletType="bullet", start="•", leftIndent=24)
+
+
+def build_tldr_list_flowable(items: List[str], styles) -> ListFlowable:
+    list_items = [ListItem(Paragraph(format_inline(item), styles["TldrBody"])) for item in items]
+    return ListFlowable(
+        list_items,
+        bulletType="bullet",
+        start="•",
+        leftIndent=16,
+    )
+
+
+def build_tldr_block(lines: List[str], start_index: int, styles) -> tuple[Table | None, int]:
+    index = start_index + 1  # skip the TL;DR heading line
+    content_lines: List[str] = []
+    while index < len(lines):
+        candidate = lines[index]
+        if candidate.startswith(">"):
+            content_lines.append(candidate.lstrip("> "))
+            index += 1
+            continue
+        if not candidate.strip():
+            # Consume the blank line following the TL;DR block, if present.
+            index += 1
+        break
+
+    if not content_lines:
+        return None, index
+
+    inner_flowables: List = [Paragraph("TL;DR", styles["TldrHeading"])]
+    bullet_items: List[str] = []
+
+    for raw in content_lines:
+        text = raw.strip()
+        if not text:
+            if bullet_items:
+                inner_flowables.append(build_tldr_list_flowable(bullet_items, styles))
+                bullet_items = []
+            inner_flowables.append(Spacer(1, 4))
+            continue
+        if text.startswith(("- ", "* ")):
+            bullet_items.append(text[2:].strip())
+            continue
+        if bullet_items:
+            inner_flowables.append(build_tldr_list_flowable(bullet_items, styles))
+            bullet_items = []
+        inner_flowables.append(Paragraph(format_inline(text), styles["TldrBody"]))
+
+    if bullet_items:
+        inner_flowables.append(build_tldr_list_flowable(bullet_items, styles))
+
+    table_data = [[flowable] for flowable in inner_flowables]
+    tldr_table = Table(table_data)
+    tldr_table.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#F5F5F5")),
+                ("BOX", (0, 0), (-1, -1), 0.5, colors.HexColor("#DDDDDD")),
+                ("LEFTPADDING", (0, 0), (-1, -1), 12),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 12),
+                ("TOPPADDING", (0, 0), (-1, -1), 10),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 10),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+            ]
+        )
+    )
+    return tldr_table, index
 
 
 def parse_markdown(markdown_path: Path, styles) -> Iterable:
@@ -330,8 +420,26 @@ def parse_markdown(markdown_path: Path, styles) -> Iterable:
     while index < len(lines):
         raw_line = lines[index]
         line = raw_line.rstrip()
+        stripped_line = line.strip()
 
-        if not line.strip():
+        if any(marker in line for marker in ("← Previous", "Next →")):
+            bullet_flowable = flush_bullets(bullets, styles)
+            bullets.clear()
+            if bullet_flowable:
+                flowables.append(bullet_flowable)
+            index += 1
+            continue
+
+        if stripped_line == "---":
+            bullet_flowable = flush_bullets(bullets, styles)
+            bullets.clear()
+            if bullet_flowable:
+                flowables.append(bullet_flowable)
+            flowables.append(build_horizontal_rule())
+            index += 1
+            continue
+
+        if not stripped_line:
             bullet_flowable = flush_bullets(bullets, styles)
             bullets.clear()
             if bullet_flowable:
@@ -340,7 +448,7 @@ def parse_markdown(markdown_path: Path, styles) -> Iterable:
             index += 1
             continue
 
-        if line.strip().startswith("|"):
+        if stripped_line.startswith("|"):
             bullet_flowable = flush_bullets(bullets, styles)
             bullets.clear()
             if bullet_flowable:
@@ -377,6 +485,18 @@ def parse_markdown(markdown_path: Path, styles) -> Iterable:
             continue
 
         if raw_line.startswith(">"):
+            normalized_heading = normalized.lower()
+            if normalized_heading.startswith("### tl;dr"):
+                bullet_flowable = flush_bullets(bullets, styles)
+                bullets.clear()
+                if bullet_flowable:
+                    flowables.append(bullet_flowable)
+                tldr_block, next_index = build_tldr_block(lines, index, styles)
+                if tldr_block:
+                    flowables.append(tldr_block)
+                    flowables.append(Spacer(1, 12))
+                index = next_index
+                continue
             flowables.append(Paragraph(format_inline(normalized), styles["AboutQuote"]))
             index += 1
             continue
