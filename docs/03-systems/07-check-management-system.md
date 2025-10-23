@@ -1,6 +1,13 @@
 # Check Management System <!-- omit in toc -->
 
-> This document explains how the Governance Engine orchestrates compliance checks end-to-end – from design and execution to evidence capture and publication.
+## Location: /server/src/modules/governance/checks
+
+>### TL;DR
+> The check management system operationalizes governance requirements inside the Governance Engine.
+> It coordinates check definitions, execution workflows, evidence capture, and publication workflows across automated and manual paths.
+> Use this runbook to understand data models, lifecycle states, and operational playbooks for managing compliance checks.
+
+---
 
 - [1. Conceptual Overview](#1-conceptual-overview)
 - [2. Check Types](#2-check-types)
@@ -198,3 +205,7 @@ Escalation paths are triggered automatically for overdue manual checks, notifyin
   - `critical` – Severe risk; immediate executive attention.
 
 These enums align with Governance Engine configuration files and should remain synchronized with backend validation logic.
+
+---
+
+[← Previous](06-probe-management-system.md) | [Next →](08-control-management-system.md)

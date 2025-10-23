@@ -1,5 +1,7 @@
 # Notification System <!-- omit in toc -->
 
+## Location: /server/src/modules/notifications
+
 >### TL;DR
 > The notification system orchestrates outbound communication across email and enterprise collaboration channels.
 > It is centered around the `server/src/modules/notifications` package, which exposes shared workflow utilities, template
@@ -214,3 +216,7 @@ The notification module is organised around the following packages and services:
 - Structured logs stream to the central log platform with retention of 30 days hot, 180 days warm, 365 days archived.
 - PII redaction policies apply to logs, ensuring sensitive content is masked before leaving the application boundary.
 - Access to archived logs requires break-glass approval and is monitored via security information and event management (SIEM).
+
+---
+
+[← Previous](02-rbac-system.md) | [Next →](05-audit-logging-and-monitoring.md)

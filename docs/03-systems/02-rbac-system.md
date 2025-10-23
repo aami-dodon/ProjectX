@@ -1,5 +1,7 @@
 # RBAC System <!-- omit in toc -->
 
+## Location: /server/src/modules/auth
+
 >### TL;DR
 > The AI Governance Platform enforces role-based access control (RBAC) using **Casbin** across the Node.js backend. Policies are persisted in **PostgreSQL**, cached for high throughput, and evaluated in middleware before any module logic runs. This document explains the role hierarchy, permission granularity, enforcement layers, and operational workflows that keep access secure and auditable.
 
@@ -148,4 +150,4 @@ Casbin policies support:
 
 ---
 
-For questions or change proposals, open a thread in the `#rbac-architecture` Slack channel or file an ADR using the standard architecture decision template.
+[← Previous](01-user-management-system.md) | [Next →](03-notification-system.md)

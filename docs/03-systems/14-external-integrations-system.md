@@ -1,5 +1,7 @@
 # External Integrations System <!-- omit in toc -->
 
+## Location: /server/src/integrations
+
 >### TL;DR
 > This document catalogs Project X's third-party integrations, covering supported connectors, authentication models, data synchronization patterns, and operational runbooks.
 > For every integration we highlight configuration steps, environment variables, failure-handling playbooks, and how the connector ties into notifications, tasks, and evidence lifecycle.
@@ -327,3 +329,6 @@ Environment variable secrets are injected via Kubernetes secrets referencing Vau
 - Post-change validation: run smoke tests, verify notifications/tasks, update runbook if required.
 - Archive change artifacts in Evidence Library tagged `change-management`.
 
+---
+
+[← Previous](13-dashboard-and-reporting-system.md) | [Next →](readme.md)
