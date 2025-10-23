@@ -219,4 +219,4 @@ The notification module is organised around the following packages and services:
 
 ---
 
-[← Previous](02-rbac-system.md) | [Next →](04-admin-and-configuration-system.md)
+[← Previous](03-document-and-media-upload.md) | [Next →](05-admin-and-configuration-system.md)

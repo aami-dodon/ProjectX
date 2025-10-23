@@ -117,6 +117,29 @@ The Systems documentation set bridges the gap between business intent and engine
 
 ---
 
+### Document & Media Upload Service
+#### TL;DR
+- Issues presigned MinIO URLs and compression directives so teams can ingest evidence quickly without exposing backend credentials.
+- Enforces metadata validation, image compression, and checksum verification before promoting uploads to the Evidence Repository.
+
+#### Mission-critical responsibilities
+- Validate upload intent, RBAC scopes, and data classification prior to generating presigned URLs.
+- Orchestrate compression, malware scanning, and metadata persistence that keep evidence immutable and auditable.
+- Publish lifecycle events that downstream systems (Evidence, Governance, Tasking) rely on for automation and reporting.
+
+#### Operational guidance
+- **Service ownership:** Evidence management squad.
+- **Data flows:** Accepts metadata, issues presigned URLs, processes completion callbacks, and stores metadata alongside MinIO object keys.
+- **SLAs:** Presigned URL issuance <150 ms median; compression and metadata finalization within 2 minutes of upload completion.
+- **Dependencies:** Relies on RBAC enforcement, MinIO availability, ClamAV scanning, and Notification service for escalation workflows.
+
+#### Runbook checklist
+1. Monitor presigned URL failure rates and compression backlogs; escalate when thresholds breach runbook tolerances.
+2. Review rejected uploads weekly to fine-tune MIME allowlists and file size policies.
+3. Validate malware scanning signatures and quarantine automation after each infrastructure update.
+
+---
+
 ### Notification Service
 #### TL;DR
 - Drives multi-channel communication—email, Slack, and in-app alerts—to keep stakeholders aligned with governance activity.

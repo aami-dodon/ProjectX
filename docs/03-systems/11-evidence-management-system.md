@@ -68,4 +68,4 @@ Cryptographic integrity checks accompany evidence ingestion and logging, enablin
 
 ---
 
-[← Previous](09-framework-mapping-system.md) | [Next →](11-governance-engine.md)
+[← Previous](10-framework-mapping-system.md) | [Next →](12-governance-engine.md)
