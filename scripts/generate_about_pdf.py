@@ -93,6 +93,8 @@ def normalize_internal_target(target: str) -> str:
 
 
 NAVIGATION_MARKERS = ("← Previous", "Next →")
+TOC_HEADING_TITLES = {"table of contents", "contents"}
+TOC_DIRECTIVES = {"[toc]", "[[toc]]", "{{toc}}", "<!-- toc -->", "<!--toc-->"}
 
 
 DEFAULT_INPUT_DIR = Path("docs/01-about")
@@ -141,6 +143,13 @@ class AboutDocTemplate(BaseDocTemplate):
     def _header_footer(self, canvas, doc) -> None:  # pragma: no cover - layout code
         canvas.saveState()
         page_width, page_height = LETTER
+        canvas.saveState()
+        canvas.setFillColorRGB(0.9, 0.9, 0.9)
+        canvas.setFont("Helvetica-Bold", 60)
+        canvas.translate(page_width / 2, page_height / 2)
+        canvas.rotate(45)
+        canvas.drawCentredString(0, 0, "CONFIDENTIAL")
+        canvas.restoreState()
         header_title = self.branding.header_title
         header_date = datetime.now().strftime(self.branding.header_date_format)
         canvas.setFont("Helvetica-Bold", 11)
@@ -243,7 +252,7 @@ def build_styles():
         spaceAfter=6,
         leading=16,
     )
-    heading3.outline_level = 2
+    heading3.outline_level = None
     styles.add(heading3)
 
     styles.add(
@@ -486,6 +495,7 @@ def parse_markdown(markdown_path: Path, styles) -> Iterable:
     bullets: List[str] = []
     lines = markdown_path.read_text(encoding="utf-8").splitlines()
     index = 0
+    skip_section_level: int | None = None
     while index < len(lines):
         raw_line = lines[index]
         line = raw_line.rstrip()
@@ -505,6 +515,14 @@ def parse_markdown(markdown_path: Path, styles) -> Iterable:
             if bullet_flowable:
                 flowables.append(bullet_flowable)
             flowables.append(build_horizontal_rule())
+            index += 1
+            continue
+
+        if stripped_line.lower() in TOC_DIRECTIVES:
+            index += 1
+            continue
+
+        if skip_section_level is not None and not line.startswith("#"):
             index += 1
             continue
 
@@ -540,10 +558,22 @@ def parse_markdown(markdown_path: Path, styles) -> Iterable:
             if not text:
                 index += 1
                 continue
+            if skip_section_level is not None:
+                if level > skip_section_level:
+                    index += 1
+                    continue
+                skip_section_level = None
+            normalized_heading = text.lower().rstrip(":")
+            if normalized_heading in TOC_HEADING_TITLES:
+                skip_section_level = level
+                index += 1
+                continue
             heading_style_name = {1: "AboutHeading1", 2: "AboutHeading2", 3: "AboutHeading3"}.get(level, "AboutHeading3")
             bookmark_name = register_heading_anchor(text)
             paragraph = Paragraph(format_inline(text), styles[heading_style_name])
-            paragraph.outline_level = styles[heading_style_name].outline_level
+            outline_level = getattr(styles[heading_style_name], "outline_level", None)
+            if outline_level is not None:
+                paragraph.outline_level = outline_level
             paragraph._bookmarkName = bookmark_name
             flowables.append(paragraph)
             index += 1
@@ -631,7 +661,6 @@ def add_table_of_contents(story: List, styles, toc: TableOfContents) -> None:
     toc.levelStyles = [
         ParagraphStyle(name="TOCHeading1", parent=styles["Normal"], fontSize=11, leftIndent=0, firstLineIndent=-18, spaceBefore=4, leading=14),
         ParagraphStyle(name="TOCHeading2", parent=styles["Normal"], fontSize=10, leftIndent=12, firstLineIndent=-12, spaceBefore=2, leading=12),
-        ParagraphStyle(name="TOCHeading3", parent=styles["Normal"], fontSize=9, leftIndent=24, firstLineIndent=-12, spaceBefore=0, leading=11),
     ]
     story.append(toc)
     story.append(PageBreak())
@@ -662,12 +691,17 @@ def build_story(markdown_files: Iterable[Path], styles) -> List:
 def configure_toc_tracking(doc: AboutDocTemplate, styles):
     def after_flowable(flowable):  # pragma: no cover - layout callback
         if isinstance(flowable, Paragraph) and hasattr(flowable, "outline_level"):
+            level = getattr(flowable, "outline_level", None)
+            if level is None:
+                return
             text = flowable.getPlainText()
-            level = getattr(flowable, "outline_level", 0)
             bookmark_name = getattr(flowable, "_bookmarkName", None)
             if bookmark_name:
                 doc.canv.bookmarkPage(bookmark_name)
-            doc.notify("TOCEntry", (level, text, doc.canv.getPageNumber()))
+            entry = (level, text, doc.canv.getPageNumber())
+            if bookmark_name:
+                entry += (bookmark_name,)
+            doc.notify("TOCEntry", entry)
 
     doc.afterFlowable = after_flowable
 
