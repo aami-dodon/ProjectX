@@ -43,9 +43,9 @@
   - [6. Partner Enablement and Support](#6-partner-enablement-and-support)
   - [7. Ecosystem Vision](#7-ecosystem-vision)
 - [7.6 GTM Timeline and Milestones](#76-gtm-timeline-and-milestones)
-  - [**2026 — Foundation and Pre-Launch (Q2–Q4 2026)**](#2026--foundation-and-pre-launch-q2q4-2026)
-  - [**2027 — Market Expansion and Partnership Growth (Q1–Q4 2027)**](#2027--market-expansion-and-partnership-growth-q1q4-2027)
-  - [**2028 — Global Scale and Ecosystem Leadership (Q1–Q4 2028)**](#2028--global-scale-and-ecosystem-leadership-q1q4-2028)
+  - [**2026 — Foundation and Pre-Launch (Q2–Q4 2026)**](#2026-foundation-and-pre-launch-q2q4-2026)
+  - [**2027 — Market Expansion and Partnership Growth (Q1–Q4 2027)**](#2027-market-expansion-and-partnership-growth-q1q4-2027)
+  - [**2028 — Global Scale and Ecosystem Leadership (Q1–Q4 2028)**](#2028-global-scale-and-ecosystem-leadership-q1q4-2028)
   - [**Milestone Summary (2026–2028)**](#milestone-summary-20262028)
   - [**KPI Overview by End of 2028**](#kpi-overview-by-end-of-2028)
 

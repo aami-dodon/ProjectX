@@ -11,8 +11,8 @@
 - [2.2 Regulatory Drivers](#22-regulatory-drivers)
 - [2.3 Customer Pain Points](#23-customer-pain-points)
 - [2.4 Competitive Landscape](#24-competitive-landscape)
-- [2.5 Differentiation \& Unique Value Proposition](#25-differentiation--unique-value-proposition)
-- [2.6 Market Timing \& Opportunity Window](#26-market-timing--opportunity-window)
+- [2.5 Differentiation \& Unique Value Proposition](#25-differentiation-unique-value-proposition)
+- [2.6 Market Timing \& Opportunity Window](#26-market-timing-opportunity-window)
 - [References](#references)
 
 ---

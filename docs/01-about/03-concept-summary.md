@@ -13,7 +13,7 @@
   - [3. Controls](#3-controls)
   - [4. Framework Mapping Engine](#4-framework-mapping-engine)
   - [5. Evidence Repository](#5-evidence-repository)
-  - [6. Dashboard \& Reporting Layer](#6-dashboard--reporting-layer)
+- [6. Dashboard \& Reporting Layer](#6-dashboard-reporting-layer)
 - [3.4 Users and Roles](#34-users-and-roles)
   - [Primary User Roles](#primary-user-roles)
   - [Role-Based Access Model](#role-based-access-model)
