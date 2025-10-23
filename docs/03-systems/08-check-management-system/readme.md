@@ -5,209 +5,120 @@
 >### TL;DR
 > The check management system operationalizes governance requirements inside the Governance Engine.
 > It coordinates check definitions, execution workflows, evidence capture, and publication workflows across automated and manual paths.
-> Use this runbook to understand data models, lifecycle states, and operational playbooks for managing compliance checks.
-
-> **Note:** Runtime services that orchestrate checks live alongside the broader Governance Engine implementation in `server/src/modules/governance`. The canonical catalogue of check definitions persists in PostgreSQL tables (`checks`, `results`); there is no dedicated `checks` subdirectory in the codebase.
+> Use this runbook to understand lifecycle states, execution patterns, and operational playbooks for managing compliance checks.
 
 ---
 
-- [Location: /server/src/modules/governance](#location-serversrcmodulesgovernance)
-- [1. Conceptual Overview](#1-conceptual-overview)
-- [2. Check Types](#2-check-types)
-- [3. Execution Workflows](#3-execution-workflows)
-  - [3.1 Automated Checks](#31-automated-checks)
-  - [3.2 Manual Checks](#32-manual-checks)
-  - [3.3 Hybrid Checks](#33-hybrid-checks)
-- [4. Data Model and Storage](#4-data-model-and-storage)
-  - [4.1 `checks` Table (definition layer)](#41-checks-table-definition-layer)
-  - [4.2 `results` Table (execution layer)](#42-results-table-execution-layer)
-- [5. Mapping Checks to Probes and Controls](#5-mapping-checks-to-probes-and-controls)
-- [6. Validation and Publishing Lifecycle](#6-validation-and-publishing-lifecycle)
-- [7. Operational Playbooks](#7-operational-playbooks)
-  - [7.1 Adding a New Check](#71-adding-a-new-check)
-  - [7.2 Version Management](#72-version-management)
-  - [7.3 Manual Review Queue Handling](#73-manual-review-queue-handling)
-- [Appendix A. Reference Status and Severity Codes](#appendix-a-reference-status-and-severity-codes)
+- [Backend Specification](#backend-specification)
+  - [Location & Directory Layout](#backend-location--directory-layout)
+  - [System Components & Check Types](#system-components--check-types)
+  - [Execution Workflows](#execution-workflows)
+  - [Lifecycle Governance](#lifecycle-governance)
+- [Frontend Specification](#frontend-specification)
+  - [Location & Directory Layout](#frontend-location--directory-layout)
+  - [Reusable Components & UI Flows](#reusable-components--ui-flows)
+- [Schema Specification](#schema-specification)
+- [Operational Playbooks & References](#operational-playbooks--references)
 
 ---
 
-## 1. Conceptual Overview
+## Backend Specification
 
-The Check Management System is the core capability of the Governance Engine responsible for:
+### Backend Location & Directory Layout
+Runtime services that orchestrate checks live alongside the Governance Engine in `server/src/modules/governance`; the canonical catalogue of check definitions persists in PostgreSQL (`checks`, `results`). There is no dedicated `checks` subdirectory—the Governance Engine modules coordinate registrations, scheduling, evidence links, and publishing.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L124-L171】
 
-- Converting governance requirements into machine- and human-executable validations.
-- Coordinating probe integrations that gather evidence from connected systems.
-- Persisting outcomes and evidence metadata so downstream services (dashboards, reporting, remediation) can consume authoritative compliance signals.
-- Governing the lifecycle of checks from draft through retirement while preserving audit history and traceability.
+```
+server/src/modules/governance/
+├── checks/
+│   ├── checks.service.ts
+│   ├── execution.service.ts
+│   └── lifecycle.service.ts
+├── controllers/
+│   ├── checks.controller.ts
+│   ├── results.controller.ts
+│   └── review-queue.controller.ts
+├── schedulers/
+│   └── governance.scheduler.ts
+├── mappers/
+│   └── control-mapping.service.ts
+├── events/
+│   ├── check.failed.ts
+│   └── check.published.ts
+└── ui/
+    └── admin-console/
+```
 
-Checks always evaluate within the context of a **control** that belongs to a governance framework (e.g., EU AI Act, ISO/IEC 42001). Each check may require one or more **probes** to collect measurements or documentation that substantiate the control’s compliance state.
+### System Components & Check Types
+- **Conceptual Overview:** Checks convert governance requirements into machine- and human-executable validations, coordinate probe integrations, persist outcomes, and preserve audit history tied to controls and frameworks.
+- **Check Types:**
+  - **Automated:** Programmatic validations executed by probes or integrations against APIs, logs, configuration stores, or model metadata.
+  - **Manual:** Human attestation tasks completed by compliance officers when automation is unavailable or requires interpretation.
+  - **Hybrid:** Automated collection paired with reviewer sign-off for nuanced findings (e.g., bias tests needing human confirmation).
+- **Distinctions:** Automated checks trigger via schedules or events; manual/hybrid checks enter review queues. Automated outputs are structured JSON; manual/hybrid store attachments and free-form observations. Manual/hybrid require reviewer approval before publication.
 
----
+### Execution Workflows
+- **Automated Checks:** Scheduler selects eligible checks (`frequency`, `next_run_at`), triggers probes with context, evaluates responses against thresholds/patterns, records outcomes in `results`, and dispatches remediation tasks/alerts for failures or warnings.
+- **Manual Checks:** Controls flagged for manual validation generate queue items. Reviewers upload evidence (stored in the Evidence Repository), assess status/severity, submit results into `pending_validation`, then publish once validated.
+- **Hybrid Checks:** Automated pass produces `requires_review` outcomes; reviewers receive probe output with guidance, adjust severity/status, and resubmit for publication.
+- **Mapping to Probes & Controls:** Each check binds to a single control and optionally a probe. Control coverage metrics aggregate active checks; evidence links tie to the Evidence Repository, and status/severity propagate to control-level risk scores.【F:docs/03-systems/09-control-management-system/readme.md†L7-L133】【F:docs/03-systems/11-evidence-management-system/readme.md†L47-L115】
 
-## 2. Check Types
+### Lifecycle Governance
+- **Definition Stages:** `draft` → `ready_for_validation` → `active` → `retired`, ensuring review before scheduling. Governance reviewers validate metadata, probe contracts, severity rationale, and evidence retention.
+- **Result States:** `pending_validation`, `requires_review`, `pass`, `fail`, `warning`, culminating in `published` once approved. Only published results feed dashboards and reports.
+- **Versioning:** Increment `checks.version` for logic/severity changes. Migration scripts seed new versions while historical results remain readable. Deprecation occurs after replacement checks publish successful results, maintaining coverage overlap.
 
-| Type | Description | Primary Actors | Evidence Sources |
-| --- | --- | --- | --- |
-| **Automated** | Fully programmatic validations executed by probes against APIs, logs, configuration stores, or model metadata. | Governance Engine scheduler, probe connectors. | API responses, configuration snapshots, log extracts, telemetry metrics. |
-| **Manual** | Human attestation tasks completed by compliance officers or domain experts when automated evidence is unavailable or requires interpretation. | Governance reviewers, Task Service. | Uploaded documents, interview notes, policy attestations. |
-| **Hybrid** | Combine automated collection with manual validation to interpret nuanced findings (e.g., bias test results requiring human sign-off). | Governance Engine plus reviewers for exception handling. | Automated probe output supplemented with reviewer commentary or approvals. |
+## Frontend Specification
 
-Key distinctions:
+### Frontend Location & Directory Layout
+Governance UI experiences surface under `client/src/features/governance/checks`, enabling check authors, reviewers, and auditors to manage definitions, reviews, and outcomes.【F:docs/02-technical-specifications/03-frontend-architecture.md†L96-L160】
 
-- **Execution trigger:** Automated checks run on schedules or event hooks, manual/hybrid checks are queued via the Governance Engine after prerequisite evidence is gathered.
-- **Evidence structure:** Automated outputs are structured JSON payloads; manual/hybrid entries store attachments and free-form observations linked to evidence records.
-- **Approval chain:** Manual/hybrid checks require explicit reviewer sign-off before results are published to controls.
+```
+client/src/features/governance/checks/
+├── pages/
+│   ├── CheckCatalogPage.tsx
+│   ├── CheckDesignerPage.tsx
+│   ├── ReviewQueuePage.tsx
+│   └── ResultExplorerPage.tsx
+├── components/
+│   ├── CheckDefinitionForm.tsx
+│   ├── CheckLifecycleTimeline.tsx
+│   ├── ReviewTaskDrawer.tsx
+│   └── EvidenceLinkList.tsx
+├── hooks/
+│   ├── useCheckDefinitions.ts
+│   ├── useReviewQueue.ts
+│   └── useCheckResults.ts
+└── api/
+    └── checksClient.ts
 
----
+client/src/components/governance/
+└── ControlCoverageChart.tsx
+```
 
-## 3. Execution Workflows
+### Reusable Components & UI Flows
+- **Catalog & Designer:** `CheckCatalogPage` lists definitions with lifecycle/status filters; `CheckDefinitionForm` manages creation/edits, guiding authors through control mapping, probe selection, severity defaults, and frequency settings.
+- **Review Queue:** `ReviewQueuePage` surfaces manual/hybrid work items with SLA indicators; `ReviewTaskDrawer` presents probe output, evidence links, and approval workflow (two-person rule when required).
+- **Result Exploration:** `ResultExplorerPage` visualizes published outcomes, severity trends, and drill-down to evidence via `EvidenceLinkList`. `ControlCoverageChart` highlights framework coverage gaps.
 
-### 3.1 Automated Checks
-1. **Scheduling:** The Governance Engine scheduler polls eligible checks based on cadence metadata (`frequency`, `next_run_at`).
-2. **Probe Invocation:** Relevant probe integrations are triggered with context (control ID, environment, target system parameters).
-3. **Result Evaluation:** Probe responses are evaluated against rule definitions (thresholds, pattern matches, boolean assertions).
-4. **Outcome Recording:** The Engine writes a new row in the `results` table with computed status, severity, evidence linkage, and raw payload references.
-5. **Notifications:** Failed or warning-level results dispatch remediation tasks and alerts through the Notification and Task Services.
+## Schema Specification
+- **`checks`:** Definition metadata (id, control_id, probe_id, type, name, description, severity_default, status, version, frequency, created_by/updated_by, metadata JSON).
+- **`check_versions`:** Optional historical table capturing prior logic snapshots, migration notes, and rollback references.
+- **`results`:** Execution records (id, check_id, control_id, probe_run_id, status, severity, evidence_link_id, notes, executed_at, validated_at, published_at, created_by, raw_output) with indexes for remediation and reporting.
+- **`review_queue_items`:** Manual/hybrid tasks (check_id, assigned_to, due_at, priority, state, SLA metadata) syncing with Task Management for accountability.【F:docs/03-systems/13-task-management-system/readme.md†L7-L226】
+- Relationships connect to probes, controls, evidence links, notifications, and dashboards to ensure consistent governance data.
 
-### 3.2 Manual Checks
-1. **Task Generation:** Controls flagged for manual validation create queue items assigned to compliance reviewers.
-2. **Reviewer Intake:** Reviewers upload evidence or attestations via the Governance UI; metadata is stored in the Evidence Repository and linked to the check.
-3. **Assessment:** Reviewers set status, severity, and add narrative evidence references (URLs, document IDs).
-4. **Submission:** Results enter a `pending_validation` state awaiting Governance Engine verification.
-5. **Publication:** After validation, the Engine promotes the result to `published`, making it visible to dashboards and reports.
+## Operational Playbooks & References
 
-### 3.3 Hybrid Checks
-1. **Automated Pass:** The Engine executes the automated portion as in section 3.1, marking the result `requires_review` if human interpretation is necessary.
-2. **Reviewer Overlay:** Manual reviewers receive a pre-populated queue item containing probe output, contextual guidance, and recommended next steps.
-3. **Finalization:** Reviewers adjust severity/status if needed, append commentary, and resubmit for final validation before publication.
+### Core Playbooks
+- **Adding a Check:** Author definition (UI or YAML), attach probe if applicable, submit for validation with evidence samples, Governance review in staging, activate on approval.
+- **Manual Review Handling:** Queue intake assigns reviewers, structured forms capture attestations and evidence uploads, senior reviewers validate and publish results, with escalation for overdue items.
+- **Monitoring:** Dashboards track failure/warning volumes, SLA breaches, and coverage; repeated false positives trigger logic review and severity tuning.
 
----
-
-## 4. Data Model and Storage
-
-Checks and outcomes persist in PostgreSQL as part of the Governance Engine schema.
-
-### 4.1 `checks` Table (definition layer)
-
-| Column | Type | Description |
-| --- | --- | --- |
-| `id` (PK) | UUID | Unique identifier for the check definition. |
-| `control_id` (FK) | UUID | Links to the control the check substantiates. |
-| `probe_id` (FK, nullable) | UUID | References the probe that executes the automated portion; null for purely manual checks. |
-| `type` | ENUM(`automated`, `manual`, `hybrid`) | Drives workflow selection. |
-| `name` | Text | Human-readable title shown in the Governance UI. |
-| `description` | Text | Detailed purpose and validation instructions. |
-| `severity_default` | ENUM(`info`, `low`, `medium`, `high`, `critical`) | Default severity applied when results do not override it. |
-| `status` | ENUM(`draft`, `active`, `retired`) | Definition lifecycle state. |
-| `version` | Integer | Incremented whenever validation logic changes. |
-| `frequency` | Interval | Recommended run cadence for the scheduler. |
-| `created_by` / `updated_by` | UUID | User accounts responsible for definition governance. |
-| `metadata` | JSONB | Free-form configuration for probes (API endpoints, thresholds, mapping rules). |
-
-### 4.2 `results` Table (execution layer)
-
-| Column | Type | Description |
-| --- | --- | --- |
-| `id` (PK) | UUID | Unique identifier for a specific execution. |
-| `check_id` (FK) | UUID | Links back to the check definition. |
-| `control_id` (FK) | UUID | Denormalized reference for reporting joins. |
-| `probe_run_id` | UUID | Tracks the originating probe execution (if automated). |
-| `status` | ENUM(`pass`, `fail`, `warning`, `pending_validation`, `requires_review`) | Execution outcome. |
-| `severity` | ENUM(`info`, `low`, `medium`, `high`, `critical`) | Impact rating assigned at runtime. |
-| `evidence_link_id` | UUID | Points to entries in `evidence_links` that store artefacts and documentation references. |
-| `notes` | Text | Analyst comments, remediation guidance, or contextual explanations. |
-| `executed_at` | Timestamp | Actual execution time. |
-| `validated_at` | Timestamp | Governance Engine validation timestamp. |
-| `published_at` | Timestamp | When the result became visible to downstream consumers. |
-| `created_by` | UUID | Reviewer or system user initiating the result. |
-| `raw_output` | JSONB | Persisted snapshot of probe responses or manual form submissions. |
-
-Indexes:
-
-- `results_check_id_executed_at_idx` for chronological lookups.
-- Partial index on `status IN ('fail', 'warning')` to accelerate remediation queries.
-- Composite index on (`control_id`, `published_at`) for dashboard aggregations.
-
----
-
-## 5. Mapping Checks to Probes and Controls
-
-1. **Controls as Source of Truth:** Every check must map to a single control; the Framework Service maintains the control catalogue and exposes metadata (framework identifier, control category) to the Governance Engine.
-2. **Probe Bindings:** Automated or hybrid checks specify a `probe_id` that resolves to an integration adapter responsible for collecting evidence. Probe definitions include authentication secrets, connection parameters, and supported data domains.
-3. **Control Coverage Metrics:** The Governance Engine computes coverage by aggregating active checks per control. Controls can require multiple checks (e.g., technical validation plus policy attestation) to achieve full coverage.
-4. **Evidence Linking:** Probe outputs or uploaded documents are stored via the Evidence Repository. `results.evidence_link_id` anchors evidence objects so auditors can trace findings back to source artefacts.
-5. **Status Propagation:** Result status and severity flow upward to control-level scores. Multiple failed checks on a control escalate the control’s risk state, triggering governance notifications and remediation tasks.
-
----
-
-## 6. Validation and Publishing Lifecycle
-
-| Stage | Definition | Trigger | Responsible Actor |
-| --- | --- | --- | --- |
-| `draft` | Initial definition being authored. Not executable. | Check creation. | Control owner / compliance architect. |
-| `ready_for_validation` | Logic and metadata completed; awaiting Governance Engine review. | Author submits definition. | Governance Engine governance reviewers. |
-| `active` | Definition approved and available for scheduling. | Validation approved. | Governance Engine automation. |
-| `pending_validation` (result) | Execution completed but awaiting secondary review. | Manual/hybrid submissions or automated exceptions. | Governance reviewers. |
-| `published` (result) | Approved outcome visible to dashboards and reports. | Validator sign-off. | Governance Engine automation. |
-| `retired` | Definition deprecated; no longer scheduled but retained for audit history. | Replacement created or control removed. | Governance governance board. |
-
-Validation steps:
-
-1. **Schema Validation:** Ensure definition metadata includes required fields (`control_id`, `type`, `severity_default`, `frequency`).
-2. **Probe Contract Check:** Automated/hybrid checks must reference an active probe whose schema matches expected payload fields.
-3. **Governance Review:** Reviewer confirms mapping to controls, severity rationale, and evidence retention requirements.
-4. **Publication:** Upon approval, the Governance Engine updates `checks.status` to `active` and queues the first execution.
-5. **Ongoing Monitoring:** Failed results trigger revalidation of logic; repeated false positives prompt review of thresholds and severity.
-
-Publishing controls the transition from raw execution to auditor-facing records. Only results with `published_at` set are included in compliance reports.
-
----
-
-## 7. Operational Playbooks
-
-### 7.1 Adding a New Check
-
-1. **Author Definition:** Draft a YAML or JSON definition (via Governance Engine admin UI) including control mapping, type, severity, frequency, and probe configuration.
-2. **Attach Probe (if applicable):** Select an existing probe or request a new integration via the Integration team. Validate connection parameters in a sandbox run.
-3. **Submit for Validation:** Move the check to `ready_for_validation`. Provide supporting rationale and expected evidence samples.
-4. **Governance Review:** Governance reviewers test the check in staging, confirm status mappings, and verify evidence storage.
-5. **Activate:** Once approved, the check status becomes `active` and it enters the scheduling queue.
-
-### 7.2 Version Management
-
-- **Increment `version`:** Any change to validation logic, severity defaults, or probe bindings requires a version increment. Minor metadata adjustments (description text) do not.
-- **Migration Script:** Use the Governance Engine migration pipeline to seed updated definitions; ensure previous versions remain readable for historical results.
-- **Backward Compatibility:** Results created under older versions retain their version number; dashboards surface version drift to highlight stale checks.
-- **Deprecation:** To replace a check, mark the older version `retired` after the new version publishes its first successful result, guaranteeing overlap coverage.
-
-### 7.3 Manual Review Queue Handling
-
-1. **Queue Intake:** Manual and hybrid checks automatically open review tickets in the Governance Engine’s Review Queue module with SLA metadata (due date, priority derived from severity).
-2. **Assignment:** Queue managers assign reviewers based on expertise and workload; assignments sync with the Task Service for accountability.
-3. **Review Execution:** Reviewers follow structured forms capturing attestation statements, evidence references, and severity adjustments. Evidence uploads go through the Evidence Repository.
-4. **Validation & Publishing:** Completed reviews transition to `pending_validation`. Senior reviewers or automated policies (two-person rule) approve for publication, setting `validated_at` and `published_at`.
-5. **Governance Reporting:** The queue exposes metrics to the Governance Engine dashboard—aging items, SLA breaches, and per-control review cadence—to inform compliance leadership.
-
-Escalation paths are triggered automatically for overdue manual checks, notifying Governance and Risk leads to reassign or adjust severity.
-
----
-
-## Appendix A. Reference Status and Severity Codes
-
-- **Status Codes:**
-  - `pass` – Control requirement satisfied.
-  - `fail` – Control requirement breached; remediation required.
-  - `warning` – Control partially satisfied; review recommended.
-  - `pending_validation` – Awaiting reviewer or automated validation step.
-  - `requires_review` – Automated output collected; human action needed before publication.
-- **Severity Levels:**
-  - `info` – Informational, no immediate action.
-  - `low` – Minor gap; monitor.
-  - `medium` – Moderate risk; remediation within standard SLA.
-  - `high` – Significant risk; expedited remediation.
-  - `critical` – Severe risk; immediate executive attention.
-
-These enums align with Governance Engine configuration files and should remain synchronized with backend validation logic.
+### Related Documentation
+- [Probe Management System](../07-probe-management-system/readme.md) — automated evidence integrations and scheduling.
+- [Control Management System](../09-control-management-system/readme.md) — framework/catalog governance.
+- [Evidence Management System](../11-evidence-management-system/readme.md) — evidence storage and linkage.
+- [Notification System](../04-notification-system/readme.md) — alerting for failed checks.
 
 ---
 

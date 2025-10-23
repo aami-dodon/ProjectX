@@ -9,125 +9,115 @@
 
 ---
 
-- [Location: /server/src/modules/governance/controls](#location-serversrcmodulesgovernancecontrols)
-- [1. Overview](#1-overview)
-- [2. Control Taxonomy](#2-control-taxonomy)
-- [3. Controls Table Metadata](#3-controls-table-metadata)
-  - [3.1 Relationships to Frameworks](#31-relationships-to-frameworks)
-  - [3.2 Relationships to Checks](#32-relationships-to-checks)
-- [4. Scoring and Status Determination](#4-scoring-and-status-determination)
-  - [4.1 Handling Failures](#41-handling-failures)
-  - [4.2 Linkage to Remediation Tasks and Dashboards](#42-linkage-to-remediation-tasks-and-dashboards)
-- [5. Control Lifecycle Procedures](#5-control-lifecycle-procedures)
-  - [5.1 Creating a New Control](#51-creating-a-new-control)
-  - [5.2 Updating an Existing Control](#52-updating-an-existing-control)
-  - [5.3 Mapping Controls Across Frameworks](#53-mapping-controls-across-frameworks)
-  - [5.4 Auditing Changes](#54-auditing-changes)
-- [6. Appendices](#6-appendices)
+- [Backend Specification](#backend-specification)
+  - [Location & Directory Layout](#backend-location--directory-layout)
+  - [Control Taxonomy & Relationships](#control-taxonomy--relationships)
+  - [Scoring & Lifecycle Management](#scoring--lifecycle-management)
+- [Frontend Specification](#frontend-specification)
+  - [Location & Directory Layout](#frontend-location--directory-layout)
+  - [Reusable Components & UI Flows](#reusable-components--ui-flows)
+- [Schema Specification](#schema-specification)
+- [Operational Playbooks & References](#operational-playbooks--references)
 
 ---
 
-## 1. Overview
-The control management system centralizes definition, evaluation, and reporting for governance, risk, and compliance (GRC) controls. It aligns a shared control taxonomy with multiple regulatory frameworks, maps automated and manual checks to those controls, and drives remediation workflows and dashboard reporting.
+## Backend Specification
 
-## 2. Control Taxonomy
-Controls are organized into a multi-level taxonomy to ensure traceability from enterprise objectives down to individual validation checks.
+### Backend Location & Directory Layout
+Control governance logic resides in `server/src/modules/governance/controls`, which exposes REST APIs, scoring engines, and lifecycle workflows for the Governance Engine.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L124-L171】
 
-- **Domain** – Broad thematic area such as Identity & Access, Data Protection, or Infrastructure Security.
-- **Category** – Subdivision of a domain that groups controls by functional capability (e.g., Authentication, Encryption).
-- **Control** – The authoritative statement specifying required behavior or configuration.
-- **Sub-control (optional)** – Additional granularity for complex controls with multiple enforcement mechanisms.
+```
+server/src/modules/governance/controls/
+├── controllers/
+│   ├── controls.controller.ts
+│   ├── scoring.controller.ts
+│   └── mappings.controller.ts
+├── services/
+│   ├── control.service.ts
+│   ├── scoring.service.ts
+│   ├── mapping.service.ts
+│   └── lifecycle.service.ts
+├── repositories/
+│   ├── control.repository.ts
+│   ├── control-framework.repository.ts
+│   └── control-check.repository.ts
+├── workflows/
+│   ├── createControl.workflow.ts
+│   └── updateControl.workflow.ts
+└── events/
+    ├── control.failed.ts
+    └── control.updated.ts
+```
 
-Each control and sub-control must map to at least one framework requirement and one verification check. Domains and categories are maintained in reference tables to preserve consistent naming.
+### Control Taxonomy & Relationships
+- **Taxonomy Structure:** Domains → Categories → Controls (with optional sub-controls). Every control maps to at least one framework requirement and one verification check, ensuring traceability from enterprise objectives to validations.
+- **Control Metadata:** `controls` table stores identifiers, taxonomy keys, title/description, rationale, implementation guidance, owner team, status (`draft`, `active`, `deprecated`), risk tier, version, audit timestamps, and authorship.
+- **Framework Links:** `control_framework_links` join table associates controls with frameworks/requirements, including coverage level, evidence references, and validity windows.
+- **Check Links:** `control_check_links` tracks which automated/manual checks substantiate a control, including assertion type, frequency, weight/enforcement level, and cadence expectations. Relationships power coverage metrics and remediation triggers.【F:docs/03-systems/08-check-management-system/readme.md†L7-L167】
 
-## 3. Controls Table Metadata
-The `controls` table captures the authoritative record for every control. Core columns include:
+### Scoring & Lifecycle Management
+- **Scoring Model:** Check results produce normalized scores (pass=1, warning=0.5, fail=0). Weighted averages (per link weight) roll up to control scores, scaled by risk tier multipliers (High=1.5, Medium=1.0, Low=0.75). Thresholds: ≥0.85 Passing, 0.60–0.84 Needs Attention, <0.60 Failing.
+- **Failure Handling:** Failing controls trigger incidents/remediation tasks when enforcement levels demand it, persist evidence, and notify owner teams plus subscribed framework stakeholders.
+- **Lifecycle Procedures:**
+  - **Create Control:** Draft change request, deduplicate against catalog, governance board approval, insert into `controls` with active status, establish required framework/check mappings, and schedule initial checks.
+  - **Update Control:** Versioned change request, increment `version`, adjust mappings and weights, notify dependent teams, and log updates via audit events.
+  - **Cross-Framework Mapping:** Maintain coverage matrix, document compensating controls, update `control_framework_links`, and refresh posture dashboards.
+  - **Audit Trail:** All mutations emit audit events, quarterly audits sample controls for accuracy/evidence freshness, discrepancies create remediation tasks tracked in Task Service.【F:docs/03-systems/13-task-management-system/readme.md†L7-L226】
 
-| Column | Description |
-| ------ | ----------- |
-| `control_id` | Immutable identifier (UUID) used across services. |
-| `domain_key` | Foreign key to the control domain catalog. |
-| `category_key` | Foreign key to the control category catalog. |
-| `title` | Human-readable control name (unique within a domain). |
-| `description` | Detailed expectation for the control. |
-| `rationale` | Business or regulatory justification for the control. |
-| `implementation_guidance` | Prescribed steps or configurations to satisfy the control. |
-| `owner_team` | Primary team accountable for the control. |
-| `status` | Lifecycle state (`draft`, `active`, `deprecated`). |
-| `risk_tier` | Impact rating used in scoring weights (e.g., High/Medium/Low). |
-| `version` | Integer incremented on every material change. |
-| `created_at` / `updated_at` | Audit timestamps maintained by triggers. |
-| `created_by` / `updated_by` | User identifiers for change tracking. |
+## Frontend Specification
 
-### 3.1 Relationships to Frameworks
-Framework mappings live in a `control_framework_links` join table linking `control_id` to `framework_id` and `requirement_id`. Each mapping includes:
+### Frontend Location & Directory Layout
+Control management UI lives at `client/src/features/governance/controls`, enabling catalog maintenance, mappings, and posture analytics.【F:docs/02-technical-specifications/03-frontend-architecture.md†L96-L160】
 
-- `coverage_level` – Degree of fulfillment (e.g., Full, Partial, Compensating).
-- `evidence_reference` – Link to policy or artifact proving compliance.
-- `effective_date` / `expiry_date` – Validity window for the mapping.
+```
+client/src/features/governance/controls/
+├── pages/
+│   ├── ControlCatalogPage.tsx
+│   ├── ControlDetailPage.tsx
+│   ├── FrameworkMappingPage.tsx
+│   └── ControlScoreboardPage.tsx
+├── components/
+│   ├── ControlForm.tsx
+│   ├── MappingMatrix.tsx
+│   ├── ScoreTrendChart.tsx
+│   └── RemediationTaskList.tsx
+├── hooks/
+│   ├── useControls.ts
+│   ├── useControlMappings.ts
+│   └── useControlScores.ts
+└── api/
+    └── controlsClient.ts
 
-### 3.2 Relationships to Checks
-Verification checks reside in the `checks` table and connect to controls via the `control_check_links` join table. Each link records:
+client/src/components/governance/
+└── FrameworkCoverageHeatmap.tsx
+```
 
-- `check_id` – Identifier for the automated or manual assessment.
-- `assertion_type` – Nature of evaluation (configuration, process, interview, etc.).
-- `frequency` – Expected cadence for running the check.
-- `enforcement_level` – Whether failure blocks deployments, triggers incidents, or only surfaces in reports.
+### Reusable Components & UI Flows
+- **Catalog Maintenance:** `ControlCatalogPage` lists controls with taxonomy filters; `ControlForm` supports creation/version updates with change-ticket capture and governance approval routing.
+- **Mapping Management:** `FrameworkMappingPage` leverages `MappingMatrix` to edit framework links, set coverage levels, attach evidence references, and configure validity dates.
+- **Scoring Analytics:** `ControlScoreboardPage` and `ScoreTrendChart` visualize posture trends, risk tiers, and historical performance. `RemediationTaskList` integrates Task Service data to track open issues.
+- **Dashboard Insights:** `FrameworkCoverageHeatmap` highlights gaps across frameworks, linking to failing controls and associated checks.
 
-## 4. Scoring and Status Determination
-Control posture scores combine check outcomes, weighting, and risk tiers:
+## Schema Specification
+- **`controls`:** Canonical control definitions (id, domain, category, title, description, rationale, guidance, owner_team, status, risk_tier, version, created/updated metadata).
+- **`control_framework_links`:** Framework mappings with requirement IDs, coverage level, evidence references, effective/expiry dates.
+- **`control_check_links`:** Associations between controls and checks, storing assertion type, frequency, enforcement level, and weighting.
+- **`control_scores`:** Materialized scores with timestamps, aggregated weight sums, normalized values, and status classification.
+- **`control_audit_events`:** Append-only log recording before/after snapshots, approvers, and change-ticket references.
+- Relationships join to Task Service remediation tasks, Notification alerts, dashboards, and Evidence Repository assets for end-to-end traceability.【F:docs/03-systems/14-dashboard-and-reporting-system/readme.md†L7-L118】
 
-1. Each linked check produces a normalized score between 0 and 1 based on raw findings (e.g., pass = 1, warning = 0.5, fail = 0).
-2. Check scores are multiplied by their `weight` (defined per control-check link) and aggregated.
-3. The aggregate score is scaled by the control's `risk_tier` multiplier (High = 1.5, Medium = 1.0, Low = 0.75 by default).
-4. The final control score is capped at 1.0. Thresholds classify status: `>=0.85` = Passing, `0.60-0.84` = Needs Attention, `<0.60` = Failing.
+## Operational Playbooks & References
 
-### 4.1 Handling Failures
-When a check fails:
+### Playbooks
+- **Handling Failures:** When a control drops below threshold, create incidents/remediation tasks, notify owner team, and ensure evidence captured with timestamps for audit.
+- **Quarterly Reviews:** Governance team reviews taxonomy accuracy, framework coverage, risk tiers, and evidence freshness; outcomes recorded in compliance tracker and dashboards.
+- **Reporting:** Export control posture to BI tooling and regulatory reports, ensuring mappings and scores align with framework obligations.
 
-- The control's status transitions to `Failing` if the recalculated score drops below threshold.
-- An incident ticket and remediation task are created automatically when the enforcement level is "Blocking" or "Critical".
-- Evidence of the failure, including check output and timestamps, is persisted for audit.
-- Notification rules alert the `owner_team` and stakeholders subscribed to the impacted framework.
-
-### 4.2 Linkage to Remediation Tasks and Dashboards
-Control scores feed dashboards showing posture by domain, framework, and owner team. Remediation tasks include references to `control_id`, failing `check_id`, and due dates derived from risk tier. Dashboards surface:
-
-- Current score and historical trend per control.
-- Open remediation tasks, their status, and SLA adherence.
-- Framework coverage heatmaps showing how failures affect compliance objectives.
-
-## 5. Control Lifecycle Procedures
-
-### 5.1 Creating a New Control
-1. Author draft content in a change request including title, description, rationale, guidance, and initial taxonomy placement.
-2. Validate deduplication against existing controls and align with relevant frameworks.
-3. Submit the draft to the governance board for review; reviewers approve domain/category and risk tier.
-4. Upon approval, insert the new record into the `controls` table with `status = 'active'` and create mandatory framework and check mappings.
-5. Schedule initial checks and confirm dashboard visibility.
-
-### 5.2 Updating an Existing Control
-1. Initiate a versioned change request documenting proposed modifications and impacted frameworks.
-2. Update the control record, incrementing the `version` and capturing change notes in the audit log.
-3. Review and adjust linked checks, weights, and remediation workflows to reflect the new requirements.
-4. Notify dependent teams and update documentation or playbooks.
-
-### 5.3 Mapping Controls Across Frameworks
-1. Identify equivalent requirements in target frameworks using the taxonomy reference matrix.
-2. Create or update entries in `control_framework_links` with coverage level, evidence references, and validity dates.
-3. Ensure compensating controls are documented when full coverage is not achievable.
-4. Recalculate framework posture dashboards to reflect the new mappings.
-
-### 5.4 Auditing Changes
-- All inserts and updates to `controls`, `control_framework_links`, and `control_check_links` trigger audit log entries capturing user, timestamp, before/after snapshots, and approval ticket references.
-- Quarterly audits review a random sample of controls to verify metadata accuracy, evidence freshness, and mapping completeness.
-- Any discrepancies are logged as remediation tasks with defined owners and due dates.
-- Audit findings feed into leadership dashboards and compliance reports.
-
-## 6. Appendices
-- **Reference Tables**: Domain catalog, category catalog, framework registry.
-- **Key Integrations**: Incident management (for blocking failures), task tracking (remediation assignments), business intelligence (dashboarding).
-- **Service Interfaces**: REST endpoints for control CRUD operations, webhook for check result ingestion, and data warehouse exports for analytics.
+### Related Documentation
+- [Check Management System](../08-check-management-system/readme.md) — verification workflows feeding control scores.
+- [Framework Mapping System](../10-framework-mapping-system/readme.md) — cross-framework alignment logic.
+- [Dashboard & Reporting System](../14-dashboard-and-reporting-system/readme.md) — visualization of control health.
+- [Task Management System](../13-task-management-system/readme.md) — remediation tracking.
 
 ---
 

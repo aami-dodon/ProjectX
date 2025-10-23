@@ -9,63 +9,109 @@
 
 ---
 
-- [Location: /server/src/modules/evidence](#location-serversrcmodulesevidence)
-- [1. Module Overview](#1-module-overview)
-- [2. Upload and Download Flows](#2-upload-and-download-flows)
-  - [2.1 Manual and Assisted Uploads](#21-manual-and-assisted-uploads)
-  - [2.2 Automated Probe Ingestion](#22-automated-probe-ingestion)
-  - [2.3 Secure Downloads](#23-secure-downloads)
-- [3. Metadata and Schema Management](#3-metadata-and-schema-management)
-- [4. Audit Trails and Monitoring](#4-audit-trails-and-monitoring)
-- [5. Versioning, Tagging, and Retention Policies](#5-versioning-tagging-and-retention-policies)
-- [6. Linkage to Controls, Checks, and Tasks](#6-linkage-to-controls-checks-and-tasks)
-- [7. Operational Guidance](#7-operational-guidance)
-  - [7.1 Storage Configuration](#71-storage-configuration)
-  - [7.2 Encryption and Key Management](#72-encryption-and-key-management)
-  - [7.3 Integrity Verification](#73-integrity-verification)
+- [Backend Specification](#backend-specification)
+  - [Location & Directory Layout](#backend-location--directory-layout)
+  - [Ingestion & Distribution Flows](#ingestion--distribution-flows)
+  - [Metadata & Chain of Custody](#metadata--chain-of-custody)
+- [Frontend Specification](#frontend-specification)
+  - [Location & Directory Layout](#frontend-location--directory-layout)
+  - [Reusable Components & UI Flows](#reusable-components--ui-flows)
+- [Schema Specification](#schema-specification)
+- [Operational Playbooks & References](#operational-playbooks--references)
 
 ---
 
-## 1. Module Overview
-The evidence management capability lives under `server/src/modules/evidence` and provides the backend surface for collecting, securing, and distributing compliance artifacts across the platform. It integrates with the shared MinIO client in `server/src/integrations`, exposes dedicated upload, download, and metadata endpoints, and enforces encryption, presigned URL workflows, and linkage back to controls and tasks.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L60-L133】
+## Backend Specification
 
-## 2. Upload and Download Flows
+### Backend Location & Directory Layout
+Evidence orchestration lives in `server/src/modules/evidence`, integrating with shared MinIO clients and exposing upload/download APIs that enforce encryption, presigned URL lifecycles, and linkage to governance entities.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L60-L133】
 
-### 2.1 Manual and Assisted Uploads
-1. A privileged user (e.g., Compliance Officer) requests an upload session from `/evidence/upload`.
-2. The module generates a short-lived presigned URL that allows the browser or probe to stream the file directly into the externally hosted MinIO bucket without routing through the API server, while simultaneously preparing the metadata payload that will be persisted in PostgreSQL once the transfer succeeds.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L122-L133】【F:docs/02-technical-specifications/01-system-architecture.md†L166-L193】
-3. On completion, the module captures file attributes (size, checksum, MIME type), the initiating user or system identity, and the governance objects supplied in the upload request (control ID, check ID, task ID). This metadata is stored in the `evidence` and `evidence_links` tables so that downstream scoring, dashboards, and remediation workflows can resolve relationships immediately.【F:docs/02-technical-specifications/04-database-design.md†L86-L99】
+```
+server/src/modules/evidence/
+├── controllers/
+│   ├── upload.controller.ts
+│   ├── download.controller.ts
+│   └── metadata.controller.ts
+├── services/
+│   ├── upload.service.ts
+│   ├── download.service.ts
+│   └── metadata.service.ts
+├── repositories/
+│   ├── evidence.repository.ts
+│   └── evidence-links.repository.ts
+├── integrations/
+│   └── minio.client.ts
+├── events/
+│   ├── evidence.created.ts
+│   └── evidence.accessed.ts
+└── tasks/
+    └── retention.scheduler.ts
+```
 
-### 2.2 Automated Probe Ingestion
-1. Probes or scheduled collectors fetch raw governance data and call the same upload endpoint with system credentials issued through Casbin policies.
-2. Evidence objects emitted by probes inherit the same metadata schema and version tracking, ensuring parity between automated and manual submissions. Probe activity is logged alongside user activity so that audit trails retain the origin of every artifact.【F:docs/02-technical-specifications/04-database-design.md†L80-L99】【F:docs/01-about/04-security-and-data-protection.md†L263-L287】
+### Ingestion & Distribution Flows
+- **Manual & Assisted Uploads:** Privileged users request upload sessions (`/evidence/upload`), receive short-lived presigned URLs to stream files into MinIO, and on completion metadata (size, checksum, MIME type, actor, control/check/task references) persists to `evidence` and `evidence_links`.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L122-L133】【F:docs/02-technical-specifications/01-system-architecture.md†L166-L193】
+- **Automated Probes:** System credentials issued via Casbin policies allow probes to submit artifacts with identical metadata schema and version tracking, preserving parity between automated and manual submissions.【F:docs/02-technical-specifications/04-database-design.md†L80-L99】【F:docs/01-about/04-security-and-data-protection.md†L263-L287】
+- **Secure Downloads:** RBAC-validated requests (`/evidence/:id/download`) generate presigned URLs bound to object keys and expirations. Downloads reference stored metadata for checksum validation and append immutable audit entries.【F:docs/01-about/04-security-and-data-protection.md†L263-L311】
 
-### 2.3 Secure Downloads
-1. When a reviewer initiates `/evidence/:id/download`, the module validates RBAC policies, then generates a presigned URL scoped to the object key, HTTP verb, and expiration time.
-2. Downloads reference the persisted metadata for size and checksum validation, and the access event is appended to immutable audit logs for traceability.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L122-L133】【F:docs/01-about/04-security-and-data-protection.md†L263-L311】
+### Metadata & Chain of Custody
+- Evidence metadata in PostgreSQL captures identifiers, storage references, versions, lifecycle timestamps, and relationships to controls, checks, and tasks. Integrity constraints prevent orphaning while soft deletes preserve history.【F:docs/02-technical-specifications/04-database-design.md†L86-L130】
+- Audit trails log uploads, approvals, downloads, and edits with timestamps, actor identities, network origin, and cryptographic hashes stored in append-only ledgers for tamper detection.【F:docs/01-about/04-security-and-data-protection.md†L87-L311】
+- Versioning, tagging, and retention policies retain complete histories (default 36 months) with automated archival, GDPR-compliant deletion, and encrypted backups (nightly full, hourly differential).【F:docs/02-technical-specifications/04-database-design.md†L147-L171】
 
-## 3. Metadata and Schema Management
-Evidence metadata is normalized in PostgreSQL via the `evidence` table, which stores identifiers, storage object references, version markers, and lifecycle timestamps. Relational tables such as `evidence_links` associate each record with controls, checks, and remediation tasks, while indexing strategies enable efficient search and reporting across large evidence sets.【F:docs/02-technical-specifications/04-database-design.md†L86-L113】 Integrity constraints and soft-delete strategies prevent orphaned records and guarantee referential accuracy even as evidence ages or is superseded.【F:docs/02-technical-specifications/04-database-design.md†L122-L130】
+## Frontend Specification
 
-## 4. Audit Trails and Monitoring
-All interactions with evidence—uploads, approvals, downloads, and metadata edits—are captured in the platform’s immutable logging pipeline. Entries record timestamps, actor identities, affected entities, and source network information, and they are hashed and stored in append-only repositories so that tampering is detectable. Retention and archival controls maintain audit readiness while balancing storage efficiency.【F:docs/01-about/04-security-and-data-protection.md†L263-L312】 The evidence module emits structured events that feed these logs, ensuring every compliance artifact maintains a verifiable chain of custody.【F:docs/01-about/04-security-and-data-protection.md†L87-L107】
+### Frontend Location & Directory Layout
+Evidence workflows surface in `client/src/features/evidence`, giving compliance users upload interfaces, review dashboards, and linkage to governance objects.【F:docs/02-technical-specifications/03-frontend-architecture.md†L96-L160】
 
-## 5. Versioning, Tagging, and Retention Policies
-The repository retains a complete, versioned history for each artifact, preserving immutable records of prior submissions and their validation outcomes. Evidence can be tagged by product, control, or framework to support filtered investigations and reporting views across the compliance dashboards.【F:docs/01-about/03-concept-summary.md†L150-L158】 Retention defaults to 36 months, with automated archival to cold storage and GDPR-compliant deletion workflows for records that exceed contractual lifespans or are subject to erasure requests.【F:docs/02-technical-specifications/04-database-design.md†L158-L161】【F:docs/01-about/04-security-and-data-protection.md†L140-L150】 Backup policies extend durability, with nightly full snapshots, hourly differentials, and AES-256 encryption applied before storage.【F:docs/02-technical-specifications/04-database-design.md†L147-L171】
+```
+client/src/features/evidence/
+├── pages/
+│   ├── EvidenceLibraryPage.tsx
+│   ├── EvidenceUploadPage.tsx
+│   ├── EvidenceDetailPage.tsx
+│   └── EvidenceRetentionPage.tsx
+├── components/
+│   ├── EvidenceUploadWizard.tsx
+│   ├── EvidenceMetadataPanel.tsx
+│   ├── EvidenceDownloadButton.tsx
+│   └── EvidenceLinkingForm.tsx
+├── hooks/
+│   ├── useEvidenceLibrary.ts
+│   ├── useEvidenceUpload.ts
+│   └── useEvidenceRetention.ts
+└── api/
+    └── evidenceClient.ts
 
-## 6. Linkage to Controls, Checks, and Tasks
-Evidence objects are first-class participants in the governance data model: controls aggregate related checks and attach remediation tasks, each of which references supporting evidence. The `evidence_links` join table enables one-to-many relationships between controls and artifacts, as well as many-to-one mappings from tasks back to the evidence that validates remediation completion. Task records maintain direct pointers to associated evidence so that closing a remediation item automatically updates compliance status and audit reports.【F:docs/02-technical-specifications/04-database-design.md†L86-L99】【F:docs/01-about/03-concept-summary.md†L124-L158】【F:docs/01-about/03-concept-summary.md†L326-L358】
+client/src/components/governance/
+└── EvidenceTimeline.tsx
+```
 
-## 7. Operational Guidance
+### Reusable Components & UI Flows
+- **Upload Wizard:** Guides users through metadata capture (control, check, task references), calculates checksums client-side, and displays compression requirements before requesting presigned URLs.
+- **Library & Detail Views:** `EvidenceLibraryPage` provides search/filtering by tags, framework, control, and retention status; `EvidenceMetadataPanel` reveals version history, audit logs, and linked remediation tasks.
+- **Download & Linking:** `EvidenceDownloadButton` enforces revalidation before generating presigned links, while `EvidenceLinkingForm` allows reassociation of artifacts with additional controls or tasks under audit supervision.
+- **Retention Management:** `EvidenceRetentionPage` and `useEvidenceRetention` display lifecycle stages (active, archived, purge scheduled) with approval workflows for legal holds and deletions.
 
-### 7.1 Storage Configuration
-Set the MinIO endpoint, access key, and secret key through environment variables managed per environment (`.env.dev`, `.env.staging`, `.env.prod`). Store the secret material in a dedicated vault and inject it during CI/CD deploys. Post-deployment checks must confirm data persistence against PostgreSQL and MinIO, and smoke tests should exercise evidence upload flows before sign-off.【F:docs/02-technical-specifications/08-deployment-and-environment-guide.md†L100-L205】 Bucket lifecycle management and MinIO object versioning are part of the infrastructure-as-code layer, providing scale-out capacity and rollback options for artifacts.【F:docs/02-technical-specifications/05-devops-infrastructure.md†L200-L214】
+## Schema Specification
+- **`evidence`:** Stores artifact metadata (id, storage_key, version, size, checksum, mime_type, uploader_id, source, created_at, archived_at, tags, retention_policy_id).
+- **`evidence_links`:** Joins evidence to controls, checks, and tasks with context (role, justification, linked_by, linked_at).
+- **`evidence_events`:** Audit ledger capturing action type (upload, download, approval), actor, origin IP, hash, and integrity verification status.
+- **`evidence_retention_policies`:** Defines retention duration, archival storage location, legal hold flags, and purge schedules.
+- **`evidence_versions`:** Optional table tracking previous file hashes, storage keys, and validation outcomes for immutable history.
+- Relationships integrate with Control Management, Check Management, Task Management, and Notification systems for traceable governance actions.【F:docs/03-systems/13-task-management-system/readme.md†L7-L226】【F:docs/03-systems/04-notification-system/readme.md†L7-L170】
 
-### 7.2 Encryption and Key Management
-MinIO storage and the backing PostgreSQL metadata store enforce AES-256 encryption at rest and TLS for transit, with keys rotated through managed KMS services. The evidence module inherits these guarantees and validates that presigned URLs are scoped to HTTPS endpoints, ensuring uploaded and downloaded content remains encrypted end-to-end.【F:docs/02-technical-specifications/01-system-architecture.md†L166-L193】【F:docs/01-about/04-security-and-data-protection.md†L87-L134】【F:docs/02-technical-specifications/04-database-design.md†L169-L172】
+## Operational Playbooks & References
 
-### 7.3 Integrity Verification
-Cryptographic integrity checks accompany evidence ingestion and logging, enabling the platform to detect tampering across both storage and audit layers. Immutable log storage with hashing, combined with checksum validation from MinIO and the metadata store, ensures that every evidence download can be cross-verified against the original upload record.【F:docs/01-about/04-security-and-data-protection.md†L87-L107】【F:docs/01-about/04-security-and-data-protection.md†L272-L311】 Regular deployment rituals include verifying evidence upload workflows and confirming that monitoring surfaces catch anomalies, maintaining continuous assurance over evidence integrity.【F:docs/02-technical-specifications/08-deployment-and-environment-guide.md†L182-L205】
+### Storage & Security Operations
+- Configure MinIO endpoints and credentials per environment via secure vaults; confirm upload smoke tests post-deploy. Infrastructure-as-code manages bucket lifecycle, versioning, and capacity planning.【F:docs/02-technical-specifications/08-deployment-and-environment-guide.md†L100-L205】【F:docs/02-technical-specifications/05-devops-infrastructure.md†L200-L214】
+- Enforce AES-256 encryption at rest (MinIO + PostgreSQL) and TLS in transit. Presigned URLs must target HTTPS endpoints; key rotation follows managed KMS policies.【F:docs/01-about/04-security-and-data-protection.md†L87-L150】
+- Integrity verification combines MinIO checksums, stored metadata hashes, and immutable log signatures. Deployment rituals include validating upload/download flows and monitoring alerts for anomaly detection.【F:docs/02-technical-specifications/08-deployment-and-environment-guide.md†L182-L205】
+
+### Related Documentation
+- [Document & Media Upload System](../03-document-and-media-upload/readme.md) — presigned URL orchestration and compression policies.
+- [Check Management System](../08-check-management-system/readme.md) — evidence linkage to check outcomes.
+- [Control Management System](../09-control-management-system/readme.md) — control catalog relationships.
+- [Task Management System](../13-task-management-system/readme.md) — remediation workflows referencing evidence.
 
 ---
 

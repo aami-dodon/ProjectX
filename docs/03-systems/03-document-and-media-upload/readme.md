@@ -10,134 +10,116 @@
 
 ---
 
-- [Location: /server/src/modules/uploads](#location-serversrcmodulesuploads)
-- [1. Purpose and Scope](#1-purpose-and-scope)
-- [2. Storage Architecture](#2-storage-architecture)
-  - [2.1 Core Components](#21-core-components)
-  - [2.2 Bucket Strategy and Namespacing](#22-bucket-strategy-and-namespacing)
-- [3. Upload Lifecycle](#3-upload-lifecycle)
-  - [3.1 Intake and Metadata Validation](#31-intake-and-metadata-validation)
-  - [3.2 Presigned URL Issuance](#32-presigned-url-issuance)
-  - [3.3 Completion Callbacks and Versioning](#33-completion-callbacks-and-versioning)
-- [4. Media Compression and Transformations](#4-media-compression-and-transformations)
-  - [4.1 Compression Pipeline](#41-compression-pipeline)
-  - [4.2 Supported Formats and Rejections](#42-supported-formats-and-rejections)
-  - [4.3 Derivatives and Accessibility](#43-derivatives-and-accessibility)
-- [5. Security, Compliance, and Governance](#5-security-compliance-and-governance)
-  - [5.1 Access Control Integration](#51-access-control-integration)
-  - [5.2 Data Protection and Retention](#52-data-protection-and-retention)
-  - [5.3 Auditability and Chain of Custody](#53-auditability-and-chain-of-custody)
-- [6. Operational Playbook](#6-operational-playbook)
-  - [6.1 Monitoring and Alerting](#61-monitoring-and-alerting)
-  - [6.2 Incident Response](#62-incident-response)
-  - [6.3 Capacity and Cost Management](#63-capacity-and-cost-management)
-- [7. Related Documentation](#7-related-documentation)
+- [Backend Specification](#backend-specification)
+  - [Location & Directory Layout](#backend-location--directory-layout)
+  - [Storage Architecture](#storage-architecture)
+  - [Upload Lifecycle](#upload-lifecycle)
+  - [Media Compression & Transformations](#media-compression--transformations)
+- [Frontend Specification](#frontend-specification)
+  - [Location & Directory Layout](#frontend-location--directory-layout)
+  - [Reusable Components & UI Flows](#reusable-components--ui-flows)
+- [Schema Specification](#schema-specification)
+- [Operational Playbooks & References](#operational-playbooks--references)
 
 ---
 
-## 1. Purpose and Scope
+## Backend Specification
 
-The Document and Media Upload system provides a single entry point for files that must be preserved as governance evidence or shared artifacts. It issues short-lived MinIO presigned URLs, enforces content validation rules, compresses images, and anchors immutable metadata in PostgreSQL so downstream services (Evidence Repository, Governance Engine, Reporting) can reference a consistent record.【F:docs/02-technical-specifications/01-system-architecture.md†L173-L202】【F:docs/03-systems/11-evidence-management-system/readme.md†L7-L115】
+### Backend Location & Directory Layout
+The upload service runs under `server/src/modules/uploads`, coordinating Express controllers, MinIO integrations, and BullMQ workers for presigned URL issuance and completion processing.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L44-L171】
 
-## 2. Storage Architecture
+```
+server/src/modules/uploads/
+├── controller.ts
+├── routes.ts
+├── services/
+│   ├── metadata.service.ts
+│   └── presign.service.ts
+├── worker/
+│   ├── index.ts
+│   └── compression.processor.ts
+├── integrations/
+│   └── minio.client.ts
+└── events/
+    └── evidence.publisher.ts
+```
 
-### 2.1 Core Components
+### Storage Architecture
+The Document and Media Upload system provides a single entry point for governance evidence and shared artifacts. It issues short-lived MinIO presigned URLs, enforces content validation, compresses images, and stores immutable metadata in PostgreSQL so downstream services (Evidence Repository, Governance Engine, Reporting) can reference a consistent record.【F:docs/02-technical-specifications/01-system-architecture.md†L173-L202】【F:docs/03-systems/11-evidence-management-system/readme.md†L7-L115】 Core components include:
 
-- **Upload Controller (`server/src/modules/uploads/controller.js`):** Receives intake requests, validates RBAC scopes, and coordinates presigned URL issuance.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L44-L135】
-- **MinIO Integration (`server/src/integrations/minio.js`):** Wraps the official SDK, exposing helpers for presigned PUT URLs, lifecycle inspection, and bucket health checks.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L57-L135】
-- **Evidence Metadata (`evidence` and `evidence_snapshots` tables):** Stores file fingerprints, compression status, and version lineage to guarantee deterministic retrievals.【F:docs/02-technical-specifications/04-database-design.md†L88-L146】
-- **BullMQ Worker (`server/src/modules/uploads/worker.js`):** Processes completion callbacks, triggers compression jobs, and publishes status events to the Governance Engine.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L124-L171】【F:docs/03-systems/12-governance-engine/readme.md†L7-L104】
+- **Upload Controller:** Validates RBAC scopes, orchestrates presigned URL issuance, and tracks upload state transitions.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L44-L135】
+- **MinIO Integration:** Wraps the SDK for presigned PUT URLs, lifecycle inspection, and bucket health checks.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L57-L135】
+- **BullMQ Worker:** Processes completion callbacks, runs compression, calculates fingerprints, and publishes status events to dependent services.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L124-L171】【F:docs/03-systems/12-governance-engine/readme.md†L7-L104】
+- **Bucket Strategy:** Buckets follow `{tenant}/{classification}/{yyyy}/{mm}` naming, with classifications (`evidence`, `policy`, `report`, `media`) aligning lifecycle policies. Provisioning occurs during tenant onboarding alongside Admin & Configuration access policies; versioning stays enabled for immutable audit history.【F:docs/03-systems/05-admin-and-configuration-system/readme.md†L65-L154】【F:docs/02-technical-specifications/05-devops-infrastructure.md†L60-L119】
 
-### 2.2 Bucket Strategy and Namespacing
+### Upload Lifecycle
+1. **Intake & Validation:** Clients submit metadata (`filename`, `mimeType`, `checksum`, `classification`, `sizeBytes`) to `/api/uploads/request`. The service validates MIME types, size limits (512 MB documents, 50 MB images), and RBAC scopes (`evidence:write`, `media:write`). Replacement uploads verify that the prior record is editable.【F:docs/03-systems/02-rbac-system/readme.md†L7-L192】
+2. **Presigned URL Issuance:** Controllers request MinIO presigned PUT URLs with 10-minute expirations and enforce `Content-MD5` headers to detect tampering. Response payloads include upload IDs, headers, and compression flags so clients can prepare assets.【F:docs/02-technical-specifications/01-system-architecture.md†L173-L202】
+3. **Completion & Versioning:** Clients confirm via `/api/uploads/complete` after MinIO acknowledges the PUT. Workers queue compression jobs, compute SHA-256 fingerprints, and persist metadata (size, checksum, path, uploader). If versions exist, `version` increments while prior paths remain for auditors; completion events (`evidence.uploaded`) notify the Governance Engine and Task Service.【F:docs/03-systems/11-evidence-management-system/readme.md†L47-L111】【F:docs/03-systems/12-governance-engine/readme.md†L52-L113】【F:docs/03-systems/13-task-management-system/readme.md†L7-L226】
 
-MinIO buckets follow a three-level namespace: `{tenant}/{classification}/{yyyy}/{mm}`. Classification covers `evidence`, `policy`, `report`, and `media` segments so lifecycle policies can diverge per content type. Buckets are provisioned during tenant onboarding alongside access policies maintained by the Admin & Configuration system.【F:docs/03-systems/05-admin-and-configuration-system/readme.md†L65-L154】 Versioning is enabled globally to maintain immutable audit history and allow controlled rollbacks without data loss.【F:docs/02-technical-specifications/05-devops-infrastructure.md†L60-L119】
+### Media Compression & Transformations
+- **Compression Pipeline:** BullMQ workers route images through `sharp` with tenant presets (max width 2560 px, JPEG/WEBP 85 % quality, PNG quantization). Status updates track `pending`, `compressed`, or `failed`; uploads remain hidden until compression succeeds.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L124-L171】
+- **Supported Formats:** Documents (`.pdf`, `.docx`, `.rtf`, `.txt`, `.md`) and images (`.png`, `.jpg`, `.jpeg`, `.webp`) pass validation; oversize files, checksum mismatches, or blocked formats (e.g., `.heic`, `.nef`) return HTTP 422. Malware scanning integrates with asynchronous ClamAV, quarantining suspicious objects in a `hold` prefix.【F:docs/02-technical-specifications/06-security-implementation.md†L108-L196】
+- **Derivatives & Accessibility:** Thumbnails (320 px) support UI previews, extracted text feeds search indexing, and alt-text metadata is mandatory for imagery displayed in dashboards.【F:docs/03-systems/14-dashboard-and-reporting-system/readme.md†L7-L118】【F:docs/01-about/04-security-and-data-protection.md†L206-L259】 Notifications fire when compression repeatedly fails for manual remediation.【F:docs/03-systems/04-notification-system/readme.md†L7-L222】
 
-## 3. Upload Lifecycle
+## Frontend Specification
 
-### 3.1 Intake and Metadata Validation
+### Frontend Location & Directory Layout
+Client upload experiences live in `client/src/features/uploads`, integrating with shared file input primitives and evidence viewers to deliver presigned flows and progress updates.【F:docs/02-technical-specifications/03-frontend-architecture.md†L50-L139】
 
-1. Client submits metadata (`filename`, `mimeType`, `checksum`, `classification`, `sizeBytes`) to `/api/uploads/request`.
-2. Service validates payload against allowed MIME types, maximum file size (512 MB for documents, 50 MB for images), and verifies that the calling user has the `evidence:write` or `media:write` scope granted by RBAC.【F:docs/03-systems/02-rbac-system/readme.md†L7-L192】
-3. If the upload is replacing existing evidence, the service resolves the parent record and ensures status allows edits (e.g., not locked for audit review).
+```
+client/src/features/uploads/
+├── pages/
+│   ├── UploadRequestPage.tsx
+│   ├── UploadReviewPage.tsx
+│   └── UploadHistoryPage.tsx
+├── components/
+│   ├── FileDropzone.tsx
+│   ├── CompressionStatusBadge.tsx
+│   └── PresignedUrlInstructions.tsx
+├── hooks/
+│   ├── useUploadRequest.ts
+│   └── useUploadProgress.ts
+└── api/
+    └── uploadsClient.ts
 
-### 3.2 Presigned URL Issuance
+client/src/components/evidence/
+├── EvidencePreviewCard.tsx
+└── EvidenceTimeline.tsx
+```
 
-- The controller requests a presigned PUT URL from MinIO with a 10-minute expiration and enforces `Content-MD5` headers to detect tampering.【F:docs/02-technical-specifications/01-system-architecture.md†L173-L202】
-- Response payload includes upload ID, presigned URL, required headers, and the compression policy flag to help clients prepare images before transfer.
-- Clients upload directly to MinIO using the provided URL; retries must reuse the same upload ID to avoid orphaned objects.
+### Reusable Components & UI Flows
+- **Shared Components:** `FileDropzone` and `CompressionStatusBadge` leverage design-system inputs and toasts to standardize drag-and-drop, checksum validation, and compression visibility across modules.
+- **Presigned Flow:** Upload request pages call `/api/uploads/request`, present required headers, and hand off to the browser or native client to PUT objects directly to MinIO. Progress hooks update status banners until `/api/uploads/complete` finalizes.
+- **Evidence Surfacing:** `EvidencePreviewCard` and `EvidenceTimeline` components show thumbnails, extracted text, and version history across the Evidence Repository and Reporting features.
+- **Accessibility & Guidance:** `PresignedUrlInstructions` educates users on compression requirements, alt-text capture, and failure recovery, reusing messaging from the Notification system for consistency.【F:docs/03-systems/04-notification-system/readme.md†L7-L222】
 
-### 3.3 Completion Callbacks and Versioning
+## Schema Specification
+- **`evidence` & `evidence_snapshots`:** Persist file fingerprints, compression status, classifications, uploader identity, and version lineage for immutable history.【F:docs/02-technical-specifications/04-database-design.md†L88-L146】
+- **`upload_requests`:** Tracks presigned URL issuance, expiration, checksum expectations, and tenant scope to reconcile orphaned uploads.
+- **`upload_events`:** Append-only log capturing state transitions (`requested`, `completed`, `compressed`, `failed`) and correlation IDs for observability.
+- Relationships integrate with RBAC (`auth_roles`/`auth_role_assignments`) for scope validation and with Governance Engine entities to trigger evidence-driven workflows.【F:docs/03-systems/12-governance-engine/readme.md†L52-L113】
 
-- Clients call `/api/uploads/complete` with the upload ID after MinIO acknowledges the PUT.
-- The worker queues compression tasks for images, calculates SHA-256 fingerprints for all files, and persists metadata (size, checksum, path, uploader) into PostgreSQL.
-- If a prior version exists, the service increments the `version` column, retains the previous object path, and marks the latest version as active while preserving history for auditors.【F:docs/03-systems/11-evidence-management-system/readme.md†L47-L111】
-- Completion event (`evidence.uploaded`) is published to the Governance Engine and Task Service to trigger follow-up workflows.【F:docs/03-systems/12-governance-engine/readme.md†L52-L113】【F:docs/03-systems/13-task-management-system/readme.md†L7-L226】
+## Operational Playbooks & References
 
-## 4. Media Compression and Transformations
+### Security, Compliance, and Governance
+- RBAC middleware enforces scope checks; service-to-service tokens handle machine uploads, and classification tags propagate into the Governance Engine for control mappings.【F:docs/03-systems/02-rbac-system/readme.md†L7-L192】【F:docs/03-systems/09-control-management-system/readme.md†L7-L133】
+- MinIO applies SSE-S3 encryption with quarterly key rotation, retention defaults to seven years, and legal holds surface in the Evidence UI; cross-region replication satisfies durability targets.【F:docs/02-technical-specifications/05-devops-infrastructure.md†L60-L226】【F:docs/03-systems/11-evidence-management-system/readme.md†L92-L115】
+- Audit trails capture uploader metadata, IP, object key, checksum, and compression outcome; download presigns are watermarked, rate limited, and logged for governance review.【F:docs/03-systems/06-audit-logging-and-monitoring/readme.md†L7-L200】【F:docs/03-systems/10-framework-mapping-system/readme.md†L55-L217】
 
-### 4.1 Compression Pipeline
+### Monitoring and Incident Response
+- Dashboards watch throughput, compression latency, presign errors, and MinIO 5xx rates; thresholds (issuance failures >2 %, compression backlog >1000, latency >800 ms) trigger Evidence squad PagerDuty alerts.【F:docs/03-systems/04-notification-system/readme.md†L7-L222】【F:docs/03-systems/06-audit-logging-and-monitoring/readme.md†L7-L200】
+- Synthetic probes validate flows per classification, while incident response runbooks cover manual compression retries, malware quarantine handling, and MinIO failover with checksum verification.【F:docs/03-systems/07-probe-management-system/readme.md†L7-L226】【F:docs/02-technical-specifications/06-security-implementation.md†L108-L196】【F:docs/02-technical-specifications/05-devops-infrastructure.md†L168-L226】
 
-- All images are routed through the BullMQ worker, which invokes the `sharp` library with tenant-specific presets (max width 2560px, 85% quality for JPEG/WEBP, lossless PNG quantization).【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L124-L171】
-- Compression results update the `compression_status` field (`pending`, `compressed`, `failed`). Uploads remain hidden from the Evidence Repository until compression succeeds.
-- Failed compression jobs automatically retry three times with exponential backoff; persistent failures notify the Notification system for manual remediation.【F:docs/03-systems/04-notification-system/readme.md†L7-L222】
+### Capacity & Cost Management
+- Monthly reviews assess bucket growth, compression savings, and lifecycle tiering; cost allocation tags feed Reporting dashboards for budgeting transparency.【F:docs/03-systems/14-dashboard-and-reporting-system/readme.md†L7-L118】
+- API gateway caching and deployment sizing follow the Deployment & Environment guide to scale presigned traffic efficiently.【F:docs/02-technical-specifications/08-deployment-and-environment-guide.md†L53-L186】
 
-### 4.2 Supported Formats and Rejections
-
-- **Documents:** `.pdf`, `.docx`, `.rtf`, `.txt`, `.md`. Files exceeding 512 MB or failing checksum validation are rejected with an HTTP 422.
-- **Images:** `.png`, `.jpg`, `.jpeg`, `.webp`. Raw camera formats (e.g., `.heic`, `.nef`) are blocked; clients must convert before uploading.
-- **Malware Scanning:** Objects route through the asynchronous ClamAV scanner; suspicious artifacts quarantine in the `hold` prefix pending security review.【F:docs/02-technical-specifications/06-security-implementation.md†L108-L196】
-
-### 4.3 Derivatives and Accessibility
-
-- Thumbnail derivatives (320px) are generated for UI previews and stored under the `media/derived` prefix with inherited retention rules.
-- Text-based uploads capture extracted plain text (via Tika) to support search indexing; metadata records track extraction timestamps for the Reporting service.【F:docs/03-systems/14-dashboard-and-reporting-system/readme.md†L7-L118】
-- Alt-text metadata is required for all imagery surfaced in customer-facing dashboards to maintain accessibility commitments.【F:docs/01-about/04-security-and-data-protection.md†L206-L259】
-
-## 5. Security, Compliance, and Governance
-
-### 5.1 Access Control Integration
-
-- RBAC middleware enforces scope checks before presigned URL issuance; machine users leverage service-to-service tokens issued by the Auth service.【F:docs/03-systems/02-rbac-system/readme.md†L7-L192】【F:docs/03-systems/01-user-management-system/readme.md†L7-L214】
-- Tenants may restrict uploads to approved MIME types and enforce data classification tags that propagate into the Governance Engine for control mappings.【F:docs/03-systems/09-control-management-system/readme.md†L7-L133】
-
-### 5.2 Data Protection and Retention
-
-- MinIO buckets enforce server-side encryption (SSE-S3) with keys rotated quarterly through the DevOps pipeline.【F:docs/02-technical-specifications/05-devops-infrastructure.md†L60-L226】
-- Retention policies align with regulatory obligations (default seven years) and can be extended per control requirement; legal holds are tracked in the Evidence Repository UI.【F:docs/03-systems/11-evidence-management-system/readme.md†L92-L115】
-- Cross-region replication follows DevOps guidance to satisfy durability and disaster recovery targets.【F:docs/02-technical-specifications/05-devops-infrastructure.md†L168-L226】
-
-### 5.3 Auditability and Chain of Custody
-
-- Every upload writes to the audit log with user, IP, object key, checksum, and compression result. Logs flow into the central monitoring stack for retention and anomaly detection.【F:docs/03-systems/06-audit-logging-and-monitoring/readme.md†L7-L200】
-- Evidence snapshots capture diff metadata (who replaced what, when) so auditors can reconstruct history without accessing underlying objects.【F:docs/03-systems/11-evidence-management-system/readme.md†L47-L111】
-- Download links reuse presigned URLs with scoped expirations and watermarking; requests are rate-limited and tracked for governance review.【F:docs/03-systems/10-framework-mapping-system/readme.md†L55-L217】
-
-## 6. Operational Playbook
-
-### 6.1 Monitoring and Alerting
-
-- Dashboards track upload throughput, compression latency, presigned URL error rates, and MinIO 5xx responses.
-- Alert thresholds: presigned issuance failures >2% for 5 minutes, compression job backlog >1000 tasks, or MinIO latency >800 ms triggers PagerDuty escalation to the Evidence squad.【F:docs/03-systems/04-notification-system/readme.md†L7-L222】【F:docs/03-systems/06-audit-logging-and-monitoring/readme.md†L7-L200】
-- Synthetic probes periodically attempt uploads for each classification to validate policy enforcement.【F:docs/03-systems/07-probe-management-system/readme.md†L7-L226】
-
-### 6.2 Incident Response
-
-- For failed uploads, support staff review audit trails, retry compression manually if needed, and coordinate with the Notification service for stakeholder updates.【F:docs/03-systems/04-notification-system/readme.md†L7-L222】
-- Malware detection escalations follow the Security Implementation playbook; quarantined objects remain inaccessible until the security team clears them.【F:docs/02-technical-specifications/06-security-implementation.md†L108-L196】
-- Data loss scenarios (e.g., MinIO outage) trigger failover runbooks managed by DevOps, including restoring from backups and verifying object integrity via stored checksums.【F:docs/02-technical-specifications/05-devops-infrastructure.md†L168-L226】
-
-### 6.3 Capacity and Cost Management
-
-- Monthly reviews evaluate bucket growth, compression savings, and storage class utilization; anomalies prompt remediation actions such as deduplication or additional lifecycle tiers.
-- Cost allocation tags on buckets roll up to finance dashboards maintained by the Reporting team for transparency and budgeting.【F:docs/03-systems/14-dashboard-and-reporting-system/readme.md†L7-L118】
-- Pre-signed URL traffic is cached through the API gateway; scaling decisions align with the Deployment & Environment guide’s sizing matrix.【F:docs/02-technical-specifications/08-deployment-and-environment-guide.md†L53-L186】
-
-## 7. Related Documentation
-
-- [Evidence Management System](../11-evidence-management-system/readme.md) — downstream repository behavior, legal holds, and retrieval workflows.
-- [Audit Logging & Monitoring](../06-audit-logging-and-monitoring/readme.md) — centralized observability pipelines and retention policies.
-- [Security Implementation](../../02-technical-specifications/06-security-implementation.md) — encryption, malware scanning, and incident response procedures.
-- [DevOps Infrastructure](../../02-technical-specifications/05-devops-infrastructure.md) — MinIO provisioning, lifecycle policies, and disaster recovery planning.
+### Related Documentation
+- [Evidence Management System](../11-evidence-management-system/readme.md)
+- [Audit Logging & Monitoring](../06-audit-logging-and-monitoring/readme.md)
+- [Security Implementation](../../02-technical-specifications/06-security-implementation.md)
+- [DevOps Infrastructure](../../02-technical-specifications/05-devops-infrastructure.md)
 
 ---
 
