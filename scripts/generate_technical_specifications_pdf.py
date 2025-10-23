@@ -53,6 +53,7 @@ CODE_RE = re.compile(r"`([^`]+)`")
 LINK_RE = re.compile(r"\[(.+?)\]\((.+?)\)")
 EXTERNAL_LINK_SCHEME_RE = re.compile(r"^[a-z][a-z0-9+.-]*:", re.IGNORECASE)
 FONT_FACE_RE = re.compile(r"(face=)([\"'])([^\"']+)(\2)", re.IGNORECASE)
+LENTICULAR_BRACKET_RE = re.compile("\u3010(.+?)\u3011")
 
 
 FONT_FACE_ALIASES = {
@@ -413,6 +414,10 @@ def format_inline(text: str) -> str:
         .replace("<li>", "- ")
     )
 
+    # Normalize special citation brackets and dagger used in docs to ASCII
+    # e.g., 【F:docs/...†L52-L86】 -> [F:docs/... L52-L86]
+    cleaned = cleaned.replace("【", "[").replace("】", "]").replace("†", " ")
+
     # 1) Extract inline code spans first and replace with placeholders
     code_chunks: List[str] = []
 
@@ -554,7 +559,23 @@ def build_code_block(lines: List[str], styles) -> Table:
     background, and border similar to TL;DR blocks. We also constrain the
     font to the built-in Courier to ensure glyph availability.
     """
-    code_text = "\n".join(lines)
+    # Replace box-drawing characters with ASCII so Courier renders cleanly
+    trans = str.maketrans({
+        "│": "|",
+        "├": "+",
+        "┤": "+",
+        "┬": "+",
+        "┴": "+",
+        "┼": "+",
+        "┌": "+",
+        "┐": "+",
+        "└": "+",
+        "┘": "+",
+        "─": "-",
+        "━": "-",
+        "•": "*",
+    })
+    code_text = "\n".join(s.translate(trans) for s in lines)
     pre = Preformatted(code_text, style=ParagraphStyle(
         name="CodeBlock",
         parent=styles["BodyText"],
