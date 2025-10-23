@@ -131,4 +131,4 @@ Control scores feed dashboards showing posture by domain, framework, and owner t
 
 ---
 
-[← Previous](08-check-management-system.md) | [Next →](10-framework-mapping-system.md)
+[← Previous](../08-check-management-system/readme.md) | [Next →](../10-framework-mapping-system/readme.md)

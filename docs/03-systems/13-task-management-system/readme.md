@@ -223,4 +223,4 @@ This document defines the operational blueprint for managing remediation tasks, 
 
 ---
 
-[← Previous](12-governance-engine.md) | [Next →](14-dashboard-and-reporting-system.md)
+[← Previous](../12-governance-engine/readme.md) | [Next →](../14-dashboard-and-reporting-system/readme.md)

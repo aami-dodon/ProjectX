@@ -111,4 +111,4 @@ Together, these components enable the governance engine to deliver continuous, m
 
 ---
 
-[← Previous](11-evidence-management-system.md) | [Next →](13-task-management-system.md)
+[← Previous](../11-evidence-management-system/readme.md) | [Next →](../13-task-management-system/readme.md)

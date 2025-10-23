@@ -226,4 +226,4 @@ The Probe Management System aligns probe development, deployment, and monitoring
 
 ---
 
-[← Previous](06-audit-logging-and-monitoring.md) | [Next →](08-check-management-system.md)
+[← Previous](../06-audit-logging-and-monitoring/readme.md) | [Next →](../08-check-management-system/readme.md)

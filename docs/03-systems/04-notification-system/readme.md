@@ -220,4 +220,4 @@ The notification module is organised around the following packages and services:
 
 ---
 
-[← Previous](03-document-and-media-upload.md) | [Next →](05-admin-and-configuration-system.md)
+[← Previous](../03-document-and-media-upload/readme.md) | [Next →](../05-admin-and-configuration-system/readme.md)

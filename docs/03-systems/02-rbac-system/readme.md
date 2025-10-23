@@ -123,7 +123,7 @@ Casbin policies support:
 
 ## 7. Updating Casbin Policies
 
-1. **Plan the Change:** Document desired permission updates, referencing the [User Management & Auth Service](../02-technical-specifications/02-backend-architecture-and-apis.md#auth-service) guidance for API endpoints and controllers involved.
+1. **Plan the Change:** Document desired permission updates, referencing the [User Management & Auth Service](../../02-technical-specifications/02-backend-architecture-and-apis.md#auth-service) guidance for API endpoints and controllers involved.
 2. **Edit Policies:**
    - Use the Admin UI or call the `/auth/policies` API to add/update `p` (permission) or `g` (role inheritance) rules.
    - For bulk updates, utilize the RBAC sync CLI from the developer tooling repository to read YAML policy manifests and push them through the Casbin adapter.
@@ -143,14 +143,14 @@ Casbin policies support:
   - Employ the shared Postman collection published with the API workspace for exploratory testing.
   - Run `npm run test:rbac` to execute the focused RBAC test suite before releases.
 - **Governance Engine Alignment:**
-  - Cross-validate that Governance Engine workflows respect RBAC outcomes by running the evaluation regression suite described in the [Governance Engine documentation](../02-technical-specifications/02-backend-architecture-and-apis.md#governance-engine).
+  - Cross-validate that Governance Engine workflows respect RBAC outcomes by running the evaluation regression suite described in the [Governance Engine documentation](../../02-technical-specifications/02-backend-architecture-and-apis.md#governance-engine).
 
 ## 9. Related Documentation
 
-- [User Management & Auth Service](../02-technical-specifications/02-backend-architecture-and-apis.md#auth-service)
-- [Governance Engine](../02-technical-specifications/02-backend-architecture-and-apis.md#governance-engine)
-- [Security Implementation – RBAC](../02-technical-specifications/06-security-implementation.md#63-role-based-access-control-rbac)
+- [User Management & Auth Service](../../02-technical-specifications/02-backend-architecture-and-apis.md#auth-service)
+- [Governance Engine](../../02-technical-specifications/02-backend-architecture-and-apis.md#governance-engine)
+- [Security Implementation – RBAC](../../02-technical-specifications/06-security-implementation.md#63-role-based-access-control-rbac)
 
 ---
 
-[← Previous](01-user-management-system.md) | [Next →](03-document-and-media-upload.md)
+[← Previous](../01-user-management-system/readme.md) | [Next →](../03-document-and-media-upload/readme.md)

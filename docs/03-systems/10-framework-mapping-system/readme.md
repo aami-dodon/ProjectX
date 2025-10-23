@@ -215,4 +215,4 @@ The module exposes REST + event-driven interfaces that allow:
 
 ---
 
-[← Previous](09-control-management-system.md) | [Next →](11-evidence-management-system.md)
+[← Previous](../09-control-management-system/readme.md) | [Next →](../11-evidence-management-system/readme.md)

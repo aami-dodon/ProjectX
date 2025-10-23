@@ -101,4 +101,4 @@ The React client mirrors backend capabilities through dedicated auth views and c
 
 ---
 
-[← Previous](readme.md) | [Next →](02-rbac-system.md)
+[← Previous](readme.md) | [Next →](../02-rbac-system/readme.md)
