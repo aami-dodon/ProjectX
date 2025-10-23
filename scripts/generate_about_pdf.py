@@ -36,6 +36,7 @@ try:
     )
     from reportlab.platypus.tableofcontents import TableOfContents
     from reportlab.lib import colors
+    from reportlab.lib import fonts as rl_fonts
 except ImportError as exc:  # pragma: no cover - guard for runtime execution
     raise SystemExit(
         "The 'reportlab' package is required to run this script. Install it with 'pip install reportlab'."
@@ -46,6 +47,17 @@ BOLD_RE = re.compile(r"\*\*(.+?)\*\*")
 ITALIC_RE = re.compile(r"_(.+?)_")
 CODE_RE = re.compile(r"`([^`]+)`")
 LINK_RE = re.compile(r"\[(.+?)\]\((.+?)\)")
+EXTERNAL_LINK_SCHEME_RE = re.compile(r"^[a-z][a-z0-9+.-]*:", re.IGNORECASE)
+FONT_FACE_RE = re.compile(r"(face=)([\"'])([^\"']+)(\2)", re.IGNORECASE)
+
+
+FONT_FACE_ALIASES = {
+    "courier": "Courier",
+    "courier new": "Courier",
+    "courier-new": "Courier",
+    "couriernew": "Courier",
+    "monospace": "Courier",
+}
 
 
 _HEADING_SLUG_COUNTS: Counter[str] = Counter()
@@ -93,6 +105,8 @@ def normalize_internal_target(target: str) -> str:
 
 
 NAVIGATION_MARKERS = ("← Previous", "Next →")
+TOC_HEADING_TITLES = {"table of contents", "contents"}
+TOC_DIRECTIVES = {"[toc]", "[[toc]]", "{{toc}}", "<!-- toc -->", "<!--toc-->"}
 
 
 DEFAULT_INPUT_DIR = Path("docs/01-about")
@@ -141,6 +155,13 @@ class AboutDocTemplate(BaseDocTemplate):
     def _header_footer(self, canvas, doc) -> None:  # pragma: no cover - layout code
         canvas.saveState()
         page_width, page_height = LETTER
+        canvas.saveState()
+        canvas.setFillColorRGB(0.9, 0.9, 0.9)
+        canvas.setFont("Helvetica-Bold", 60)
+        canvas.translate(page_width / 2, page_height / 2)
+        canvas.rotate(45)
+        canvas.drawCentredString(0, 0, "CONFIDENTIAL")
+        canvas.restoreState()
         header_title = self.branding.header_title
         header_date = datetime.now().strftime(self.branding.header_date_format)
         canvas.setFont("Helvetica-Bold", 11)
@@ -243,7 +264,7 @@ def build_styles():
         spaceAfter=6,
         leading=16,
     )
-    heading3.outline_level = 2
+    heading3.outline_level = None
     styles.add(heading3)
 
     styles.add(
@@ -306,12 +327,35 @@ def build_styles():
 
 def _replace_markdown_link(match: Match[str]) -> str:
     text, href = match.groups()
-    if href.startswith("#"):
-        destination = normalize_internal_target(href)
-        if not destination:
-            return text
-        return f'<link destination="{destination}">{text}</link>'
+    if href.startswith("#") or not EXTERNAL_LINK_SCHEME_RE.match(href):
+        return ""
     return f'<link href="{href}">{text}</link>'
+
+
+def _sanitize_font_name(font: str) -> str:
+    """Return a ReportLab-safe font name, defaulting to Courier when unknown."""
+
+    normalized = FONT_FACE_ALIASES.get(font.lower(), font)
+    normalized = re.sub(r"\s+", " ", normalized).strip()
+    if not normalized:
+        return "Courier"
+    try:
+        rl_fonts.ps2tt(normalized)
+    except ValueError:
+        return "Courier"
+    return normalized
+
+
+def _normalize_font_face(match: Match[str]) -> str:
+    attr, quote, value, closing = match.groups()
+    fonts = [alias.strip() for alias in value.split(",") if alias.strip()]
+    normalized_fonts = []
+    for font in fonts:
+        normalized_fonts.append(_sanitize_font_name(font))
+    if not normalized_fonts:
+        normalized_fonts.append("Courier")
+    normalized = ", ".join(dict.fromkeys(normalized_fonts))
+    return f"{attr}{quote}{normalized}{closing}"
 
 
 def format_inline(text: str) -> str:
@@ -330,6 +374,7 @@ def format_inline(text: str) -> str:
     escaped = ITALIC_RE.sub(r"<i>\1</i>", escaped)
     escaped = CODE_RE.sub(r"<font face=\"Courier\">\1</font>", escaped)
     escaped = LINK_RE.sub(_replace_markdown_link, escaped)
+    escaped = FONT_FACE_RE.sub(_normalize_font_face, escaped)
     return escaped.replace("\n", "<br/>")
 
 
@@ -410,12 +455,26 @@ def build_horizontal_rule() -> HRFlowable:
 def flush_bullets(bullets: List[str], styles) -> ListFlowable | None:
     if not bullets:
         return None
-    list_items = [ListItem(Paragraph(format_inline(item), styles["AboutBody"])) for item in bullets]
+    list_items: List[ListItem] = []
+    for item in bullets:
+        formatted = format_inline(item)
+        if not formatted.strip():
+            continue
+        list_items.append(ListItem(Paragraph(formatted, styles["AboutBody"])))
+    if not list_items:
+        return None
     return ListFlowable(list_items, bulletType="bullet", start="•", leftIndent=24)
 
 
-def build_tldr_list_flowable(items: List[str], styles) -> ListFlowable:
-    list_items = [ListItem(Paragraph(format_inline(item), styles["TldrBody"])) for item in items]
+def build_tldr_list_flowable(items: List[str], styles) -> ListFlowable | None:
+    list_items: List[ListItem] = []
+    for item in items:
+        formatted = format_inline(item)
+        if not formatted.strip():
+            continue
+        list_items.append(ListItem(Paragraph(formatted, styles["TldrBody"])))
+    if not list_items:
+        return None
     return ListFlowable(
         list_items,
         bulletType="bullet",
@@ -448,7 +507,9 @@ def build_tldr_block(lines: List[str], start_index: int, styles) -> tuple[Table 
         text = raw.strip()
         if not text:
             if bullet_items:
-                inner_flowables.append(build_tldr_list_flowable(bullet_items, styles))
+                tldr_list = build_tldr_list_flowable(bullet_items, styles)
+                if tldr_list:
+                    inner_flowables.append(tldr_list)
                 bullet_items = []
             inner_flowables.append(Spacer(1, 4))
             continue
@@ -456,12 +517,18 @@ def build_tldr_block(lines: List[str], start_index: int, styles) -> tuple[Table 
             bullet_items.append(text[2:].strip())
             continue
         if bullet_items:
-            inner_flowables.append(build_tldr_list_flowable(bullet_items, styles))
+            tldr_list = build_tldr_list_flowable(bullet_items, styles)
+            if tldr_list:
+                inner_flowables.append(tldr_list)
             bullet_items = []
-        inner_flowables.append(Paragraph(format_inline(text), styles["TldrBody"]))
+        formatted = format_inline(text)
+        if formatted.strip():
+            inner_flowables.append(Paragraph(formatted, styles["TldrBody"]))
 
     if bullet_items:
-        inner_flowables.append(build_tldr_list_flowable(bullet_items, styles))
+        tldr_list = build_tldr_list_flowable(bullet_items, styles)
+        if tldr_list:
+            inner_flowables.append(tldr_list)
 
     table_data = [[flowable] for flowable in inner_flowables]
     tldr_table = Table(table_data)
@@ -486,6 +553,7 @@ def parse_markdown(markdown_path: Path, styles) -> Iterable:
     bullets: List[str] = []
     lines = markdown_path.read_text(encoding="utf-8").splitlines()
     index = 0
+    skip_section_level: int | None = None
     while index < len(lines):
         raw_line = lines[index]
         line = raw_line.rstrip()
@@ -505,6 +573,14 @@ def parse_markdown(markdown_path: Path, styles) -> Iterable:
             if bullet_flowable:
                 flowables.append(bullet_flowable)
             flowables.append(build_horizontal_rule())
+            index += 1
+            continue
+
+        if stripped_line.lower() in TOC_DIRECTIVES:
+            index += 1
+            continue
+
+        if skip_section_level is not None and not line.startswith("#"):
             index += 1
             continue
 
@@ -540,10 +616,22 @@ def parse_markdown(markdown_path: Path, styles) -> Iterable:
             if not text:
                 index += 1
                 continue
+            if skip_section_level is not None:
+                if level > skip_section_level:
+                    index += 1
+                    continue
+                skip_section_level = None
+            normalized_heading = text.lower().rstrip(":")
+            if normalized_heading in TOC_HEADING_TITLES:
+                skip_section_level = level
+                index += 1
+                continue
             heading_style_name = {1: "AboutHeading1", 2: "AboutHeading2", 3: "AboutHeading3"}.get(level, "AboutHeading3")
             bookmark_name = register_heading_anchor(text)
             paragraph = Paragraph(format_inline(text), styles[heading_style_name])
-            paragraph.outline_level = styles[heading_style_name].outline_level
+            outline_level = getattr(styles[heading_style_name], "outline_level", None)
+            if outline_level is not None:
+                paragraph.outline_level = outline_level
             paragraph._bookmarkName = bookmark_name
             flowables.append(paragraph)
             index += 1
@@ -551,7 +639,9 @@ def parse_markdown(markdown_path: Path, styles) -> Iterable:
 
         normalized = line.lstrip("> ")
         if normalized.startswith(("- ", "* ")):
-            bullets.append(normalized[2:].strip())
+            bullet_text = normalized[2:].strip()
+            if bullet_text:
+                bullets.append(bullet_text)
             index += 1
             continue
 
@@ -568,7 +658,9 @@ def parse_markdown(markdown_path: Path, styles) -> Iterable:
                     flowables.append(Spacer(1, 12))
                 index = next_index
                 continue
-            flowables.append(Paragraph(format_inline(normalized), styles["AboutQuote"]))
+            formatted_quote = format_inline(normalized)
+            if formatted_quote.strip():
+                flowables.append(Paragraph(formatted_quote, styles["AboutQuote"]))
             index += 1
             continue
 
@@ -576,7 +668,9 @@ def parse_markdown(markdown_path: Path, styles) -> Iterable:
         bullets.clear()
         if bullet_flowable:
             flowables.append(bullet_flowable)
-        flowables.append(Paragraph(format_inline(normalized), styles["AboutBody"]))
+        formatted_paragraph = format_inline(normalized)
+        if formatted_paragraph.strip():
+            flowables.append(Paragraph(formatted_paragraph, styles["AboutBody"]))
         index += 1
 
     bullet_flowable = flush_bullets(bullets, styles)
@@ -631,7 +725,6 @@ def add_table_of_contents(story: List, styles, toc: TableOfContents) -> None:
     toc.levelStyles = [
         ParagraphStyle(name="TOCHeading1", parent=styles["Normal"], fontSize=11, leftIndent=0, firstLineIndent=-18, spaceBefore=4, leading=14),
         ParagraphStyle(name="TOCHeading2", parent=styles["Normal"], fontSize=10, leftIndent=12, firstLineIndent=-12, spaceBefore=2, leading=12),
-        ParagraphStyle(name="TOCHeading3", parent=styles["Normal"], fontSize=9, leftIndent=24, firstLineIndent=-12, spaceBefore=0, leading=11),
     ]
     story.append(toc)
     story.append(PageBreak())
@@ -662,12 +755,17 @@ def build_story(markdown_files: Iterable[Path], styles) -> List:
 def configure_toc_tracking(doc: AboutDocTemplate, styles):
     def after_flowable(flowable):  # pragma: no cover - layout callback
         if isinstance(flowable, Paragraph) and hasattr(flowable, "outline_level"):
+            level = getattr(flowable, "outline_level", None)
+            if level is None:
+                return
             text = flowable.getPlainText()
-            level = getattr(flowable, "outline_level", 0)
             bookmark_name = getattr(flowable, "_bookmarkName", None)
             if bookmark_name:
                 doc.canv.bookmarkPage(bookmark_name)
-            doc.notify("TOCEntry", (level, text, doc.canv.getPageNumber()))
+            entry = (level, text, doc.canv.getPageNumber())
+            if bookmark_name:
+                entry += (bookmark_name,)
+            doc.notify("TOCEntry", entry)
 
     doc.afterFlowable = after_flowable
 
@@ -682,6 +780,11 @@ def generate_pdf(
     markdown_files = collect_markdown_files(input_dir)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    if output_path.exists():
+        if output_path.is_dir():
+            raise IsADirectoryError(f"Output path '{output_path}' is a directory, expected a file path.")
+        output_path.unlink()
+
     doc = AboutDocTemplate(output_path, branding)
     toc = TableOfContents()
     configure_toc_tracking(doc, styles)
