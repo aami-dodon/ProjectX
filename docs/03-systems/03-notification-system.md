@@ -82,7 +82,7 @@ The notification module is organised around the following packages and services:
 ### 3.2 Template Management
 
 - Templates reside in `templates/email/<locale>/<notification-type>.hbs` and are versioned through Git.
-- Layouts and partials are composed using Handlebars helpers defined in `templates/helpers.ts`.
+- Layouts and partials are composed using Handlebars helpers defined in `templates/helpers.js`.
 - Every template must declare metadata (ID, locale, subject, required context keys) in `templates/registry.json`.
 - The registry is validated on boot. Invalid or missing templates emit structured warnings and are excluded from dispatch.
 - Preview endpoints (`GET /notifications/templates/:id/preview`) allow operations teams to verify rendering with sample data.
@@ -160,12 +160,12 @@ The notification module is organised around the following packages and services:
 ### 5.1 Adding a New Notification Schema
 
 1. Define a domain event payload in `events/schemas` with strict typing and validation rules.
-2. Register the schema in `events/index.ts`, mapping it to the channels and templates that should respond.
+2. Register the schema in `events/index.js`, mapping it to the channels and templates that should respond.
 3. Update the notification type enum (`NotificationType`) to include the new identifier and add documentation comments.
 
 ### 5.2 Implementing Channel Strategies
 
-1. Extend `channels/<channel>/strategies.ts` with a handler implementing the shared `ChannelStrategy` interface.
+1. Extend `channels/<channel>/strategies.js` with a handler implementing the shared `ChannelStrategy` interface.
 2. Map the new notification type to the handler in the channel registry.
 3. Provide any channel-specific configuration (webhook URLs, queue names) in `config/channels.yml`.
 

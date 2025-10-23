@@ -43,7 +43,7 @@ server/src/modules/frameworks
 ├── policies/           → Casbin-powered authorization guards
 ├── tasks/              → BullMQ queues for imports, exports, version diffing
 ├── subscribers/        → Domain events for scoring + reporting recalculations
-└── index.ts            → Module bootstrap, router registration, dependency wiring
+└── index.js            → Module bootstrap, router registration, dependency wiring
 ```
 
 The module exposes REST + event-driven interfaces that allow:
