@@ -2,6 +2,7 @@
 
 ## PENDING - CI TO FILL TIMESTAMP
 - Enforced mandatory environment validation across server startup and halted legacy localhost defaults for ports and API URLs.
+- Required explicit MinIO region configuration to unblock bucket and CORS health checks.
 - Updated env templates with explicit MinIO presign expiry to satisfy the stricter runtime checks.
 - Ensured Vite and server config both read the repository-root `.env` so Docker Compose remains the single source of truth.
 - Prioritized `VITE_API_URL` for the frontend API client so production deployments can point at non-localhost backends.
