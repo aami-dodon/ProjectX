@@ -5,14 +5,16 @@ const routes = require('./routes');
 const requestContext = require('./middleware/requestContext');
 const errorHandler = require('./middleware/errorHandler');
 const logger = require('./utils/logger');
+const { createCorsOptions } = require('./utils/corsOptions');
 const { requireShared } = require('./utils/sharedModule');
 
 const { createNotFoundError } = requireShared('error-handling');
 
 const app = express();
+const corsOptions = createCorsOptions(config.server.allowedOrigins);
 
 app.use(requestContext);
-app.use(cors({ origin: config.server.allowedOrigins, credentials: true }));
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true }));
 
