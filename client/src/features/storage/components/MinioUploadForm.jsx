@@ -51,11 +51,11 @@ const MinioUploadForm = () => {
       </CardTitle>
       <CardDescription>Send an image to MinIO and receive a presigned URL for verification.</CardDescription>
 
-      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-        <div className="flex items-center gap-3">
+      <form onSubmit={handleSubmit} className="mt-xl space-y-lg">
+        <div className="flex items-center gap-md">
           <label
             htmlFor="minio-image"
-            className="flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-card/80 px-4 py-3 text-sm text-foreground transition-colors hover:border-primary hover:bg-card"
+            className="flex cursor-pointer items-center gap-sm rounded-lg border border-border bg-card/80 px-lg py-md text-sm text-foreground transition-colors hover:border-primary hover:bg-card"
           >
             <ImageIcon className="h-4 w-4" />
             {file ? file.name : 'Choose image'}
@@ -67,9 +67,9 @@ const MinioUploadForm = () => {
         </div>
       </form>
 
-      {error && <p className="mt-4 text-sm text-destructive">{error}</p>}
+      {error && <p className="mt-lg text-sm text-destructive">{error}</p>}
       {result?.presignedUrl && (
-        <div className="mt-6 space-y-3">
+        <div className="mt-xl space-y-md">
           <p className="text-sm text-muted-foreground">
             Presigned URL:{' '}
             <a href={result.presignedUrl} className="text-primary underline" target="_blank" rel="noreferrer">
