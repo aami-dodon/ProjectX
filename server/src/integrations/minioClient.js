@@ -4,6 +4,7 @@ const {
   GetBucketCorsCommand,
   PutObjectCommand,
   GetObjectCommand,
+  ListBucketsCommand,
 } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 const config = require('../config');
@@ -42,6 +43,11 @@ const ensureConfiguration = () => {
 const checkBucket = async () => {
   ensureConfiguration();
   await client.send(new HeadBucketCommand({ Bucket: config.minio.bucket }));
+};
+
+const checkConnection = async () => {
+  ensureConfiguration();
+  await client.send(new ListBucketsCommand({}));
 };
 
 const getCorsRules = async () => {
@@ -88,6 +94,7 @@ const createPresignedGetUrl = (key) =>
 
 module.exports = {
   client,
+  checkConnection,
   checkBucket,
   getCorsRules,
   uploadObject,

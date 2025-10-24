@@ -79,6 +79,9 @@ const smtpHostKey = pickEnvKey('SMTP_HOST', 'EMAIL_SMTP_HOST');
 const smtpUserKey = pickEnvKey('SMTP_USER', 'EMAIL_SMTP_USER');
 const smtpPassKey = pickEnvKey('SMTP_PASS', 'EMAIL_SMTP_PASS');
 const smtpFromKey = pickEnvKey('SMTP_FROM', 'EMAIL_FROM');
+const environmentName =
+  toTrimmedString(process.env.APP_ENV) ?? toTrimmedString(process.env.NODE_ENV) ?? 'development';
+const buildTimestamp = toTrimmedString(process.env.BUILD_TIMESTAMP) ?? null;
 
 if (!smtpPortKey || !smtpSecureKey || !smtpHostKey || !smtpUserKey || !smtpPassKey || !smtpFromKey) {
   throw new Error(
@@ -122,6 +125,10 @@ const config = {
   },
   client: {
     appName: toTrimmedString(process.env.VITE_APP_NAME),
+  },
+  meta: {
+    environment: environmentName,
+    buildTimestamp,
   },
 };
 
