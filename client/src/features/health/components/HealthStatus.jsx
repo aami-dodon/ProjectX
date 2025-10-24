@@ -33,7 +33,7 @@ StatusPill.propTypes = {
   status: PropTypes.string.isRequired,
 };
 
-const HealthStatus = ({ data, loading, error, onRefresh }) => {
+const HealthStatus = ({ data = null, loading = false, error = null, onRefresh }) => {
   return (
     <section className="space-y-4 rounded-xl border border-slate-800 bg-slate-900/70 p-6 shadow">
       <div className="flex items-center justify-between">
@@ -144,12 +144,6 @@ HealthStatus.propTypes = {
   loading: PropTypes.bool,
   error: PropTypes.shape({ message: PropTypes.string }),
   onRefresh: PropTypes.func.isRequired,
-};
-
-HealthStatus.defaultProps = {
-  data: null,
-  loading: false,
-  error: null,
 };
 
 export default HealthStatus;
