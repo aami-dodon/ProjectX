@@ -1,12 +1,9 @@
 const path = require('path');
 const crypto = require('crypto');
 const { uploadObject, createPresignedGetUrl } = require('../../integrations/minioClient');
-const { createValidationError } = require(path.resolve(
-  __dirname,
-  '../../../..',
-  'shared',
-  'error-handling'
-));
+const { requireShared } = require('../../utils/sharedModule');
+
+const { createValidationError } = requireShared('error-handling');
 
 const allowedMimeTypes = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
 

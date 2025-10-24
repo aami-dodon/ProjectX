@@ -3,10 +3,11 @@ version: '3.9'
 services:
   server:
     build:
-      context: ./server
+      context: .
+      dockerfile: server/Dockerfile
     env_file: .env
     ports:
-      - "4000:4000"
+      - "${SERVER_PORT:-4000}:${SERVER_PORT:-4000}"
     restart: unless-stopped
 
   client:
@@ -14,7 +15,7 @@ services:
       context: ./client
     env_file: .env
     ports:
-      - "5173:5173"
+      - "${CLIENT_PORT:-5173}:${CLIENT_PORT:-5173}"
     depends_on:
       - server
     restart: unless-stopped

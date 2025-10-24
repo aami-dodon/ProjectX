@@ -1,10 +1,10 @@
-const path = require('path');
 const logger = require('../utils/logger');
+const { requireShared } = require('../utils/sharedModule');
 
 const {
   ApplicationError,
   buildErrorResponse,
-} = require(path.resolve(__dirname, '../../..', 'shared', 'error-handling'));
+} = requireShared('error-handling');
 
 const errorHandler = (err, req, res, next) => {
   const { requestId, traceId } = req.context ?? {};

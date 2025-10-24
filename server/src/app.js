@@ -1,4 +1,3 @@
-const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const config = require('./config');
@@ -6,17 +5,14 @@ const routes = require('./routes');
 const requestContext = require('./middleware/requestContext');
 const errorHandler = require('./middleware/errorHandler');
 const logger = require('./utils/logger');
-const { createNotFoundError } = require(path.resolve(
-  __dirname,
-  '../..',
-  'shared',
-  'error-handling'
-));
+const { requireShared } = require('./utils/sharedModule');
+
+const { createNotFoundError } = requireShared('error-handling');
 
 const app = express();
 
 app.use(requestContext);
-app.use(cors({ origin: [config.server.clientUrl], credentials: true }));
+app.use(cors({ origin: config.server.allowedOrigins, credentials: true }));
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true }));
 

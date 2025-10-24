@@ -1,11 +1,7 @@
-const path = require('path');
 const { sendTestEmail } = require('../../integrations/mailer');
-const { createValidationError } = require(path.resolve(
-  __dirname,
-  '../../../..',
-  'shared',
-  'error-handling'
-));
+const { requireShared } = require('../../utils/sharedModule');
+
+const { createValidationError } = requireShared('error-handling');
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

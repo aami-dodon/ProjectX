@@ -4,13 +4,14 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
-COPY package.json package-lock.json* ./
+COPY server/package.json server/package-lock.json* ./
 RUN npm ci
 
-COPY prisma ./prisma
+COPY server/prisma ./prisma
 RUN npm run prisma:generate
 
-COPY src ./src
+COPY server/src ./src
+COPY shared ./shared
 
 ENV NODE_ENV=production
 

@@ -1,14 +1,10 @@
-const path = require('path');
 const prisma = require('../../integrations/prisma');
 const config = require('../../config');
 const { checkBucket, getCorsRules } = require('../../integrations/minioClient');
 const { getUptimeSeconds, startedAt } = require('../../utils/runtimeInfo');
-const { createIntegrationError } = require(path.resolve(
-  __dirname,
-  '../../../..',
-  'shared',
-  'error-handling'
-));
+const { requireShared } = require('../../utils/sharedModule');
+
+const { createIntegrationError } = requireShared('error-handling');
 
 const fetchDatabaseTimestamp = async () => {
   try {

@@ -6,9 +6,10 @@ const {
   GetObjectCommand,
 } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
-const path = require('path');
 const config = require('../config');
-const { createIntegrationError } = require(path.resolve(__dirname, '../../..', 'shared', 'error-handling'));
+const { requireShared } = require('../utils/sharedModule');
+
+const { createIntegrationError } = requireShared('error-handling');
 
 const buildEndpoint = () => {
   const protocol = config.minio.useSSL ? 'https' : 'http';
