@@ -41,6 +41,35 @@ const requireListEnv = (key) => {
   return items;
 };
 
+const isIpAddress = (value) => /^\d{1,3}(\.\d{1,3}){3}$/.test(value);
+
+const isPrivateIp = (ip) => {
+  if (!isIpAddress(ip)) return false;
+  if (ip.startsWith('10.')) return true;
+  if (ip.startsWith('192.168.')) return true;
+  if (ip.startsWith('172.')) {
+    const [, secondOctet] = ip.split('.');
+    const asNumber = Number(secondOctet);
+    return Number.isInteger(asNumber) && asNumber >= 16 && asNumber <= 31;
+  }
+  return ip === '127.0.0.1';
+};
+
+const isLocalNetworkHost = (host) => {
+  if (!host) return true;
+  const normalized = host.trim().toLowerCase();
+  if (!normalized) return true;
+  return (
+    normalized === 'localhost' ||
+    normalized === '0.0.0.0' ||
+    normalized === '::1' ||
+    normalized === '127.0.0.1' ||
+    isPrivateIp(normalized)
+  );
+};
+
+const resolveTunnelHost = (hosts) => hosts.find((host) => !isLocalNetworkHost(host));
+
 export default defineConfig(({ mode }) => {
   const rootEnv = loadEnv(mode, repoRoot, '');
   Object.assign(process.env, rootEnv); // pull repo-level .env into this Vite config
@@ -50,6 +79,8 @@ export default defineConfig(({ mode }) => {
   const apiPrefix = requireEnvValue('API_PREFIX');
   const trimmedPrefix = apiPrefix.startsWith('/') ? apiPrefix : `/${apiPrefix}`;
   const clientAllowedHosts = requireListEnv('CLIENT_ALLOWED_HOSTS');
+
+  const tunnelHost = resolveTunnelHost(clientAllowedHosts);
 
   process.env.VITE_CLIENT_PORT = String(clientPort);
   process.env.VITE_SERVER_PORT = String(serverPort);
@@ -63,6 +94,15 @@ export default defineConfig(({ mode }) => {
       port: clientPort,
       host: '0.0.0.0',
       allowedHosts: clientAllowedHosts,
+      // Use secure tunnel-friendly HMR when a non-local domain is configured.
+      hmr: tunnelHost
+        ? {
+            protocol: 'wss',
+            host: tunnelHost,
+            clientPort: 443,
+            port: 443,
+          }
+        : true,
     },
     preview: {
       host: '0.0.0.0',

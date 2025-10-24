@@ -1,5 +1,8 @@
 # Changelog
 
+## [Pending Timestamp - Auto-filled by CI]
+- Enabled Cloudflare tunnel access for the client dev server by updating allowed hosts and configuring secure WSS HMR fallback.
+
 ## 2025-10-24 09:22:00 IST
 - Removed committed PDF exports and ignored regenerated outputs to keep the documentation source of truth in Markdown.
 - Renamed the About collection's monetization brief and refreshed navigation links to fix broken references.
