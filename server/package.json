@@ -1,0 +1,31 @@
+{
+  "name": "project-x-server",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js",
+    "test": "jest",
+    "postinstall": "prisma generate"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.15.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.3",
+    "helmet": "^7.1.0",
+    "minio": "^8.0.6",
+    "multer": "^2.0.0",
+    "nodemailer": "^6.9.11",
+    "pino": "^9.1.0",
+    "pino-http": "^8.6.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.3",
+    "supertest": "^7.1.4",
+    "prisma": "^5.15.0"
+  }
+}
