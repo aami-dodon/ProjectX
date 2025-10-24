@@ -1,3 +1,7 @@
+## 2025-10-25 05:00:34 IST
+- Adjusted the shared editor toolbar groups to prevent shrinking and keep controls readable across breakpoints.
+- Updated the toolbar layout so undo and redo actions wrap naturally on narrow screens, fixing alignment issues on the theme reference page.
+
 ## 2025-10-25 07:10:00 IST
 - Added a token-driven switch component to the shared UI primitives for consistent theme toggles.
 - Updated the theme reference page with a dark mode control and refreshed documentation to highlight reviewing tokens across modes.
