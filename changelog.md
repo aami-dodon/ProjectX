@@ -1,3 +1,12 @@
+## 2025-10-25 07:10:00 IST
+- Added a token-driven switch component to the shared UI primitives for consistent theme toggles.
+- Updated the theme reference page with a dark mode control and refreshed documentation to highlight reviewing tokens across modes.
+
+## 2025-10-25 03:53:04 IST
+- Added a `/theme` routed page composed from shared UI primitives to showcase typography, tokens, and button variants.
+- Wired the main router and dashboard header link so the theme reference is reachable from the app shell and direct URLs.
+- Documented the style guide location for contributors in `reference/theme-reference.md`.
+
 ## 2025-10-25 03:42:06 IST
 - Fix Vite JSX scan error by renaming `client/src/hooks/useTheme.js` to `client/src/hooks/useTheme.jsx` to comply with repo standard of using `.jsx` for files containing JSX.
 - Verified imports remain extensionless (`useTheme`) so no changes were required elsewhere.

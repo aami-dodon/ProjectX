@@ -49,7 +49,7 @@ const applyThemeClass = (theme) => {
 };
 
 export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState(() => {
+  const [theme, setThemeState] = useState(() => {
     const preferredTheme = getPreferredTheme();
     applyThemeClass(preferredTheme);
     return preferredTheme;
@@ -71,7 +71,7 @@ export const ThemeProvider = ({ children }) => {
     }
 
     const handlePreferenceChange = (event) => {
-      setTheme(event.matches ? 'dark' : 'light');
+      setThemeState(event.matches ? 'dark' : 'light');
     };
 
     mediaQuery.addEventListener('change', handlePreferenceChange);
@@ -82,15 +82,20 @@ export const ThemeProvider = ({ children }) => {
   }, []);
 
   const toggleTheme = useCallback(() => {
-    setTheme((current) => (current === 'dark' ? 'light' : 'dark'));
+    setThemeState((current) => (current === 'dark' ? 'light' : 'dark'));
+  }, []);
+
+  const setTheme = useCallback((nextTheme) => {
+    setThemeState(nextTheme === 'dark' ? 'dark' : 'light');
   }, []);
 
   const value = useMemo(
     () => ({
       theme,
       toggleTheme,
+      setTheme,
     }),
-    [theme, toggleTheme],
+    [theme, toggleTheme, setTheme],
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
