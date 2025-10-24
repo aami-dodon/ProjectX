@@ -1,5 +1,8 @@
 # Changelog
 
+## 2025-10-24 17:30 IST
+- Removed MinIO CORS policy validation from health checks and dashboard to avoid unnecessary alerts.
+
 ## 2025-10-24 16:05 IST
 - Expanded health API to include latency, environment metadata, DNS checks, CPU/memory/disk metrics, and build timestamp support.
 - Added database connection/query, MinIO connection/bucket/CORS, email server, and DNS diagnostics to health payload.

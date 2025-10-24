@@ -35,9 +35,6 @@ const StatusPill = ({ label, status }) => (
 
 const HealthStatus = ({ data, loading, error, onRefresh }) => {
   const getStatusClass = (status) => statusColors[status] || statusColors.unknown;
-  const minioPolicyPreview = data?.minio?.cors?.policy
-    ? data.minio.cors.policy.toString().slice(0, 120)
-    : 'Not available';
   const dnsRecords = data?.dns?.records ?? [];
   const disk = data?.system?.disk;
 
@@ -160,14 +157,6 @@ const HealthStatus = ({ data, loading, error, onRefresh }) => {
                 {data?.minio?.connection?.status ?? 'unknown'}
               </span>
             </p>
-            <p className="flex justify-between">
-              <span>CORS policy</span>
-              <span className={getStatusClass(data?.minio?.cors?.status)}>
-                {data?.minio?.cors?.status ?? 'unknown'}
-              </span>
-            </p>
-            <p className="truncate text-slate-500">{minioPolicyPreview}</p>
-            {data?.minio?.cors?.error && <p className="text-danger">{data.minio.cors.error}</p>}
           </div>
         </div>
 
