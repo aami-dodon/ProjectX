@@ -1,5 +1,9 @@
 # Changelog
 
+## 2025-10-25 02:22:19 IST
+- Added font and spacing design tokens to `client/src/styles/theme.css` and wired Tailwind to consume them via CSS variables.
+- Replaced hard-coded spacing utilities in health dashboard, email tester, and MinIO upload UI with token-based classes.
+
 ## 2025-10-25 01:45:00 IST
 - Enabled React Router v7 future flags (`v7_startTransition`, `v7_relativeSplatPath`) in `client/src/main.jsx` to silence console warnings and align behavior with upcoming v7 changes.
 

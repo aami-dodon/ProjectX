@@ -36,7 +36,7 @@ const EmailTestForm = () => {
       </CardTitle>
       <CardDescription>Trigger a connectivity test email using the configured SMTP credentials.</CardDescription>
 
-      <form onSubmit={onSubmit} className="mt-6 space-y-4">
+      <form onSubmit={onSubmit} className="mt-xl space-y-lg">
         <div>
           <label className="text-sm text-muted-foreground" htmlFor="email-recipient">
             Recipient Email
@@ -51,7 +51,7 @@ const EmailTestForm = () => {
             onChange={(event) => setEmail(event.target.value)}
           />
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-md">
           <Button type="submit" disabled={loading}>
             {loading ? 'Sending…' : 'Send Test Email'}
           </Button>
