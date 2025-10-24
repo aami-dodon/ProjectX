@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardTitle, CardDescription } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Switch } from '../components/ui/switch';
 import useTheme from '../hooks/useTheme';
+import { SimpleEditor, EditorProse } from '../components/editor';
 
 const colorTokens = [
   {
@@ -107,8 +108,22 @@ const buttonVariants = [
   { variant: 'link', label: 'Link' },
 ];
 
+const defaultEditorContent = `
+  <h2>Audit evidence summary</h2>
+  <p>
+    Use this rich text editor to capture narratives with the same typography tokens used in production.
+    Try toggling bold headings, bullet lists, and annotations to see how each element responds to theme changes.
+  </p>
+  <ul>
+    <li>Leverage semantic headings to build a clear hierarchy.</li>
+    <li>Use bullet points to highlight procedural steps or controls.</li>
+    <li>Embed links to supporting documentation without leaving the flow.</li>
+  </ul>
+`;
+
 const ThemeReference = () => {
   const { theme, setTheme } = useTheme();
+  const [editorContent, setEditorContent] = useState(defaultEditorContent);
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-xl py-[calc(var(--space-xl)+var(--space-lg))]">
@@ -199,6 +214,31 @@ const ThemeReference = () => {
               <p className="body-sm text-muted">{description}</p>
             </div>
           ))}
+        </div>
+      </Card>
+
+      <Card className="flex flex-col gap-lg">
+        <div className="flex flex-col gap-xs">
+          <CardTitle>Rich text editor</CardTitle>
+          <CardDescription>
+            The tiptap-powered editor mirrors the product experience, including the toolbar, typography tokens, and live theme
+            preview.
+          </CardDescription>
+        </div>
+        <div className="grid gap-md lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+          <SimpleEditor
+            value={editorContent}
+            onChange={setEditorContent}
+            placeholder="Document how this theme supports your controls…"
+            className="min-h-[280px]"
+          />
+          <div className="flex flex-col gap-sm">
+            <span className="body-sm text-muted">Live preview</span>
+            <EditorProse
+              html={editorContent}
+              className="prose-sm rounded-lg border border-border bg-background/60 p-md shadow-inner"
+            />
+          </div>
         </div>
       </Card>
 
