@@ -1,0 +1,11 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: project-x
+  description: Project X monorepo
+  annotations:
+    github.com/project-slug: sayabasu/Project-X
+spec:
+  type: service
+  owner: sayabasu
+  lifecycle: experimental
