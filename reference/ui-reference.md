@@ -1,235 +1,135 @@
 # UI Design Reference
 
-This document defines UI standards for the frontend: Tiptap editor integration, shadcn/ui components, Tailwind theming, and icons — aligned with Project X guidelines.
+This document defines the styling, theming, and UI structure for the project. We use a token-first design system, powered by Tailwind CSS, shadcn/ui, Lucide icons, and Tiptap for rich text editing. All components and styling must follow these conventions to ensure consistency, scalability, and easy theming.
 
-- Language: 100% JavaScript (no TypeScript)
-- Tooling: React (Vite), React Router, TailwindCSS + shadcn/ui
-- Icons: Lucide React Icons only (no other icon sets)
+## 1. Global Theme & Tokens
 
----
+- Define all colors, typography, spacing, and radius in `:root` using CSS variables.
+- Include a `.dark` variant to support dark mode.
+- These variables will be consumed by Tailwind and shadcn components automatically.
+- Examples of tokens to define:
+  - `--background` and `--foreground` for light and dark mode
+  - `--primary`, `--secondary`, `--muted`, `--destructive` for color system
+  - `--font-sans` and `--font-mono` for typography
+  - `--space-xs` through `--space-xl` for spacing scale
+  - `--radius` for component border rounding
 
-## 📄 Tiptap Editor (React + Vite + JavaScript)
+**Dev Rule:** Do not hardcode any color or spacing inside components. Always use Tailwind utility classes (e.g. `bg-primary`) which inherit from your tokens.
 
-Use Tiptap directly in a Vite + React JavaScript app. Do not use TS/Next.js templates or scaffolds.
+## 2. Typography
 
-### Installation (JavaScript)
+- Use standard HTML headings (`h1`, `h2`, `h3`) and paragraphs for most typography.
+- Create utility classes (like `.h1`, `.h2`, `.text-muted`) to ensure consistency across pages.
+- Define a clear scale: large for page titles, medium for section titles, and base for body text.
+- Use `font-sans` and `font-mono` classes tied to tokens.
+- Control color through text utility classes like `text-primary`, `text-muted`, etc.
 
-Install editor dependencies explicitly:
+**Dev Rule:** Typography should not be styled inline. Use pre-defined utilities or tokens.
 
-```
-npm install @tiptap/react @tiptap/starter-kit @tiptap/extension-link @tiptap/extension-underline @tiptap/extension-image
-```
+## 3. Components (shadcn/ui)
 
-### Minimal usage example
+- All common UI elements (buttons, modals, inputs, alerts, cards, popovers, tooltips, etc.) will be implemented using shadcn/ui components.
+- Do not recreate these elements manually.
+- Use component variant props for visual variations. For example, `default`, `secondary`, `outline`, and `destructive` button styles.
+- Extend or override variants in their respective shadcn component files if customization is needed.
 
-```
-// src/components/editor/Editor.jsx
-import { useEditor, EditorContent } from '@tiptap/react'
-import StarterKit from '@tiptap/starter-kit'
-import Link from '@tiptap/extension-link'
-import Underline from '@tiptap/extension-underline'
-import Image from '@tiptap/extension-image'
+**Dev Rule:** No separate CSS should be written for components already available in shadcn/ui.
 
-export default function Editor() {
-  const editor = useEditor({
-    extensions: [StarterKit, Underline, Link.configure({ openOnClick: true }), Image],
-    content: '<p>Start writing…</p>'
-  })
+## 4. Lucide Icons
 
-  return (
-    <div className="prose dark:prose-invert max-w-none">
-      <EditorContent editor={editor} />
-    </div>
-  )
-}
-```
+- Use Lucide icons for all iconography across the app.
+- Keep icon sizes consistent (preferably `w-4 h-4` or `w-5 h-5`).
+- Use Tailwind utility classes for colors so icons follow theme tokens automatically.
+- Use icons inline with buttons and inputs for better UX.
 
-If using `@/` imports, configure aliases (see “Project Conventions” below).
+**Dev Rule:** Do not embed SVGs directly. Use Lucide icon imports for consistency.
 
-### Features and required behaviors
+## 5. Layout & Utilities
 
-- Responsive editing surface, light/dark modes via Tailwind classes
-- Formatting: Bold, Italic, Underline; Headings; Lists; Text alignment
-- Links: Add/edit with UI affordances
-- Undo/Redo via history
-- Image upload integrated with presigned Evidence flow (see below)
+- Use Tailwind utilities (`flex`, `grid`, `justify-center`, `items-center`) for layout.
+- Define a minimal set of reusable layout helpers like `.flex-center` or `.container` if needed repeatedly.
+- Manage spacing through the global spacing scale tokens.
 
-### Image upload integration with Evidence service
+**Dev Rule:** Prefer Tailwind layout utilities over writing new CSS.
 
-All editor uploads must follow the Evidence Management flow: presigned URLs, checksums, metadata, and audit logging.
+## 6. Theme Modes (Light / Dark)
 
-Process outline:
+- Use the class strategy for theme switching.
+- Define both light and dark colors in your tokens (`:root` and `.dark`).
+- Use a ThemeProvider (e.g., `next-themes`) or manual toggling on the html element to switch themes.
+- Never hardcode colors or manually style for dark mode. Tokens handle it.
 
-1) Request an upload session from `/api/v1/evidence/upload` with filename, size, mime_type, and checksum (e.g., SHA-256).
-2) Receive presigned PUT URL + evidence id.
-3) PUT the binary directly to storage using the presigned URL.
-4) Notify the backend to finalize the upload (evidence id, computed checksum) so metadata and audit events are persisted.
-5) Insert the resulting public path or signed GET link (when needed) into the document via the Tiptap Image extension.
+**Dev Rule:** UI must remain fully functional and visually consistent in both light and dark modes.
 
-Sketch for a client helper (pseudocode, JS):
+## 7. Rich Text & Prose (Optional)
 
-```
-async function uploadImage(file) {
-  const checksum = await sha256(file) // compute in browser
-  const start = await fetch('/api/v1/evidence/upload', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ filename: file.name, size: file.size, mime_type: file.type, checksum })
-  }).then(r => r.json())
+- For content-heavy pages (e.g., blog, docs, markdown), define a `.prose` class for rich text formatting.
+- Keep consistent spacing for headings and paragraphs in prose content.
+- Typography inside `.prose` should inherit the global tokens for font, size, and color.
+- Links in `.prose` should use the primary color and underline on hover.
+- Lists and blockquotes should respect spacing tokens.
+- Use the same scale and spacing rules applied elsewhere in the app.
 
-  await fetch(start.uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } })
+**Dev Rule:** Use prose styles only for content sections, not for general UI.
 
-  const finalize = await fetch(`/api/v1/evidence/upload/${start.id}/complete`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ checksum })
-  }).then(r => r.json())
+### Tiptap Integration
 
-  return finalize.publicUrl // or key to resolve via signed GET
-}
-```
+We use the Tiptap Simple Editor Template for rich text input.
 
-Wire this helper into a custom Image menu action or upload button that calls `editor.chain().focus().setImage({ src: url }).run()`.
+- Install with `npx @tiptap/cli@latest add simple-editor` (existing) or `npx @tiptap/cli@latest init simple-editor` (new projects).
+- Integrate with Tailwind and shadcn styling.
+- Replace default icons with Lucide icons for toolbar actions.
+- Toolbar buttons should use shadcn variants (`ghost` or `secondary`).
+- Inherit theme tokens for background and text.
+- Fully supports dark mode out of the box.
+- Store content as sanitized HTML or JSON.
+- Use `.prose` for rendering read-only content.
 
----
+## 8. File Structure
 
-## 🧱 shadcn/ui Components (JS + Vite)
+Recommended structure for maintainability:
 
-Use shadcn/ui primitives as JavaScript components. Do not keep TypeScript types or Next.js-specific code. When copying examples, convert `.tsx` → `.jsx` and remove types.
+- **theme.css**: defines tokens, global styles, light/dark colors.
+- **globals.css**: includes Tailwind base, resets, and imports theme.css.
+- **components/ui**: contains shadcn/ui components.
+- **components/editor**: contains Tiptap SimpleEditor.
+- **lib/utils.ts**: helper functions for class merging, if needed.
 
-Curated components we rely on:
+**Dev Rule:** All UI code should rely on tokens and Tailwind. No inline or ad-hoc CSS.
 
-- Button, Input, Label, Select, Textarea
-- Dialog, Drawer/Sheet, Dropdown Menu, Tooltip, Tabs
-- Toast/Toaster, Badge, Avatar, Card, Skeleton
-- Table/Data Table (with TanStack Table), Breadcrumb
-- Form patterns (React Hook Form) coded in JS
+## 9. Usage Guidelines
 
-Layout building blocks used across the app:
+- Use `bg-primary`, `text-primary`, `border-border` classes to inherit from tokens.
+- Use variant props in shadcn components for consistent button and input styles.
+- Use Lucide icons with Tailwind utilities for color.
+- Keep spacing and sizing consistent across the app by using spacing scale tokens.
+- Extend components only in their designated files to maintain consistency.
 
-- App Shell: Sidebar (collapsible) + Top Header + Content area
-- Page Header: Title, breadcrumbs, and primary actions
-- Content Panels: Cards/tables; use Drawer/Sheet for create/edit flows
+## 10. Developer DOs and DON'Ts
 
-Refer to official docs for usage details: https://ui.shadcn.com
+### ✅ DO
 
----
+- Use tokens and Tailwind utilities.
+- Use shadcn/ui for components.
+- Use Lucide icons consistently.
+- Keep layout and spacing consistent.
+- Leverage dark mode with token overrides.
 
-## 🎨 Tailwind Theme
+### ❌ DON'T
 
-We use a centralized Tailwind theme wired to shadcn/ui tokens with dark mode via `class` strategy and a primary green palette.
-
-- Tailwind dark mode: `darkMode: 'class'` in `tailwind.config.js`
-- Primary color: green shades; map to shadcn tokens
-- Keep tokens in a global CSS file and reference via CSS variables
-
-Example token setup:
-
-```
-/* src/styles/theme.css */
-:root {
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
-  --primary: 142 71% 45%;        /* green-500 */
-  --primary-foreground: 0 0% 100%;
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
-}
-.dark {
-  --background: 222.2 84% 4.9%;
-  --foreground: 210 40% 98%;
-  --primary: 142 72% 29%;        /* green-700 */
-  --primary-foreground: 0 0% 100%;
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
-}
-```
-
-Tailwind config excerpt:
-
-```
-// tailwind.config.js
-export default {
-  darkMode: 'class',
-  content: ['index.html', 'src/**/*.{js,jsx}'],
-  theme: {
-    extend: {
-      colors: {
-        background: 'hsl(var(--background))',
-        foreground: 'hsl(var(--foreground))',
-        primary: 'hsl(var(--primary))',
-        muted: 'hsl(var(--muted))'
-      }
-    }
-  },
-  plugins: [require('tailwindcss-animate')]
-}
-```
+- Hardcode colors, spacing, or fonts.
+- Build custom components for things already available in shadcn/ui.
+- Mix inline styles with theme utilities.
+- Define multiple variations of the same component without token references.
 
 ---
 
-## 🔤 Icons — Lucide React Only
+## ✅ Final Notes
 
-Use Lucide React Icons exclusively. Do not introduce other icon sets.
+- All visual design must come from tokens.
+- All components must use shadcn/ui or be styled using Tailwind utilities.
+- All icons must use Lucide.
+- Rich text is handled through Tiptap with `.prose` for rendering.
+- Theming works automatically in light and dark mode.
 
-Installation:
-
-```
-npm install lucide-react
-```
-
-Usage:
-
-```
-import { Sun, MoonStar, Link as LinkIcon, Highlighter, ArrowLeft } from 'lucide-react'
-
-export function ThemeToggle() {
-  return (
-    <button className="inline-flex items-center gap-2">
-      <Sun className="h-4 w-4" /> Light
-    </button>
-  )
-}
-```
-
----
-
-## 📦 Project Conventions (Vite + JS)
-
-- Imports: If using `@/` alias, configure both Vite and `jsconfig.json`.
-
-`vite.config.js` alias:
-
-```
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import path from 'path'
-
-export default defineConfig({
-  plugins: [react()],
-  resolve: { alias: { '@': path.resolve(__dirname, 'src') } }
-})
-```
-
-`jsconfig.json` paths:
-
-```
-{
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": { "@/*": ["src/*"] }
-  }
-}
-```
-
----
-
-## ✅ Compliance with Platform Standards
-
-- JavaScript-only across all frontend code (no TS files or types)
-- React (Vite) and React Router for navigation (no Next.js)
-- TailwindCSS + shadcn/ui for all styling and components
-- Lucide React Icons exclusively for icons
-- Editor uploads must use presigned Evidence flows with checksums and audit logging
-
-This page supersedes template-specific references and removes TypeScript/Next.js guidance to stay aligned with our platform.
+**This is the baseline for all frontend UI development in this project. All new features and components must follow this system.**
