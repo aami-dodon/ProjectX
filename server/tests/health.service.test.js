@@ -32,7 +32,6 @@ jest.mock('../src/integrations/minio', () => ({
   minioClient: {
     listBuckets: jest.fn(() => Promise.resolve([])),
     bucketExists: jest.fn(() => Promise.resolve(true)),
-    getBucketPolicy: jest.fn(() => Promise.resolve('http://localhost:5173')),
   },
 }));
 
@@ -83,7 +82,6 @@ describe('buildHealthResponse', () => {
     expect(payload.minio.status).toBe('ok');
     expect(payload.minio.connection.status).toBe('ok');
     expect(payload.minio.bucketCheck.status).toBe('ok');
-    expect(payload.minio.cors.status).toBe('ok');
     expect(payload.email.status).toBe('ok');
     expect(payload.dns.status).toBe('ok');
     expect(payload.cors.status).toBe('ok');

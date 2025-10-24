@@ -91,16 +91,6 @@ const checkMinioBucket = async () => {
   }
 };
 
-const checkMinioCors = async () => {
-  try {
-    const policy = await minioClient.getBucketPolicy(env.MINIO_BUCKET);
-    return { status: 'ok', policy };
-  } catch (error) {
-    logger.error({ error: error.message }, 'MinIO CORS policy check failed');
-    throw createIntegrationError('Failed to read MinIO bucket policy', { cause: error.message });
-  }
-};
-
 const checkEmailServer = async () => {
   try {
     await verifyTransporter();
@@ -232,7 +222,6 @@ const buildHealthResponse = async (app) => {
       bucket: env.MINIO_BUCKET,
       connection: { status: 'unknown' },
       bucketCheck: { status: 'unknown' },
-      cors: { status: 'unknown' },
     },
     email: {
       status: 'unknown',
@@ -289,19 +278,9 @@ const buildHealthResponse = async (app) => {
     response.minio.bucketCheck = { status: 'error', error: error.message };
   }
 
-  try {
-    const cors = await checkMinioCors();
-    response.minio.cors = cors;
-  } catch (error) {
-    markDegraded(response);
-    response.minio.status = 'error';
-    response.minio.cors = { status: 'error', error: error.message };
-  }
-
   if (
     response.minio.connection.status !== 'error' &&
-    response.minio.bucketCheck.status !== 'error' &&
-    response.minio.cors.status !== 'error'
+    response.minio.bucketCheck.status !== 'error'
   ) {
     response.minio.status = 'ok';
   }
