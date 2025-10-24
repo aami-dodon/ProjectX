@@ -1,6 +1,6 @@
 # Changelog
 
-## PENDING - CI TO FILL TIMESTAMP
+## 2025-10-24 08:58:23 IST
 - Expanded platform health checks to include API latency, database connectivity/query probes, MinIO connection/bucket/CORS validation, SMTP verification, DNS resolution, and system resource telemetry surfaced in the dashboard UI.
 - Enforced mandatory environment validation across server startup and halted legacy localhost defaults for ports and API URLs.
 - Required explicit MinIO region configuration to unblock bucket and CORS health checks.
