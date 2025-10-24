@@ -1,3 +1,7 @@
+## 2025-10-25 05:23:48 IST
+- Reworked the editor toolbar layout to keep control groups scrollable and aligned while remaining responsive across breakpoints.
+- Added a directional option to the toolbar divider so it can render horizontal separators when the action row stacks.
+
 ## 2025-10-25 05:00:34 IST
 - Adjusted the shared editor toolbar groups to prevent shrinking and keep controls readable across breakpoints.
 - Updated the toolbar layout so undo and redo actions wrap naturally on narrow screens, fixing alignment issues on the theme reference page.
