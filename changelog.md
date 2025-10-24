@@ -1,5 +1,8 @@
 # Changelog
 
+## PENDING - CI TO FILL TIMESTAMP
+- Replaced `HealthStatus` default props with inline parameter defaults to align with upcoming React changes and silence dev console warnings.
+
 ## 2025-10-24 05:58:23 IST
 - Added a shared module loader utility and refactored server imports to remove brittle absolute paths for error handling.
 
