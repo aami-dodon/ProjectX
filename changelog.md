@@ -1,5 +1,9 @@
 # Changelog
 
+## 2025-10-24 18:45 IST
+- Centralized the frontend theme with shared CSS tokens, Tailwind color mappings, and refreshed UI components.
+
+
 ## 2025-10-24 17:30 IST
 - Removed MinIO CORS policy validation from health checks and dashboard to avoid unnecessary alerts.
 
