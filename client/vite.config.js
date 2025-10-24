@@ -6,61 +6,55 @@ import { dirname, resolve } from 'node:path';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '..');
 
-const parsePort = (value, fallback) => {
-  if (!value) return fallback;
+const toTrimmedString = (value) => {
+  if (value === undefined || value === null) return undefined;
+  const stringValue = String(value).trim();
+  return stringValue.length > 0 ? stringValue : undefined;
+};
+
+const requireEnvValue = (key) => {
+  const value = toTrimmedString(process.env[key]);
+  if (value === undefined) {
+    throw new Error(`Missing required environment variable: ${key}`);
+  }
+  return value;
+};
+
+const requireNumberEnv = (key) => {
+  const value = requireEnvValue(key);
   const numeric = Number(value);
-  return Number.isFinite(numeric) ? numeric : fallback;
+  if (!Number.isFinite(numeric)) {
+    throw new Error(`Environment variable ${key} must be a valid number, received "${value}"`);
+  }
+  return numeric;
 };
 
-const parseString = (value, fallback = undefined) => {
-  if (value === undefined) return fallback;
-  const trimmed = String(value).trim();
-  return trimmed.length > 0 ? trimmed : fallback;
-};
-
-const parseList = (value, fallback = []) => {
-  const source = parseString(value);
-  if (!source) return Array.isArray(fallback) ? fallback : [fallback].filter(Boolean);
-  return source
+const requireListEnv = (key) => {
+  const value = requireEnvValue(key);
+  const items = value
     .split(',')
     .map((item) => item.trim())
     .filter(Boolean);
+  if (!items.length) {
+    throw new Error(`Environment variable ${key} must contain at least one value`);
+  }
+  return items;
 };
 
 export default defineConfig(({ mode }) => {
   const rootEnv = loadEnv(mode, repoRoot, '');
   Object.assign(process.env, rootEnv); // pull repo-level .env into this Vite config
 
-  const clientPort = parsePort(process.env.CLIENT_PORT, 5173);
-  const apiPrefix = process.env.API_PREFIX ?? '/api';
+  const clientPort = requireNumberEnv('CLIENT_PORT');
+  const serverPort = requireNumberEnv('SERVER_PORT');
+  const apiPrefix = requireEnvValue('API_PREFIX');
   const trimmedPrefix = apiPrefix.startsWith('/') ? apiPrefix : `/${apiPrefix}`;
-  const serverPort = process.env.SERVER_PORT ?? process.env.PORT;
-  const normalizedServerUrl =
-    process.env.SERVER_URL ?? (serverPort ? `http://localhost:${serverPort}` : undefined);
-  const clientAllowedHosts = parseList(process.env.CLIENT_ALLOWED_HOSTS, ['localhost']);
+  const clientAllowedHosts = requireListEnv('CLIENT_ALLOWED_HOSTS');
 
-  if (!process.env.VITE_CLIENT_PORT && process.env.CLIENT_PORT) {
-    process.env.VITE_CLIENT_PORT = process.env.CLIENT_PORT;
-  }
-
-  if (!process.env.VITE_SERVER_PORT && serverPort) {
-    process.env.VITE_SERVER_PORT = serverPort;
-  }
-
-  if (!process.env.VITE_SERVER_URL && normalizedServerUrl) {
-    const sanitizedBase = normalizedServerUrl.endsWith('/')
-      ? normalizedServerUrl.slice(0, -1)
-      : normalizedServerUrl;
-    process.env.VITE_SERVER_URL = `${sanitizedBase}${trimmedPrefix}`;
-  }
-
-  if (!process.env.VITE_API_URL && process.env.VITE_SERVER_URL) {
-    process.env.VITE_API_URL = process.env.VITE_SERVER_URL;
-  }
-
-  if (!process.env.VITE_API_PREFIX) {
-    process.env.VITE_API_PREFIX = trimmedPrefix;
-  }
+  process.env.VITE_CLIENT_PORT = String(clientPort);
+  process.env.VITE_SERVER_PORT = String(serverPort);
+  process.env.VITE_API_PREFIX = trimmedPrefix;
+  process.env.VITE_API_URL = requireEnvValue('VITE_API_URL');
 
   return {
     envDir: repoRoot,

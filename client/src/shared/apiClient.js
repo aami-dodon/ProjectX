@@ -1,9 +1,10 @@
-const API_BASE_URL =
-  import.meta.env.VITE_SERVER_URL ??
-  import.meta.env.VITE_API_URL ??
-  `http://localhost:${import.meta.env.VITE_SERVER_PORT ?? '4000'}${
-    import.meta.env.VITE_API_PREFIX ?? '/api'
-  }`;
+const apiUrl = import.meta.env.VITE_API_URL;
+
+if (!apiUrl) {
+  throw new Error('VITE_API_URL is not defined; ensure the .env file exports this value');
+}
+
+const API_BASE_URL = apiUrl;
 
 const buildUrl = (path) => {
   if (path.startsWith('http')) {

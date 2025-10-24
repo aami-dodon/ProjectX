@@ -4,87 +4,124 @@ const dotenv = require('dotenv');
 const repoRoot = path.resolve(__dirname, '..', '..');
 dotenv.config({ path: path.join(repoRoot, '.env') });
 
-const parseBoolean = (value, defaultValue = false) => {
-  if (value === undefined) return defaultValue;
-  return ['true', '1', 'yes'].includes(String(value).toLowerCase());
+const toTrimmedString = (value) => {
+  if (value === undefined || value === null) return undefined;
+  const stringValue = String(value).trim();
+  return stringValue.length > 0 ? stringValue : undefined;
 };
 
-const parseString = (value, defaultValue = undefined) => {
-  if (value === undefined) return defaultValue;
-  const normalized = String(value).trim();
-  return normalized.length > 0 ? normalized : defaultValue;
+const requireEnv = (key, { allowEmpty = false } = {}) => {
+  const value = toTrimmedString(process.env[key]);
+  if (value === undefined && !allowEmpty) {
+    throw new Error(`Missing required environment variable: ${key}`);
+  }
+  if (!allowEmpty && value !== undefined && value.length === 0) {
+    throw new Error(`Environment variable ${key} must not be empty`);
+  }
+  return value;
 };
 
-const parseNumber = (value, defaultValue) => {
-  if (value === undefined) return defaultValue;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : defaultValue;
+const parseNumberEnv = (key, { optional = false } = {}) => {
+  const raw = optional ? toTrimmedString(process.env[key]) : requireEnv(key);
+  if (raw === undefined) return undefined;
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed)) {
+    throw new Error(`Environment variable ${key} must be a valid number, received "${raw}"`);
+  }
+  return parsed;
 };
 
-const parseList = (value, defaultValue = []) => {
-  const source = parseString(value);
-  if (!source) return Array.isArray(defaultValue) ? defaultValue : [defaultValue].filter(Boolean);
-  return source
+const parseBooleanEnv = (key, { optional = false } = {}) => {
+  const raw = optional ? toTrimmedString(process.env[key]) : requireEnv(key);
+  if (raw === undefined) return undefined;
+  const normalized = raw.toLowerCase();
+  if (!['true', 'false', '1', '0', 'yes', 'no'].includes(normalized)) {
+    throw new Error(`Environment variable ${key} must be a boolean string, received "${raw}"`);
+  }
+  return ['true', '1', 'yes'].includes(normalized);
+};
+
+const parseListEnv = (key, { optional = false } = {}) => {
+  const raw = optional ? toTrimmedString(process.env[key]) : requireEnv(key);
+  if (raw === undefined) return [];
+  const items = raw
     .split(',')
     .map((item) => item.trim())
     .filter(Boolean);
+  if (!items.length && !optional) {
+    throw new Error(`Environment variable ${key} must contain at least one value`);
+  }
+  return items;
 };
 
-const pickEnv = (...keys) => {
+const pickEnvKey = (...keys) => {
   for (const key of keys) {
-    if (process.env[key] !== undefined) {
-      return process.env[key];
+    if (toTrimmedString(process.env[key]) !== undefined) {
+      return key;
     }
   }
   return undefined;
 };
 
-const resolveClientUrl = () => {
-  const explicit = parseString(process.env.CLIENT_URL);
-  if (explicit) return explicit;
-  const port = parseNumber(process.env.CLIENT_PORT);
-  if (port) {
-    return `http://localhost:${port}`;
-  }
-  return 'http://localhost:5173';
-};
+const requiredServerPort = parseNumberEnv('SERVER_PORT');
+const requiredApiPrefix = requireEnv('API_PREFIX');
+const normalizedApiPrefix = requiredApiPrefix.startsWith('/')
+  ? requiredApiPrefix
+  : `/${requiredApiPrefix}`;
+const corsAllowedOrigins = parseListEnv('CORS_ALLOWED_ORIGINS');
+const databaseUrl = requireEnv('DATABASE_URL');
+const minioPort = parseNumberEnv('MINIO_PORT');
+const minioUseSSL = parseBooleanEnv('MINIO_USE_SSL');
+const minioPresignExpiration = parseNumberEnv('MINIO_PRESIGNED_URL_EXPIRATION_SECONDS');
+const smtpPortKey = pickEnvKey('SMTP_PORT', 'EMAIL_SMTP_PORT');
+const smtpSecureKey = pickEnvKey('SMTP_SECURE', 'EMAIL_SMTP_SECURE');
+const smtpHostKey = pickEnvKey('SMTP_HOST', 'EMAIL_SMTP_HOST');
+const smtpUserKey = pickEnvKey('SMTP_USER', 'EMAIL_SMTP_USER');
+const smtpPassKey = pickEnvKey('SMTP_PASS', 'EMAIL_SMTP_PASS');
+const smtpFromKey = pickEnvKey('SMTP_FROM', 'EMAIL_FROM');
+
+if (!smtpPortKey || !smtpSecureKey || !smtpHostKey || !smtpUserKey || !smtpPassKey || !smtpFromKey) {
+  throw new Error(
+    'Missing required SMTP environment variables. Provide SMTP_* or EMAIL_SMTP_* variants.'
+  );
+}
+
+const smtpPort = parseNumberEnv(smtpPortKey);
+const smtpSecure = parseBooleanEnv(smtpSecureKey);
 
 const config = {
   server: {
-    port: parseNumber(process.env.SERVER_PORT ?? process.env.PORT, 4000),
-    url: process.env.SERVER_URL ?? 'http://localhost:4000',
-    clientUrl: resolveClientUrl(),
-    allowedOrigins: parseList(process.env.CORS_ALLOWED_ORIGINS, resolveClientUrl()),
-    apiPrefix: '/api',
+    port: requiredServerPort,
+    url: toTrimmedString(process.env.SERVER_URL),
+    clientUrl: toTrimmedString(process.env.CLIENT_URL),
+    allowedOrigins: corsAllowedOrigins,
+    apiPrefix: normalizedApiPrefix,
   },
   database: {
-    url: process.env.DATABASE_URL,
-    logLevel: process.env.PRISMA_LOG_LEVEL ?? 'info',
+    url: databaseUrl,
+    logLevel: toTrimmedString(process.env.PRISMA_LOG_LEVEL) ?? 'info',
   },
   minio: {
-    endpoint: parseString(process.env.MINIO_ENDPOINT),
-    port: parseNumber(process.env.MINIO_PORT, 9000),
-    useSSL: parseBoolean(process.env.MINIO_USE_SSL, true),
-    accessKey: parseString(process.env.MINIO_ACCESS_KEY),
-    secretKey: parseString(process.env.MINIO_SECRET_KEY),
-    bucket: parseString(process.env.MINIO_BUCKET),
-    region: parseString(process.env.MINIO_REGION, 'us-east-1'),
-    allowedOrigins: (parseString(process.env.MINIO_CORS_ALLOWED_ORIGINS, '') ?? '')
-      .split(',')
-      .map((origin) => origin.trim())
-      .filter(Boolean),
-    presignExpiration: parseNumber(process.env.MINIO_PRESIGNED_URL_EXPIRATION_SECONDS, 3600),
+    endpoint: requireEnv('MINIO_ENDPOINT'),
+    port: minioPort,
+    useSSL: minioUseSSL,
+    accessKey: requireEnv('MINIO_ACCESS_KEY'),
+    secretKey: requireEnv('MINIO_SECRET_KEY'),
+    bucket: requireEnv('MINIO_BUCKET'),
+    region: toTrimmedString(process.env.MINIO_REGION),
+    allowedOrigins: parseListEnv('MINIO_CORS_ALLOWED_ORIGINS', { optional: true }),
+    presignExpiration: minioPresignExpiration,
   },
   smtp: {
-    host: parseString(pickEnv('SMTP_HOST', 'EMAIL_SMTP_HOST')),
-    port: parseNumber(pickEnv('SMTP_PORT', 'EMAIL_SMTP_PORT'), 587),
-    secure: parseBoolean(pickEnv('SMTP_SECURE', 'EMAIL_SMTP_SECURE'), false),
-    user: parseString(pickEnv('SMTP_USER', 'EMAIL_SMTP_USER')),
-    pass: parseString(pickEnv('SMTP_PASS', 'EMAIL_SMTP_PASS')),
-    from: parseString(pickEnv('SMTP_FROM', 'EMAIL_FROM'), 'Project X <no-reply@example.com>'),
+    host: requireEnv(smtpHostKey),
+    port: smtpPort,
+    secure: smtpSecure,
+    user: requireEnv(smtpUserKey),
+    pass: requireEnv(smtpPassKey),
+    from: requireEnv(smtpFromKey),
   },
   client: {
-    appName: process.env.VITE_APP_NAME ?? 'Project X',
+    appName: toTrimmedString(process.env.VITE_APP_NAME),
   },
 };
 
