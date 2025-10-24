@@ -6,11 +6,11 @@ export const Card = ({ className, children }) => (
 );
 
 export const CardTitle = ({ className, children }) => (
-  <h2 className={clsx('text-lg font-semibold text-card-foreground flex items-center gap-2', className)}>{children}</h2>
+  <h2 className={clsx('h3 flex items-center gap-sm text-card-foreground', className)}>{children}</h2>
 );
 
 export const CardDescription = ({ className, children }) => (
-  <p className={clsx('mt-1 text-sm text-muted-foreground', className)}>{children}</p>
+  <p className={clsx('mt-xs body-sm text-muted', className)}>{children}</p>
 );
 
 export default Card;
