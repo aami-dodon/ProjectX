@@ -108,7 +108,7 @@ const config = {
     accessKey: requireEnv('MINIO_ACCESS_KEY'),
     secretKey: requireEnv('MINIO_SECRET_KEY'),
     bucket: requireEnv('MINIO_BUCKET'),
-    region: toTrimmedString(process.env.MINIO_REGION),
+    region: requireEnv('MINIO_REGION'),
     allowedOrigins: parseListEnv('MINIO_CORS_ALLOWED_ORIGINS', { optional: true }),
     presignExpiration: minioPresignExpiration,
   },
