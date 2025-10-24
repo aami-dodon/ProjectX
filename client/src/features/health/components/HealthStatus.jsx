@@ -50,7 +50,7 @@ const HealthStatus = ({ data, loading, error, onRefresh }) => {
             Comprehensive diagnostics spanning database, storage, email, DNS, and infrastructure metrics.
           </CardDescription>
         </div>
-        <Button onClick={onRefresh} disabled={loading}>
+        <Button variant="secondary" onClick={onRefresh} disabled={loading}>
           {loading ? 'Refreshing…' : 'Refresh'}
         </Button>
       </div>

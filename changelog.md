@@ -1,3 +1,8 @@
+## 2025-10-24 17:30:00 IST
+- Replaced the button component with the shadcn-style variant API backed by design tokens.
+- Added story coverage for each button variant to guard the public API.
+- Documented the new class variance authority dependency for consistent styling tokens.
+
 # Changelog
 
 ## 2025-10-25 02:22:19 IST
