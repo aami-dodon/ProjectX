@@ -1,5 +1,8 @@
 # Changelog
 
+## 2025-10-24 13:00 IST
+- Align backend logging dependencies so `pino-http` and the shared logger use the same Pino version, fixing runtime crashes during request logging.
+
 ## 2025-10-24 12:35 IST
 - Enforced 1:1 adoption of `.env` variables across server configuration, request routing, and integrations.
 - Updated Vite build pipeline and API client to require the shared `VITE_API_URL`, `CLIENT_PORT`, and `CLIENT_ALLOWED_HOSTS`.
