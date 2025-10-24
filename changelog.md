@@ -1,5 +1,9 @@
 # Changelog
 
+## 2025-10-24 23:20:00 IST
+- Fix React production build configuration: added `__DEV__` and `process.env.NODE_ENV` defines in Vite to ensure dead‑code elimination and resolve the runtime error: "React is running in production mode, but dead code elimination has not been applied".
+- Documented the React production build note in deployment guide.
+
 ## 2025-10-24 18:45 IST
 - Centralized the frontend theme with shared CSS tokens, Tailwind color mappings, and refreshed UI components.
 

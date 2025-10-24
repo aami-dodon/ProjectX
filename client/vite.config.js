@@ -30,6 +30,9 @@ export default ({ mode }) => {
     plugins: [react()],
     define: {
       __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
+      // Ensure React dev-only branches are dropped in production builds
+      'process.env.NODE_ENV': JSON.stringify(mode === 'production' ? 'production' : 'development'),
+      __DEV__: mode !== 'production',
     },
     resolve: {
       alias: {

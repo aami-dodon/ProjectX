@@ -162,6 +162,13 @@ Database schema management is handled by **Prisma ORM**, ensuring consistency ac
 
 The platform is containerized and deployed using CI/CD pipelines defined under the **`infra/`** folder.
 
+### React production build (Vite)
+- Vite must define React’s development flag to enable dead‑code elimination in production.
+- This repo sets it in `client/vite.config.js` via `define`:
+  - `__DEV__` is `false` when `mode === 'production'`.
+  - `process.env.NODE_ENV` is set to the current mode string.
+- Always build with `vite build` (mode `production` by default) to ensure React’s dev‑only code is removed.
+
 ### Build Steps
 1. CI pipeline triggers build on commit to `main` or release branch.  
 2. Backend and frontend Docker images are built separately.  
