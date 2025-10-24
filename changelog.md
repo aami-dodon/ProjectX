@@ -1,6 +1,7 @@
 # Changelog
 
 ## PENDING - CI TO FILL TIMESTAMP
+- Ensured Vite and server config both read the repository-root `.env` so Docker Compose remains the single source of truth.
 - Replaced `HealthStatus` default props with inline parameter defaults to align with upcoming React changes and silence dev console warnings.
 - Normalized server CORS handling to accept comma-separated `CORS_ALLOWED_ORIGINS`, including wildcard and null origins, with coverage in Node test cases.
 
