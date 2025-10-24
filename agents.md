@@ -37,8 +37,7 @@ Write Code:
 
 ## Documentation & Collaboration
 - `/docs` is the canonical source for architecture decision records (ADRs), runbooks, and compliance artifacts.
-- PR descriptions and release notes must capture integration details, change logs, and governance impacts.
-- No ChatGPT or other AI URL links are permitted in PR descriptions or commit messages. AI-generated hypelinks must be cleaned.
+- You must generate a screenshot of any UI changes/updates whehever as frontend change is made
 - All changes must be logged in `changelog.md` in the root of the repo with timestamps in **Indian Standard Time (IST)**. Timestamps will be auto-populated via CI.
 
 
