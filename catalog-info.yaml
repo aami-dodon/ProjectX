@@ -7,5 +7,5 @@ metadata:
     github.com/project-slug: sayabasu/Project-X
 spec:
   type: service
-  owner: sayabasu
+  owner: team-project-x
   lifecycle: experimental
