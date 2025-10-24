@@ -1,6 +1,0 @@
--- CreateTable
-CREATE TABLE IF NOT EXISTS "Health" (
-    "id" SERIAL PRIMARY KEY,
-    "label" TEXT NOT NULL DEFAULT 'primary',
-    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
