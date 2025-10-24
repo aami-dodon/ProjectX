@@ -98,9 +98,7 @@ export default defineConfig(({ mode }) => {
       hmr: tunnelHost
         ? {
             protocol: 'wss',
-            host: tunnelHost,
-            clientPort: 443,
-            port: 443,
+            clientPort: 443, // allow local binding while browsers connect through the tunnel on 443
           }
         : true,
     },

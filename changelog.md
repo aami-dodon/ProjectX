@@ -2,6 +2,7 @@
 
 ## {{CI_TIMESTAMP}} IST
 - Routed the operational health dashboard to `/health` and introduced a `hello world` landing page.
+- Prevented the dev HMR WebSocket from binding to external IP addresses by keeping the tunnel mode on local interfaces.
 
 
 ## 2025-10-24 09:22:00 IST
