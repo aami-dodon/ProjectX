@@ -1,10 +1,12 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Link } from 'react-router-dom';
 import useHealthData from '../features/health/hooks/useHealthData';
 import HealthStatus from '../features/health/components/HealthStatus';
 import EmailTestForm from '../features/email/components/EmailTestForm';
 import MinioUploadForm from '../features/storage/components/MinioUploadForm';
 import useTheme from '../hooks/useTheme';
+import ThemeReference from '../routes/ThemeReference';
+import { Button, buttonVariants } from '../components/ui/button';
 
 const HealthPage = () => {
   const { data, loading, error, refresh } = useHealthData();
@@ -15,13 +17,14 @@ const HealthPage = () => {
       <header className="flex flex-col gap-sm">
         <div className="flex flex-wrap items-center justify-between gap-sm">
           <h1 className="h1">Operational Health Dashboard</h1>
-          <button
-            type="button"
-            onClick={toggleTheme}
-            className="inline-flex items-center gap-xs rounded-md border border-border bg-secondary px-sm py-xs text-sm font-medium text-secondary-foreground transition-colors hover:bg-secondary/80 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
-          >
-            {theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-          </button>
+          <div className="flex flex-wrap items-center gap-sm">
+            <Link to="/theme" className={buttonVariants({ variant: 'outline' })}>
+              View theme reference
+            </Link>
+            <Button type="button" variant="secondary" onClick={toggleTheme}>
+              {theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            </Button>
+          </div>
         </div>
         <p className="body-sm text-muted">
           All configuration is sourced from the environment. Use the tools below to verify connectivity for each integration.
@@ -43,6 +46,7 @@ const App = () => (
     <main className="px-lg">
       <Routes>
         <Route path="/" element={<HealthPage />} />
+        <Route path="/theme" element={<ThemeReference />} />
       </Routes>
     </main>
   </div>
