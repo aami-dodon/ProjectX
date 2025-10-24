@@ -67,14 +67,9 @@ const HealthStatus = ({ data, loading, error, onRefresh }) => {
             <StatusPill label={data?.minio?.status ?? 'unknown'} status={data?.minio?.status ?? 'unknown'} />
           </div>
           <p className="mt-3 text-lg text-slate-100">Bucket: {data?.minio?.bucket ?? '--'}</p>
-          <p className="mt-1 text-xs text-slate-400">CORS: {data?.minio?.cors?.ok ? 'Configured' : 'Needs attention'}</p>
-          {data?.minio?.cors?.message && (
-            <p className={`mt-1 text-xs ${data.minio.cors.ok ? 'text-slate-400' : 'text-warning'}`}>
-              {data.minio.cors.message}
-            </p>
-          )}
           {data?.minio?.error && <p className="mt-1 text-xs text-danger">{data.minio.error}</p>}
         </div>
+
       </div>
 
       {error && (

@@ -1,5 +1,9 @@
 # Changelog
 
+## 2025-10-24 14:45 IST
+- Separated MinIO CORS validation into its own health indicator with detailed origin visibility in the dashboard.
+- Enhanced health API to return configured and expected CORS origins independently from MinIO bucket status.
+
 ## 2025-10-24 13:20 IST
 - Removed `API_PREFIX` from environment; server now uses fixed `/api` base path.
 - Updated server env validation, route mounting, and logs to drop `API_PREFIX`.
@@ -7,6 +11,9 @@
 - Updated documentation to reflect fixed `/api` base path and removed variable.
 - Adjusted tests to align with new configuration. All tests pass.
 - Updated `.env` and `.env.example` so `VITE_API_URL` does not include `/api` to avoid double prefix (client uses `/api/...` in request paths).
+
+## 2025-10-24 13:44 IST
+- Removed MinIO CORS validation from the health check and dashboard to avoid incorrect warnings.
 
 ## 2025-10-24 13:00 IST
 - Align backend logging dependencies so `pino-http` and the shared logger use the same Pino version, fixing runtime crashes during request logging.

@@ -36,45 +36,6 @@ const checkMinioBucket = async () => {
   }
 };
 
-const checkMinioCors = async () => {
-  try {
-    const policy = await minioClient.getBucketPolicy(env.MINIO_BUCKET).catch((error) => {
-      if (error?.code === 'NoSuchBucketPolicy') {
-        return null;
-      }
-      throw error;
-    });
-
-    if (!policy) {
-      return {
-        ok: false,
-        message: 'No bucket policy found to validate CORS configuration',
-      };
-    }
-
-    const allowedOrigins = env.CORS_ALLOWED_ORIGINS;
-    const missingOrigins = allowedOrigins.filter((origin) => !policy.includes(origin));
-
-    if (missingOrigins.length > 0) {
-      return {
-        ok: false,
-        message: `Missing expected origins in bucket policy: ${missingOrigins.join(', ')}`,
-      };
-    }
-
-    return {
-      ok: true,
-      message: 'Bucket policy includes expected CORS origins',
-    };
-  } catch (error) {
-    logger.error({ error: error.message }, 'Failed to inspect MinIO bucket policy');
-    return {
-      ok: false,
-      message: `Unable to verify CORS configuration: ${error.message}`,
-    };
-  }
-};
-
 const buildHealthResponse = async (app) => {
   const uptimeMs = Date.now() - (app.locals.serverStartTime ?? Date.now());
   const uptimeSeconds = Math.floor(uptimeMs / 1000);
@@ -93,10 +54,6 @@ const buildHealthResponse = async (app) => {
     minio: {
       status: 'unknown',
       bucket: env.MINIO_BUCKET,
-      cors: {
-        ok: false,
-        message: null,
-      },
     },
   };
 
@@ -112,9 +69,7 @@ const buildHealthResponse = async (app) => {
 
   try {
     await checkMinioBucket();
-    const corsResult = await checkMinioCors();
-    response.minio.status = corsResult.ok ? 'ok' : 'warning';
-    response.minio.cors = corsResult;
+    response.minio.status = 'ok';
   } catch (error) {
     response.status = 'degraded';
     response.minio.status = 'error';
