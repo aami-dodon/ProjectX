@@ -1,5 +1,8 @@
 # Changelog
 
+## 2025-10-25 01:45:00 IST
+- Enabled React Router v7 future flags (`v7_startTransition`, `v7_relativeSplatPath`) in `client/src/main.jsx` to silence console warnings and align behavior with upcoming v7 changes.
+
 ## 2025-10-24 23:20:00 IST
 - Fix React production build configuration: added `__DEV__` and `process.env.NODE_ENV` defines in Vite to ensure dead‑code elimination and resolve the runtime error: "React is running in production mode, but dead code elimination has not been applied".
 - Documented the React production build note in deployment guide.
