@@ -1,5 +1,10 @@
 # Changelog
 
+## 2025-10-24 16:05 IST
+- Expanded health API to include latency, environment metadata, DNS checks, CPU/memory/disk metrics, and build timestamp support.
+- Added database connection/query, MinIO connection/bucket/CORS, email server, and DNS diagnostics to health payload.
+- Updated React health dashboard to visualize new health checks while preserving existing MinIO upload and email tools.
+
 ## 2025-10-24 14:45 IST
 - Separated MinIO CORS validation into its own health indicator with detailed origin visibility in the dashboard.
 - Enhanced health API to return configured and expected CORS origins independently from MinIO bucket status.
