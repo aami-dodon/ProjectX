@@ -1,3 +1,8 @@
+## 2025-10-25 05:15:00 IST
+- Added a reusable theme provider and hook to persist light/dark mode preferences across sessions and respect OS defaults.
+- Wrapped the React app with the new theme context so the `.dark` class propagates to all routes.
+- Introduced a dashboard toggle control that lets operators switch between design tokens for light and dark presentations.
+
 ## 2025-10-24 17:30:00 IST
 - Replaced the button component with the shadcn-style variant API backed by design tokens.
 - Added story coverage for each button variant to guard the public API.
