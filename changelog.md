@@ -9,6 +9,7 @@
 - Prioritized `VITE_API_URL` for the frontend API client so production deployments can point at non-localhost backends.
 - Replaced `HealthStatus` default props with inline parameter defaults to align with upcoming React changes and silence dev console warnings.
 - Normalized server CORS handling to accept comma-separated `CORS_ALLOWED_ORIGINS`, including wildcard and null origins, with coverage in Node test cases.
+- Ensured the Vite bootstrap script tag disables Cloudflare Rocket Loader via `data-cfasync="false"` to avoid credential mismatches during preload.
 
 ## 2025-10-24 05:58:23 IST
 - Added a shared module loader utility and refactored server imports to remove brittle absolute paths for error handling.
