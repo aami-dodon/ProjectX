@@ -1,7 +1,8 @@
 # Changelog
 
-## [Pending Timestamp - Auto-filled by CI]
-- Enabled Cloudflare tunnel access for the client dev server by updating allowed hosts and configuring secure WSS HMR fallback.
+## {{CI_TIMESTAMP}} IST
+- Routed the operational health dashboard to `/health` and introduced a `hello world` landing page.
+
 
 ## 2025-10-24 09:22:00 IST
 - Removed committed PDF exports and ignored regenerated outputs to keep the documentation source of truth in Markdown.
