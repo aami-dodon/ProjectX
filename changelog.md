@@ -1,5 +1,10 @@
 # Changelog
 
+## 2025-10-24 09:22:00 IST
+- Removed committed PDF exports and ignored regenerated outputs to keep the documentation source of truth in Markdown.
+- Renamed the About collection's monetization brief and refreshed navigation links to fix broken references.
+- Added documentation indexes for the About folder and the top-level docs directory to streamline discovery.
+
 ## 2025-10-24 08:58:23 IST
 - Expanded platform health checks to include API latency, database connectivity/query probes, MinIO connection/bucket/CORS validation, SMTP verification, DNS resolution, and system resource telemetry surfaced in the dashboard UI.
 - Enforced mandatory environment validation across server startup and halted legacy localhost defaults for ports and API URLs.
