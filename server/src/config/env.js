@@ -20,7 +20,6 @@ const EnvSchema = z.object({
     .coerce.number({ invalid_type_error: 'SERVER_PORT must be a valid number' })
     .int()
     .positive({ message: 'SERVER_PORT must be a positive integer' }),
-  API_PREFIX: z.string().min(1, { message: 'API_PREFIX must be defined' }),
   CORS_ALLOWED_ORIGINS: z
     .string()
     .min(1, { message: 'CORS_ALLOWED_ORIGINS must be defined' })

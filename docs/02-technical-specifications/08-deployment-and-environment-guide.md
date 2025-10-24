@@ -88,7 +88,7 @@ All configurations and build scripts reside within the **`infra/`** directory fo
    - Backend: `npm run dev` (from `/server`)  
    - Frontend: `npm run dev` (from `/client`)  
 5. Access the frontend at `http://localhost:${CLIENT_PORT}` (6007 with the provided `.env`).  
-6. Confirm API connectivity at `http://localhost:${SERVER_PORT}${API_PREFIX}/health` (defaults to `http://localhost:6006/api/health`).  
+6. Confirm API connectivity at `http://localhost:${SERVER_PORT}/api/health` (defaults to `http://localhost:6006/api/health`).  
 
 ### Development Tips
 - Backend and frontend code auto-reload on file changes.  
@@ -113,7 +113,7 @@ The platform uses a unified `.env` file pattern for managing environment configu
 |-----------|--------------|
 | `NODE_ENV` | Runtime environment (`development`, `test`, `production`). |
 | `SERVER_PORT` | Port exposed by the Express API. |
-| `API_PREFIX` | Base path segment for API routes (e.g., `/api`). |
+| (no env) | API base path is fixed to `/api`. |
 | `CORS_ALLOWED_ORIGINS` | Comma-separated list of allowed origins for CORS. |
 | `DATABASE_URL` | Connection string for the external PostgreSQL instance. |
 | `MINIO_ENDPOINT` | Hostname for the external MinIO deployment. |
@@ -133,6 +133,7 @@ The platform uses a unified `.env` file pattern for managing environment configu
 | `CLIENT_PORT` | Port exposed by the Vite dev server. |
 | `CLIENT_ALLOWED_HOSTS` | Comma-separated hostnames accepted by the Vite dev server. |
 | `VITE_API_URL` | Base URL for the frontend to reach the backend API. |
+> Note: `VITE_API_URL` should be the server origin only (e.g., `http://localhost:6006`) — do not include the `/api` path. Routes in the frontend already use `/api/...`.
 
 ---
 

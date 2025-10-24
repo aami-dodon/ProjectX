@@ -1,5 +1,13 @@
 # Changelog
 
+## 2025-10-24 13:20 IST
+- Removed `API_PREFIX` from environment; server now uses fixed `/api` base path.
+- Updated server env validation, route mounting, and logs to drop `API_PREFIX`.
+- Ensured CORS uses comma-separated `CORS_ALLOWED_ORIGINS` (parsed into an allowlist).
+- Updated documentation to reflect fixed `/api` base path and removed variable.
+- Adjusted tests to align with new configuration. All tests pass.
+- Updated `.env` and `.env.example` so `VITE_API_URL` does not include `/api` to avoid double prefix (client uses `/api/...` in request paths).
+
 ## 2025-10-24 13:00 IST
 - Align backend logging dependencies so `pino-http` and the shared logger use the same Pino version, fixing runtime crashes during request logging.
 

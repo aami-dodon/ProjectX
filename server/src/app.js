@@ -18,7 +18,7 @@ const createApp = () => {
   app.use(attachRequestIds);
   app.use(requestLogger);
 
-  const apiPrefix = env.API_PREFIX.replace(/\/+$/, '') || '/';
+  const apiPrefix = '/api';
 
   app.use(`${apiPrefix}/health`, healthRouter);
   app.use(`${apiPrefix}/email`, emailRouter);

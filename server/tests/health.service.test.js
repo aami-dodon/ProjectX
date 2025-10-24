@@ -1,6 +1,5 @@
 process.env.NODE_ENV = 'test';
 process.env.SERVER_PORT = '4000';
-process.env.API_PREFIX = '/api';
 process.env.CORS_ALLOWED_ORIGINS = 'http://localhost:5173';
 process.env.DATABASE_URL = 'postgresql://user:pass@localhost:5432/db';
 process.env.MINIO_ENDPOINT = 'localhost';
