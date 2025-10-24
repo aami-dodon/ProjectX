@@ -61,7 +61,7 @@ This document defines the styling, theming, and UI structure for the project. We
 
 **Dev Rule:** UI must remain fully functional and visually consistent in both light and dark modes.
 
-## 7. Rich Text & Prose (Optional)
+## 7. Rich Text & Prose
 
 - For content-heavy pages (e.g., blog, docs, markdown), define a `.prose` class for rich text formatting.
 - Keep consistent spacing for headings and paragraphs in prose content.
@@ -97,7 +97,48 @@ Recommended structure for maintainability:
 
 **Dev Rule:** All UI code should rely on tokens and Tailwind. No inline or ad-hoc CSS.
 
-## 9. Usage Guidelines
+
+## 9. UI Folder Structure (Frontend)
+
+client/
+└── src/
+    ├── components/
+    │   ├── ui/                       # shadcn/ui primitives
+    │   │   ├── button.jsx
+    │   │   ├── input.jsx
+    │   │   ├── card.jsx
+    │   │   └── ...
+    │   │
+    │   ├── layout/                   # Layout helpers
+    │   │   ├── Container.jsx
+    │   │   └── FlexCenter.jsx
+    │   │
+    │   ├── editor/                   # Tiptap integration
+    │   │   ├── SimpleEditor.jsx
+    │   │   └── toolbar/
+    │   │       ├── BoldButton.jsx
+    │   │       └── ItalicButton.jsx
+    │   │
+    │   └── icons/                    # Lucide icon wrappers
+    │       ├── IconWrapper.jsx
+    │       └── ...
+    │
+    ├── styles/
+    │   ├── theme.css                 # Tokens: colors, spacing, typography
+    │   ├── global.css                # Tailwind base, imports theme.css
+    │   └── prose.css                 # Rich text / markdown styling
+    │
+    ├── hooks/
+    │   ├── useTheme.js               # Theme switching (light/dark)
+    │   └── useMediaQuery.js          # Responsive helpers
+    │
+    └── lib/
+        ├── api-client.js             # Shared API logic (used by UI)
+        └── utils.js                  # Utility functions (e.g. class merging)
+
+
+
+## 10. Usage Guidelines
 
 - Use `bg-primary`, `text-primary`, `border-border` classes to inherit from tokens.
 - Use variant props in shadcn components for consistent button and input styles.
@@ -105,7 +146,7 @@ Recommended structure for maintainability:
 - Keep spacing and sizing consistent across the app by using spacing scale tokens.
 - Extend components only in their designated files to maintain consistency.
 
-## 10. Developer DOs and DON'Ts
+## 11. Developer DOs and DON'Ts
 
 ### ✅ DO
 
