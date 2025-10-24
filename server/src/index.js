@@ -8,8 +8,8 @@ const serverStartTime = Date.now();
 
 app.locals.serverStartTime = serverStartTime;
 
-const server = app.listen(env.SERVER_PORT, env.SERVER_HOST, () => {
-  logger.info({ port: env.SERVER_PORT, host: env.SERVER_HOST }, 'Server is listening');
+const server = app.listen(env.SERVER_PORT, () => {
+  logger.info({ port: env.SERVER_PORT, apiPrefix: env.API_PREFIX }, 'Server is listening');
 });
 
 const gracefulShutdown = async (signal) => {

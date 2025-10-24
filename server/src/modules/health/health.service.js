@@ -52,7 +52,7 @@ const checkMinioCors = async () => {
       };
     }
 
-    const allowedOrigins = env.MINIO_CORS_ALLOWED_ORIGINS;
+    const allowedOrigins = env.CORS_ALLOWED_ORIGINS;
     const missingOrigins = allowedOrigins.filter((origin) => !policy.includes(origin));
 
     if (missingOrigins.length > 0) {

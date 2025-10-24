@@ -26,7 +26,7 @@ router.post('/upload', upload.single('file'), async (req, res, next) => {
     const presignedUrl = await minioClient.presignedGetObject(
       env.MINIO_BUCKET,
       objectName,
-      env.MINIO_PRESIGNED_URL_EXPIRY_SECONDS,
+      env.MINIO_PRESIGNED_URL_EXPIRATION_SECONDS,
     );
 
     return res.json({

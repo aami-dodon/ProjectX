@@ -4,13 +4,13 @@ WORKDIR /app
 
 RUN apk add --no-cache openssl
 
-COPY package*.json ./
-RUN npm install --production
-
-COPY prisma ./prisma
+COPY server/package*.json ./
+COPY server/prisma ./prisma
+RUN npm install --omit=dev
 RUN npx prisma generate
 
-COPY src ./src
+COPY server/src ./src
+COPY shared /shared
 
 ENV NODE_ENV=production
 

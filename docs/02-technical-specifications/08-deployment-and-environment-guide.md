@@ -87,8 +87,8 @@ All configurations and build scripts reside within the **`infra/`** directory fo
 4. Start backend and frontend using Docker Compose or separate terminals:  
    - Backend: `npm run dev` (from `/server`)  
    - Frontend: `npm run dev` (from `/client`)  
-5. Access the frontend at `http://localhost:5173` (Vite default).  
-6. Confirm API connectivity at `http://localhost:4000/api/health`.  
+5. Access the frontend at `http://localhost:${CLIENT_PORT}` (6007 with the provided `.env`).  
+6. Confirm API connectivity at `http://localhost:${SERVER_PORT}${API_PREFIX}/health` (defaults to `http://localhost:6006/api/health`).  
 
 ### Development Tips
 - Backend and frontend code auto-reload on file changes.  
@@ -111,17 +111,28 @@ The platform uses a unified `.env` file pattern for managing environment configu
 
 | Variable | Description |
 |-----------|--------------|
-| `PORT` | API port for Express server. |
-| `VITE_API_URL` | Backend API endpoint for frontend. |
-| `DATABASE_URL` | Connection string for external PostgreSQL. |
-| `MINIO_ENDPOINT` | External MinIO endpoint URL. |
-| `MINIO_ACCESS_KEY` | Access key for MinIO. |
-| `MINIO_SECRET_KEY` | Secret key for MinIO. |
-| `JWT_SECRET` | JWT signing key for authentication. |
-| `EMAIL_HOST` | SMTP host for Nodemailer. |
-| `EMAIL_USER` | SMTP username. |
-| `EMAIL_PASS` | SMTP password. |
-| `NODE_ENV` | Runtime environment (`development`, `staging`, `production`). |
+| `NODE_ENV` | Runtime environment (`development`, `test`, `production`). |
+| `SERVER_PORT` | Port exposed by the Express API. |
+| `API_PREFIX` | Base path segment for API routes (e.g., `/api`). |
+| `CORS_ALLOWED_ORIGINS` | Comma-separated list of allowed origins for CORS. |
+| `DATABASE_URL` | Connection string for the external PostgreSQL instance. |
+| `MINIO_ENDPOINT` | Hostname for the external MinIO deployment. |
+| `MINIO_PORT` | Port used by MinIO (typically 443 when SSL is enabled). |
+| `MINIO_USE_SSL` | Toggle (`true`/`false`) controlling HTTPS usage for MinIO. |
+| `MINIO_ACCESS_KEY` | MinIO access key credential. |
+| `MINIO_SECRET_KEY` | MinIO secret key credential. |
+| `MINIO_REGION` | MinIO region to target. |
+| `MINIO_BUCKET` | Bucket name dedicated to Project X assets. |
+| `MINIO_PRESIGNED_URL_EXPIRATION_SECONDS` | TTL in seconds for generated presigned URLs. |
+| `EMAIL_FROM` | Default sender address for outbound email. |
+| `EMAIL_SMTP_HOST` | SMTP endpoint for transactional email. |
+| `EMAIL_SMTP_PORT` | SMTP port (`465` for SSL, `587` for TLS). |
+| `EMAIL_SMTP_SECURE` | Toggle (`true`/`false`) dictating secure SMTP transport. |
+| `EMAIL_SMTP_USER` | SMTP authentication username. |
+| `EMAIL_SMTP_PASS` | SMTP authentication password. |
+| `CLIENT_PORT` | Port exposed by the Vite dev server. |
+| `CLIENT_ALLOWED_HOSTS` | Comma-separated hostnames accepted by the Vite dev server. |
+| `VITE_API_URL` | Base URL for the frontend to reach the backend API. |
 
 ---
 

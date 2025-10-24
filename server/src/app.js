@@ -13,14 +13,16 @@ const createApp = () => {
   const app = express();
 
   app.use(helmet());
-  app.use(cors({ origin: env.MINIO_CORS_ALLOWED_ORIGINS }));
+  app.use(cors({ origin: env.CORS_ALLOWED_ORIGINS }));
   app.use(express.json({ limit: '2mb' }));
   app.use(attachRequestIds);
   app.use(requestLogger);
 
-  app.use('/api/health', healthRouter);
-  app.use('/api/email', emailRouter);
-  app.use('/api/storage', storageRouter);
+  const apiPrefix = env.API_PREFIX.replace(/\/+$/, '') || '/';
+
+  app.use(`${apiPrefix}/health`, healthRouter);
+  app.use(`${apiPrefix}/email`, emailRouter);
+  app.use(`${apiPrefix}/storage`, storageRouter);
 
   app.use((req, res) => {
     res.status(404).json({

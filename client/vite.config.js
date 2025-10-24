@@ -6,8 +6,24 @@ export default ({ mode }) => {
   const envDir = path.resolve(__dirname, '..');
   const env = loadEnv(mode, envDir, '');
 
-  if (!env.VITE_API_BASE_URL) {
-    throw new Error('VITE_API_BASE_URL must be defined in .env');
+  const requiredKeys = ['VITE_API_URL', 'CLIENT_PORT', 'CLIENT_ALLOWED_HOSTS'];
+  requiredKeys.forEach((key) => {
+    if (!env[key]) {
+      throw new Error(`${key} must be defined in .env`);
+    }
+  });
+
+  const clientPort = Number.parseInt(env.CLIENT_PORT, 10);
+  if (Number.isNaN(clientPort) || clientPort <= 0) {
+    throw new Error('CLIENT_PORT must be a positive integer');
+  }
+
+  const allowedHosts = env.CLIENT_ALLOWED_HOSTS.split(',')
+    .map((host) => host.trim())
+    .filter(Boolean);
+
+  if (allowedHosts.length === 0) {
+    throw new Error('CLIENT_ALLOWED_HOSTS must include at least one host');
   }
 
   return defineConfig({
@@ -21,7 +37,12 @@ export default ({ mode }) => {
       },
     },
     server: {
-      port: 5173,
+      port: clientPort,
+      host: '0.0.0.0',
+      allowedHosts,
+    },
+    preview: {
+      port: clientPort,
       host: '0.0.0.0',
     },
     envDir,

@@ -15,7 +15,7 @@ router.post('/test', async (req, res, next) => {
   try {
     const info = await transporter.sendMail({
       to,
-      from: env.EMAIL_FROM_ADDRESS,
+      from: env.EMAIL_FROM,
       subject: 'Project X Connectivity Test',
       text: 'This is a connectivity test email from Project X health check.',
     });
