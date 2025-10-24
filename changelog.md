@@ -5,6 +5,11 @@
 
 # Changelog
 
+## 2025-10-25 03:25:12 IST
+- Added a reusable Tiptap SimpleEditor with Lucide-powered toolbar actions aligned to shadcn button variants.
+- Introduced `.prose` typography styles and exports for consistent read-only evidence rendering.
+- Updated frontend dependencies to include required Tiptap extensions and React bindings.
+
 ## 2025-10-25 02:22:19 IST
 - Added font and spacing design tokens to `client/src/styles/theme.css` and wired Tailwind to consume them via CSS variables.
 - Replaced hard-coded spacing utilities in health dashboard, email tester, and MinIO upload UI with token-based classes.
