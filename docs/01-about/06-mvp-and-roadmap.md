@@ -526,4 +526,4 @@ This long-term roadmap transforms the platform from a product into an **industry
 
 ---
 
-[← Previous](05-moneytization-model.md) | [Next →](07-marketing-strategy.md)
+[← Previous](05-monetization-model.md) | [Next →](07-marketing-strategy.md)
