@@ -1,3 +1,7 @@
+## 2025-10-25 03:42:06 IST
+- Fix Vite JSX scan error by renaming `client/src/hooks/useTheme.js` to `client/src/hooks/useTheme.jsx` to comply with repo standard of using `.jsx` for files containing JSX.
+- Verified imports remain extensionless (`useTheme`) so no changes were required elsewhere.
+
 ## 2025-10-25 05:15:00 IST
 - Added a reusable theme provider and hook to persist light/dark mode preferences across sessions and respect OS defaults.
 - Wrapped the React app with the new theme context so the `.dark` class propagates to all routes.
