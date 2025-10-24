@@ -19,15 +19,15 @@ const statusColors = {
   ok: 'text-success',
   warning: 'text-warning',
   degraded: 'text-warning',
-  error: 'text-danger',
-  unknown: 'text-slate-400',
+  error: 'text-destructive',
+  unknown: 'text-muted-foreground',
 };
 
 const StatusPill = ({ label, status }) => (
   <span
-    className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${
+    className={`inline-flex items-center rounded-full bg-muted/40 px-3 py-1 text-xs font-semibold uppercase tracking-wide ${
       statusColors[status] || statusColors.unknown
-    } bg-slate-800/70`}
+    }`}
   >
     {label}
   </span>
@@ -56,28 +56,28 @@ const HealthStatus = ({ data, loading, error, onRefresh }) => {
       </div>
 
       <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-lg border border-slate-800 bg-slate-950/40 p-4">
+        <div className="rounded-lg border border-border bg-card/80 p-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-400 flex items-center gap-2">
+            <span className="flex items-center gap-2 text-sm text-muted-foreground">
               <HeartPulse className="h-4 w-4" /> Overall
             </span>
             <StatusPill label={data?.status || 'unknown'} status={data?.status ?? 'unknown'} />
           </div>
-          <p className="mt-3 text-2xl font-semibold text-slate-100">
+          <p className="mt-3 text-2xl font-semibold text-foreground">
             {typeof data?.latencyMs === 'number' ? `${data.latencyMs.toFixed(2)} ms` : '--'}
           </p>
-          <p className="mt-1 text-xs text-slate-500">Latency / response time</p>
+          <p className="mt-1 text-xs text-muted-foreground">Latency / response time</p>
         </div>
 
-        <div className="rounded-lg border border-slate-800 bg-slate-950/40 p-4">
+        <div className="rounded-lg border border-border bg-card/80 p-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-400 flex items-center gap-2">
+            <span className="flex items-center gap-2 text-sm text-muted-foreground">
               <Server className="h-4 w-4" /> Environment
             </span>
             <StatusPill label={data?.environment?.name ?? 'unknown'} status={data?.status ?? 'unknown'} />
           </div>
-          <p className="mt-3 text-lg text-slate-100">{data?.environment?.name ?? '--'}</p>
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-3 text-lg text-foreground">{data?.environment?.name ?? '--'}</p>
+          <p className="mt-1 text-xs text-muted-foreground">
             Build:{' '}
             {data?.environment?.buildTimestamp
               ? new Date(data.environment.buildTimestamp).toLocaleString()
@@ -85,65 +85,65 @@ const HealthStatus = ({ data, loading, error, onRefresh }) => {
           </p>
         </div>
 
-        <div className="rounded-lg border border-slate-800 bg-slate-950/40 p-4">
+        <div className="rounded-lg border border-border bg-card/80 p-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-400">Uptime</span>
+            <span className="text-sm text-muted-foreground">Uptime</span>
             <StatusPill label={data?.status || 'unknown'} status={data?.status ?? 'unknown'} />
           </div>
-          <p className="mt-3 text-2xl font-semibold text-slate-100">{data?.uptime?.humanized ?? '--'}</p>
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-3 text-2xl font-semibold text-foreground">{data?.uptime?.humanized ?? '--'}</p>
+          <p className="mt-1 text-xs text-muted-foreground">
             Started: {data?.timestamp ? new Date(data.timestamp).toLocaleString() : '--'}
           </p>
         </div>
 
-        <div className="rounded-lg border border-slate-800 bg-slate-950/40 p-4">
+        <div className="rounded-lg border border-border bg-card/80 p-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-400 flex items-center gap-2">
+            <span className="flex items-center gap-2 text-sm text-muted-foreground">
               <Gauge className="h-4 w-4" /> API
             </span>
             <StatusPill label={data?.api?.status ?? 'unknown'} status={data?.api?.status ?? 'unknown'} />
           </div>
-          <p className="mt-3 text-base text-slate-100">{data?.api?.message ?? 'No diagnostics available'}</p>
-          <p className="mt-1 text-xs text-slate-500">Endpoint responsive</p>
+          <p className="mt-3 text-base text-foreground">{data?.api?.message ?? 'No diagnostics available'}</p>
+          <p className="mt-1 text-xs text-muted-foreground">Endpoint responsive</p>
         </div>
       </div>
 
       <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        <div className="rounded-lg border border-slate-800 bg-slate-950/40 p-4">
+        <div className="rounded-lg border border-border bg-card/80 p-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-400 flex items-center gap-2">
+            <span className="flex items-center gap-2 text-sm text-muted-foreground">
               <Database className="h-4 w-4" /> Database
             </span>
             <StatusPill label={data?.database?.status ?? 'unknown'} status={data?.database?.status ?? 'unknown'} />
           </div>
           <div className="mt-3 space-y-2 text-xs">
-            <p className="flex justify-between text-slate-400">
+            <p className="flex justify-between text-muted-foreground">
               <span>Connection</span>
               <span className={getStatusClass(data?.database?.connection?.status)}>
                 {data?.database?.connection?.status ?? 'unknown'}
               </span>
             </p>
-            <p className="flex justify-between text-slate-400">
+            <p className="flex justify-between text-muted-foreground">
               <span>Query (SELECT 1)</span>
               <span className={getStatusClass(data?.database?.query?.status)}>
                 {data?.database?.query?.status ?? 'unknown'}
               </span>
             </p>
-            {data?.database?.query?.error && <p className="text-danger">{data.database.query.error}</p>}
+            {data?.database?.query?.error && <p className="text-destructive">{data.database.query.error}</p>}
           </div>
         </div>
 
-        <div className="rounded-lg border border-slate-800 bg-slate-950/40 p-4">
+        <div className="rounded-lg border border-border bg-card/80 p-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-400 flex items-center gap-2">
+            <span className="flex items-center gap-2 text-sm text-muted-foreground">
               <Cloud className="h-4 w-4" /> MinIO
             </span>
             <StatusPill label={data?.minio?.status ?? 'unknown'} status={data?.minio?.status ?? 'unknown'} />
           </div>
-          <div className="mt-3 space-y-2 text-xs text-slate-400">
+          <div className="mt-3 space-y-2 text-xs text-muted-foreground">
             <p>
               Bucket:
-              <span className="block text-slate-200">{data?.minio?.bucket ?? '--'}</span>
+              <span className="block text-foreground">{data?.minio?.bucket ?? '--'}</span>
             </p>
             <p className="flex justify-between">
               <span>Bucket status</span>
@@ -160,49 +160,45 @@ const HealthStatus = ({ data, loading, error, onRefresh }) => {
           </div>
         </div>
 
-        <div className="rounded-lg border border-slate-800 bg-slate-950/40 p-4">
+        <div className="rounded-lg border border-border bg-card/80 p-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-400 flex items-center gap-2">
+            <span className="flex items-center gap-2 text-sm text-muted-foreground">
               <MailCheck className="h-4 w-4" /> Email
             </span>
             <StatusPill label={data?.email?.status ?? 'unknown'} status={data?.email?.status ?? 'unknown'} />
           </div>
-          <p className="mt-3 text-sm text-slate-400">
-            SMTP connectivity verified from the server.
-          </p>
-          {data?.email?.error && <p className="mt-1 text-xs text-danger">{data.email.error}</p>}
+          <p className="mt-3 text-sm text-muted-foreground">SMTP connectivity verified from the server.</p>
+          {data?.email?.error && <p className="mt-1 text-xs text-destructive">{data.email.error}</p>}
         </div>
 
-        <div className="rounded-lg border border-slate-800 bg-slate-950/40 p-4">
+        <div className="rounded-lg border border-border bg-card/80 p-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-400 flex items-center gap-2">
+            <span className="flex items-center gap-2 text-sm text-muted-foreground">
               <Network className="h-4 w-4" /> DNS
             </span>
             <StatusPill label={data?.dns?.status ?? 'unknown'} status={data?.dns?.status ?? 'unknown'} />
           </div>
-          <ul className="mt-3 space-y-1 text-xs text-slate-400">
+          <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
             {dnsRecords.length === 0 && <li>No DNS records resolved.</li>}
             {dnsRecords.map((record) => (
               <li key={`${record.name}-${record.address ?? record.error}`} className="flex flex-col">
-                <span className="text-slate-300">{record.name}</span>
-                <span>
-                  {record.error ? record.error : `${record.address} (IPv${record.family})`}
-                </span>
+                <span className="text-foreground">{record.name}</span>
+                <span>{record.error ? record.error : `${record.address} (IPv${record.family})`}</span>
               </li>
             ))}
           </ul>
         </div>
 
-        <div className="rounded-lg border border-slate-800 bg-slate-950/40 p-4">
+        <div className="rounded-lg border border-border bg-card/80 p-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-400 flex items-center gap-2">
+            <span className="flex items-center gap-2 text-sm text-muted-foreground">
               <Server className="h-4 w-4" /> CORS
             </span>
             <StatusPill label={data?.cors?.status ?? 'unknown'} status={data?.cors?.status ?? 'unknown'} />
           </div>
-          <p className="mt-3 text-xs text-slate-400">
+          <p className="mt-3 text-xs text-muted-foreground">
             Allowed origins:
-            <span className="block text-slate-200">
+            <span className="block text-foreground">
               {(data?.cors?.allowedOrigins ?? []).join(', ') || 'None configured'}
             </span>
           </p>
@@ -210,58 +206,58 @@ const HealthStatus = ({ data, loading, error, onRefresh }) => {
       </div>
 
       <div className="mt-6 grid gap-4 md:grid-cols-3">
-        <div className="rounded-lg border border-slate-800 bg-slate-950/40 p-4">
+        <div className="rounded-lg border border-border bg-card/80 p-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-400 flex items-center gap-2">
+            <span className="flex items-center gap-2 text-sm text-muted-foreground">
               <Cpu className="h-4 w-4" /> CPU usage
             </span>
             <StatusPill label={data?.system?.status ?? 'unknown'} status={data?.system?.status ?? 'unknown'} />
           </div>
-          <p className="mt-3 text-2xl font-semibold text-slate-100">
+          <p className="mt-3 text-2xl font-semibold text-foreground">
             {typeof data?.system?.cpu?.utilization === 'number'
               ? `${data.system.cpu.utilization}%`
               : '--'}
           </p>
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-muted-foreground">
             Load averages: {(data?.system?.cpu?.loadAverage ?? []).join(', ')}
           </p>
         </div>
 
-        <div className="rounded-lg border border-slate-800 bg-slate-950/40 p-4">
+        <div className="rounded-lg border border-border bg-card/80 p-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-400 flex items-center gap-2">
+            <span className="flex items-center gap-2 text-sm text-muted-foreground">
               <BarChart3 className="h-4 w-4" /> Memory usage
             </span>
             <StatusPill label={data?.system?.status ?? 'unknown'} status={data?.system?.status ?? 'unknown'} />
           </div>
-          <p className="mt-3 text-2xl font-semibold text-slate-100">
+          <p className="mt-3 text-2xl font-semibold text-foreground">
             {typeof data?.system?.memory?.utilization === 'number'
               ? `${data.system.memory.utilization}%`
               : '--'}
           </p>
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-muted-foreground">
             Used {data?.system?.memory?.usedHuman ?? '--'} of {data?.system?.memory?.totalHuman ?? '--'}
           </p>
         </div>
 
-        <div className="rounded-lg border border-slate-800 bg-slate-950/40 p-4">
+        <div className="rounded-lg border border-border bg-card/80 p-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-400 flex items-center gap-2">
+            <span className="flex items-center gap-2 text-sm text-muted-foreground">
               <HardDrive className="h-4 w-4" /> Disk space
             </span>
             <StatusPill label={data?.system?.status ?? 'unknown'} status={data?.system?.status ?? 'unknown'} />
           </div>
           {disk ? (
             <>
-              <p className="mt-3 text-2xl font-semibold text-slate-100">
+              <p className="mt-3 text-2xl font-semibold text-foreground">
                 {typeof disk.usage === 'number' ? `${disk.usage}%` : '--'}
               </p>
-              <p className="mt-1 text-xs text-slate-500">
+              <p className="mt-1 text-xs text-muted-foreground">
                 Used {disk.usedHuman} of {disk.totalHuman}
               </p>
             </>
           ) : (
-            <p className="mt-3 text-sm text-slate-400">Disk metrics are not available on this platform.</p>
+            <p className="mt-3 text-sm text-muted-foreground">Disk metrics are not available on this platform.</p>
           )}
         </div>
       </div>

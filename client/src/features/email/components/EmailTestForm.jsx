@@ -26,6 +26,8 @@ const EmailTestForm = () => {
     }
   };
 
+  const statusTone = status?.type === 'success' ? 'text-success' : 'text-destructive';
+
   return (
     <Card>
       <CardTitle>
@@ -36,7 +38,7 @@ const EmailTestForm = () => {
 
       <form onSubmit={onSubmit} className="mt-6 space-y-4">
         <div>
-          <label className="text-sm text-slate-300" htmlFor="email-recipient">
+          <label className="text-sm text-muted-foreground" htmlFor="email-recipient">
             Recipient Email
           </label>
           <Input
@@ -53,11 +55,7 @@ const EmailTestForm = () => {
           <Button type="submit" disabled={loading}>
             {loading ? 'Sending…' : 'Send Test Email'}
           </Button>
-          {status && (
-            <span className={`text-sm ${status.type === 'success' ? 'text-success' : 'text-danger'}`}>
-              {status.message}
-            </span>
-          )}
+          {status && <span className={`text-sm ${statusTone}`}>{status.message}</span>}
         </div>
       </form>
     </Card>
