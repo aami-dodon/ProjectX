@@ -38,7 +38,7 @@ const EmailTestForm = () => {
 
       <form onSubmit={onSubmit} className="mt-xl space-y-lg">
         <div>
-          <label className="text-sm text-muted-foreground" htmlFor="email-recipient">
+          <label className="body-sm text-muted" htmlFor="email-recipient">
             Recipient Email
           </label>
           <Input
@@ -55,7 +55,7 @@ const EmailTestForm = () => {
           <Button type="submit" disabled={loading}>
             {loading ? 'Sending…' : 'Send Test Email'}
           </Button>
-          {status && <span className={`text-sm ${statusTone}`}>{status.message}</span>}
+          {status && <span className={`body-sm ${statusTone}`}>{status.message}</span>}
         </div>
       </form>
     </Card>

@@ -23,6 +23,11 @@
 - Added database connection/query, MinIO connection/bucket/CORS, email server, and DNS diagnostics to health payload.
 - Updated React health dashboard to visualize new health checks while preserving existing MinIO upload and email tools.
 
+## 2025-10-24 15:10:00 IST
+- Added typography utility classes in the global stylesheet to centralize headings, body text, and muted tones.
+- Refactored app and health dashboard copy to reuse the shared typography scale.
+- Documented the new utility classes in `global.css` for future contributors.
+
 ## 2025-10-24 14:45 IST
 - Separated MinIO CORS validation into its own health indicator with detailed origin visibility in the dashboard.
 - Enhanced health API to return configured and expected CORS origins independently from MinIO bucket status.

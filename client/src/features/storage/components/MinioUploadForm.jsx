@@ -55,7 +55,7 @@ const MinioUploadForm = () => {
         <div className="flex items-center gap-md">
           <label
             htmlFor="minio-image"
-            className="flex cursor-pointer items-center gap-sm rounded-lg border border-border bg-card/80 px-lg py-md text-sm text-foreground transition-colors hover:border-primary hover:bg-card"
+            className="flex cursor-pointer items-center gap-sm rounded-lg border border-border bg-card/80 px-lg py-md body-sm transition-colors hover:border-primary hover:bg-card"
           >
             <ImageIcon className="h-4 w-4" />
             {file ? file.name : 'Choose image'}
@@ -67,12 +67,12 @@ const MinioUploadForm = () => {
         </div>
       </form>
 
-      {error && <p className="mt-lg text-sm text-destructive">{error}</p>}
+      {error && <p className="mt-lg body-sm text-destructive">{error}</p>}
       {result?.presignedUrl && (
         <div className="mt-xl space-y-md">
-          <p className="text-sm text-muted-foreground">
+          <p className="body-sm text-muted">
             Presigned URL:{' '}
-            <a href={result.presignedUrl} className="text-primary underline" target="_blank" rel="noreferrer">
+            <a href={result.presignedUrl} className="body-sm text-primary underline" target="_blank" rel="noreferrer">
               Open in new tab
             </a>
           </p>

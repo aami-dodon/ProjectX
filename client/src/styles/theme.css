@@ -32,6 +32,23 @@
   --space-md: 0.75rem;
   --space-lg: 1rem;
   --space-xl: 1.5rem;
+  --font-size-h1: clamp(2.25rem, 2vw + 1rem, 3rem);
+  --font-size-h2: clamp(1.75rem, 1.4vw + 1rem, 2.25rem);
+  --font-size-h3: 1.5rem;
+  --font-size-h4: 1.25rem;
+  --font-size-lead: 1.125rem;
+  --font-size-body: 1rem;
+  --font-size-body-sm: 0.875rem;
+  --font-size-body-xs: 0.8125rem;
+  --font-size-caption: 0.75rem;
+  --font-size-metric: 1.75rem;
+  --line-height-tight: 1.2;
+  --line-height-snug: 1.35;
+  --line-height-normal: 1.6;
+  --line-height-relaxed: 1.8;
+  --tracking-tight: -0.015em;
+  --tracking-normal: 0em;
+  --tracking-wide: 0.08em;
 }
 
 .dark {
@@ -68,4 +85,21 @@
   --space-md: 0.75rem;
   --space-lg: 1rem;
   --space-xl: 1.5rem;
+  --font-size-h1: clamp(2.25rem, 2vw + 1rem, 3rem);
+  --font-size-h2: clamp(1.75rem, 1.4vw + 1rem, 2.25rem);
+  --font-size-h3: 1.5rem;
+  --font-size-h4: 1.25rem;
+  --font-size-lead: 1.125rem;
+  --font-size-body: 1rem;
+  --font-size-body-sm: 0.875rem;
+  --font-size-body-xs: 0.8125rem;
+  --font-size-caption: 0.75rem;
+  --font-size-metric: 1.75rem;
+  --line-height-tight: 1.2;
+  --line-height-snug: 1.35;
+  --line-height-normal: 1.6;
+  --line-height-relaxed: 1.8;
+  --tracking-tight: -0.015em;
+  --tracking-normal: 0em;
+  --tracking-wide: 0.08em;
 }

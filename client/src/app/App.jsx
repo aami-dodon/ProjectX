@@ -11,8 +11,8 @@ const HealthPage = () => {
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-xl py-[calc(var(--space-xl)+var(--space-lg))]">
       <header className="flex flex-col gap-sm">
-        <h1 className="text-3xl font-bold text-foreground">Operational Health Dashboard</h1>
-        <p className="text-sm text-muted-foreground">
+        <h1 className="h1">Operational Health Dashboard</h1>
+        <p className="body-sm text-muted">
           All configuration is sourced from the environment. Use the tools below to verify connectivity for each integration.
         </p>
       </header>
