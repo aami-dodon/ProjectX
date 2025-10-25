@@ -167,3 +167,6 @@
 - Removed custom `client/src/styles/prose.css` and its import from `client/src/styles/global.css` to rely solely on Tailwind.
 - Added `@tailwindcss/typography` and wired it in `client/tailwind.config.js` with brand token mappings for light/dark modes.
 - Kept existing `.prose` usages (editor, Prose component) working via Tailwind Typography; removed bespoke CSS.
+
+## 2025-10-25 20:00:00 IST
+- Updated the Platform Health header icon to use the primary color for consistency with design guidelines.
