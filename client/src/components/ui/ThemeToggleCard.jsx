@@ -1,7 +1,7 @@
 import React from 'react';
 import { Moon, Sun } from 'lucide-react';
-import { useTheme } from '..';
-import { Button } from '../../../components/ui/button';
+import { useTheme } from '../../features/theme';
+import { Button } from './button';
 
 const ThemeToggleCard = () => {
   const { theme, toggleTheme } = useTheme();

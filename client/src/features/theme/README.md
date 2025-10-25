@@ -7,8 +7,7 @@ This feature centralizes theme state, reusable UI primitives, and token metadata
 ```
 features/theme/
 ├── components/
-│   ├── ThemeProvider.jsx
-│   └── ThemeToggleCard.jsx
+│   └── ThemeProvider.jsx
 ├── hooks/
 │   └── useTheme.js
 ├── services/
@@ -18,7 +17,7 @@ features/theme/
 └── README.md
 ```
 
-- **components** expose UI building blocks such as the provider and toggle card.
+- **components** expose the ThemeProvider used at the app shell level. The shared `ThemeToggleCard` now lives in `client/src/components/ui/ThemeToggleCard.jsx` so other features can reuse it without depending on this feature's internals.
 - **hooks** contains `useTheme`, the primary way to read or mutate theme state inside React components.
 - **services** is reserved for future integrations such as persistence APIs or remote token loaders.
 - **utils** hosts serializable data (e.g., design tokens) and any supporting helpers shared by the feature.
