@@ -1,3 +1,6 @@
+## 2025-10-25 16:30:00 IST
+- Added a profile dropdown menu to the AppSidebar that mirrors the reference layout with account, billing, notifications, and logout actions.
+
 ## 2025-10-25 13:40:00 IST
 - Tightened the AppSidebar layout to left-align navigation items, reduce vertical spacing, and lock the rail height without scroll to match design guidance.
 
