@@ -2,6 +2,9 @@
 - Restructured the theme feature into components, hooks, services, and utils folders with a documented README for future growth.
 - Moved the theme provider, hook, and token exports to the new layout and updated pages to consume the aggregated feature API.
 
+## 2025-10-25 07:27:04 IST
+- Relocated the email connectivity test form into the health feature so the operational dashboard owns its tooling.
+
 ## 2025-10-25 06:58:25 IST
 - Refactored the client routing to use dedicated home and health pages while keeping App.jsx focused on route definitions.
 - Extracted the health dashboard theme toggle into a reusable component under the theme feature for reuse across pages.
