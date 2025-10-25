@@ -1,3 +1,6 @@
+## 2025-10-25 13:45:00 IST
+- Removed the unused `client/src/app/layout/MainLayout.jsx` shell now that every route renders through the dashboard layout components.
+
 ## 2025-10-25 12:30:01 IST
 - Routed every client page through `client/src/app/layout/DashboardLayout.jsx`, refreshing the sidebar links and dashboard header so navigation stays consistent across routes.
 - Reworked the home overview into card-driven sections that align with the dashboard shell for navigation, launch readiness, and resource discovery.
