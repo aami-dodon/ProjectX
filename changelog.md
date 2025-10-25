@@ -1,3 +1,6 @@
+## 2025-10-25 13:00:32 IST
+- Relocated the dashboard AppSidebar and SiteHeader into `client/src/components/ui` so shared layouts consume the common shell primitives directly.
+
 ## 2025-10-25 13:55:00 IST
 - Modularized the home overview into a dedicated `client/src/features/home` feature so the page composes reusable hero, navigation, checklist, and resource panels.
 
