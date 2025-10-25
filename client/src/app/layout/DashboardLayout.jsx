@@ -26,11 +26,16 @@ function DashboardLayout() {
   }, [open]);
 
   return (
-    <div className="grid min-h-screen grid-cols-1 lg:grid-cols-[280px_1fr]">
+    <div className="grid h-screen grid-cols-1 lg:grid-cols-[280px_1fr]">
+      {/* Sidebar stays fixed */}
       <AppSidebar open={open} onClose={() => setOpen(false)} />
-      <div className="flex min-w-0 flex-col">
+
+      {/* Main content area */}
+      <div className="flex min-w-0 flex-col overflow-hidden">
         <SiteHeader onToggleSidebar={() => setOpen((v) => !v)} />
-        <main className="flex-1 px-4 py-4 lg:px-6">
+
+        {/* Only this area scrolls */}
+        <main className="flex-1 overflow-y-auto px-4 py-4 lg:px-6">
           <Outlet />
         </main>
       </div>
@@ -39,4 +44,3 @@ function DashboardLayout() {
 }
 
 export default DashboardLayout;
-
