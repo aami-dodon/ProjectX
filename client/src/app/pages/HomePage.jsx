@@ -9,11 +9,10 @@ import {
   spotlightTiles,
   knowledgeCards,
 } from '../../features/home';
-import { SinglePageLayout } from '../layout/SinglePageLayout';
 
 const HomePage = () => {
   return (
-    <SinglePageLayout className="gap-8 lg:gap-10">
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 py-[calc(var(--space-xl)+var(--space-lg))] lg:gap-10">
       <HomeHeroSection />
 
       <section className="grid gap-6 lg:grid-cols-[2fr_1fr]">
@@ -24,7 +23,7 @@ const HomePage = () => {
       <KnowledgeGridSection cards={knowledgeCards} />
 
       <OnboardingCtaSection />
-    </SinglePageLayout>
+    </div>
   );
 };
 
