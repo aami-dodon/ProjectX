@@ -4,11 +4,10 @@ import { Button } from '@/components/ui/button.jsx';
 import { cn } from '@/lib/utils.js';
 
 const navItems = [
+  { label: 'Overview', to: '/' },
   { label: 'Dashboard', to: '/dashboard' },
-  { label: 'Lifecycle', to: '#' },
-  { label: 'Analytics', to: '#' },
-  { label: 'Projects', to: '#' },
-  { label: 'Team', to: '#' },
+  { label: 'Operational Health', to: '/health' },
+  { label: 'Theme & Tokens', to: '/theme' },
 ];
 
 function AppSidebar({ open, onClose }) {
@@ -41,6 +40,7 @@ function AppSidebar({ open, onClose }) {
               <li key={item.label}>
                 <NavLink
                   to={item.to}
+                  end={item.to === '/'}
                   className={({ isActive }) =>
                     cn(
                       'flex items-center gap-sm rounded-md px-sm py-xs text-sm transition-colors',

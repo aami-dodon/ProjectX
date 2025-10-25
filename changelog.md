@@ -1,3 +1,7 @@
+## 2025-10-25 12:30:01 IST
+- Routed every client page through `client/src/app/layout/DashboardLayout.jsx`, refreshing the sidebar links and dashboard header so navigation stays consistent across routes.
+- Reworked the home overview into card-driven sections that align with the dashboard shell for navigation, launch readiness, and resource discovery.
+
 ## 2025-10-25 09:58:48 IST
 - Expanded the client color system with multi-step ramps, updated shared UI primitives to the refreshed semantic utilities, and refreshed the theme page and health dashboard styling for improved contrast in light and dark modes.
 
