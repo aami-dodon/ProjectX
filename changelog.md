@@ -1,3 +1,6 @@
+## 2025-10-25 09:29:16 IST
+- Updated client theme tokens to the Violet preset from shadcn/ui and aligned success, warning, and info semantics with the shared color palette.
+
 ## 2025-10-25 09:20:06 IST
 - Rebuilt the home page shell to closely mirror the shadcn/ui sidebar-07 layout with a persistent left rail, breadcrumb header, and stacked content tiles ready for production data.
 - Simplified hero content into structured placeholders so the visual hierarchy matches the provided dark dashboard reference.
