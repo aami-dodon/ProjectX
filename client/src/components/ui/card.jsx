@@ -1,23 +1,34 @@
 import React from 'react';
-import clsx from 'clsx';
+import { cn } from '../../lib/utils.js';
 
-export const Card = ({ className, children }) => (
-  <div
-    className={clsx(
-      'rounded-xl border border-border/70 bg-card/90 p-6 shadow-lg shadow-black/10 dark:shadow-black/40',
-      className,
-    )}
-  >
-    {children}
-  </div>
-);
+export function Card({ className, ...props }) {
+  return (
+    <div
+      className={cn(
+        'rounded-2xl border border-border/60 bg-card/80 text-card-foreground shadow-lg shadow-black/30 backdrop-blur-sm',
+        className,
+      )}
+      {...props}
+    />
+  );
+}
 
-export const CardTitle = ({ className, children }) => (
-  <h2 className={clsx('flex items-center gap-2 text-lg font-semibold text-card-foreground', className)}>{children}</h2>
-);
+export function CardHeader({ className, ...props }) {
+  return <div className={cn('flex flex-col space-y-1.5 p-6', className)} {...props} />;
+}
 
-export const CardDescription = ({ className, children }) => (
-  <p className={clsx('mt-1 text-sm text-muted-foreground', className)}>{children}</p>
-);
+export function CardTitle({ className, ...props }) {
+  return <h3 className={cn('text-base font-semibold leading-none tracking-tight', className)} {...props} />;
+}
 
-export default Card;
+export function CardDescription({ className, ...props }) {
+  return <p className={cn('text-sm text-muted-foreground', className)} {...props} />;
+}
+
+export function CardContent({ className, ...props }) {
+  return <div className={cn('p-6 pt-0', className)} {...props} />;
+}
+
+export function CardFooter({ className, ...props }) {
+  return <div className={cn('flex items-center p-6 pt-0', className)} {...props} />;
+}
