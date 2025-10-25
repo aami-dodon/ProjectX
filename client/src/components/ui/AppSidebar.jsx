@@ -1,14 +1,67 @@
 import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { Button } from '@/components/ui/button.jsx';
+import {
+  CirclePlus,
+  LayoutDashboard,
+  LifeBuoy,
+  BarChart3,
+  FolderKanban,
+  Users,
+  FileStack,
+  FileText,
+  Bot,
+  Ellipsis,
+  Settings,
+  HelpCircle,
+  Search,
+} from 'lucide-react';
+import { Button, buttonVariants } from '@/components/ui/button.jsx';
 import { cn } from '@/lib/utils.js';
 
-const navItems = [
-  { label: 'Overview', to: '/' },
-  { label: 'Dashboard', to: '/dashboard' },
-  { label: 'Operational Health', to: '/health' },
-  { label: 'Theme & Tokens', to: '/theme' },
+const primaryNav = [
+  { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
+  { label: 'Lifecycle', to: '/lifecycle', icon: LifeBuoy },
+  { label: 'Analytics', to: '/analytics', icon: BarChart3 },
+  { label: 'Projects', to: '/projects', icon: FolderKanban },
+  { label: 'Team', to: '/team', icon: Users },
 ];
+
+const documentNav = [
+  { label: 'Data Library', to: '/documents/library', icon: FileStack },
+  { label: 'Reports', to: '/documents/reports', icon: FileText },
+  { label: 'Word Assistant', to: '/documents/assistant', icon: Bot },
+];
+
+const utilityNav = [
+  { label: 'More', to: '/more', icon: Ellipsis },
+  { label: 'Settings', to: '/settings', icon: Settings },
+  { label: 'Get Help', to: '/support', icon: HelpCircle },
+  { label: 'Search', to: '/search', icon: Search },
+];
+
+function SidebarNavItem({ icon: Icon, label, to, onClick }) {
+  return (
+    <li>
+      <NavLink
+        to={to}
+        end={to === '/'}
+        className={({ isActive }) =>
+          cn(
+            buttonVariants({ variant: 'ghost', size: 'default' }),
+            'h-auto w-full justify-start gap-sm rounded-lg text-sm font-medium transition-colors',
+            isActive
+              ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+              : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+          )
+        }
+        onClick={onClick}
+      >
+        <Icon className="h-4 w-4" aria-hidden />
+        <span>{label}</span>
+      </NavLink>
+    </li>
+  );
+}
 
 function AppSidebar({ open, onClose }) {
   return (
@@ -29,36 +82,74 @@ function AppSidebar({ open, onClose }) {
           'lg:static lg:z-auto lg:translate-x-0 lg:shadow-none',
         )}
       >
-        <div className="flex items-center gap-sm border-b p-md">
-          <Link to="/" className="text-sm font-semibold uppercase tracking-widest text-muted">
+        <div className="flex items-center justify-between gap-sm border-b border-border px-md py-md">
+          <Link to="/" className="text-base font-semibold tracking-tight text-foreground">
             Acme Inc.
           </Link>
-        </div>
-        <nav className="flex-1 overflow-y-auto p-md">
-          <ul className="flex flex-col gap-xs">
-            {navItems.map((item) => (
-              <li key={item.label}>
-                <NavLink
-                  to={item.to}
-                  end={item.to === '/'}
-                  className={({ isActive }) =>
-                    cn(
-                      'flex items-center gap-sm rounded-md px-sm py-xs text-sm transition-colors',
-                      isActive ? 'bg-primary/10 text-foreground' : 'text-muted hover:bg-muted/60 hover:text-foreground',
-                    )
-                  }
-                  onClick={onClose}
-                >
-                  <span>{item.label}</span>
-                </NavLink>
-              </li>
-            ))}
-          </ul>
-        </nav>
-        <div className="border-t p-md">
-          <Button variant="outline" className="w-full" asChild>
-            <a href="#">Settings</a>
+          <Button variant="ghost" size="icon" className="rounded-full">
+            <span className="sr-only">Sidebar menu</span>
+            <Ellipsis className="h-4 w-4" aria-hidden />
           </Button>
+        </div>
+
+        <div className="flex flex-1 flex-col overflow-hidden">
+          <div className="px-md py-md">
+            <Link
+              to="/create"
+              className={cn(
+                buttonVariants({ variant: 'default', size: 'default' }),
+                'w-full justify-start gap-sm',
+              )}
+            >
+              <CirclePlus className="h-4 w-4" aria-hidden />
+              Quick Create
+            </Link>
+          </div>
+
+          <nav className="flex-1 overflow-y-auto px-md pb-md">
+            <div className="flex flex-col gap-md">
+              <div>
+                <ul className="flex flex-col gap-xs">
+                  {primaryNav.map((item) => (
+                    <SidebarNavItem key={item.label} {...item} onClick={onClose} />
+                  ))}
+                </ul>
+              </div>
+
+              <div className="flex flex-col gap-xs">
+                <p className="px-md text-xs font-semibold uppercase tracking-wide text-muted-foreground">Documents</p>
+                <ul className="flex flex-col gap-xs">
+                  {documentNav.map((item) => (
+                    <SidebarNavItem key={item.label} {...item} onClick={onClose} />
+                  ))}
+                </ul>
+              </div>
+
+              <div>
+                <ul className="flex flex-col gap-xs">
+                  {utilityNav.map((item) => (
+                    <SidebarNavItem key={item.label} {...item} onClick={onClose} />
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </nav>
+        </div>
+
+        <div className="border-t border-border px-md py-md">
+          <div className="flex items-center gap-sm">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-medium text-foreground">
+              N
+            </div>
+            <div className="flex flex-1 flex-col">
+              <span className="text-sm font-semibold text-foreground">shadcn</span>
+              <span className="text-xs text-muted-foreground">m@example.com</span>
+            </div>
+            <Button variant="ghost" size="icon" className="rounded-full">
+              <Ellipsis className="h-4 w-4" aria-hidden />
+              <span className="sr-only">Account menu</span>
+            </Button>
+          </div>
         </div>
       </aside>
     </>
@@ -66,4 +157,3 @@ function AppSidebar({ open, onClose }) {
 }
 
 export default AppSidebar;
-
