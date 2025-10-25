@@ -1,3 +1,6 @@
+## 2025-10-26 03:45:00 IST
+- Removed the PostCSS toolchain from the client to reset styling: deleted the PostCSS config, converted global styles to plain CSS, and cleared unused Tailwind dependencies.
+
 ## 2025-10-26 02:28:15 IST
 - Matched the dashboard grid column width to the sidebar's 18rem rail so the header and sidebar borders align cleanly without overlap.
 
