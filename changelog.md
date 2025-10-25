@@ -235,3 +235,12 @@
   - Deleted `client/src/components/ui/button.stories.jsx`
   - Deleted `client/src/lib/api-client.js`
   - Kept `client/src/components/editor/**` intact as requested
+## 2025-10-26 04:56:41 IST
+- Standardized `client/src/features/home` structure with `components/`, `hooks/`, `pages/`, `services/`, `store/`, `types/`, and `utils/` (empty folders kept with placeholders).
+- Added `services/home.service.js` stub using the shared Axios client and documented the feature in `client/src/features/home/README.MD`.
+- Updated feature barrel exports to include service re-exports; no functional changes to runtime behavior.
+## 2025-10-26 05:02:35 IST
+- Migrated `client/src/app/pages/HomePage.jsx` to `client/src/features/home/pages/HomePage.jsx` to align with feature-first structure.
+- Updated router import in `client/src/app/router/AppRoutes.jsx:1` to reference the new path; adjusted HomePage’s feature imports to `from '..'`.
+## 2025-10-26 05:04:40 IST
+- Fixed Vite import path case for Button in `client/src/features/home/components/OnboardingCtaSection.jsx` to resolve the Pre-transform error caused by importing from `components/ui/Button` instead of `components/ui/button`.

@@ -8,7 +8,7 @@ import {
   navigationSections,
   spotlightTiles,
   knowledgeCards,
-} from '../../features/home';
+} from '..';
 
 const HomePage = () => {
   return (

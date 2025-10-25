@@ -1,7 +1,7 @@
 import React from 'react';
 import { useRoutes } from 'react-router-dom';
 import DashboardLayout from '../layout/DashboardLayout.jsx';
-import HomePage from '../pages/HomePage';
+import HomePage from '../../features/home/pages/HomePage';
 
 const AppRoutes = () => {
   return useRoutes([
@@ -16,4 +16,3 @@ const AppRoutes = () => {
 };
 
 export default AppRoutes;
-
