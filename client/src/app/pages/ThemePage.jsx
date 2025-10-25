@@ -1,5 +1,6 @@
 import React from 'react';
-import { ThemeToggleCard, colorTokens, spacingTokens, radiiTokens, buttonVariants as buttonVariantTokens } from '../../features/theme';
+import ThemeToggleCard from '../../components/ui/ThemeToggleCard';
+import { colorTokens, spacingTokens, radiiTokens, buttonVariants as buttonVariantTokens } from '../../features/theme';
 import { SinglePageLayout, PageHeader } from '../layout/SinglePageLayout';
 import { Card, CardTitle, CardDescription } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';

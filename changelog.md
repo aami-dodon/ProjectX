@@ -1,3 +1,7 @@
+## 2025-10-25 20:45:00 IST
+- Promoted the ThemeToggleCard into `client/src/components/ui` and updated the Theme and Health pages to import the shared component.
+- Refreshed the theme feature docs and exports to reflect the new shared component location.
+
 ## 2025-10-25 08:20:35 IST
 - Reorganized the client app structure with dedicated layout and router directories under `src/app` and moved the theme page into the consolidated pages module.
 - Added a primary navigation layout shell and central route configuration to match the new folder hierarchy.

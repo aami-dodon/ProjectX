@@ -1,6 +1,6 @@
 import React from 'react';
 import { useHealthData, EmailTestForm, HealthStatus, MinioUploadForm } from '../../features/health';
-import { ThemeToggleCard } from '../../features/theme';
+import ThemeToggleCard from '../../components/ui/ThemeToggleCard';
 import { SinglePageLayout, PageHeader } from '../layout/SinglePageLayout';
 
 const HealthPage = () => {
