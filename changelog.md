@@ -1,3 +1,7 @@
+## 2025-10-25 05:37:13 IST
+- Simplified the editor toolbar layout so undo and redo stay in the main action row across breakpoints.
+- Swapped the divider beside undo/redo to the vertical variant for consistent alignment with other controls.
+
 ## 2025-10-25 05:23:48 IST
 - Reworked the editor toolbar layout to keep control groups scrollable and aligned while remaining responsive across breakpoints.
 - Added a directional option to the toolbar divider so it can render horizontal separators when the action row stacks.
