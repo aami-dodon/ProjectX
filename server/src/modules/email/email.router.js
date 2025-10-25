@@ -5,6 +5,45 @@ const { createValidationError, createIntegrationError } = require('../../../../s
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * tags:
+ *   - name: Email
+ *     description: SMTP connectivity utilities.
+ */
+
+/**
+ * @swagger
+ * /api/email/test:
+ *   post:
+ *     summary: Send a transactional email connectivity test message.
+ *     tags: [Email]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/EmailTestRequest'
+ *     responses:
+ *       200:
+ *         description: SMTP message dispatched successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/EmailTestResponse'
+ *       400:
+ *         description: Missing or invalid request payload.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       502:
+ *         description: Upstream email provider rejected the message.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
 router.post('/test', async (req, res, next) => {
   const { to } = req.body ?? {};
 
