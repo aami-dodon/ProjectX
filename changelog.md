@@ -118,6 +118,13 @@
 - Introduced a dashboard toggle control that lets operators switch between design tokens for light and dark presentations.
 
 ## 2025-10-24 17:30:00 IST
+## 2025-10-26 04:47:01 IST
+- Standardized client file naming:
+  - Renamed UI primitives to PascalCase: `client/src/components/ui/Button.jsx`, `client/src/components/ui/Card.jsx` and updated all imports.
+  - Renamed router config to `client/src/app/router/AppRoutes.jsx` and updated `client/src/app/App.jsx` import.
+  - Moved Axios base client to `client/src/api/client.js` per architecture guidelines.
+- Verified a clean production build via Vite after changes.
+
 - Replaced the button component with the shadcn-style variant API backed by design tokens.
 - Added story coverage for each button variant to guard the public API.
 - Documented the new class variance authority dependency for consistent styling tokens.

@@ -1,5 +1,5 @@
 import React from 'react';
-import AppRoutes from './router/routes';
+import AppRoutes from './router/AppRoutes';
 
 const App = () => (
   <div className="min-h-screen bg-background text-foreground">
