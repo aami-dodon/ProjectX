@@ -56,7 +56,8 @@ export const EditorToolbar = ({ editor }) => {
 
   return (
     <div className="flex flex-wrap items-center gap-x-0 gap-y-2 border-b border-border bg-muted/40 px-3 py-2">
-      <div className="flex basis-full min-w-0 flex-wrap items-center gap-x-0 gap-y-2 sm:basis-auto sm:flex-1 sm:flex-nowrap sm:overflow-x-auto">
+      <div className="flex basis-full min-w-0 flex-wrap items-center gap-x-0 gap-y-2">
+
 
         {/* ✍️ Text formatting */}
         <ToolbarGroup>
