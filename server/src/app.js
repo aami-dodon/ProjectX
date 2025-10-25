@@ -5,6 +5,9 @@ const { attachRequestIds } = require('./middleware/request-context');
 const { requestLogger } = require('./middleware/request-logger');
 const { errorHandler } = require('./middleware/error-handler');
 const { env } = require('./config/env');
+const { createLogger } = require('./utils/logger');
+
+const logger = createLogger('app');
 const healthRouter = require('./modules/health/health.router');
 const emailRouter = require('./modules/email/email.router');
 const storageRouter = require('./modules/storage/storage.router');
@@ -37,6 +40,10 @@ const createApp = () => {
   });
 
   app.use(errorHandler);
+
+  if (env.NODE_ENV !== 'production') {
+    logger.debug({ environment: env.NODE_ENV }, 'Express application configured');
+  }
 
   return app;
 };
