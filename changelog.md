@@ -1,6 +1,13 @@
 ## 2025-10-25 09:29:16 IST
 - Updated client theme tokens to the Violet preset from shadcn/ui and aligned success, warning, and info semantics with the shared color palette.
 
+## 2025-10-25 09:20:06 IST
+- Rebuilt the home page shell to closely mirror the shadcn/ui sidebar-07 layout with a persistent left rail, breadcrumb header, and stacked content tiles ready for production data.
+- Simplified hero content into structured placeholders so the visual hierarchy matches the provided dark dashboard reference.
+
+## 2025-10-25 21:15:00 IST
+- Reimagined the home dashboard with a sidebar inspired workspace, interactive trend chart, metrics, and screenshot gallery linking to shadcn/ui resources.
+
 ## 2025-10-25 20:45:00 IST
 - Promoted the ThemeToggleCard into `client/src/components/ui` and updated the Theme and Health pages to import the shared component.
 - Refreshed the theme feature docs and exports to reflect the new shared component location.
