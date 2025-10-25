@@ -1,6 +1,6 @@
-## 2025-10-25 07:33:07 IST
-- Moved the MinIO upload form into the health feature so the dashboard owns both diagnostic tools.
-- Removed the empty storage feature directory after relocating the component.
+## 2025-10-25 09:30:00 IST
+- Restructured the theme feature into components, hooks, services, and utils folders with a documented README for future growth.
+- Moved the theme provider, hook, and token exports to the new layout and updated pages to consume the aggregated feature API.
 
 ## 2025-10-25 07:27:04 IST
 - Relocated the email connectivity test form into the health feature so the operational dashboard owns its tooling.
@@ -135,3 +135,7 @@
 - Implemented health monitoring platform with Express APIs for database, MinIO, and SMTP verification.
 - Added React health dashboard with email test form and MinIO upload workflow.
 - Provisioned Docker Compose setup and environment template for client and server services.
+## 2025-10-25 19:05:00 IST
+- Removed custom `client/src/styles/prose.css` and its import from `client/src/styles/global.css` to rely solely on Tailwind.
+- Added `@tailwindcss/typography` and wired it in `client/tailwind.config.js` with brand token mappings for light/dark modes.
+- Kept existing `.prose` usages (editor, Prose component) working via Tailwind Typography; removed bespoke CSS.
