@@ -1,3 +1,6 @@
+## 2025-10-25 09:47:56 IST
+- Added sidebar and chart design tokens to the client theme and extended Tailwind utilities to surface the regenerated palette, including the updated radius scale.
+
 ## 2025-10-25 09:29:16 IST
 - Updated client theme tokens to the Violet preset from shadcn/ui and aligned success, warning, and info semantics with the shared color palette.
 
