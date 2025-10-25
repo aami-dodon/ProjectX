@@ -201,3 +201,5 @@
 - Implemented `client/src/app/pages/DashboardPage.jsx` composing cards, chart, and table with data from the new feature.
 - Registered a `dashboard` route in `client/src/app/router/routes.jsx`, wrapped it in `DashboardLayout`, and added a `Dashboard` link in `MainLayout.jsx`.
 - Installed `recharts` and verified a production Vite build to ensure the page compiles and renders in the client.
+## 2025-10-26 01:52:20 IST
+- Fixed Button `asChild` prop handling in `client/src/components/ui/button.jsx`: implemented child-clone rendering and stopped forwarding `asChild` to DOM elements. This removes the React warning and correctly styles anchor/Link elements as buttons (e.g., GitHub link in `client/src/components/ui/SiteHeader.jsx:29`).
