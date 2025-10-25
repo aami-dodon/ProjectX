@@ -10,7 +10,6 @@ const { createLogger } = require('./utils/logger');
 const { buildOpenApiSpec, swaggerUiOptions } = require('./config/swagger');
 
 const logger = createLogger('app');
-const healthRouter = require('./modules/health/health.router');
 const emailRouter = require('./modules/email/email.router');
 const storageRouter = require('./modules/storage/storage.router');
 const swaggerSpec = buildOpenApiSpec();
@@ -28,7 +27,6 @@ const createApp = () => {
 
   app.use(`${apiPrefix}/docs`, swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions));
 
-  app.use(`${apiPrefix}/health`, healthRouter);
   app.use(`${apiPrefix}/email`, emailRouter);
   app.use(`${apiPrefix}/storage`, storageRouter);
 

@@ -2,7 +2,6 @@ import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import {
   CirclePlus,
-  LayoutDashboard,
   LifeBuoy,
   BarChart3,
   FolderKanban,
@@ -24,7 +23,6 @@ import { buttonVariants } from '@/components/ui/button.jsx';
 import { cn } from '@/lib/utils.js';
 
 const primaryNav = [
-  { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
   { label: 'Lifecycle', to: '/lifecycle', icon: LifeBuoy },
   { label: 'Analytics', to: '/analytics', icon: BarChart3 },
   { label: 'Projects', to: '/projects', icon: FolderKanban },

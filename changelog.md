@@ -213,3 +213,10 @@
 
 ## 2025-10-26 03:30:00 IST
 - Removed `client/src/styles/global.css`, folding the Tailwind base layers into `theme.css` and updating the client entrypoint and documentation to reference the consolidated stylesheet.
+## 2025-10-26 04:20:00 IST
+- Removed the `/theme`, `/dashboard`, and `/health` routes from the client router and deleted their page components.
+- Deleted client feature modules for Dashboard (`client/src/features/dashboard`), Health (`client/src/features/health`), and Theme (`client/src/features/theme`).
+- Refactored `client/src/main.jsx` to remove the ThemeProvider wrapper and updated the header to drop the theme toggle.
+- Updated `client/src/components/ui/ThemeToggleCard.jsx` to self-manage theme locally without the feature provider.
+- Removed the server health endpoint by deleting `server/src/modules/health` and its test, and unmounting the route in `server/src/app.js`.
+- Cleaned up the AppSidebar to drop the Dashboard link and simplified header title logic accordingly.

@@ -1,21 +1,13 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button.jsx';
-import useTheme from '@/features/theme/hooks/useTheme.js';
 
 function SiteHeader({ onToggleSidebar }) {
-  const { theme, toggleTheme } = useTheme();
   const { pathname } = useLocation();
 
   let headerTitle = 'Workspace';
   if (pathname === '/' || pathname === '') {
     headerTitle = 'Overview';
-  } else if (pathname.startsWith('/dashboard')) {
-    headerTitle = 'Dashboard';
-  } else if (pathname.startsWith('/health')) {
-    headerTitle = 'Operational Health';
-  } else if (pathname.startsWith('/theme')) {
-    headerTitle = 'Theme & Tokens';
   }
 
   return (
@@ -35,9 +27,6 @@ function SiteHeader({ onToggleSidebar }) {
               GitHub
             </a>
           </Button>
-          <Button variant="outline" size="sm" onClick={toggleTheme}>
-            {theme === 'dark' ? 'Light' : 'Dark'} Mode
-          </Button>
         </div>
       </div>
     </header>
@@ -45,4 +34,3 @@ function SiteHeader({ onToggleSidebar }) {
 }
 
 export default SiteHeader;
-
