@@ -1,10 +1,7 @@
 import React from 'react';
-import useHealthData from '../../features/health/hooks/useHealthData';
-import HealthStatus from '../../features/health/components/HealthStatus';
-import EmailTestForm from '../../features/health/components/EmailTestForm';
-import MinioUploadForm from '../../features/health/components/MinioUploadForm';
-import ThemeToggleCard from '../../features/theme/components/ThemeToggleCard';
-import { SinglePageLayout, PageHeader } from '../../components/layout/SinglePageLayout';
+import { useHealthData, EmailTestForm, HealthStatus, MinioUploadForm } from '../../features/health';
+import { ThemeToggleCard } from '../../features/theme';
+import { SinglePageLayout, PageHeader } from '../layout/SinglePageLayout';
 
 const HealthPage = () => {
   const { data, loading, error, refresh } = useHealthData();

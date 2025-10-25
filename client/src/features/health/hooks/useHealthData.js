@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import api from '../../../lib/api-client';
+import { fetchHealthStatus } from '../services/healthApi';
 
 const initialState = {
   loading: true,
@@ -13,10 +13,12 @@ const useHealthData = () => {
   const fetchHealth = useCallback(async () => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
     try {
-      const { data } = await api.get('/api/health');
+      const data = await fetchHealthStatus();
       setState({ loading: false, data, error: null });
     } catch (error) {
-      setState({ loading: false, data: null, error: error.message });
+      const message =
+        error?.response?.data?.message || error?.message || 'Unable to load health diagnostics. Please try again later.';
+      setState({ loading: false, data: null, error: message });
     }
   }, []);
 
