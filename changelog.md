@@ -140,6 +140,9 @@
 - Implemented health monitoring platform with Express APIs for database, MinIO, and SMTP verification.
 - Added React health dashboard with email test form and MinIO upload workflow.
 - Provisioned Docker Compose setup and environment template for client and server services.
+## 2025-10-25 19:30:00 IST
+- Removed the "System" eyebrow label from the Theme & Tokens page header to simplify the section presentation.
+
 ## 2025-10-25 19:05:00 IST
 - Removed custom `client/src/styles/prose.css` and its import from `client/src/styles/global.css` to rely solely on Tailwind.
 - Added `@tailwindcss/typography` and wired it in `client/tailwind.config.js` with brand token mappings for light/dark modes.

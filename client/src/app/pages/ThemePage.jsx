@@ -101,7 +101,6 @@ const ThemePage = () => {
   return (
     <SinglePageLayout>
       <PageHeader
-        eyebrow="System"
         title="Theme &amp; Tokens"
         description="Explore the reusable primitives that power the product interface and quickly preview theme switching."
       />
