@@ -12,7 +12,7 @@ import {
 
 const HomePage = () => {
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 py-[calc(var(--space-xl)+var(--space-lg))] lg:gap-10">
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 py-16 lg:gap-10">
       <HomeHeroSection />
 
       <section className="grid gap-6 lg:grid-cols-[2fr_1fr]">
