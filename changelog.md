@@ -170,3 +170,11 @@
 
 ## 2025-10-25 20:00:00 IST
 - Updated the Platform Health header icon to use the primary color for consistency with design guidelines.
+## 2025-10-25 11:10:00 IST
+- Added a new Dashboard feature module under `client/src/features/dashboard` with subfolders for components, data, and hooks; ported example pieces (AppSidebar, SiteHeader, SectionCards, ChartAreaInteractive, DataTable) and mapped imports to the `@/` alias.
+- Moved `dashboard/data.json` into `client/src/features/dashboard/data/data.json` and exposed a `useDashboardData` hook to supply rows to the table.
+- Recreated sidebar/header primitives using the existing UI kit and Tailwind tokens instead of Next.js/shadcn registry utilities; implemented a simplified responsive sidebar and chart.
+- Added `client/src/app/layout/DashboardLayout.jsx` to wire the sidebar/header using React state persisted to `localStorage` in place of Next.js cookies.
+- Implemented `client/src/app/pages/DashboardPage.jsx` composing cards, chart, and table with data from the new feature.
+- Registered a `dashboard` route in `client/src/app/router/routes.jsx`, wrapped it in `DashboardLayout`, and added a `Dashboard` link in `MainLayout.jsx`.
+- Installed `recharts` and verified a production Vite build to ensure the page compiles and renders in the client.

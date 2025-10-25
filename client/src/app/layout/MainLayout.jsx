@@ -23,6 +23,9 @@ const MainLayout = () => {
             <NavLink to="/health" className={navLinkClass}>
               Health
             </NavLink>
+            <NavLink to="/dashboard" className={navLinkClass}>
+              Dashboard
+            </NavLink>
             <NavLink to="/theme" className={navLinkClass}>
               Theme
             </NavLink>
