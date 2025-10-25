@@ -1,3 +1,6 @@
+## 2025-10-25 13:55:00 IST
+- Modularized the home overview into a dedicated `client/src/features/home` feature so the page composes reusable hero, navigation, checklist, and resource panels.
+
 ## 2025-10-25 13:45:00 IST
 - Removed the unused `client/src/app/layout/MainLayout.jsx` shell now that every route renders through the dashboard layout components.
 
