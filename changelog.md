@@ -1,3 +1,7 @@
+## 2025-10-25 06:12:22 IST
+- Unified the health and theme single pages behind a shared layout shell with a centralized header that links back home.
+- Matched typography, button variants, and Lucide icons across both routes while standardizing the page width to the design tokens.
+
 ## 2025-10-25 05:37:13 IST
 - Simplified the editor toolbar layout so undo and redo stay in the main action row across breakpoints.
 - Swapped the divider beside undo/redo to the vertical variant for consistent alignment with other controls.

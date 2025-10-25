@@ -1,12 +1,14 @@
 import React from 'react';
-import { Routes, Route, Link } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
+import { Moon, Sun } from 'lucide-react';
 import useHealthData from '../features/health/hooks/useHealthData';
 import HealthStatus from '../features/health/components/HealthStatus';
 import EmailTestForm from '../features/email/components/EmailTestForm';
 import MinioUploadForm from '../features/storage/components/MinioUploadForm';
 import useTheme from '../hooks/useTheme';
 import ThemeReference from '../routes/ThemeReference';
-import { Button, buttonVariants } from '../components/ui/button';
+import { Button } from '../components/ui/button';
+import { SinglePageLayout, PageHeader } from '../components/layout/SinglePageLayout';
 
 const HomePage = () => (
   <div className="flex min-h-[calc(100vh-2*var(--space-xl))] items-center justify-center py-[calc(var(--space-xl)+var(--space-lg))]">
@@ -19,26 +21,31 @@ const HealthPage = () => {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <div className="mx-auto flex max-w-5xl flex-col gap-xl py-[calc(var(--space-xl)+var(--space-lg))]">
-      <header className="flex flex-col gap-sm">
-        <div className="flex flex-wrap items-center justify-between gap-sm">
-          <h1 className="h1">Operational Health Dashboard</h1>
-          <div className="flex flex-wrap items-center gap-sm">
-            <Link to="/" className={buttonVariants({ variant: 'ghost' })}>
-              Back to home
-            </Link>
-            <Link to="/theme" className={buttonVariants({ variant: 'outline' })}>
-              View theme reference
-            </Link>
-            <Button type="button" variant="secondary" onClick={toggleTheme}>
-              {theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            </Button>
-          </div>
+    <SinglePageLayout>
+      <PageHeader
+        title="Operational Health Dashboard"
+        description="All configuration is sourced from the environment. Use the tools below to verify connectivity for each integration."
+      />
+
+      <div className="flex flex-wrap items-center justify-between gap-sm rounded-lg border border-border bg-muted/30 px-md py-sm">
+        <div className="flex flex-col gap-xs">
+          <span className="body-sm font-medium text-foreground">Display mode</span>
+          <p className="body-xs text-muted">
+            {theme === 'dark'
+              ? 'Dark mode tokens are active. Switch to preview the light palette.'
+              : 'Light mode tokens are active. Switch to preview the dark palette.'}
+          </p>
         </div>
-        <p className="body-sm text-muted">
-          All configuration is sourced from the environment. Use the tools below to verify connectivity for each integration.
-        </p>
-      </header>
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={toggleTheme}
+          className="inline-flex items-center gap-xs"
+        >
+          {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          <span>{theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}</span>
+        </Button>
+      </div>
 
       <HealthStatus data={data} loading={loading} error={error} onRefresh={refresh} />
 
@@ -46,7 +53,7 @@ const HealthPage = () => {
         <EmailTestForm />
         <MinioUploadForm />
       </section>
-    </div>
+    </SinglePageLayout>
   );
 };
 
