@@ -7,7 +7,7 @@ const HomeHeroSection = () => {
     <section className="space-y-6 rounded-2xl border border-border/70 bg-card/70 p-8 shadow-lg shadow-black/5">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-muted">Acme Inc</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">Acme Inc</p>
           <p className="text-sm font-medium text-foreground">Enterprise workspace</p>
         </div>
         <Button variant="ghost" size="icon" className="rounded-full">
@@ -17,17 +17,17 @@ const HomeHeroSection = () => {
       </div>
 
       <div className="space-y-4">
-        <nav className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.3em] text-muted">
+        <nav className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.3em] text-muted-foreground">
           <span>Platform</span>
-          <span className="text-muted">/</span>
+          <span className="text-muted-foreground">/</span>
           <span>Building Your Application</span>
-          <span className="text-muted">/</span>
+          <span className="text-muted-foreground">/</span>
           <span>Data Fetching</span>
         </nav>
 
         <div className="space-y-4">
           <h1 className="text-3xl font-semibold text-foreground lg:text-4xl">Build data-driven experiences</h1>
-          <p className="max-w-2xl text-sm text-muted lg:text-base">
+          <p className="max-w-2xl text-sm text-muted-foreground lg:text-base">
             Pair reusable templates, curated blocks, and live usage metrics to orchestrate the product surfaces that
             matter. Each module is wired into the unified dashboard layout so teams can focus on outcomes instead of
             scaffolding.

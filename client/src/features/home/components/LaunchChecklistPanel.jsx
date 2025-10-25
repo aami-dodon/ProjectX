@@ -16,7 +16,7 @@ const LaunchChecklistPanel = ({ tiles }) => {
         {tiles.map((tile) => (
           <div
             key={tile.label}
-            className="rounded-lg border border-border/60 bg-background/50 p-4 text-sm text-muted transition hover:border-border/80 hover:bg-muted/40"
+            className="rounded-lg border border-border/60 bg-background/50 p-4 text-sm text-muted-foreground transition hover:border-border/80 hover:bg-muted/40"
           >
             <p className="text-foreground">{tile.label}</p>
             <p className="mt-1 text-xs uppercase tracking-[0.2em]">{tile.meta}</p>

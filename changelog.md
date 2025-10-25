@@ -206,3 +206,10 @@
 - Installed `recharts` and verified a production Vite build to ensure the page compiles and renders in the client.
 ## 2025-10-26 01:52:20 IST
 - Fixed Button `asChild` prop handling in `client/src/components/ui/button.jsx`: implemented child-clone rendering and stopped forwarding `asChild` to DOM elements. This removes the React warning and correctly styles anchor/Link elements as buttons (e.g., GitHub link in `client/src/components/ui/SiteHeader.jsx:29`).
+
+## 2025-10-26 02:57:51 IST
+- Simplified the client theme to the stock shadcn/ui token set, updating Tailwind config, global styles, and shared UI primitives to remove custom spacing and color ramps.
+- Refactored health dashboards, theme documentation, and shared components to use standard Tailwind utilities and the streamlined token exports.
+
+## 2025-10-26 03:30:00 IST
+- Removed `client/src/styles/global.css`, folding the Tailwind base layers into `theme.css` and updating the client entrypoint and documentation to reference the consolidated stylesheet.

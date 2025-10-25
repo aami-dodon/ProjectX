@@ -1,120 +1,38 @@
 export const colorTokens = [
   {
-    name: 'Background & Foreground',
+    name: 'Background',
     swatchClass: 'bg-background text-foreground',
-    description: 'Primary surface color with default text contrast applied across the app shell.',
+    description: 'Primary surface color for the app shell and default text color.',
   },
   {
-    name: 'Card & Muted',
-    swatchClass: 'bg-card text-muted-foreground',
-    description: 'Layered surfaces like cards, tables, and quiet interface chrome.',
+    name: 'Card',
+    swatchClass: 'bg-card text-card-foreground',
+    description: 'Raised surfaces like cards, tables, and popovers.',
   },
   {
     name: 'Primary',
-    swatchClass: 'bg-primary-500 text-primary-foreground',
-    description: 'Brand accent used for primary actions and key highlights.',
+    swatchClass: 'bg-primary text-primary-foreground',
+    description: 'Brand accent used for primary actions and focused states.',
   },
   {
     name: 'Secondary',
-    swatchClass: 'bg-secondary-200 text-secondary-900',
-    description: 'Subtle accent for secondary actions and neutral surfaces.',
+    swatchClass: 'bg-secondary text-secondary-foreground',
+    description: 'Neutral tone for secondary actions and quiet surfaces.',
   },
   {
-    name: 'Success',
-    swatchClass: 'bg-success-500 text-success-50',
-    description: 'Positive confirmations and healthy status messaging.',
+    name: 'Muted',
+    swatchClass: 'bg-muted text-muted-foreground',
+    description: 'Subtle backgrounds and supporting text treatments.',
   },
   {
-    name: 'Warning',
-    swatchClass: 'bg-warning-400 text-warning-900',
-    description: 'Cautions, reminders, and soft alerts that precede destructive flows.',
-  },
-  {
-    name: 'Info',
-    swatchClass: 'bg-info-500 text-info-50',
-    description: 'Supportive informational banners or inline help text.',
+    name: 'Accent',
+    swatchClass: 'bg-accent text-accent-foreground',
+    description: 'Highlights interactive regions like badges or focus rings.',
   },
   {
     name: 'Destructive',
-    swatchClass: 'bg-destructive-500 text-destructive-50',
-    description: 'Dangerous operations like deletions and revocations.',
-  },
-];
-
-const rampSteps = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900];
-
-const buildRamp = (token, { borderFallback = 200 } = {}) =>
-  rampSteps.map((step, index) => {
-    const borderStep = index === 0 ? borderFallback : index === rampSteps.length - 1 ? rampSteps[index - 1] : step;
-    return {
-      step,
-      swatchClass: `border border-${token}-${borderStep} bg-${token}-${step}`,
-    };
-  });
-
-export const colorRamps = [
-  {
-    name: 'Primary ramp',
-    description: 'Ten-step scale for brand-forward accents, call-to-action hover states, and data visualization.',
-    swatches: buildRamp('primary', { borderFallback: 100 }),
-  },
-  {
-    name: 'Secondary ramp',
-    description: 'Cool neutral ramp for secondary surfaces and subdued interface chrome.',
-    swatches: buildRamp('secondary', { borderFallback: 100 }),
-  },
-  {
-    name: 'Success ramp',
-    description: 'Green ramp to represent healthy states, trends, and SLA progress.',
-    swatches: buildRamp('success', { borderFallback: 100 }),
-  },
-  {
-    name: 'Warning ramp',
-    description: 'Amber ramp tuned for cautionary messaging and “at risk” signals prior to errors.',
-    swatches: buildRamp('warning', { borderFallback: 100 }),
-  },
-  {
-    name: 'Info ramp',
-    description: 'Cyan ramp used in inline guidance, helper banners, and analytics overlays.',
-    swatches: buildRamp('info', { borderFallback: 100 }),
-  },
-  {
-    name: 'Destructive ramp',
-    description: 'Red ramp for failure states, destructive confirmations, and alert badges.',
-    swatches: buildRamp('destructive', { borderFallback: 100 }),
-  },
-];
-
-export const spacingTokens = [
-  {
-    name: 'Space XS',
-    utility: '.gap-xs / .py-xs',
-    cssVar: '--space-xs',
-    description: 'Micro spacing for icon alignment and dense clusters.',
-  },
-  {
-    name: 'Space SM',
-    utility: '.gap-sm / .px-sm',
-    cssVar: '--space-sm',
-    description: 'Tight spacing for form controls and inline groups.',
-  },
-  {
-    name: 'Space MD',
-    utility: '.gap-md / .px-md',
-    cssVar: '--space-md',
-    description: 'Default body spacing used between related elements.',
-  },
-  {
-    name: 'Space LG',
-    utility: '.gap-lg / .py-lg',
-    cssVar: '--space-lg',
-    description: 'Section padding and comfortable breathing room.',
-  },
-  {
-    name: 'Space XL',
-    utility: '.gap-xl / .py-xl',
-    cssVar: '--space-xl',
-    description: 'Major page framing and hero layouts.',
+    swatchClass: 'bg-destructive text-destructive-foreground',
+    description: 'High-attention states such as errors and destructive confirmations.',
   },
 ];
 
@@ -127,12 +45,12 @@ export const radiiTokens = [
   {
     name: 'Radius MD',
     className: 'rounded-md',
-    description: 'Used for nested surfaces (inputs, secondary cards).',
+    description: 'Used for nested surfaces such as inputs and menus.',
   },
   {
     name: 'Radius SM',
     className: 'rounded-sm',
-    description: 'Applies to tight elements such as tags and table chips.',
+    description: 'Applies to tight elements like tags and table chips.',
   },
 ];
 

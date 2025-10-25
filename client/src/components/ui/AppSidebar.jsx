@@ -53,7 +53,7 @@ function SidebarNavItem({ icon: Icon, label, to, onClick }) {
         className={({ isActive }) =>
           cn(
             buttonVariants({ variant: 'ghost', size: 'default' }),
-            'h-10 w-full justify-start gap-sm rounded-lg text-left text-sm font-medium transition-colors',
+            'h-10 w-full justify-start gap-2 rounded-lg text-left text-sm font-medium transition-colors',
             isActive
               ? 'bg-muted text-foreground hover:bg-muted/80'
               : 'text-muted-foreground hover:bg-muted hover:text-foreground'
@@ -109,7 +109,7 @@ function UserMenu({ onNavigate }) {
       <button
         type="button"
         className={cn(
-          'flex w-full items-center gap-sm rounded-lg px-3 py-2 text-left transition',
+          'flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left transition',
           'hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
         )}
         onClick={() => setOpen((prev) => !prev)}
@@ -131,7 +131,7 @@ function UserMenu({ onNavigate }) {
       </button>
       {open ? (
         <div className="absolute bottom-full right-0 z-50 mb-3 w-64 overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-xl">
-          <div className="flex items-center gap-sm px-4 py-3">
+          <div className="flex items-center gap-2 px-4 py-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-full bg-muted text-sm font-medium text-foreground">
               N
             </div>
@@ -213,7 +213,7 @@ function AppSidebar({ open, onClose }) {
             to="/create"
             className={cn(
               buttonVariants({ variant: 'default', size: 'default' }),
-              'w-full gap-sm justify-start text-left'
+              'w-full gap-2 justify-start text-left'
             )}
           >
             <CirclePlus className="h-4 w-4" aria-hidden />

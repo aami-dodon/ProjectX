@@ -2,86 +2,48 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Home } from 'lucide-react';
 import ThemeToggleCard from '../../components/ui/ThemeToggleCard';
-import {
-  colorTokens,
-  colorRamps,
-  spacingTokens,
-  radiiTokens,
-  buttonVariants as buttonVariantTokens,
-} from '../../features/theme';
+import { colorTokens, radiiTokens, buttonVariants as buttonVariantTokens } from '../../features/theme';
 import { Card, CardTitle, CardDescription } from '../../components/ui/card';
 import { Button, buttonVariants } from '../../components/ui/button';
 
 const PageHeader = ({ title, eyebrow, description, descriptionClassName }) => {
   return (
-    <header className="flex flex-col gap-sm">
-      <div className="flex flex-wrap items-center justify-between gap-sm">
-        <div className="flex flex-col gap-xs">
-          {eyebrow ? <span className="eyebrow text-primary">{eyebrow}</span> : null}
-          <h1 className="h1">{title}</h1>
+    <header className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-col gap-2">
+          {eyebrow ? (
+            <span className="text-xs font-semibold uppercase tracking-widest text-primary">{eyebrow}</span>
+          ) : null}
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">{title}</h1>
         </div>
-        <Link
-          to="/"
-          className={`${buttonVariants({ variant: 'ghost' })} inline-flex items-center gap-xs`}
-        >
+        <Link to="/" className={`${buttonVariants({ variant: 'ghost' })} inline-flex items-center gap-2`}>
           <Home className="h-4 w-4" />
           <span>Back to home</span>
         </Link>
       </div>
       {description ? (
-        <p className={descriptionClassName ?? 'body-sm text-muted'}>{description}</p>
+        <p className={descriptionClassName ?? 'text-sm text-muted-foreground'}>{description}</p>
       ) : null}
     </header>
   );
 };
 
 const ColorTokensSection = () => (
-  <Card className="space-y-md">
-    <div className="space-y-xs">
+  <Card className="space-y-4">
+    <div className="space-y-2">
       <CardTitle>Color tokens</CardTitle>
       <CardDescription>
-        Preview surface, text, and semantic colors pulled directly from the theme system.
+        Preview the core surfaces and semantic accents provided by the shadcn/ui theme.
       </CardDescription>
     </div>
-    <div className="grid gap-md md:grid-cols-2">
+    <div className="grid gap-4 md:grid-cols-2">
       {colorTokens.map((token) => (
         <div
           key={token.name}
-          className={`flex flex-col gap-xs rounded-lg border border-border/60 px-md py-md shadow-sm transition-colors ${token.swatchClass}`}
+          className={`flex flex-col gap-2 rounded-lg border border-border/60 p-4 shadow-sm transition-colors ${token.swatchClass}`}
         >
-          <span className="body-sm font-semibold">{token.name}</span>
-          <p className="body-xs opacity-80">{token.description}</p>
-        </div>
-      ))}
-    </div>
-  </Card>
-);
-
-const SpacingTokensSection = () => (
-  <Card className="space-y-md">
-    <div className="space-y-xs">
-      <CardTitle>Spacing scale</CardTitle>
-      <CardDescription>
-        The spacing system keeps vertical rhythm and responsive padding consistent across layouts.
-      </CardDescription>
-    </div>
-    <div className="grid gap-md md:grid-cols-2">
-      {spacingTokens.map((token) => (
-        <div
-          key={token.name}
-          className="flex flex-col gap-sm rounded-lg border border-dashed border-border/70 bg-muted/40 px-md py-sm"
-        >
-          <div className="flex items-baseline justify-between gap-md">
-            <div>
-              <p className="body-sm font-semibold text-foreground">{token.name}</p>
-              <p className="body-xs text-muted-foreground">{token.utility}</p>
-            </div>
-            <span className="body-xs font-mono text-muted-foreground">{token.cssVar}</span>
-          </div>
-          <div className="flex items-center justify-start">
-            <div className="h-2 rounded-full bg-primary-400" style={{ width: `calc(var(${token.cssVar}) * 14)` }} />
-          </div>
-          <p className="body-xs text-muted-foreground">{token.description}</p>
+          <span className="text-sm font-semibold">{token.name}</span>
+          <p className="text-xs opacity-80">{token.description}</p>
         </div>
       ))}
     </div>
@@ -89,49 +51,20 @@ const SpacingTokensSection = () => (
 );
 
 const RadiiTokensSection = () => (
-  <Card className="space-y-md">
-    <div className="space-y-xs">
+  <Card className="space-y-4">
+    <div className="space-y-2">
       <CardTitle>Radii scale</CardTitle>
       <CardDescription>
-        Rounded corners create the tactile feel of the interface, scaling with component hierarchy.
+        Rounded corners help components feel tactile and consistent across the interface.
       </CardDescription>
     </div>
-    <div className="grid gap-md sm:grid-cols-3">
+    <div className="grid gap-4 sm:grid-cols-3">
       {radiiTokens.map((token) => (
-        <div key={token.name} className="flex flex-col items-center gap-sm text-center">
-          <div className={`h-24 w-full max-w-[120px] border border-border/60 bg-secondary-50 ${token.className}`} />
+        <div key={token.name} className="flex flex-col items-center gap-2 text-center">
+          <div className={`h-24 w-full max-w-[120px] border border-border/60 bg-muted ${token.className}`} />
           <div className="space-y-1">
-            <p className="body-sm font-semibold text-foreground">{token.name}</p>
-            <p className="body-xs text-muted-foreground">{token.description}</p>
-          </div>
-        </div>
-      ))}
-    </div>
-  </Card>
-);
-
-const ColorRampsSection = () => (
-  <Card className="space-y-md">
-    <div className="space-y-xs">
-      <CardTitle>Color ramps</CardTitle>
-      <CardDescription>
-        Multi-step scales unlock consistent hover states, analytics palettes, and stateful gradients.
-      </CardDescription>
-    </div>
-    <div className="space-y-md">
-      {colorRamps.map((ramp) => (
-        <div key={ramp.name} className="space-y-sm">
-          <div className="space-y-1">
-            <p className="body-sm font-semibold text-foreground">{ramp.name}</p>
-            <p className="body-xs text-muted-foreground">{ramp.description}</p>
-          </div>
-          <div className="grid grid-cols-5 gap-sm sm:grid-cols-10">
-            {ramp.swatches.map((swatch) => (
-              <div key={swatch.step} className="flex flex-col items-center gap-xs">
-                <div className={`h-10 w-full rounded-md ${swatch.swatchClass}`} aria-hidden="true" />
-                <span className="caption text-muted-foreground">{swatch.step}</span>
-              </div>
-            ))}
+            <p className="text-sm font-semibold text-foreground">{token.name}</p>
+            <p className="text-xs text-muted-foreground">{token.description}</p>
           </div>
         </div>
       ))}
@@ -140,14 +73,14 @@ const ColorRampsSection = () => (
 );
 
 const ButtonTokensSection = () => (
-  <Card className="space-y-md">
-    <div className="space-y-xs">
+  <Card className="space-y-4">
+    <div className="space-y-2">
       <CardTitle>Button variants</CardTitle>
       <CardDescription>
-        Each variant inherits typography, spacing, and state tokens managed by the theme.
+        Each variant uses the shared theme tokens for color, radius, and typography.
       </CardDescription>
     </div>
-    <div className="flex flex-wrap gap-sm">
+    <div className="flex flex-wrap gap-3">
       {buttonVariantTokens.map((button) => (
         <Button key={button.variant} variant={button.variant}>
           {button.label}
@@ -159,17 +92,15 @@ const ButtonTokensSection = () => (
 
 const ThemePage = () => {
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-xl py-[calc(var(--space-xl)+var(--space-lg))]">
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 py-16">
       <PageHeader
         title="Theme &amp; Tokens"
-        description="Explore the reusable primitives that power the product interface and quickly preview theme switching."
+        description="Explore the reusable primitives that power shadcn/ui components across the product."
       />
 
-      <div className="flex flex-col gap-xl">
+      <div className="flex flex-col gap-8">
         <ThemeToggleCard />
         <ColorTokensSection />
-        <ColorRampsSection />
-        <SpacingTokensSection />
         <RadiiTokensSection />
         <ButtonTokensSection />
       </div>

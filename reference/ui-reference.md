@@ -124,9 +124,7 @@ client/
     │       └── ...
     │
     ├── styles/
-    │   ├── theme.css                 # Tokens: colors, spacing, typography
-    │   ├── global.css                # Tailwind base, imports theme.css
-    │   └── prose.css                 # Rich text / markdown styling
+    │   └── theme.css                 # Tokens and Tailwind base layers
     │
     ├── hooks/
     │   ├── useTheme.js               # Theme switching (light/dark)
