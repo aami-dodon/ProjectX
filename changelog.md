@@ -3,6 +3,11 @@
 - Introduced CI check (`npm run openapi:check`) to ensure the spec builds successfully during test runs.
 - Documented the new API documentation workflow in `docs/02-technical-specifications/02-backend-architecture-and-apis.md`.
 
+
+## 2025-10-25 06:12:22 IST
+- Unified the health and theme single pages behind a shared layout shell with a centralized header that links back home.
+- Matched typography, button variants, and Lucide icons across both routes while standardizing the page width to the design tokens.
+
 ## 2025-10-25 06:07:46 IST
 - Restyled the editor toolbar groups to remove pill backgrounds, tighten icon spacing, and rely on dividers for separation.
 - Updated the toolbar layout to eliminate inter-group gaps while keeping vertical dividers between all control clusters.
