@@ -11,33 +11,77 @@ export const colorTokens = [
   },
   {
     name: 'Primary',
-    swatchClass: 'bg-primary text-primary-foreground',
+    swatchClass: 'bg-primary-500 text-primary-foreground',
     description: 'Brand accent used for primary actions and key highlights.',
   },
   {
     name: 'Secondary',
-    swatchClass: 'bg-secondary text-secondary-foreground',
+    swatchClass: 'bg-secondary-200 text-secondary-900',
     description: 'Subtle accent for secondary actions and neutral surfaces.',
   },
   {
     name: 'Success',
-    swatchClass: 'bg-success text-success-foreground',
+    swatchClass: 'bg-success-500 text-success-50',
     description: 'Positive confirmations and healthy status messaging.',
   },
   {
     name: 'Warning',
-    swatchClass: 'bg-warning text-warning-foreground',
+    swatchClass: 'bg-warning-400 text-warning-900',
     description: 'Cautions, reminders, and soft alerts that precede destructive flows.',
   },
   {
     name: 'Info',
-    swatchClass: 'bg-info text-info-foreground',
+    swatchClass: 'bg-info-500 text-info-50',
     description: 'Supportive informational banners or inline help text.',
   },
   {
     name: 'Destructive',
-    swatchClass: 'bg-destructive text-destructive-foreground',
+    swatchClass: 'bg-destructive-500 text-destructive-50',
     description: 'Dangerous operations like deletions and revocations.',
+  },
+];
+
+const rampSteps = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900];
+
+const buildRamp = (token, { borderFallback = 200 } = {}) =>
+  rampSteps.map((step, index) => {
+    const borderStep = index === 0 ? borderFallback : index === rampSteps.length - 1 ? rampSteps[index - 1] : step;
+    return {
+      step,
+      swatchClass: `border border-${token}-${borderStep} bg-${token}-${step}`,
+    };
+  });
+
+export const colorRamps = [
+  {
+    name: 'Primary ramp',
+    description: 'Ten-step scale for brand-forward accents, call-to-action hover states, and data visualization.',
+    swatches: buildRamp('primary', { borderFallback: 100 }),
+  },
+  {
+    name: 'Secondary ramp',
+    description: 'Cool neutral ramp for secondary surfaces and subdued interface chrome.',
+    swatches: buildRamp('secondary', { borderFallback: 100 }),
+  },
+  {
+    name: 'Success ramp',
+    description: 'Green ramp to represent healthy states, trends, and SLA progress.',
+    swatches: buildRamp('success', { borderFallback: 100 }),
+  },
+  {
+    name: 'Warning ramp',
+    description: 'Amber ramp tuned for cautionary messaging and “at risk” signals prior to errors.',
+    swatches: buildRamp('warning', { borderFallback: 100 }),
+  },
+  {
+    name: 'Info ramp',
+    description: 'Cyan ramp used in inline guidance, helper banners, and analytics overlays.',
+    swatches: buildRamp('info', { borderFallback: 100 }),
+  },
+  {
+    name: 'Destructive ramp',
+    description: 'Red ramp for failure states, destructive confirmations, and alert badges.',
+    swatches: buildRamp('destructive', { borderFallback: 100 }),
   },
 ];
 

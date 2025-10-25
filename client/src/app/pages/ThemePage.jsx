@@ -1,6 +1,12 @@
 import React from 'react';
 import ThemeToggleCard from '../../components/ui/ThemeToggleCard';
-import { colorTokens, spacingTokens, radiiTokens, buttonVariants as buttonVariantTokens } from '../../features/theme';
+import {
+  colorTokens,
+  colorRamps,
+  spacingTokens,
+  radiiTokens,
+  buttonVariants as buttonVariantTokens,
+} from '../../features/theme';
 import { SinglePageLayout, PageHeader } from '../layout/SinglePageLayout';
 import { Card, CardTitle, CardDescription } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
@@ -17,7 +23,7 @@ const ColorTokensSection = () => (
       {colorTokens.map((token) => (
         <div
           key={token.name}
-          className={`flex flex-col gap-xs rounded-lg border border-border/80 px-md py-md shadow-sm ${token.swatchClass}`}
+          className={`flex flex-col gap-xs rounded-lg border border-border/60 px-md py-md shadow-sm transition-colors ${token.swatchClass}`}
         >
           <span className="body-sm font-semibold">{token.name}</span>
           <p className="body-xs opacity-80">{token.description}</p>
@@ -39,19 +45,19 @@ const SpacingTokensSection = () => (
       {spacingTokens.map((token) => (
         <div
           key={token.name}
-          className="flex flex-col gap-sm rounded-lg border border-dashed border-border/80 bg-muted/30 px-md py-sm"
+          className="flex flex-col gap-sm rounded-lg border border-dashed border-border/70 bg-muted/40 px-md py-sm"
         >
           <div className="flex items-baseline justify-between gap-md">
             <div>
               <p className="body-sm font-semibold text-foreground">{token.name}</p>
-              <p className="body-xs text-muted">{token.utility}</p>
+              <p className="body-xs text-muted-foreground">{token.utility}</p>
             </div>
-            <span className="body-xs font-mono text-muted">{token.cssVar}</span>
+            <span className="body-xs font-mono text-muted-foreground">{token.cssVar}</span>
           </div>
           <div className="flex items-center justify-start">
-            <div className="h-2 rounded-full bg-primary" style={{ width: `calc(var(${token.cssVar}) * 14)` }} />
+            <div className="h-2 rounded-full bg-primary-400" style={{ width: `calc(var(${token.cssVar}) * 14)` }} />
           </div>
-          <p className="body-xs text-muted">{token.description}</p>
+          <p className="body-xs text-muted-foreground">{token.description}</p>
         </div>
       ))}
     </div>
@@ -69,10 +75,39 @@ const RadiiTokensSection = () => (
     <div className="grid gap-md sm:grid-cols-3">
       {radiiTokens.map((token) => (
         <div key={token.name} className="flex flex-col items-center gap-sm text-center">
-          <div className={`h-24 w-full max-w-[120px] border border-border bg-accent/40 ${token.className}`} />
+          <div className={`h-24 w-full max-w-[120px] border border-border/60 bg-secondary-50 ${token.className}`} />
           <div className="space-y-1">
             <p className="body-sm font-semibold text-foreground">{token.name}</p>
-            <p className="body-xs text-muted">{token.description}</p>
+            <p className="body-xs text-muted-foreground">{token.description}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </Card>
+);
+
+const ColorRampsSection = () => (
+  <Card className="space-y-md">
+    <div className="space-y-xs">
+      <CardTitle>Color ramps</CardTitle>
+      <CardDescription>
+        Multi-step scales unlock consistent hover states, analytics palettes, and stateful gradients.
+      </CardDescription>
+    </div>
+    <div className="space-y-md">
+      {colorRamps.map((ramp) => (
+        <div key={ramp.name} className="space-y-sm">
+          <div className="space-y-1">
+            <p className="body-sm font-semibold text-foreground">{ramp.name}</p>
+            <p className="body-xs text-muted-foreground">{ramp.description}</p>
+          </div>
+          <div className="grid grid-cols-5 gap-sm sm:grid-cols-10">
+            {ramp.swatches.map((swatch) => (
+              <div key={swatch.step} className="flex flex-col items-center gap-xs">
+                <div className={`h-10 w-full rounded-md ${swatch.swatchClass}`} aria-hidden="true" />
+                <span className="caption text-muted-foreground">{swatch.step}</span>
+              </div>
+            ))}
           </div>
         </div>
       ))}
@@ -109,6 +144,7 @@ const ThemePage = () => {
       <div className="flex flex-col gap-xl">
         <ThemeToggleCard />
         <ColorTokensSection />
+        <ColorRampsSection />
         <SpacingTokensSection />
         <RadiiTokensSection />
         <ButtonTokensSection />
