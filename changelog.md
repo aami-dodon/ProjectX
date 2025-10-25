@@ -1,3 +1,8 @@
+## 2025-10-25 08:20:35 IST
+- Reorganized the client app structure with dedicated layout and router directories under `src/app` and moved the theme page into the consolidated pages module.
+- Added a primary navigation layout shell and central route configuration to match the new folder hierarchy.
+- Expanded the health feature with service and utility layers, refreshed exports, and documented the module boundaries.
+
 ## 2025-10-25 09:30:00 IST
 - Restructured the theme feature into components, hooks, services, and utils folders with a documented README for future growth.
 - Moved the theme provider, hook, and token exports to the new layout and updated pages to consume the aggregated feature API.

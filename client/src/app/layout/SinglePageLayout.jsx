@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Home } from 'lucide-react';
-import { buttonVariants } from '../ui/button';
+import { buttonVariants } from '../../components/ui/button';
 import { cn } from '../../lib/utils';
 
 export const SinglePageLayout = ({ children, className }) => {

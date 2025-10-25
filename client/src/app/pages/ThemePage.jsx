@@ -1,14 +1,8 @@
 import React from 'react';
-import {
-  ThemeToggleCard,
-  colorTokens,
-  spacingTokens,
-  radiiTokens,
-  buttonVariants as buttonVariantTokens,
-} from '../features/theme';
-import { SinglePageLayout, PageHeader } from '../components/layout/SinglePageLayout';
-import { Card, CardTitle, CardDescription } from '../components/ui/card';
-import { Button } from '../components/ui/button';
+import { ThemeToggleCard, colorTokens, spacingTokens, radiiTokens, buttonVariants as buttonVariantTokens } from '../../features/theme';
+import { SinglePageLayout, PageHeader } from '../layout/SinglePageLayout';
+import { Card, CardTitle, CardDescription } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
 
 const ColorTokensSection = () => (
   <Card className="space-y-md">
@@ -54,10 +48,7 @@ const SpacingTokensSection = () => (
             <span className="body-xs font-mono text-muted">{token.cssVar}</span>
           </div>
           <div className="flex items-center justify-start">
-            <div
-              className="h-2 rounded-full bg-primary"
-              style={{ width: `calc(var(${token.cssVar}) * 14)` }}
-            />
+            <div className="h-2 rounded-full bg-primary" style={{ width: `calc(var(${token.cssVar}) * 14)` }} />
           </div>
           <p className="body-xs text-muted">{token.description}</p>
         </div>
@@ -77,9 +68,7 @@ const RadiiTokensSection = () => (
     <div className="grid gap-md sm:grid-cols-3">
       {radiiTokens.map((token) => (
         <div key={token.name} className="flex flex-col items-center gap-sm text-center">
-          <div
-            className={`h-24 w-full max-w-[120px] border border-border bg-accent/40 ${token.className}`}
-          />
+          <div className={`h-24 w-full max-w-[120px] border border-border bg-accent/40 ${token.className}`} />
           <div className="space-y-1">
             <p className="body-sm font-semibold text-foreground">{token.name}</p>
             <p className="body-xs text-muted">{token.description}</p>
