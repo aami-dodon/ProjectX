@@ -1,3 +1,6 @@
+## 2025-10-25 17:45:00 IST
+- Deferred non-critical home page panels behind lazy-loaded boundaries with skeleton placeholders to cut initial bundle size and improve first paint timings.
+
 ## 2025-10-25 16:30:00 IST
 - Added a profile dropdown menu to the AppSidebar that mirrors the reference layout with account, billing, notifications, and logout actions.
 
