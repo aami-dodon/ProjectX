@@ -1,3 +1,6 @@
+## 2025-10-26 02:28:15 IST
+- Matched the dashboard grid column width to the sidebar's 18rem rail so the header and sidebar borders align cleanly without overlap.
+
 ## 2025-10-25 16:30:00 IST
 - Added a profile dropdown menu to the AppSidebar that mirrors the reference layout with account, billing, notifications, and logout actions.
 

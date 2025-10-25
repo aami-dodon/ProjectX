@@ -26,7 +26,7 @@ function DashboardLayout() {
   }, [open]);
 
   return (
-    <div className="grid h-screen grid-cols-1 lg:grid-cols-[280px_1fr]">
+    <div className="grid h-screen grid-cols-1 lg:grid-cols-[18rem_1fr]">
       {/* Sidebar stays fixed */}
       <AppSidebar open={open} onClose={() => setOpen(false)} />
 
