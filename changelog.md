@@ -1,3 +1,7 @@
+## 2025-10-25 13:06:21 IST
+- Inlined the single page layout shell within the home, health, and theme pages to remove the shared layout dependency.
+- Deleted `client/src/app/layout/SinglePageLayout.jsx` after migrating each page to a self-contained structure with embedded headers.
+
 ## 2025-10-25 13:00:32 IST
 - Relocated the dashboard AppSidebar and SiteHeader into `client/src/components/ui` so shared layouts consume the common shell primitives directly.
 

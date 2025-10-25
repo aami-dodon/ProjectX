@@ -1,4 +1,6 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { Home } from 'lucide-react';
 import ThemeToggleCard from '../../components/ui/ThemeToggleCard';
 import {
   colorTokens,
@@ -7,9 +9,31 @@ import {
   radiiTokens,
   buttonVariants as buttonVariantTokens,
 } from '../../features/theme';
-import { SinglePageLayout, PageHeader } from '../layout/SinglePageLayout';
 import { Card, CardTitle, CardDescription } from '../../components/ui/card';
-import { Button } from '../../components/ui/button';
+import { Button, buttonVariants } from '../../components/ui/button';
+
+const PageHeader = ({ title, eyebrow, description, descriptionClassName }) => {
+  return (
+    <header className="flex flex-col gap-sm">
+      <div className="flex flex-wrap items-center justify-between gap-sm">
+        <div className="flex flex-col gap-xs">
+          {eyebrow ? <span className="eyebrow text-primary">{eyebrow}</span> : null}
+          <h1 className="h1">{title}</h1>
+        </div>
+        <Link
+          to="/"
+          className={`${buttonVariants({ variant: 'ghost' })} inline-flex items-center gap-xs`}
+        >
+          <Home className="h-4 w-4" />
+          <span>Back to home</span>
+        </Link>
+      </div>
+      {description ? (
+        <p className={descriptionClassName ?? 'body-sm text-muted'}>{description}</p>
+      ) : null}
+    </header>
+  );
+};
 
 const ColorTokensSection = () => (
   <Card className="space-y-md">
@@ -135,7 +159,7 @@ const ButtonTokensSection = () => (
 
 const ThemePage = () => {
   return (
-    <SinglePageLayout>
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-xl py-[calc(var(--space-xl)+var(--space-lg))]">
       <PageHeader
         title="Theme &amp; Tokens"
         description="Explore the reusable primitives that power the product interface and quickly preview theme switching."
@@ -149,7 +173,7 @@ const ThemePage = () => {
         <RadiiTokensSection />
         <ButtonTokensSection />
       </div>
-    </SinglePageLayout>
+    </div>
   );
 };
 
