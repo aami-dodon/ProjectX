@@ -220,3 +220,11 @@
 - Updated `client/src/components/ui/ThemeToggleCard.jsx` to self-manage theme locally without the feature provider.
 - Removed the server health endpoint by deleting `server/src/modules/health` and its test, and unmounting the route in `server/src/app.js`.
 - Cleaned up the AppSidebar to drop the Dashboard link and simplified header title logic accordingly.
+## 2025-10-26 04:21:18 IST
+- Removed unused client components and files to streamline the bundle while preserving the editor module:
+  - Deleted `client/src/components/ui/ThemeToggleCard.jsx`
+  - Deleted `client/src/components/ui/input.jsx`
+  - Deleted `client/src/components/ui/switch.jsx`
+  - Deleted `client/src/components/ui/button.stories.jsx`
+  - Deleted `client/src/lib/api-client.js`
+  - Kept `client/src/components/editor/**` intact as requested
