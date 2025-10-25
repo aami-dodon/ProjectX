@@ -1,5 +1,4 @@
 import React from 'react';
-import { Slot } from '@radix-ui/react-slot';
 import { cva } from 'class-variance-authority';
 import { cn } from '../../lib/utils';
 
@@ -29,19 +28,15 @@ export const buttonVariants = cva(
   }
 );
 
-export const Button = React.forwardRef(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Component = asChild ? Slot : 'button';
-
-    return (
-      <Component
-        ref={ref}
-        className={cn(buttonVariants({ variant, size }), className)}
-        {...props}
-      />
-    );
-  }
-);
+export const Button = React.forwardRef(({ className, variant, size, ...props }, ref) => {
+  return (
+    <button
+      ref={ref}
+      className={cn(buttonVariants({ variant, size }), className)}
+      {...props}
+    />
+  );
+});
 
 Button.displayName = 'Button';
 
