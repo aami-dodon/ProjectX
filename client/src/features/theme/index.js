@@ -1,4 +1,4 @@
-export { ThemeProvider } from './ThemeProvider';
-export { default as useTheme } from './useTheme';
+export { ThemeProvider } from './components/ThemeProvider';
 export { default as ThemeToggleCard } from './components/ThemeToggleCard';
-export * from './tokens';
+export { default as useTheme } from './hooks/useTheme';
+export * from './utils/tokens';
