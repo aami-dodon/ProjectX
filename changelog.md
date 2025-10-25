@@ -244,3 +244,9 @@
 - Updated router import in `client/src/app/router/AppRoutes.jsx:1` to reference the new path; adjusted HomePage’s feature imports to `from '..'`.
 ## 2025-10-26 05:04:40 IST
 - Fixed Vite import path case for Button in `client/src/features/home/components/OnboardingCtaSection.jsx` to resolve the Pre-transform error caused by importing from `components/ui/Button` instead of `components/ui/button`.
+## 2025-10-26 05:20:00 IST
+- Migrated stylesheet from `client/src/styles/theme.css` to `client/src/global.css` to centralize global Tailwind layers and design tokens at the root of `src`.
+- Updated client entry import in `client/src/main.jsx:5` to `import './global.css';` and removed the old file to avoid duplicate styling.
+## 2025-10-26 05:34:00 IST
+- Moved `client/src/global.css` to `client/src/styles/global.css` to keep all styles under the `styles/` directory per project conventions.
+- Updated import in `client/src/main.jsx:5` to `import './styles/global.css';` and deleted the original file path.
