@@ -14,8 +14,13 @@ import {
   Settings,
   HelpCircle,
   Search,
+  UserCircle,
+  CreditCard,
+  Bell,
+  LogOut,
+  ChevronUp,
 } from 'lucide-react';
-import { Button, buttonVariants } from '@/components/ui/button.jsx';
+import { buttonVariants } from '@/components/ui/button.jsx';
 import { cn } from '@/lib/utils.js';
 
 const primaryNav = [
@@ -60,6 +65,119 @@ function SidebarNavItem({ icon: Icon, label, to, onClick }) {
         <span className="flex-1 text-left">{label}</span>
       </NavLink>
     </li>
+  );
+}
+
+function UserMenu({ onNavigate }) {
+  const [open, setOpen] = React.useState(false);
+  const menuRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (!open) {
+      return undefined;
+    }
+
+    function handleClick(event) {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    }
+
+    function handleKeydown(event) {
+      if (event.key === 'Escape') {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClick);
+    document.addEventListener('keydown', handleKeydown);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      document.removeEventListener('keydown', handleKeydown);
+    };
+  }, [open]);
+
+  const menuItems = [
+    { label: 'Account', to: '/account', icon: UserCircle },
+    { label: 'Billing', to: '/billing', icon: CreditCard },
+    { label: 'Notifications', to: '/notifications', icon: Bell },
+  ];
+
+  return (
+    <div ref={menuRef} className="relative">
+      <button
+        type="button"
+        className={cn(
+          'flex w-full items-center gap-sm rounded-lg px-3 py-2 text-left transition',
+          'hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
+        )}
+        onClick={() => setOpen((prev) => !prev)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+      >
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-medium text-foreground">
+          N
+        </div>
+        <div className="flex flex-1 flex-col">
+          <span className="text-sm font-semibold text-foreground">shadcn</span>
+          <span className="text-xs text-muted-foreground">m@example.com</span>
+        </div>
+        <ChevronUp
+          className={cn('h-4 w-4 text-muted-foreground transition-transform', open ? 'rotate-0' : 'rotate-180')}
+          aria-hidden
+        />
+        <span className="sr-only">Account menu</span>
+      </button>
+      {open ? (
+        <div className="absolute bottom-full right-0 z-50 mb-3 w-64 overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-xl">
+          <div className="flex items-center gap-sm px-4 py-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-muted text-sm font-medium text-foreground">
+              N
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold text-foreground">shadcn</span>
+              <span className="text-xs text-muted-foreground">m@example.com</span>
+            </div>
+          </div>
+          <div className="border-t border-border px-2 py-2">
+            <nav className="flex flex-col gap-1">
+              {menuItems.map(({ label, to, icon: Icon }) => (
+                <Link
+                  key={label}
+                  to={to}
+                  className="flex items-center gap-3 rounded-md px-2.5 py-2 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
+                  onClick={() => {
+                    setOpen(false);
+                    if (onNavigate) {
+                      onNavigate();
+                    }
+                  }}
+                >
+                  <Icon className="h-4 w-4" aria-hidden />
+                  {label}
+                </Link>
+              ))}
+            </nav>
+          </div>
+          <div className="border-t border-border px-2 py-2">
+            <Link
+              to="/logout"
+              className="flex items-center gap-3 rounded-md px-2.5 py-2 text-sm font-medium text-destructive transition hover:bg-muted hover:text-destructive"
+              onClick={() => {
+                setOpen(false);
+                if (onNavigate) {
+                  onNavigate();
+                }
+              }}
+            >
+              <LogOut className="h-4 w-4" aria-hidden />
+              Log out
+            </Link>
+          </div>
+        </div>
+      ) : null}
+    </div>
   );
 }
 
@@ -128,7 +246,7 @@ function AppSidebar({ open, onClose }) {
         </div>
 
         {/* Bottom section */}
-        <div className="px-6 mt-auto">
+        <div className="px-6 mt-auto pb-6">
           {/* Settings */}
           <div className="mb-3">
             <ul className="flex flex-col space-y-0">
@@ -139,19 +257,7 @@ function AppSidebar({ open, onClose }) {
           </div>
 
           {/* Profile */}
-          <div className="flex items-center gap-sm py-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-medium text-foreground">
-              N
-            </div>
-            <div className="flex flex-1 flex-col">
-              <span className="text-sm font-semibold text-foreground">shadcn</span>
-              <span className="text-xs text-muted-foreground">m@example.com</span>
-            </div>
-            <Button variant="ghost" size="icon" className="rounded-full">
-              <Ellipsis className="h-4 w-4" aria-hidden />
-              <span className="sr-only">Account menu</span>
-            </Button>
-          </div>
+          <UserMenu onNavigate={onClose} />
         </div>
       </aside>
     </>
