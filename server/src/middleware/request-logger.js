@@ -1,26 +1,68 @@
-const pinoHttp = require('pino-http');
-const { baseLogger } = require('../utils/logger');
+const morgan = require('morgan');
+const { createLogger } = require('../utils/logger');
 
-const requestLogger = pinoHttp({
-  logger: baseLogger,
-  customLogLevel: (res, err) => {
-    if (res.statusCode >= 500 || err) {
-      return 'error';
+const httpLogger = createLogger('http');
+
+const requestLogger = morgan(
+  (tokens, req, res) => {
+    const status = Number(tokens.status(req, res)) || 0;
+    const responseTime = tokens['response-time'](req, res);
+    const contentLength = tokens.res(req, res, 'content-length');
+    const parsedContentLength = Number.parseInt(contentLength, 10);
+
+    const logPayload = {
+      method: tokens.method(req, res),
+      url: tokens.url(req, res),
+      statusCode: status,
+      responseTimeMs: responseTime ? Number.parseFloat(responseTime) : undefined,
+      contentLength: Number.isNaN(parsedContentLength) ? undefined : parsedContentLength,
+      remoteAddress: tokens['remote-addr'](req, res),
+      userAgent: tokens['user-agent'](req, res),
+      requestId: req?.context?.requestId ?? null,
+      traceId: req?.context?.traceId ?? null,
+    };
+
+    if (req?.context?.userId) {
+      logPayload.userId = req.context.userId;
     }
-    if (res.statusCode >= 400) {
-      return 'warn';
-    }
-    return 'info';
+
+    return JSON.stringify(logPayload);
   },
-  customProps: (req, res) => ({
-    requestId: req?.context?.requestId,
-    traceId: req?.context?.traceId,
-    path: req.url,
-    method: req.method,
-    statusCode: res.statusCode,
-  }),
-});
+  {
+    stream: {
+      write: (message) => {
+        const trimmedMessage = message.trim();
+        if (!trimmedMessage) {
+          return;
+        }
+
+        let payload;
+        try {
+          payload = JSON.parse(trimmedMessage);
+        } catch (error) {
+          httpLogger.warn({ error: error.message, raw: trimmedMessage }, 'Unable to parse HTTP log entry');
+          return;
+        }
+
+        const { statusCode, requestId, traceId, ...metadata } = payload;
+
+        const level = statusCode >= 500 ? 'error' : statusCode >= 400 ? 'warn' : 'info';
+
+        httpLogger[level](
+          {
+            requestId,
+            traceId,
+            statusCode,
+            ...metadata,
+          },
+          'HTTP request completed'
+        );
+      },
+    },
+  }
+);
 
 module.exports = {
   requestLogger,
 };
+
