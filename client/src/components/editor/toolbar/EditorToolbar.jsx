@@ -208,13 +208,9 @@ export const EditorToolbar = ({ editor }) => {
         </ToolbarGroup>
       </div>
 
-      <div className="flex basis-full flex-col gap-2 sm:basis-auto sm:flex-row sm:items-center sm:gap-2">
-        <ToolbarDivider
-          orientation="horizontal"
-          className="w-full sm:hidden"
-        />
-        <ToolbarDivider className="hidden h-6 sm:block sm:mx-1" />
-        <ToolbarGroup className="w-full justify-end sm:ml-auto sm:w-auto sm:justify-start">
+      <div className="flex items-center gap-2 ml-auto">
+        <ToolbarDivider orientation="vertical" className="h-6" />
+        <ToolbarGroup>
           <ToolbarButton
             icon={Undo2}
             label="Undo"

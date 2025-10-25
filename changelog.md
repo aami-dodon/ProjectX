@@ -1,3 +1,7 @@
+## 2025-10-25 05:37:13 IST
+- Simplified the editor toolbar layout so undo and redo stay in the main action row across breakpoints.
+- Swapped the divider beside undo/redo to the vertical variant for consistent alignment with other controls.
+
 ## 2025-10-25 05:31:35 IST
 - Moved the operational health dashboard to the `/health` route while preserving existing tooling.
 - Replaced the home route with a minimal "Hello world" landing view.
