@@ -1,3 +1,8 @@
+## 2025-10-25 05:31:35 IST
+- Moved the operational health dashboard to the `/health` route while preserving existing tooling.
+- Replaced the home route with a minimal "Hello world" landing view.
+- Added navigation from the health dashboard back to the new home page to keep routes discoverable.
+
 ## 2025-10-25 05:23:48 IST
 - Reworked the editor toolbar layout to keep control groups scrollable and aligned while remaining responsive across breakpoints.
 - Added a directional option to the toolbar divider so it can render horizontal separators when the action row stacks.
