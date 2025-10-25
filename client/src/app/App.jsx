@@ -5,8 +5,7 @@ import useHealthData from '../features/health/hooks/useHealthData';
 import HealthStatus from '../features/health/components/HealthStatus';
 import EmailTestForm from '../features/email/components/EmailTestForm';
 import MinioUploadForm from '../features/storage/components/MinioUploadForm';
-import useTheme from '../hooks/useTheme';
-import ThemeReference from '../routes/ThemeReference';
+import { useTheme } from '../features/theme';
 import { Button } from '../components/ui/button';
 import { SinglePageLayout, PageHeader } from '../components/layout/SinglePageLayout';
 
@@ -63,7 +62,6 @@ const App = () => (
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/health" element={<HealthPage />} />
-        <Route path="/theme" element={<ThemeReference />} />
       </Routes>
     </main>
   </div>
