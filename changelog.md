@@ -1,3 +1,7 @@
+## 2025-10-25 06:58:25 IST
+- Refactored the client routing to use dedicated home and health pages while keeping App.jsx focused on route definitions.
+- Extracted the health dashboard theme toggle into a reusable component under the theme feature for reuse across pages.
+
 ## 2025-10-25 07:45:00 IST
 - Moved the theme provider and hook into `client/src/features/theme` with shared token exports for future reuse.
 - Updated the app shell to consume the new feature entry point and retired the legacy `/theme` reference route.
