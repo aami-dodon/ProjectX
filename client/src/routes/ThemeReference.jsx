@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardTitle, CardDescription } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Switch } from '../components/ui/switch';
+import { SinglePageLayout, PageHeader } from '../components/layout/SinglePageLayout';
 import useTheme from '../hooks/useTheme';
 import { SimpleEditor, EditorProse } from '../components/editor';
 
@@ -126,27 +127,27 @@ const ThemeReference = () => {
   const [editorContent, setEditorContent] = useState(defaultEditorContent);
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-xl py-[calc(var(--space-xl)+var(--space-lg))]">
-      <header className="flex flex-col gap-sm">
-        <div className="flex flex-wrap items-center justify-between gap-sm">
-          <div className="flex flex-col gap-xs">
-            <span className="eyebrow text-primary">Design System</span>
-            <h1 className="h1">Theme &amp; Tokens Reference</h1>
-          </div>
-          <div className="flex items-center gap-sm rounded-lg border border-border bg-muted/40 px-sm py-xs">
-            <span className="body-sm text-muted">Dark mode</span>
-            <Switch
-              aria-label="Toggle dark mode"
-              checked={theme === 'dark'}
-              onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
-            />
-          </div>
+    <SinglePageLayout>
+      <PageHeader
+        eyebrow="Design System"
+        title="Theme & Tokens Reference"
+        description="A living style guide composed from the same primitives used across the product. Use this page to audit typography, elevation, color tokens, and component states in both light and dark themes."
+        descriptionClassName="lead max-w-3xl text-muted-foreground"
+      />
+
+      <div className="flex flex-wrap items-center justify-between gap-sm rounded-lg border border-border bg-muted/30 px-md py-sm">
+        <div className="flex flex-col gap-xs">
+          <span className="body-sm font-medium text-foreground">Dark mode</span>
+          <p className="body-xs text-muted">
+            Toggle the global theme class to preview how tokens cascade through every component state.
+          </p>
         </div>
-        <p className="lead max-w-3xl">
-          A living style guide composed from the same primitives used across the product. Use this page to audit typography,
-          elevation, color tokens, and component states in both light and dark themes.
-        </p>
-      </header>
+        <Switch
+          aria-label="Toggle dark mode"
+          checked={theme === 'dark'}
+          onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+        />
+      </div>
 
       <section className="grid gap-lg md:grid-cols-2">
         <Card className="flex flex-col gap-md">
@@ -317,7 +318,7 @@ const ThemeReference = () => {
           </Button>
         </div>
       </Card>
-    </div>
+    </SinglePageLayout>
   );
 };
 
