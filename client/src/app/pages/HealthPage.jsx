@@ -1,8 +1,8 @@
 import React from 'react';
 import useHealthData from '../../features/health/hooks/useHealthData';
 import HealthStatus from '../../features/health/components/HealthStatus';
-import EmailTestForm from '../../features/email/components/EmailTestForm';
-import MinioUploadForm from '../../features/storage/components/MinioUploadForm';
+import EmailTestForm from '../../features/health/components/EmailTestForm';
+import MinioUploadForm from '../../features/health/components/MinioUploadForm';
 import ThemeToggleCard from '../../features/theme/components/ThemeToggleCard';
 import { SinglePageLayout, PageHeader } from '../../components/layout/SinglePageLayout';
 

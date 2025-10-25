@@ -1,3 +1,10 @@
+## 2025-10-25 07:33:07 IST
+- Moved the MinIO upload form into the health feature so the dashboard owns both diagnostic tools.
+- Removed the empty storage feature directory after relocating the component.
+
+## 2025-10-25 07:27:04 IST
+- Relocated the email connectivity test form into the health feature so the operational dashboard owns its tooling.
+
 ## 2025-10-25 06:58:25 IST
 - Refactored the client routing to use dedicated home and health pages while keeping App.jsx focused on route definitions.
 - Extracted the health dashboard theme toggle into a reusable component under the theme feature for reuse across pages.
