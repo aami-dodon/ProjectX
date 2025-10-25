@@ -55,7 +55,7 @@ function SidebarNavItem({ icon: Icon, label, to, onClick }) {
             buttonVariants({ variant: 'ghost', size: 'default' }),
             'h-10 w-full justify-start gap-sm rounded-lg text-left text-sm font-medium transition-colors',
             isActive
-              ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+              ? 'bg-muted text-foreground hover:bg-muted/80'
               : 'text-muted-foreground hover:bg-muted hover:text-foreground'
           )
         }
