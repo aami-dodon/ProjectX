@@ -48,7 +48,7 @@ function SidebarNavItem({ icon: Icon, label, to, onClick }) {
         className={({ isActive }) =>
           cn(
             buttonVariants({ variant: 'ghost', size: 'default' }),
-            'h-auto w-full justify-start gap-sm rounded-lg text-sm font-medium transition-colors',
+            'h-auto w-full justify-start gap-sm rounded-lg text-left text-sm font-medium transition-colors',
             isActive
               ? 'bg-primary text-primary-foreground hover:bg-primary/90'
               : 'text-muted-foreground hover:bg-muted hover:text-foreground',
@@ -77,7 +77,7 @@ function AppSidebar({ open, onClose }) {
       />
       <aside
         className={cn(
-          'fixed left-0 top-0 z-50 flex h-full w-72 flex-col border-r border-border bg-card text-foreground shadow-xl transition-transform',
+          'fixed left-0 top-0 z-50 flex h-full w-72 flex-col overflow-hidden border-r border-border bg-card text-foreground shadow-xl transition-transform',
           open ? 'translate-x-0' : '-translate-x-full',
           'lg:static lg:z-auto lg:translate-x-0 lg:shadow-none',
         )}
@@ -92,7 +92,7 @@ function AppSidebar({ open, onClose }) {
           </Button>
         </div>
 
-        <div className="flex flex-1 flex-col overflow-hidden">
+        <div className="flex flex-1 flex-col">
           <div className="px-md py-md">
             <Link
               to="/create"
@@ -106,19 +106,19 @@ function AppSidebar({ open, onClose }) {
             </Link>
           </div>
 
-          <nav className="flex-1 overflow-y-auto px-md pb-md">
-            <div className="flex flex-col gap-md">
+          <nav className="flex-1 px-md pb-sm">
+            <div className="flex flex-col gap-sm">
               <div>
-                <ul className="flex flex-col gap-xs">
+                <ul className="flex flex-col gap-1">
                   {primaryNav.map((item) => (
                     <SidebarNavItem key={item.label} {...item} onClick={onClose} />
                   ))}
                 </ul>
               </div>
 
-              <div className="flex flex-col gap-xs">
+              <div className="flex flex-col gap-1">
                 <p className="px-md text-xs font-semibold uppercase tracking-wide text-muted-foreground">Documents</p>
-                <ul className="flex flex-col gap-xs">
+                <ul className="flex flex-col gap-1">
                   {documentNav.map((item) => (
                     <SidebarNavItem key={item.label} {...item} onClick={onClose} />
                   ))}
@@ -126,7 +126,7 @@ function AppSidebar({ open, onClose }) {
               </div>
 
               <div>
-                <ul className="flex flex-col gap-xs">
+                <ul className="flex flex-col gap-1">
                   {utilityNav.map((item) => (
                     <SidebarNavItem key={item.label} {...item} onClick={onClose} />
                   ))}
