@@ -5,7 +5,7 @@ export const ToolbarGroup = ({ className, children, ...props }) => {
   return (
     <div
       className={cn(
-        'flex shrink-0 flex-nowrap items-center gap-1 rounded-md bg-background/60 px-1 py-0.5 shadow-sm ring-1 ring-inset ring-border/60',
+        'flex shrink-0 flex-nowrap items-center gap-0.5',
         className
       )}
       {...props}
