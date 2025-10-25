@@ -1,3 +1,8 @@
+## 2025-10-25 07:45:00 IST
+- Moved the theme provider and hook into `client/src/features/theme` with shared token exports for future reuse.
+- Updated the app shell to consume the new feature entry point and retired the legacy `/theme` reference route.
+
+
 ## 2025-10-25 06:24:59 IST
 - Allowed editor toolbar groups to wrap on narrow screens while preserving single-row layout on larger viewports.
 

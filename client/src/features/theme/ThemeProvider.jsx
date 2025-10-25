@@ -1,6 +1,6 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 
-const ThemeContext = createContext(null);
+export const ThemeContext = createContext(null);
 
 const THEME_STORAGE_KEY = 'px-theme';
 
@@ -101,14 +101,4 @@ export const ThemeProvider = ({ children }) => {
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };
 
-export const useTheme = () => {
-  const context = useContext(ThemeContext);
-
-  if (!context) {
-    throw new Error('useTheme must be used within a ThemeProvider');
-  }
-
-  return context;
-};
-
-export default useTheme;
+export default ThemeProvider;
