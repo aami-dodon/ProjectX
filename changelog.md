@@ -1,3 +1,6 @@
+## 2025-10-26 10:15:00 IST
+- Updated the shared Button component to support `asChild` via Radix Slot so anchor wrappers no longer leak the prop to native elements.
+
 ## 2025-10-25 16:30:00 IST
 - Added a profile dropdown menu to the AppSidebar that mirrors the reference layout with account, billing, notifications, and logout actions.
 
