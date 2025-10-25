@@ -55,8 +55,8 @@ export const EditorToolbar = ({ editor }) => {
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-2 border-b border-border bg-muted/40 px-3 py-2">
-      <div className="flex basis-full min-w-0 flex-wrap items-center gap-2 sm:basis-auto sm:flex-1 sm:flex-nowrap sm:overflow-x-auto">
+    <div className="flex flex-wrap items-center gap-x-0 gap-y-2 border-b border-border bg-muted/40 px-3 py-2">
+      <div className="flex basis-full min-w-0 flex-wrap items-center gap-x-0 gap-y-2 sm:basis-auto sm:flex-1 sm:flex-nowrap sm:overflow-x-auto">
 
         {/* ✍️ Text formatting */}
         <ToolbarGroup>
@@ -86,6 +86,8 @@ export const EditorToolbar = ({ editor }) => {
           />
         </ToolbarGroup>
 
+        <ToolbarDivider />
+
         {/* 🧭 Headings */}
         <ToolbarGroup>
           <ToolbarButton icon={Heading1} label="Heading 1" isActive={editor.isActive('heading', { level: 1 })}
@@ -101,6 +103,8 @@ export const EditorToolbar = ({ editor }) => {
             disabled={!editor.can().chain().focus().toggleHeading({ level: 3 }).run()}
           />
         </ToolbarGroup>
+
+        <ToolbarDivider />
 
         {/* 📝 Lists / Blockquote / Rule */}
         <ToolbarGroup>
@@ -122,6 +126,8 @@ export const EditorToolbar = ({ editor }) => {
           />
         </ToolbarGroup>
 
+        <ToolbarDivider />
+
         {/* 🧭 Text alignment */}
         <ToolbarGroup>
           <ToolbarButton icon={AlignLeft} label="Align left" isActive={editor.isActive({ textAlign: 'left' })}
@@ -138,6 +144,8 @@ export const EditorToolbar = ({ editor }) => {
           />
         </ToolbarGroup>
 
+        <ToolbarDivider />
+
         {/* 🔗 Links */}
         <ToolbarGroup>
           <ToolbarButton icon={Link2} label="Insert link" isActive={editor.isActive('link')}
@@ -147,6 +155,8 @@ export const EditorToolbar = ({ editor }) => {
             onClick={handleUnsetLink} disabled={!editor.isActive('link')}
           />
         </ToolbarGroup>
+
+        <ToolbarDivider />
 
 
         {/* ⏪ Undo / Redo inline */}

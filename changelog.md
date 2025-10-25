@@ -3,6 +3,10 @@
 - Introduced CI check (`npm run openapi:check`) to ensure the spec builds successfully during test runs.
 - Documented the new API documentation workflow in `docs/02-technical-specifications/02-backend-architecture-and-apis.md`.
 
+## 2025-10-25 06:07:46 IST
+- Restyled the editor toolbar groups to remove pill backgrounds, tighten icon spacing, and rely on dividers for separation.
+- Updated the toolbar layout to eliminate inter-group gaps while keeping vertical dividers between all control clusters.
+
 ## 2025-10-25 05:37:13 IST
 - Simplified the editor toolbar layout so undo and redo stay in the main action row across breakpoints.
 - Swapped the divider beside undo/redo to the vertical variant for consistent alignment with other controls.
