@@ -43,7 +43,7 @@ const HealthStatus = ({ data, loading, error, onRefresh }) => {
       <div className="flex items-center justify-between gap-lg">
         <div>
           <CardTitle>
-            <HeartPulse className="h-5 w-5 text-success-500" />
+            <HeartPulse className="h-5 w-5 text-primary" />
             Platform Health
           </CardTitle>
           <CardDescription>
