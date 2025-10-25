@@ -212,9 +212,9 @@ All endpoints use secure HTTPS communication and JWT-based authorization.
 - CORS configured for approved frontend origins only.  
 
 ### Documentation
-- All endpoints are defined and auto-documented via Swagger (OpenAPI).  
-- Live documentation served under `/api-docs`.  
-- Updated automatically with new releases.
+- All endpoints are defined and auto-documented via Swagger (OpenAPI).
+- Live documentation is published at `/api/docs` using Swagger UI.
+- CI validates the OpenAPI build through `npm run openapi:check`, and docs update automatically with each release.
 
 ---
 
