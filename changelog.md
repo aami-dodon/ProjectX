@@ -274,5 +274,3 @@
 ## 2025-10-26 08:05:00 IST
 - Resolved Vite/esbuild JSX parse error by renaming `client/src/features/design-system/utils/component-demo.config.js` to `.jsx` and updating its import in `client/src/features/design-system/utils/componentRegistry.js`.
 - Verified no other `.js` files contain JSX in the client source.
-## 2025-10-26 08:49:00 IST
-- Reworked `client/src/features/design-system/pages/DesignSystemPage.jsx` layout to keep the component gallery within a single scroll container and prevent nested scrollbars.
