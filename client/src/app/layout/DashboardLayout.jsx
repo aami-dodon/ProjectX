@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import AppSidebar from '@/components/ui/AppSidebar.jsx';
-import SiteHeader from '@/components/ui/SiteHeader.jsx';
+import AppSidebar from '@/components/custom-ui/AppSidebar.jsx';
+import SiteHeader from '@/components/custom-ui/SiteHeader.jsx';
 
 const STORAGE_KEY = 'px-dashboard-sidebar-open';
 

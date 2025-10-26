@@ -1,3 +1,6 @@
+## 2025-10-26 21:45:00 IST
+- Moved the dashboard AppSidebar and SiteHeader components into `client/src/components/custom-ui/` and updated the layout to import them from their new location.
+
 ## 2025-10-26 20:04:44 IST
 - Removed the design system feature bundle and its `/design-system` route to simplify the client build.
 
