@@ -289,3 +289,7 @@
 ## 2025-10-26 08:05:00 IST
 - Resolved Vite/esbuild JSX parse error by renaming `client/src/features/design-system/utils/component-demo.config.js` to `.jsx` and updating its import in `client/src/features/design-system/utils/componentRegistry.js`.
 - Verified no other `.js` files contain JSX in the client source.
+## 2025-10-27 00:11:03 IST
+- Moved Axios base client from `client/lib/client.js` to `client/src/lib/client.js` to keep all client libraries within `src/`.
+- Confirmed existing alias-based imports (`@/lib/client`) and re-export at `client/src/api/client.js` remain valid.
+- Updated documentation references in `agents.md` and `client/src/features/home/README.MD`.

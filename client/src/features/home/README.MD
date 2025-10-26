@@ -8,7 +8,7 @@ Structure
 - `components/` – Reusable UI for hero, navigation, checklist, knowledge grid.
 - `hooks/` – Custom hooks for this feature (data fetching, local state).
 - `pages/` – Route-level components specific to the feature (unused for now; kept for consistency).
-- `services/` – API calls and side-effecting logic using `client/lib/client.js`.
+- `services/` – API calls and side-effecting logic using `@/lib/client.js`.
 - `store/` – Optional state management (Redux/Zustand), scoped to this feature.
 - `types/` – Use JSDoc typedefs (no TypeScript per project guidelines).
 - `utils/` – Pure helpers (formatting, mapping, guards) used by this feature.
