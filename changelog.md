@@ -293,3 +293,6 @@
 - Moved Axios base client from `client/lib/client.js` to `client/src/lib/client.js` to keep all client libraries within `src/`.
 - Confirmed existing alias-based imports (`@/lib/client`) and re-export at `client/src/api/client.js` remain valid.
 - Updated documentation references in `agents.md` and `client/src/features/home/README.MD`.
+## 2025-10-27 00:16:19 IST
+- Removed the transitional re-export file and folder `client/src/api/client.js` since all consumers use `@/lib/client`.
+- Verified no code references remain to `@/api/*`; updated nothing else.
