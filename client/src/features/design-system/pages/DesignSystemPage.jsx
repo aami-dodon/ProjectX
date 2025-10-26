@@ -10,7 +10,7 @@ const DesignSystemPage = () => {
     useThemeDesigner();
 
   return (
-    <div className='space-y-10 pb-10'>
+    <div className='space-y-10 min-h-0 overflow-auto pb-10'>
       <section className='space-y-4'>
         <div className='space-y-2'>
           <h1 className='text-3xl font-bold tracking-tight'>Design System</h1>
