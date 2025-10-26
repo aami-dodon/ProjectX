@@ -19,7 +19,7 @@ import {
   LogOut,
   ChevronUp,
 } from 'lucide-react';
-import { buttonVariants } from '@/components/ui/button.jsx';
+import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils.js';
 
 const primaryNav = [
@@ -59,8 +59,8 @@ function SidebarNavItem({ icon: Icon, label, to, onClick }) {
         }
         onClick={onClick}
       >
-        <Icon className="h-4 w-4" aria-hidden />
-        <span className="flex-1 text-left">{label}</span>
+        <Icon className='h-4 w-4' aria-hidden />
+        <span className='flex-1 text-left'>{label}</span>
       </NavLink>
     </li>
   );
@@ -103,48 +103,55 @@ function UserMenu({ onNavigate }) {
   ];
 
   return (
-    <div ref={menuRef} className="relative">
+    <div ref={menuRef} className='relative'>
       <button
-        type="button"
+        type='button'
         className={cn(
           'flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left transition',
           'hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
         )}
         onClick={() => setOpen((prev) => !prev)}
-        aria-haspopup="menu"
+        aria-haspopup='menu'
         aria-expanded={open}
       >
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-medium text-foreground">
+        <div className='flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-medium text-foreground'>
           N
         </div>
-        <div className="flex flex-1 flex-col">
-          <span className="text-sm font-semibold text-foreground">shadcn</span>
-          <span className="text-xs text-muted-foreground">m@example.com</span>
+        <div className='flex flex-1 flex-col'>
+          <span className='text-sm font-semibold text-foreground'>shadcn</span>
+          <span className='text-xs text-muted-foreground'>m@example.com</span>
         </div>
         <ChevronUp
-          className={cn('h-4 w-4 text-muted-foreground transition-transform', open ? 'rotate-0' : 'rotate-180')}
+          className={cn(
+            'h-4 w-4 text-muted-foreground transition-transform',
+            open ? 'rotate-0' : 'rotate-180'
+          )}
           aria-hidden
         />
-        <span className="sr-only">Account menu</span>
+        <span className='sr-only'>Account menu</span>
       </button>
       {open ? (
-        <div className="absolute bottom-full right-0 z-50 mb-3 w-64 overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-xl">
-          <div className="flex items-center gap-2 px-4 py-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-muted text-sm font-medium text-foreground">
+        <div className='absolute bottom-full right-0 z-50 mb-3 w-64 overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-xl'>
+          <div className='flex items-center gap-2 px-4 py-3'>
+            <div className='flex h-11 w-11 items-center justify-center rounded-full bg-muted text-sm font-medium text-foreground'>
               N
             </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-semibold text-foreground">shadcn</span>
-              <span className="text-xs text-muted-foreground">m@example.com</span>
+            <div className='flex flex-col'>
+              <span className='text-sm font-semibold text-foreground'>
+                shadcn
+              </span>
+              <span className='text-xs text-muted-foreground'>
+                m@example.com
+              </span>
             </div>
           </div>
-          <div className="border-t border-border px-2 py-2">
-            <nav className="flex flex-col gap-1">
+          <div className='border-t border-border px-2 py-2'>
+            <nav className='flex flex-col gap-1'>
               {menuItems.map(({ label, to, icon: Icon }) => (
                 <Link
                   key={label}
                   to={to}
-                  className="flex items-center gap-3 rounded-md px-2.5 py-2 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
+                  className='flex items-center gap-3 rounded-md px-2.5 py-2 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground'
                   onClick={() => {
                     setOpen(false);
                     if (onNavigate) {
@@ -152,16 +159,16 @@ function UserMenu({ onNavigate }) {
                     }
                   }}
                 >
-                  <Icon className="h-4 w-4" aria-hidden />
+                  <Icon className='h-4 w-4' aria-hidden />
                   {label}
                 </Link>
               ))}
             </nav>
           </div>
-          <div className="border-t border-border px-2 py-2">
+          <div className='border-t border-border px-2 py-2'>
             <Link
-              to="/logout"
-              className="flex items-center gap-3 rounded-md px-2.5 py-2 text-sm font-medium text-destructive transition hover:bg-muted hover:text-destructive"
+              to='/logout'
+              className='flex items-center gap-3 rounded-md px-2.5 py-2 text-sm font-medium text-destructive transition hover:bg-muted hover:text-destructive'
               onClick={() => {
                 setOpen(false);
                 if (onNavigate) {
@@ -169,7 +176,7 @@ function UserMenu({ onNavigate }) {
                 }
               }}
             >
-              <LogOut className="h-4 w-4" aria-hidden />
+              <LogOut className='h-4 w-4' aria-hidden />
               Log out
             </Link>
           </div>
@@ -186,7 +193,9 @@ function AppSidebar({ open, onClose }) {
       <div
         className={cn(
           'fixed inset-0 z-40 bg-black/30 transition-opacity lg:hidden',
-          open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+          open
+            ? 'opacity-100 pointer-events-auto'
+            : 'opacity-0 pointer-events-none'
         )}
         onClick={onClose}
         aria-hidden
@@ -199,31 +208,34 @@ function AppSidebar({ open, onClose }) {
         )}
       >
         {/* Header (no separator) */}
-        <div className="flex items-center px-6 py-5">
-          <Link to="/" className="text-base font-semibold tracking-tight text-foreground">
+        <div className='flex items-center px-6 py-5'>
+          <Link
+            to='/'
+            className='text-base font-semibold tracking-tight text-foreground'
+          >
             Acme Inc.
           </Link>
         </div>
 
         {/* Quick Create Button */}
-        <div className="px-6 mb-4">
+        <div className='px-6 mb-4'>
           <Link
-            to="/create"
+            to='/create'
             className={cn(
               buttonVariants({ variant: 'default', size: 'default' }),
               'w-full gap-2 justify-start text-left'
             )}
           >
-            <CirclePlus className="h-4 w-4" aria-hidden />
-            <span className="flex-1 text-left">Quick Create</span>
+            <CirclePlus className='h-4 w-4' aria-hidden />
+            <span className='flex-1 text-left'>Quick Create</span>
           </Link>
         </div>
 
         {/* Scrollable middle section */}
-        <div className="flex-1 overflow-y-auto px-6">
+        <div className='flex-1 overflow-y-auto px-6'>
           {/* Main Nav Section */}
-          <nav className="mb-6">
-            <ul className="flex flex-col space-y-0">
+          <nav className='mb-6'>
+            <ul className='flex flex-col space-y-0'>
               {primaryNav.map((item) => (
                 <SidebarNavItem key={item.label} {...item} onClick={onClose} />
               ))}
@@ -231,11 +243,11 @@ function AppSidebar({ open, onClose }) {
           </nav>
 
           {/* Documents Section */}
-          <div className="mt-6">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          <div className='mt-6'>
+            <p className='mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
               Documents
             </p>
-            <ul className="flex flex-col space-y-0">
+            <ul className='flex flex-col space-y-0'>
               {documentNav.map((item) => (
                 <SidebarNavItem key={item.label} {...item} onClick={onClose} />
               ))}
@@ -244,10 +256,10 @@ function AppSidebar({ open, onClose }) {
         </div>
 
         {/* Bottom section */}
-        <div className="px-6 mt-auto pb-6">
+        <div className='px-6 mt-auto pb-6'>
           {/* Settings */}
-          <div className="mb-3">
-            <ul className="flex flex-col space-y-0">
+          <div className='mb-3'>
+            <ul className='flex flex-col space-y-0'>
               {settingsNav.map((item) => (
                 <SidebarNavItem key={item.label} {...item} onClick={onClose} />
               ))}

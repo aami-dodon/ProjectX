@@ -1,24 +1,68 @@
-import React from 'react';
-import clsx from 'clsx';
+import * as React from 'react';
 
-export const Card = ({ className, children }) => (
+import { cn } from '@/lib/utils';
+
+const Card = React.forwardRef(({ className, ...props }, ref) => (
   <div
-    className={clsx(
-      'rounded-xl border border-border/70 bg-card/90 p-6 shadow-lg shadow-black/10 dark:shadow-black/40',
-      className,
+    ref={ref}
+    className={cn(
+      'rounded-lg border bg-card text-card-foreground shadow-sm',
+      className
     )}
-  >
-    {children}
-  </div>
-);
+    {...props}
+  />
+));
+Card.displayName = 'Card';
 
-export const CardTitle = ({ className, children }) => (
-  <h2 className={clsx('flex items-center gap-2 text-lg font-semibold text-card-foreground', className)}>{children}</h2>
-);
+const CardHeader = React.forwardRef(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn('flex flex-col space-y-1.5 p-6', className)}
+    {...props}
+  />
+));
+CardHeader.displayName = 'CardHeader';
 
-export const CardDescription = ({ className, children }) => (
-  <p className={clsx('mt-1 text-sm text-muted-foreground', className)}>{children}</p>
-);
+const CardTitle = React.forwardRef(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      'text-2xl font-semibold leading-none tracking-tight',
+      className
+    )}
+    {...props}
+  />
+));
+CardTitle.displayName = 'CardTitle';
 
-export default Card;
+const CardDescription = React.forwardRef(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn('text-sm text-muted-foreground', className)}
+    {...props}
+  />
+));
+CardDescription.displayName = 'CardDescription';
 
+const CardContent = React.forwardRef(({ className, ...props }, ref) => (
+  <div ref={ref} className={cn('p-6 pt-0', className)} {...props} />
+));
+CardContent.displayName = 'CardContent';
+
+const CardFooter = React.forwardRef(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn('flex items-center p-6 pt-0', className)}
+    {...props}
+  />
+));
+CardFooter.displayName = 'CardFooter';
+
+export {
+  Card,
+  CardHeader,
+  CardFooter,
+  CardTitle,
+  CardDescription,
+  CardContent,
+};

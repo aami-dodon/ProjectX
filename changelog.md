@@ -255,3 +255,7 @@
 - Added a temporary re-export at `client/src/api/client.js` to avoid breaking existing imports during transition.
 - Updated `client/src/features/home/services/home.service.js` to import from the new path.
 - Updated documentation references in `client/src/features/home/README.MD` and `agents.md`.
+## 2025-10-26 06:29:41 IST
+- Installed the full Shadcn UI component suite in `client/src/components/ui` and added the supporting toast hook under `client/src/hooks/use-toast.js`.
+- Added Radix UI, utility, and animation dependencies plus CLI metadata (`components.json`, `jsconfig.json`) to support the design system.
+- Updated Tailwind configuration, button variants, and existing sidebar/header imports to align with the new component set.
