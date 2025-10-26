@@ -31,7 +31,7 @@ function DashboardLayout() {
       <AppSidebar open={open} onClose={() => setOpen(false)} />
 
       {/* Main content area */}
-      <div className="flex min-h-0 min-w-0 flex-col overflow-hidden">
+      <div className="flex min-w-0 flex-col overflow-hidden">
         <SiteHeader onToggleSidebar={() => setOpen((v) => !v)} />
 
         {/* Only this area scrolls */}
