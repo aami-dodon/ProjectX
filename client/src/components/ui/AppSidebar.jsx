@@ -21,6 +21,11 @@ import {
 } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils.js';
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from '@/components/ui/avatar';
 
 const primaryNav = [
   { label: 'Lifecycle', to: '/lifecycle', icon: LifeBuoy },
@@ -41,6 +46,23 @@ const settingsNav = [
   { label: 'Get Help', to: '/support', icon: HelpCircle },
   { label: 'Search', to: '/search', icon: Search },
 ];
+
+const userProfile = {
+  name: 'shadcn',
+  email: 'm@example.com',
+  avatar: null,
+};
+
+const getInitials = (name = '') => {
+  const initials = name
+    .split(' ')
+    .filter(Boolean)
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2);
+
+  return initials ? initials.toUpperCase() : 'U';
+};
 
 function SidebarNavItem({ icon: Icon, label, to, onClick }) {
   return (
@@ -69,6 +91,7 @@ function SidebarNavItem({ icon: Icon, label, to, onClick }) {
 function UserMenu({ onNavigate }) {
   const [open, setOpen] = React.useState(false);
   const menuRef = React.useRef(null);
+  const initials = getInitials(userProfile.name);
 
   React.useEffect(() => {
     if (!open) {
@@ -114,12 +137,21 @@ function UserMenu({ onNavigate }) {
         aria-haspopup='menu'
         aria-expanded={open}
       >
-        <div className='flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-medium text-foreground'>
-          N
-        </div>
+        <Avatar className='h-10 w-10'>
+          {userProfile.avatar ? (
+            <AvatarImage src={userProfile.avatar} alt={`${userProfile.name} avatar`} />
+          ) : null}
+          <AvatarFallback className='text-sm font-semibold text-foreground'>
+            {initials}
+          </AvatarFallback>
+        </Avatar>
         <div className='flex flex-1 flex-col'>
-          <span className='text-sm font-semibold text-foreground'>shadcn</span>
-          <span className='text-xs text-muted-foreground'>m@example.com</span>
+          <span className='text-sm font-semibold text-foreground'>
+            {userProfile.name}
+          </span>
+          <span className='text-xs text-muted-foreground'>
+            {userProfile.email}
+          </span>
         </div>
         <ChevronUp
           className={cn(
@@ -133,15 +165,20 @@ function UserMenu({ onNavigate }) {
       {open ? (
         <div className='absolute bottom-full right-0 z-50 mb-3 w-64 overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-xl'>
           <div className='flex items-center gap-2 px-4 py-3'>
-            <div className='flex h-11 w-11 items-center justify-center rounded-full bg-muted text-sm font-medium text-foreground'>
-              N
-            </div>
+            <Avatar className='h-11 w-11'>
+              {userProfile.avatar ? (
+                <AvatarImage src={userProfile.avatar} alt={`${userProfile.name} avatar`} />
+              ) : null}
+              <AvatarFallback className='text-base font-semibold text-foreground'>
+                {initials}
+              </AvatarFallback>
+            </Avatar>
             <div className='flex flex-col'>
               <span className='text-sm font-semibold text-foreground'>
-                shadcn
+                {userProfile.name}
               </span>
               <span className='text-xs text-muted-foreground'>
-                m@example.com
+                {userProfile.email}
               </span>
             </div>
           </div>

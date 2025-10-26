@@ -265,3 +265,5 @@
 - Installed the full Shadcn UI component suite in `client/src/components/ui` and added the supporting toast hook under `client/src/hooks/use-toast.js`.
 - Added Radix UI, utility, and animation dependencies plus CLI metadata (`components.json`, `jsconfig.json`) to support the design system.
 - Updated Tailwind configuration, button variants, and existing sidebar/header imports to align with the new component set.
+## 2025-10-26 06:55:00 IST
+- Replaced manual sidebar profile indicators in `client/src/components/ui/AppSidebar.jsx` with the shared Avatar component to align the user menu with the shadcn/ui design system and provide consistent fallbacks.
