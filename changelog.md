@@ -1,3 +1,6 @@
+## 2025-10-26 20:04:44 IST
+- Removed the design system feature bundle and its `/design-system` route to simplify the client build.
+
 ## 2025-10-26 09:37:21 IST
 - Locked the dashboard shell to the viewport height, ensuring only the main content pane scrolls so routes like `/design-system` no longer trigger an extra page scrollbar.
 - Forced `html`, `body`, and `#root` to span 100% height with the body set to `overflow-hidden` so the browser scrollbar stays disabled while nested layout panes handle scrolling.
