@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button } from '../../ui/button';
-import { cn } from '../../../lib/utils';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 export const ToolbarButton = React.forwardRef(
   ({ icon: Icon, label, isActive = false, className, children, ...props }, ref) => {

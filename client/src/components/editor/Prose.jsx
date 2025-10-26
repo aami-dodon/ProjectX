@@ -1,5 +1,5 @@
 import React from 'react';
-import { cn } from '../../lib/utils';
+import { cn } from '@/lib/utils';
 
 export const Prose = React.forwardRef(
   ({ as: Component = 'div', html, children, className, ...props }, ref) => {

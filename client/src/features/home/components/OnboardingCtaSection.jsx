@@ -1,7 +1,7 @@
 import React from 'react';
 import { LifeBuoy } from 'lucide-react';
-import { Button } from '../../../components/ui/button';
-import { Card, CardContent, CardDescription, CardTitle } from '../../../components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 
 const OnboardingCtaSection = () => {
   return (

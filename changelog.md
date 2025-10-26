@@ -1,3 +1,8 @@
+## 2025-10-26 20:35:33 IST
+- Replaced relative client imports with the `@/` alias across home feature components, editor primitives, and router modules to standardize pathing.
+- Updated the home feature README to reference the alias-based import pattern for future contributors.
+- Confirmed the Vite alias configuration and IDE path mapping already point `@` to `client/src`.
+
 ## 2025-10-26 21:45:00 IST
 - Moved the dashboard AppSidebar and SiteHeader components into `client/src/components/custom-ui/` and updated the layout to import them from their new location.
 

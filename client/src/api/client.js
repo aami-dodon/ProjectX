@@ -1,2 +1,2 @@
-export { default } from '../../lib/client.js';
+export { default } from '@/lib/client.js';
 
