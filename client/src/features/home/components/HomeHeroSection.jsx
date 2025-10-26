@@ -1,6 +1,6 @@
 import React from 'react';
 import { Sparkles, ArrowUpRight, Briefcase } from 'lucide-react';
-import { Button } from '../../../components/ui/button';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
-} from '../../../components/ui/card';
+} from '@/components/ui/card';
 
 const HomeHeroSection = () => {
   return (

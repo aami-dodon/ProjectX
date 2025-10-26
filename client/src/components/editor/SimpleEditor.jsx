@@ -7,7 +7,7 @@ import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 import TextAlign from '@tiptap/extension-text-align';
 import Underline from '@tiptap/extension-underline';
-import { cn } from '../../lib/utils';
+import { cn } from '@/lib/utils';
 import { EditorToolbar } from './toolbar';
 
 const DEFAULT_PLACEHOLDER = 'Start capturing the evidence narrative…';

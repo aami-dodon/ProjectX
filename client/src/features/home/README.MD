@@ -16,7 +16,7 @@ Structure
 
 Usage
 - Import sections directly from the feature barrel:
-  - `import { HomeHeroSection } from "../../features/home";`
+- `import { HomeHeroSection } from "@/features/home";`
 - Add API calls in `services/home.service.js` and consume them via hooks.
 
 UI & Styling

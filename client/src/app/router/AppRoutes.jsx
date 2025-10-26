@@ -1,7 +1,7 @@
 import React from 'react';
 import { useRoutes } from 'react-router-dom';
-import DashboardLayout from '../layout/DashboardLayout.jsx';
-import HomePage from '../../features/home/pages/HomePage';
+import DashboardLayout from '@/app/layout/DashboardLayout.jsx';
+import HomePage from '@/features/home/pages/HomePage';
 
 const AppRoutes = () => {
   return useRoutes([
