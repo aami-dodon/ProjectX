@@ -2,7 +2,7 @@
 // Service layer for API calls related to the Home feature.
 // Uses the shared Axios client. Keep functions pure and focused on IO.
 
-import api from '../../../api/client';
+import api from '../../../../lib/client';
 
 // Example placeholder — replace or remove once real endpoints exist
 export async function fetchHomeOverview() {
@@ -15,4 +15,3 @@ export async function fetchHomeOverview() {
 export default {
   fetchHomeOverview,
 };
-

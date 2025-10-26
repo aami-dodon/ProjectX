@@ -250,3 +250,8 @@
 ## 2025-10-26 05:34:00 IST
 - Moved `client/src/global.css` to `client/src/styles/global.css` to keep all styles under the `styles/` directory per project conventions.
 - Updated import in `client/src/main.jsx:5` to `import './styles/global.css';` and deleted the original file path.
+## 2025-10-26 05:34:20 IST
+- Migrated Axios base client from `client/src/api/client.js` to `client/lib/client.js` to align with shared library placement.
+- Added a temporary re-export at `client/src/api/client.js` to avoid breaking existing imports during transition.
+- Updated `client/src/features/home/services/home.service.js` to import from the new path.
+- Updated documentation references in `client/src/features/home/README.MD` and `agents.md`.

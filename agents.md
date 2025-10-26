@@ -34,7 +34,7 @@ Write Code:
 
 ## Axios Configuration
 
-- Configure a base Axios instance in `client/src/api/client.js` with:
+- Configure a base Axios instance in `client/lib/client.js` with:
   - Base URL pointing to the backend API
   - Request interceptors to automatically inject JWT tokens from storage
   - Response interceptors to handle errors globally and trigger centralized error handling
