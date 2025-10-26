@@ -267,3 +267,8 @@
 - Updated Tailwind configuration, button variants, and existing sidebar/header imports to align with the new component set.
 ## 2025-10-26 06:55:00 IST
 - Replaced manual sidebar profile indicators in `client/src/components/ui/AppSidebar.jsx` with the shared Avatar component to align the user menu with the shadcn/ui design system and provide consistent fallbacks.
+## 2025-10-26 07:46:14 IST
+- Reorganized the design system into `client/src/features/design-system` with dedicated components, hooks, and utilities plus feature documentation.
+- Updated routing to consume the feature barrel export and relocated complex demo configuration into the feature's utils folder.
+- Restored the home feature mock data to `client/src/features/home/data.js` and removed the redundant `utils/homeData.js` file.
+

@@ -37,7 +37,7 @@ export const knowledgeCards = [
   {
     title: 'Onboarding journeys',
     description:
-      "Guide squads through capability discovery with contextual docs, snippets, and walkthroughs.",
+      'Guide squads through capability discovery with contextual docs, snippets, and walkthroughs.',
   },
   {
     title: 'Platform pulse',
