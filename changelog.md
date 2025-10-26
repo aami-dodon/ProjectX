@@ -1,5 +1,8 @@
 ## 2025-10-26 06:52:19 IST
 - Restyled `client/src/components/ui/SiteHeader.jsx` with shadcn/ui primitives, introducing the icon toggle button, vertical separator, and block-aligned header text to match the dashboard shell reference.
+## 2025-10-26 04:45:00 IST
+- Reworked the home feature hero, navigation, checklist, knowledge, and onboarding sections to use shadcn/ui cards and buttons
+  instead of bespoke Tailwind wrappers so the dashboard aligns with the shared component system.
 
 ## 2025-10-26 02:28:15 IST
 - Matched the dashboard grid column width to the sidebar's 18rem rail so the header and sidebar borders align cleanly without overlap.
