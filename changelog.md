@@ -274,3 +274,5 @@
 ## 2025-10-26 08:05:00 IST
 - Resolved Vite/esbuild JSX parse error by renaming `client/src/features/design-system/utils/component-demo.config.js` to `.jsx` and updating its import in `client/src/features/design-system/utils/componentRegistry.js`.
 - Verified no other `.js` files contain JSX in the client source.
+## 2025-10-26 08:45:00 IST
+- Updated `client/src/features/design-system/pages/DesignSystemPage.jsx` to apply `min-h-0` and `overflow-auto` on the main container so the design system content scrolls within the dashboard without extending the overall layout height.
