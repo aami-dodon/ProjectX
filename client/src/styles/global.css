@@ -75,13 +75,18 @@
     color-scheme: dark;
   }
 
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
   * {
     @apply border-border;
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background text-foreground antialiased overflow-hidden;
     font-feature-settings: 'rlig' 1, 'calt' 1;
   }
 }
-

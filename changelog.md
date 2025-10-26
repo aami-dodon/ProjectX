@@ -1,3 +1,7 @@
+## 2025-10-26 09:37:21 IST
+- Locked the dashboard shell to the viewport height, ensuring only the main content pane scrolls so routes like `/design-system` no longer trigger an extra page scrollbar.
+- Forced `html`, `body`, and `#root` to span 100% height with the body set to `overflow-hidden` so the browser scrollbar stays disabled while nested layout panes handle scrolling.
+
 ## 2025-10-26 06:52:19 IST
 - Restyled `client/src/components/ui/SiteHeader.jsx` with shadcn/ui primitives, introducing the icon toggle button, vertical separator, and block-aligned header text to match the dashboard shell reference.
 ## 2025-10-26 04:45:00 IST
