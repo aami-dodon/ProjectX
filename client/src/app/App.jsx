@@ -1,10 +1,12 @@
 import React from 'react';
 import AppRoutes from './router/AppRoutes';
 
-const App = () => (
-  <div className="min-h-screen bg-background text-foreground">
-    <AppRoutes />
-  </div>
-);
+const App = () => {
+  return (
+    <div>
+      <AppRoutes />
+    </div>
+  );
+};
 
 export default App;
