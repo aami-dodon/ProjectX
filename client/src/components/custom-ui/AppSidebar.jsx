@@ -26,6 +26,17 @@ import {
   AvatarFallback,
   AvatarImage,
 } from '@/components/ui/avatar';
+import {
+  Sidebar,
+  SidebarHeader,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarMenuItem,
+} from '@/components/ui/sidebar';
 
 const primaryNav = [
   { label: 'Lifecycle', to: '/lifecycle', icon: LifeBuoy },
@@ -66,7 +77,7 @@ const getInitials = (name = '') => {
 
 function SidebarNavItem({ icon: Icon, label, to, onClick }) {
   return (
-    <li>
+    <SidebarMenuItem>
       <NavLink
         to={to}
         end={to === '/'}
@@ -84,7 +95,7 @@ function SidebarNavItem({ icon: Icon, label, to, onClick }) {
         <Icon className='h-4 w-4' aria-hidden />
         <span className='flex-1 text-left'>{label}</span>
       </NavLink>
-    </li>
+    </SidebarMenuItem>
   );
 }
 
@@ -237,76 +248,76 @@ function AppSidebar({ open, onClose }) {
         onClick={onClose}
         aria-hidden
       />
-      <aside
+      <Sidebar
         className={cn(
-          'fixed left-0 top-0 z-50 flex h-full w-72 flex-col overflow-hidden border-r border-border bg-card text-foreground shadow-xl transition-transform',
+          'fixed left-0 top-0 z-50 overflow-hidden border-r border-border shadow-xl transition-transform',
           open ? 'translate-x-0' : '-translate-x-full',
           'lg:static lg:z-auto lg:translate-x-0 lg:shadow-none'
         )}
+        role='complementary'
+        aria-label='Application'
       >
-        {/* Header (no separator) */}
-        <div className='flex items-center px-6 py-5'>
+        <SidebarHeader className='py-5'>
           <Link
             to='/'
             className='text-base font-semibold tracking-tight text-foreground'
           >
             Acme Inc.
           </Link>
-        </div>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <Link
+                to='/create'
+                className={cn(
+                  buttonVariants({ variant: 'default', size: 'default' }),
+                  'w-full justify-start gap-2 text-left'
+                )}
+                onClick={onClose}
+              >
+                <CirclePlus className='h-4 w-4' aria-hidden />
+                <span className='flex-1 text-left'>Quick Create</span>
+              </Link>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarHeader>
 
-        {/* Quick Create Button */}
-        <div className='px-6 mb-4'>
-          <Link
-            to='/create'
-            className={cn(
-              buttonVariants({ variant: 'default', size: 'default' }),
-              'w-full gap-2 justify-start text-left'
-            )}
-          >
-            <CirclePlus className='h-4 w-4' aria-hidden />
-            <span className='flex-1 text-left'>Quick Create</span>
-          </Link>
-        </div>
+        <SidebarContent>
+          <SidebarGroup className='mb-6'>
+            <SidebarGroupLabel className='sr-only'>Primary</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {primaryNav.map((item) => (
+                  <SidebarNavItem key={item.label} {...item} onClick={onClose} />
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
 
-        {/* Scrollable middle section */}
-        <div className='flex-1 overflow-y-auto px-6'>
-          {/* Main Nav Section */}
-          <nav className='mb-6'>
-            <ul className='flex flex-col space-y-0'>
-              {primaryNav.map((item) => (
-                <SidebarNavItem key={item.label} {...item} onClick={onClose} />
-              ))}
-            </ul>
-          </nav>
+          <SidebarGroup>
+            <SidebarGroupLabel>Documents</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {documentNav.map((item) => (
+                  <SidebarNavItem key={item.label} {...item} onClick={onClose} />
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
 
-          {/* Documents Section */}
-          <div className='mt-6'>
-            <p className='mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
-              Documents
-            </p>
-            <ul className='flex flex-col space-y-0'>
-              {documentNav.map((item) => (
-                <SidebarNavItem key={item.label} {...item} onClick={onClose} />
-              ))}
-            </ul>
-          </div>
-        </div>
-
-        {/* Bottom section */}
-        <div className='px-6 mt-auto pb-6'>
-          {/* Settings */}
-          <div className='mb-3'>
-            <ul className='flex flex-col space-y-0'>
-              {settingsNav.map((item) => (
-                <SidebarNavItem key={item.label} {...item} onClick={onClose} />
-              ))}
-            </ul>
-          </div>
-
-          {/* Profile */}
+        <SidebarFooter>
+          <SidebarGroup className='mb-3'>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {settingsNav.map((item) => (
+                  <SidebarNavItem key={item.label} {...item} onClick={onClose} />
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
           <UserMenu onNavigate={onClose} />
-        </div>
-      </aside>
+        </SidebarFooter>
+      </Sidebar>
     </>
   );
 }

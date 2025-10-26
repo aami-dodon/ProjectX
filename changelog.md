@@ -296,3 +296,7 @@
 ## 2025-10-27 00:16:19 IST
 - Removed the transitional re-export file and folder `client/src/api/client.js` since all consumers use `@/lib/client`.
 - Verified no code references remain to `@/api/*`; updated nothing else.
+## 2025-10-27 01:11:02 IST
+- Refactored `AppSidebar` to compose the official shadcn sidebar primitives while keeping the dashboard layout API intact and preserving the 18rem rail width.
+- Added the shared `Sidebar` UI primitive set so future rails can reuse the same header, content, footer, and menu structure.
+
