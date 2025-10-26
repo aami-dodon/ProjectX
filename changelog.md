@@ -1,3 +1,6 @@
+## 2025-10-26 06:52:19 IST
+- Restyled `client/src/components/ui/SiteHeader.jsx` with shadcn/ui primitives, introducing the icon toggle button, vertical separator, and block-aligned header text to match the dashboard shell reference.
+
 ## 2025-10-26 02:28:15 IST
 - Matched the dashboard grid column width to the sidebar's 18rem rail so the header and sidebar borders align cleanly without overlap.
 
