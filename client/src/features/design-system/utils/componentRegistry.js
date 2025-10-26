@@ -1,4 +1,4 @@
-import componentDemoConfig from './component-demo.config.js';
+import componentDemoConfig from './component-demo.config.jsx';
 import { toPascalCase, toDisplayName, toCamelCase } from './nameFormatting.js';
 
 const componentModules = import.meta.glob('@/components/ui/*.jsx', { eager: true });

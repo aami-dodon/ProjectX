@@ -271,4 +271,6 @@
 - Reorganized the design system into `client/src/features/design-system` with dedicated components, hooks, and utilities plus feature documentation.
 - Updated routing to consume the feature barrel export and relocated complex demo configuration into the feature's utils folder.
 - Restored the home feature mock data to `client/src/features/home/data.js` and removed the redundant `utils/homeData.js` file.
-
+## 2025-10-26 08:05:00 IST
+- Resolved Vite/esbuild JSX parse error by renaming `client/src/features/design-system/utils/component-demo.config.js` to `.jsx` and updating its import in `client/src/features/design-system/utils/componentRegistry.js`.
+- Verified no other `.js` files contain JSX in the client source.
