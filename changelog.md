@@ -274,3 +274,5 @@
 ## 2025-10-26 08:05:00 IST
 - Resolved Vite/esbuild JSX parse error by renaming `client/src/features/design-system/utils/component-demo.config.js` to `.jsx` and updating its import in `client/src/features/design-system/utils/componentRegistry.js`.
 - Verified no other `.js` files contain JSX in the client source.
+## 2025-10-26 08:17:25 IST
+- Prevented double vertical scrollbars in the dashboard layout by allowing the main content column to shrink and delegate scrolling to the routed page content.
