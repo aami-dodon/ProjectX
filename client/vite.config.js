@@ -5,7 +5,6 @@ import path from 'path'
 
 const port = parseInt(process.env.CLIENT_PORT) || 5173
 
-// Allowed hosts for dev server
 const allowedHosts = process.env.CLIENT_ALLOWED_HOSTS
   ? process.env.CLIENT_ALLOWED_HOSTS.split(',').map(h => h.trim())
   : []
