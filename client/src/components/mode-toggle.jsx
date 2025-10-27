@@ -1,36 +1,39 @@
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun, Monitor } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { useTheme } from "@/components/theme-provider";
+import { useState, useEffect } from "react";
 
 export function ModeToggle() {
-  const { setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
+  const [currentTheme, setCurrentTheme] = useState(theme);
+
+  const themes = ["light", "dark", "system"];
+
+  // Keep internal state in sync with external theme
+  useEffect(() => {
+    setCurrentTheme(theme);
+  }, [theme]);
+
+  const handleToggle = () => {
+    const currentIndex = themes.indexOf(currentTheme);
+    const nextIndex = (currentIndex + 1) % themes.length;
+    const nextTheme = themes[nextIndex];
+    setCurrentTheme(nextTheme);
+    setTheme(nextTheme);
+  };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon">
-          <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
-          <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
-          <span className="sr-only">Toggle theme</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme("light")}>
-          Light
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")}>
-          Dark
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")}>
-          System
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <Button variant="outline" size="icon" onClick={handleToggle}>
+      {currentTheme === "light" && (
+        <Sun className="h-[1.2rem] w-[1.2rem] transition-all" />
+      )}
+      {currentTheme === "dark" && (
+        <Moon className="h-[1.2rem] w-[1.2rem] transition-all" />
+      )}
+      {currentTheme === "system" && (
+        <Monitor className="h-[1.2rem] w-[1.2rem] transition-all" />
+      )}
+      <span className="sr-only">Toggle theme</span>
+    </Button>
   );
 }
