@@ -1,6 +1,3 @@
-## 2025-10-28 09:15:00 IST
-- Organized the client layouts into dedicated folders, moving the default and blank centered layout components under `pages/` with component subdirectories to simplify future layout expansion.
-
 ## 2025-10-27 12:30:00 IST
 - Renamed `client/src/app/layouts/MainLayout.jsx` to `DefaultLayout.jsx` and updated the router to consume the new default layout component.
 - Refactored the dashboard feature into `client/src/features/home`, renaming `DashboardPage.jsx` to `HomePage.jsx` and aligning all feature imports with the new path.
