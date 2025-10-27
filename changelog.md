@@ -1,3 +1,6 @@
+## 2025-10-27 20:33:43 IST
+- Added a `scripts/scaffold-feature.js` automation to scaffold client features, prompt for a layout, and register routes in the router configuration.
+
 ## 2025-10-27 15:38:13 IST
 - Added a full-stack health monitoring feature with a `/health` dashboard that consumes the new `/api/v1/health` endpoint for system, database, and CORS diagnostics.
 - Introduced an Axios API client, auto-refreshing health hook, and shadcn/ui status cards to surface uptime, latency, and configuration warnings in the frontend.
