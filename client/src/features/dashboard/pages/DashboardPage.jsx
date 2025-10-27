@@ -1,7 +1,7 @@
 import { ChartAreaInteractive } from "@/features/dashboard/components/ChartAreaInteractive";
 import { DataTable } from "@/features/dashboard/components/DataTable";
 import { SectionCards } from "@/features/dashboard/components/SectionCards";
-import data from "@/app/dashboard/data.json";
+import data from "./data.json";
 
 export function DashboardPage() {
   return (
