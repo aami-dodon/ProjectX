@@ -23,45 +23,45 @@
   "eslint.enable": false,
 
 
-  // ─── File Explorer Exclusions (Frontend Focus) ────────────────
-  "files.exclude": {
-    "docs": true,
-    "prompts": true,
-    "reference": true,
-    "scripts": true,
-    "server": true,
-    "shared": true,
-    ".dockerignore": true,
-    ".gitignore": true,
-    "Dockerfile": true,
-    ".env.example": true,
-    "agents.md": true,
-    "changelog.md": true,
-    "COMMERCIAL-LICENSE.md": true,
-    "docker-compose.yml": true,
-    "LICENSE": true,
-    "**/node_modules": true,
-    "**/dist":true
-  },
-  "search.exclude": {
-    "docs": true,
-    "prompts": true,
-    "reference": true,
-    "scripts": true,
-    "server": true,
-    "shared": true,
-    ".dockerignore": true,
-    ".gitignore": true,
-    "Dockerfile": true,
-    ".env.example": true,
-    "agents.md": true,
-    "changelog.md": true,
-    "COMMERCIAL-LICENSE.md": true,
-    "docker-compose.yml": true,
-    "LICENSE": true,
-    "**/node_modules": true,
-    "**/dist":true
-  }
+  // // ─── File Explorer Exclusions (Frontend Focus) ────────────────
+  // "files.exclude": {
+  //   "docs": true,
+  //   "prompts": true,
+  //   "reference": true,
+  //   "scripts": true,
+  //   "server": true,
+  //   "shared": true,
+  //   ".dockerignore": true,
+  //   ".gitignore": true,
+  //   "Dockerfile": true,
+  //   ".env.example": true,
+  //   "agents.md": true,
+  //   "changelog.md": true,
+  //   "COMMERCIAL-LICENSE.md": true,
+  //   "docker-compose.yml": true,
+  //   "LICENSE": true,
+  //   "**/node_modules": true,
+  //   "**/dist":true
+  // },
+  // "search.exclude": {
+  //   "docs": true,
+  //   "prompts": true,
+  //   "reference": true,
+  //   "scripts": true,
+  //   "server": true,
+  //   "shared": true,
+  //   ".dockerignore": true,
+  //   ".gitignore": true,
+  //   "Dockerfile": true,
+  //   ".env.example": true,
+  //   "agents.md": true,
+  //   "changelog.md": true,
+  //   "COMMERCIAL-LICENSE.md": true,
+  //   "docker-compose.yml": true,
+  //   "LICENSE": true,
+  //   "**/node_modules": true,
+  //   "**/dist":true
+  // }
 
 
 }
