@@ -1,3 +1,6 @@
+## 2025-10-29 12:30:00 IST
+- Swapped the mobile sidebar trigger to display `PanelRightIcon` when the sheet is open so the button reflects the active state in the default layout header.
+
 ## 2025-10-29 10:45:00 IST
 - Extended `scripts/scaffold-feature.sh` with an action selector that can remove feature modules, clean up router imports, and delete feature directories alongside the existing scaffolding workflow.
 ## 2025-10-28 22:15:00 IST
