@@ -326,3 +326,4 @@
 
 ## 2025-10-27 14:20:00 IST
 - Added `crossorigin="anonymous"` and `data-cfasync="false"` to the Vite entry script in `client/index.html` so Cloudflare Rocket Loader keeps the credentials mode aligned with the preload request and stops warning about the unused `@vite/client` preload.
+- Seeded the React Fast Refresh globals in an inline script with `data-cfasync="false"` to ensure Rocket Loader doesn't delay the Vite preamble, preventing the `@vitejs/plugin-react can't detect preamble` runtime error.
