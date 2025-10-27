@@ -13,6 +13,11 @@ export const router = createBrowserRouter([
       { path: "/", element: <DashboardPage /> },
     ],
   },
+  {
+    element: <BlankCenteredLayout />,
+    children: [
+      { path: "/login", element: <LoginPage /> },
+    ],
+  },
 
-  
 ]);
