@@ -14,7 +14,7 @@ const buildOpenApiSpec = () => {
       },
       servers: [
         {
-          url: process.env.SWAGGER_SERVER_URL || 'http://localhost:3000',
+          url: process.env.SWAGGER_SERVER_URL || 'http://localhost:3000/api/v1',
           description: 'Primary API server',
         },
       ],

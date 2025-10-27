@@ -23,7 +23,7 @@ const createApp = () => {
   app.use(attachRequestIds);
   app.use(requestLogger);
 
-  const apiPrefix = '/api';
+  const apiPrefix = '/api/v1';
 
   app.use(`${apiPrefix}/docs`, swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions));
 
