@@ -3,10 +3,10 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
+      "@/layout/*": ["src/shared/components/layout/*"],
       "@/ui/*": ["src/shared/components/ui/*"],
       "@/lib/*": ["src/shared/lib/*"],
       "@/hooks/*": ["src/shared/hooks/*"],
-      "@/layout/*": ["src/shared/components/layout/*"],
       "@/components/*": ["src/shared/components/*"]
     },
     "checkJs": false
