@@ -316,3 +316,6 @@
 ## 2025-10-27 02:45:33 IST
 - Introduced a sidebar provider and collapsible icon variant that syncs with dashboard layout persistence, enabling desktop collapse and mobile overlays via `client/src/components/ui/sidebar.jsx` and `client/src/app/layout/DashboardLayout.jsx`.
 - Updated `client/src/components/custom-ui/AppSidebar.jsx` and `SiteHeader.jsx` to consume the provider APIs so navigation labels hide in collapsed mode while the header trigger toggles both icon and off-canvas states.
+
+## 2025-10-27 13:31:15 IST
+- Removed unused duplicates of the shared utility and mobile hooks by deleting `client/src/lib/utils.js`, `client/src/shared/lib/client.js`, and `client/src/hooks/use-mobile.js` now that the shared implementations cover all consumers.
