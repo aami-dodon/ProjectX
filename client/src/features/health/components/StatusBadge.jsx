@@ -11,11 +11,11 @@ const STATUS_VARIANTS = {
     label: "Degraded",
   },
   outage: {
-    variant: "destructive",
+    variant: "secondary",
     label: "Outage",
   },
   unknown: {
-    variant: "outline",
+    variant: "primary",
     label: "Unknown",
   },
 };
