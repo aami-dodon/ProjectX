@@ -1,4 +1,5 @@
 import { cn } from "@/shared/lib/utils"
+import { Link } from "react-router-dom"
 import { Button } from "@/shared/components/ui/button"
 import {
   Card,
@@ -42,7 +43,7 @@ export function ResetPasswordForm({
               <Field>
                 <Button type="submit">Update password</Button>
                 <FieldDescription className="text-center">
-                  Know your password? <a href="/login">Back to login</a>
+                  Know your password? <Link to="/auth/login">Back to login</Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>

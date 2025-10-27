@@ -1,4 +1,5 @@
 import { cn } from "@/shared/lib/utils"
+import { Link } from "react-router-dom"
 import { Button } from "@/shared/components/ui/button"
 import {
   Card,
@@ -38,7 +39,7 @@ export function VerifyPasswordForm({
               <Field>
                 <Button type="submit">Verify code</Button>
                 <FieldDescription className="text-center">
-                  Didn&apos;t receive a code? <a href="/forgot-password">Resend email</a>
+                  Didn&apos;t receive a code? <Link to="/auth/forgot-password">Resend email</Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>
