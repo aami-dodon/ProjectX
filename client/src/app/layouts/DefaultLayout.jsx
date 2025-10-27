@@ -4,7 +4,7 @@ import { SiteHeader } from "@/components/site-header";
 
 import { SidebarProvider, SidebarInset } from "@/ui/sidebar";
 
-export default function MainLayout() {
+export default function DefaultLayout() {
   return (
     <SidebarProvider
       style={{
