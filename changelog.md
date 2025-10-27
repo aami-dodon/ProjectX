@@ -1,6 +1,8 @@
 ## 2025-10-29 11:45:00 IST
 - Embedded the PDF dossier generators directly into their Bash entrypoints and removed the migrated Python modules.
 
+## 2025-10-29 10:45:00 IST
+- Extended `scripts/scaffold-feature.sh` with an action selector that can remove feature modules, clean up router imports, and delete feature directories alongside the existing scaffolding workflow.
 ## 2025-10-28 22:15:00 IST
 - Replaced the Node.js feature scaffolding CLI with a Bash implementation that prompts for layouts, creates feature skeletons, and registers routes in the client router.
 ## 2025-10-29 09:15:00 IST
