@@ -83,12 +83,17 @@ fi
 if [[ "${route_path}" != /* ]]; then
   route_path="/${route_path}"
 fi
+if [[ "${route_path}" != "/" ]]; then
+  route_path="${route_path%/}"
+fi
 if [[ ! "${route_path}" =~ ^/[A-Za-z0-9/-]*$ ]]; then
   echo "Route path may only contain letters, numbers, dashes, and forward slashes." >&2
   exit 1
 fi
 
-if grep -Fq "path: \"${route_path}\"" "${routes_file}"; then
+route_path_relative="${route_path#/}"
+route_path_relative="${route_path_relative%/}"
+if [[ -n "${route_path_relative}" ]] && grep -Fq "path: \"${route_path_relative}\"" "${routes_file}"; then
   echo "Route path ${route_path} is already defined in the router." >&2
   exit 1
 fi
@@ -168,9 +173,6 @@ components_dir="${feature_dir}/components"
 mkdir -p "${pages_dir}" "${components_dir}"
 
 index_file="${feature_dir}/index.js"
-cat > "${index_file}" <<EOF_INDEX
-export { ${page_component} } from "./pages/${page_component}";
-EOF_INDEX
 
 page_file="${pages_dir}/${page_component}.jsx"
 page_title_lower=$(echo "${page_title}" | tr '[:upper:]' '[:lower:]')
@@ -191,8 +193,44 @@ EOF_PAGE
 
 touch "${components_dir}/.gitkeep"
 
-import_line="import { ${page_component} } from \"@/features/${feature_key}/pages/${page_component}\";"
-route_line="{ path: \"${route_path}\", element: <${page_component} /> },"
+function to_camel_case() {
+  local input="$1"
+  local pascal
+  pascal="$(to_pascal_case "${input}")"
+  if [[ -z "${pascal}" ]]; then
+    printf ''
+    return
+  fi
+  local first rest
+  first=$(printf '%s' "${pascal}" | cut -c1 | tr '[:upper:]' '[:lower:]')
+  rest=$(printf '%s' "${pascal}" | cut -c2-)
+  printf '%s%s' "${first}" "${rest}"
+}
+
+routes_const_name="$(to_camel_case "${feature_key}")Routes"
+
+routes_file_path="${feature_dir}/routes.jsx"
+
+{
+  printf 'import { %s } from "./pages/%s";\n' "${page_component}" "${page_component}"
+  printf '\n'
+  printf 'export const %s = {\n' "${routes_const_name}"
+  if [[ -z "${route_path_relative}" ]]; then
+    printf '  index: true,\n'
+  else
+    printf '  path: "%s",\n' "${route_path_relative}"
+  fi
+  printf '  element: <%s />,\n' "${page_component}"
+  printf '};\n'
+} > "${routes_file_path}"
+
+cat > "${index_file}" <<EOF_INDEX
+export { ${page_component} } from "./pages/${page_component}";
+export { ${routes_const_name} } from "./routes";
+EOF_INDEX
+
+import_line="import { ${routes_const_name} } from \"@/features/${feature_key}\";"
+route_identifier="${routes_const_name}"
 
 ROUTES_FILE="${routes_file}" IMPORT_LINE="${import_line}" python3 <<'PY'
 import os
@@ -222,13 +260,13 @@ with open(file_path, "w", encoding="utf-8") as handle:
     handle.writelines(lines)
 PY
 
-ROUTES_FILE="${routes_file}" LAYOUT_NAME="${selected_layout}" ROUTE_LINE="${route_line}" python3 <<'PY'
+ROUTES_FILE="${routes_file}" LAYOUT_NAME="${selected_layout}" ROUTE_IDENTIFIER="${route_identifier}" python3 <<'PY'
 import os
 import sys
 
 file_path = os.environ["ROUTES_FILE"]
 layout_name = os.environ["LAYOUT_NAME"]
-route_line = os.environ["ROUTE_LINE"]
+route_identifier = os.environ["ROUTE_IDENTIFIER"]
 
 with open(file_path, "r", encoding="utf-8") as handle:
     content = handle.read()
@@ -272,7 +310,11 @@ line_start = 0 if line_start == -1 else line_start + 1
 indent = content[line_start:bracket_start]
 child_indent = indent + "  "
 
-entry = child_indent + route_line.strip() + "\n"
+children_block = content[bracket_start:close_index]
+if route_identifier in children_block:
+    sys.exit(0)
+
+entry = child_indent + route_identifier.strip() + ",\n"
 
 content = before + entry + after
 
