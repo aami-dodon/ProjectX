@@ -18,6 +18,7 @@ export default defineConfig({
       '@/hooks': path.resolve(__dirname, './src/shared/hooks'),
       '@/layout': path.resolve(__dirname, './src/shared/components/layout'),
     },
+    extensions: ['.js', '.jsx', '.json', '.ts', '.tsx'], // Add this line
   },
   server: {
     port,
