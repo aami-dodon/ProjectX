@@ -1,5 +1,11 @@
 ## 2025-10-28 22:15:00 IST
 - Replaced the Node.js feature scaffolding CLI with a Bash implementation that prompts for layouts, creates feature skeletons, and registers routes in the client router.
+## 2025-10-29 09:15:00 IST
+- Nested the authentication routes under `/auth/*`, moving the route configuration and layout into `client/src/features/auth`.
+- Updated all authentication links and forms to target the new `/auth` paths after removing the obsolete blank layout wrapper.
+
+## 2025-10-28 17:15:00 IST
+- Added dedicated auth flow pages for forgot password, password reset, and verification along with their reusable form components and registered routes in the blank centered layout.
 
 ## 2025-10-27 20:33:43 IST
 - Added a `scripts/scaffold-feature.js` automation to scaffold client features, prompt for a layout, and register routes in the router configuration.

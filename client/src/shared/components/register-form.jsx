@@ -16,7 +16,7 @@ import {
 } from "@/shared/components/ui/field"
 import { Input } from "@/shared/components/ui/input"
 
-export function LoginForm({
+export function RegisterForm({
   className,
   ...props
 }) {
@@ -24,33 +24,34 @@ export function LoginForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle>Login to your account</CardTitle>
+          <CardTitle>Create an account</CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            Fill in your details to create a new account
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form>
             <FieldGroup>
               <Field>
+                <FieldLabel htmlFor="name">Full Name</FieldLabel>
+                <Input id="name" type="text" placeholder="John Doe" required />
+              </Field>
+              <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
                 <Input id="email" type="email" placeholder="m@example.com" required />
               </Field>
               <Field>
-                <div className="flex items-center">
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <Link
-                    to="/auth/forgot-password"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline">
-                    Forgot your password?
-                  </Link>
-                </div>
+                <FieldLabel htmlFor="password">Password</FieldLabel>
                 <Input id="password" type="password" required />
               </Field>
               <Field>
-                <Button type="submit">Login</Button>
+                <FieldLabel htmlFor="confirmPassword">Confirm Password</FieldLabel>
+                <Input id="confirmPassword" type="password" required />
+              </Field>
+              <Field>
+                <Button type="submit">Create Account</Button>
                 <FieldDescription className="text-center">
-                  Don&apos;t have an account? <Link to="/auth/register" className="underline underline-offset-4">Sign up</Link>
+                  Already have an account? <Link to="/auth/login" className="underline underline-offset-4">Login</Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>

@@ -16,7 +16,7 @@ import {
 } from "@/shared/components/ui/field"
 import { Input } from "@/shared/components/ui/input"
 
-export function LoginForm({
+export function ForgotPasswordForm({
   className,
   ...props
 }) {
@@ -24,33 +24,27 @@ export function LoginForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle>Login to your account</CardTitle>
+          <CardTitle>Forgot password</CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            Enter the email associated with your account and we&apos;ll send you instructions to reset your password
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form>
             <FieldGroup>
               <Field>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
-                <Input id="email" type="email" placeholder="m@example.com" required />
+                <FieldLabel htmlFor="forgot-password-email">Email</FieldLabel>
+                <Input
+                  id="forgot-password-email"
+                  type="email"
+                  placeholder="m@example.com"
+                  required
+                />
               </Field>
               <Field>
-                <div className="flex items-center">
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <Link
-                    to="/auth/forgot-password"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline">
-                    Forgot your password?
-                  </Link>
-                </div>
-                <Input id="password" type="password" required />
-              </Field>
-              <Field>
-                <Button type="submit">Login</Button>
+                <Button type="submit">Send reset link</Button>
                 <FieldDescription className="text-center">
-                  Don&apos;t have an account? <Link to="/auth/register" className="underline underline-offset-4">Sign up</Link>
+                  Remembered your password? <Link to="/auth/login">Back to login</Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>
@@ -58,5 +52,5 @@ export function LoginForm({
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

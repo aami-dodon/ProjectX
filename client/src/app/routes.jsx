@@ -4,24 +4,16 @@ import DefaultLayout from "./layouts/DefaultLayout";
 import { HomePage } from "@/features/home/pages/HomePage";
 import { HealthPage } from "@/features/health";
 
-import BlankCenteredLayout from "./layouts/BlankCenteredLayout";
-import { LoginPage } from "@/features/auth/pages/LoginPage";
-import { RegisterPage } from "@/features/auth/pages/RegisterPage";
+import { authRoutes } from "@/features/auth";
 
 export const router = createBrowserRouter([
   {
+    path: "/",
     element: <DefaultLayout />,
     children: [
-      { path: "/", element: <HomePage /> },
-      { path: "/health", element: <HealthPage /> },
+      { index: true, element: <HomePage /> },
+      { path: "health", element: <HealthPage /> },
     ],
   },
-  {
-    element: <BlankCenteredLayout />,
-    children: [
-      { path: "/login", element: <LoginPage /> },
-      { path: "/register", element: <RegisterPage /> },
-    ],
-  },
-
+  authRoutes,
 ]);

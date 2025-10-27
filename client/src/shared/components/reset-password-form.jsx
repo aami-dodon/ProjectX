@@ -1,4 +1,5 @@
 import { cn } from "@/shared/lib/utils"
+import { Link } from "react-router-dom"
 import { Button } from "@/shared/components/ui/button"
 import {
   Card,
@@ -15,7 +16,7 @@ import {
 } from "@/shared/components/ui/field"
 import { Input } from "@/shared/components/ui/input"
 
-export function RegisterForm({
+export function ResetPasswordForm({
   className,
   ...props
 }) {
@@ -23,34 +24,26 @@ export function RegisterForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle>Create an account</CardTitle>
+          <CardTitle>Reset password</CardTitle>
           <CardDescription>
-            Fill in your details to create a new account
+            Choose a new password for your account. Make sure it&apos;s something secure that you haven&apos;t used elsewhere
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form>
             <FieldGroup>
               <Field>
-                <FieldLabel htmlFor="name">Full Name</FieldLabel>
-                <Input id="name" type="text" placeholder="John Doe" required />
+                <FieldLabel htmlFor="reset-password">New password</FieldLabel>
+                <Input id="reset-password" type="password" required />
               </Field>
               <Field>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
-                <Input id="email" type="email" placeholder="m@example.com" required />
+                <FieldLabel htmlFor="reset-confirm-password">Confirm password</FieldLabel>
+                <Input id="reset-confirm-password" type="password" required />
               </Field>
               <Field>
-                <FieldLabel htmlFor="password">Password</FieldLabel>
-                <Input id="password" type="password" required />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="confirmPassword">Confirm Password</FieldLabel>
-                <Input id="confirmPassword" type="password" required />
-              </Field>
-              <Field>
-                <Button type="submit">Create Account</Button>
+                <Button type="submit">Update password</Button>
                 <FieldDescription className="text-center">
-                  Already have an account? <a href="#">Login</a>
+                  Know your password? <Link to="/auth/login">Back to login</Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>
@@ -58,5 +51,5 @@ export function RegisterForm({
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

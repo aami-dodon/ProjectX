@@ -16,7 +16,7 @@ import {
 } from "@/shared/components/ui/field"
 import { Input } from "@/shared/components/ui/input"
 
-export function LoginForm({
+export function VerifyPasswordForm({
   className,
   ...props
 }) {
@@ -24,33 +24,22 @@ export function LoginForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle>Login to your account</CardTitle>
+          <CardTitle>Verify password reset</CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            Enter the verification code sent to your email to confirm your password reset request
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form>
             <FieldGroup>
               <Field>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
-                <Input id="email" type="email" placeholder="m@example.com" required />
+                <FieldLabel htmlFor="verify-code">Verification code</FieldLabel>
+                <Input id="verify-code" inputMode="numeric" autoComplete="one-time-code" required />
               </Field>
               <Field>
-                <div className="flex items-center">
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <Link
-                    to="/auth/forgot-password"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline">
-                    Forgot your password?
-                  </Link>
-                </div>
-                <Input id="password" type="password" required />
-              </Field>
-              <Field>
-                <Button type="submit">Login</Button>
+                <Button type="submit">Verify code</Button>
                 <FieldDescription className="text-center">
-                  Don&apos;t have an account? <Link to="/auth/register" className="underline underline-offset-4">Sign up</Link>
+                  Didn&apos;t receive a code? <Link to="/auth/forgot-password">Resend email</Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>
@@ -58,5 +47,5 @@ export function LoginForm({
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }
