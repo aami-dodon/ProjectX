@@ -1,10 +1,12 @@
 import { createBrowserRouter } from "react-router-dom";
+
 import DefaultLayout from "./layouts/DefaultLayout";
 import { HomePage } from "@/features/home/pages/HomePage";
 import { HealthPage } from "@/features/health";
 
 import BlankCenteredLayout from "./layouts/BlankCenteredLayout";
 import { LoginPage } from "@/features/auth/pages/LoginPage";
+import { RegisterPage } from "@/features/auth/pages/RegisterPage";
 
 export const router = createBrowserRouter([
   {
@@ -18,6 +20,7 @@ export const router = createBrowserRouter([
     element: <BlankCenteredLayout />,
     children: [
       { path: "/login", element: <LoginPage /> },
+      { path: "/register", element: <RegisterPage /> },
     ],
   },
 
