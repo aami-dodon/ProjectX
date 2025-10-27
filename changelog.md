@@ -1,5 +1,7 @@
 ## 2025-10-29 11:45:00 IST
 - Embedded the PDF dossier generators directly into their Bash entrypoints and removed the migrated Python modules.
+## 2025-10-29 15:10:00 IST
+- Added shadcn/ui-powered error and not-found experiences, routing them through the global and auth route configurations to handle HTTP failures consistently.
 
 ## 2025-10-29 10:45:00 IST
 - Extended `scripts/scaffold-feature.sh` with an action selector that can remove feature modules, clean up router imports, and delete feature directories alongside the existing scaffolding workflow.
@@ -354,3 +356,11 @@
 - Versioned the Express application under `/api/v1` by updating the API mount prefix in `server/src/app.js` and aligning the startup log metadata in `server/src/index.js`.
 - Relocated Swagger UI to `/api/v1/docs` while updating the documented endpoint paths in `server/src/modules/email/email.router.js` and `server/src/modules/storage/storage.router.js` plus the default server URL in `server/src/config/swagger.js`.
 - Refreshed developer guidance in `agents.md` to reference the new Swagger documentation path.
+
+## 2025-10-27 22:12:08 IST
+- Updated the global error and not-found screens to adopt the auth layout's centered presentation and consistent internal routing links.
+- Adjusted the browser router configuration so unmatched paths bypass the default dashboard layout and render the standalone not-found experience.
+
+## 2025-10-27 22:25:31 IST
+- Introduced a shared `StatusPage` layout and updated the existing error and not-found experiences to reuse it for consistent styling and actions.
+- Added dedicated routes and pages for 401, 403, 408, 500, and 503 error states so other features can link to purpose-built guidance and recovery actions.
