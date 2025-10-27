@@ -1,3 +1,7 @@
+## 2025-10-27 12:32:12 IST
+- Renamed the primary app shell to `DefaultLayout` and updated router references to reflect the new layout name.
+- Migrated the dashboard feature into `client/src/features/home`, including renaming `DashboardPage` to `HomePage` and updating the scaffolding script.
+
 ## 2025-10-27 11:09:01 IST
 - Converted the Vite alias map to an ordered array so nested aliases like `@/layout` resolve before the root `@` mapping, unblocking dashboard imports.
 - Hooked the dashboard layout and feature wrappers into the shared sidebar, header, chart, table, and card implementations via lightweight re-exports.
