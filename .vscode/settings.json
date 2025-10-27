@@ -20,4 +20,5 @@
   // ─── Problems Panel (Optional UI Clean-Up) ──────────────────
   "problems.showCurrentInStatus": false,
   "problems.autoReveal": false,
+  "eslint.enable": false
 }

@@ -1,53 +1,22 @@
-import { defineConfig, loadEnv } from 'vite';
-import react from '@vitejs/plugin-react';
-import path from 'path';
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+import path from 'path'
 
-export default ({ mode }) => {
-  const envDir = path.resolve(__dirname, '..');
-  const env = loadEnv(mode, envDir, '');
+// Access your environment variable
+const port = parseInt(process.env.CLIENT_PORT) || 5173
 
-  const requiredKeys = ['VITE_API_URL', 'CLIENT_PORT', 'CLIENT_ALLOWED_HOSTS'];
-  requiredKeys.forEach((key) => {
-    if (!env[key]) {
-      throw new Error(`${key} must be defined in .env`);
-    }
-  });
-
-  const clientPort = Number.parseInt(env.CLIENT_PORT, 10);
-  if (Number.isNaN(clientPort) || clientPort <= 0) {
-    throw new Error('CLIENT_PORT must be a positive integer');
-  }
-
-  const allowedHosts = env.CLIENT_ALLOWED_HOSTS.split(',')
-    .map((host) => host.trim())
-    .filter(Boolean);
-
-  if (allowedHosts.length === 0) {
-    throw new Error('CLIENT_ALLOWED_HOSTS must include at least one host');
-  }
-
-  return defineConfig({
-    plugins: [react()],
-    define: {
-      __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
-      // Ensure React dev-only branches are dropped in production builds
-      'process.env.NODE_ENV': JSON.stringify(mode === 'production' ? 'production' : 'development'),
-      __DEV__: mode !== 'production',
+export default defineConfig({
+  plugins: [
+    react(),
+    tailwindcss(),
+  ],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
     },
-    resolve: {
-      alias: {
-        '@': path.resolve(__dirname, 'src'),
-      },
-    },
-    server: {
-      port: clientPort,
-      host: '0.0.0.0',
-      allowedHosts,
-    },
-    preview: {
-      port: clientPort,
-      host: '0.0.0.0',
-    },
-    envDir,
-  });
-};
+  },
+  server: {
+    port,
+  },
+})
