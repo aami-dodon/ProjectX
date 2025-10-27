@@ -1,3 +1,5 @@
+## 2025-10-28 22:15:00 IST
+- Replaced the Node.js feature scaffolding CLI with a Bash implementation that prompts for layouts, creates feature skeletons, and registers routes in the client router.
 ## 2025-10-29 09:15:00 IST
 - Nested the authentication routes under `/auth/*`, moving the route configuration and layout into `client/src/features/auth`.
 - Updated all authentication links and forms to target the new `/auth` paths after removing the obsolete blank layout wrapper.
