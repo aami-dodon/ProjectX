@@ -300,3 +300,6 @@
 - Refactored `AppSidebar` to compose the official shadcn sidebar primitives while keeping the dashboard layout API intact and preserving the 18rem rail width.
 - Added the shared `Sidebar` UI primitive set so future rails can reuse the same header, content, footer, and menu structure.
 
+## 2025-10-27 02:45:33 IST
+- Introduced a sidebar provider and collapsible icon variant that syncs with dashboard layout persistence, enabling desktop collapse and mobile overlays via `client/src/components/ui/sidebar.jsx` and `client/src/app/layout/DashboardLayout.jsx`.
+- Updated `client/src/components/custom-ui/AppSidebar.jsx` and `SiteHeader.jsx` to consume the provider APIs so navigation labels hide in collapsed mode while the header trigger toggles both icon and off-canvas states.

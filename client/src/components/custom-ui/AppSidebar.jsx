@@ -36,6 +36,8 @@ import {
   SidebarGroupContent,
   SidebarMenu,
   SidebarMenuItem,
+  SidebarMenuButton,
+  useSidebar,
 } from '@/components/ui/sidebar';
 
 const primaryNav = [
@@ -85,6 +87,7 @@ function SidebarNavItem({ icon: Icon, label, to, onClick }) {
           cn(
             buttonVariants({ variant: 'ghost', size: 'default' }),
             'h-10 w-full justify-start gap-2 rounded-lg text-left text-sm font-medium transition-colors',
+            'group-data-[state=collapsed]/sidebar:justify-center group-data-[state=collapsed]/sidebar:px-2',
             isActive
               ? 'bg-muted text-foreground hover:bg-muted/80'
               : 'text-muted-foreground hover:bg-muted hover:text-foreground'
@@ -92,8 +95,10 @@ function SidebarNavItem({ icon: Icon, label, to, onClick }) {
         }
         onClick={onClick}
       >
-        <Icon className='h-4 w-4' aria-hidden />
-        <span className='flex-1 text-left'>{label}</span>
+        <Icon className='h-4 w-4 shrink-0' aria-hidden />
+        <span className='flex-1 text-left group-data-[state=collapsed]/sidebar:hidden'>
+          {label}
+        </span>
       </NavLink>
     </SidebarMenuItem>
   );
@@ -142,7 +147,8 @@ function UserMenu({ onNavigate }) {
         type='button'
         className={cn(
           'flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left transition',
-          'hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
+          'hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+          'group-data-[state=collapsed]/sidebar:justify-center group-data-[state=collapsed]/sidebar:px-0'
         )}
         onClick={() => setOpen((prev) => !prev)}
         aria-haspopup='menu'
@@ -156,7 +162,7 @@ function UserMenu({ onNavigate }) {
             {initials}
           </AvatarFallback>
         </Avatar>
-        <div className='flex flex-1 flex-col'>
+        <div className='flex flex-1 flex-col group-data-[state=collapsed]/sidebar:hidden'>
           <span className='text-sm font-semibold text-foreground'>
             {userProfile.name}
           </span>
@@ -166,7 +172,7 @@ function UserMenu({ onNavigate }) {
         </div>
         <ChevronUp
           className={cn(
-            'h-4 w-4 text-muted-foreground transition-transform',
+            'h-4 w-4 text-muted-foreground transition-transform group-data-[state=collapsed]/sidebar:hidden',
             open ? 'rotate-0' : 'rotate-180'
           )}
           aria-hidden
@@ -199,7 +205,7 @@ function UserMenu({ onNavigate }) {
                 <Link
                   key={label}
                   to={to}
-                  className='flex items-center gap-3 rounded-md px-2.5 py-2 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground'
+                  className='flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground'
                   onClick={() => {
                     setOpen(false);
                     if (onNavigate) {
@@ -207,8 +213,8 @@ function UserMenu({ onNavigate }) {
                     }
                   }}
                 >
-                  <Icon className='h-4 w-4' aria-hidden />
-                  {label}
+                  <Icon className='h-4 w-4 shrink-0' aria-hidden />
+                  <span>{label}</span>
                 </Link>
               ))}
             </nav>
@@ -216,7 +222,7 @@ function UserMenu({ onNavigate }) {
           <div className='border-t border-border px-2 py-2'>
             <Link
               to='/logout'
-              className='flex items-center gap-3 rounded-md px-2.5 py-2 text-sm font-medium text-destructive transition hover:bg-muted hover:text-destructive'
+              className='flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-destructive transition hover:bg-muted hover:text-destructive'
               onClick={() => {
                 setOpen(false);
                 if (onNavigate) {
@@ -224,8 +230,8 @@ function UserMenu({ onNavigate }) {
                 }
               }}
             >
-              <LogOut className='h-4 w-4' aria-hidden />
-              Log out
+              <LogOut className='h-4 w-4 shrink-0' aria-hidden />
+              <span>Log out</span>
             </Link>
           </div>
         </div>
@@ -234,24 +240,30 @@ function UserMenu({ onNavigate }) {
   );
 }
 
-function AppSidebar({ open, onClose }) {
+function AppSidebar() {
+  const { openMobile, setOpenMobile, isMobile } = useSidebar();
+
+  const handleNavigate = React.useCallback(() => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  }, [isMobile, setOpenMobile]);
+
   return (
     <>
-      {/* overlay for mobile */}
       <div
         className={cn(
           'fixed inset-0 z-40 bg-black/30 transition-opacity lg:hidden',
-          open
-            ? 'opacity-100 pointer-events-auto'
-            : 'opacity-0 pointer-events-none'
+          openMobile ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         )}
-        onClick={onClose}
+        onClick={() => setOpenMobile(false)}
         aria-hidden
       />
       <Sidebar
+        collapsible='icon'
         className={cn(
-          'fixed left-0 top-0 z-50 overflow-hidden border-r border-border shadow-xl transition-transform',
-          open ? 'translate-x-0' : '-translate-x-full',
+          'fixed left-0 top-0 z-50 overflow-hidden border-r border-border bg-background shadow-xl transition-transform',
+          openMobile ? 'translate-x-0' : '-translate-x-full',
           'lg:static lg:z-auto lg:translate-x-0 lg:shadow-none'
         )}
         role='complementary'
@@ -260,23 +272,28 @@ function AppSidebar({ open, onClose }) {
         <SidebarHeader className='py-5'>
           <Link
             to='/'
-            className='text-base font-semibold tracking-tight text-foreground'
+            className='text-base font-semibold tracking-tight text-foreground group-data-[state=collapsed]/sidebar:hidden'
           >
             Acme Inc.
           </Link>
           <SidebarMenu>
             <SidebarMenuItem>
-              <Link
-                to='/create'
-                className={cn(
-                  buttonVariants({ variant: 'default', size: 'default' }),
-                  'w-full justify-start gap-2 text-left'
-                )}
-                onClick={onClose}
-              >
-                <CirclePlus className='h-4 w-4' aria-hidden />
-                <span className='flex-1 text-left'>Quick Create</span>
-              </Link>
+              <SidebarMenuButton asChild>
+                <Link
+                  to='/create'
+                  className={cn(
+                    buttonVariants({ variant: 'default', size: 'default' }),
+                    'w-full justify-start gap-2 text-left',
+                    'group-data-[state=collapsed]/sidebar:justify-center'
+                  )}
+                  onClick={handleNavigate}
+                >
+                  <CirclePlus className='h-4 w-4 shrink-0' aria-hidden />
+                  <span className='flex-1 text-left group-data-[state=collapsed]/sidebar:hidden'>
+                    Quick Create
+                  </span>
+                </Link>
+              </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarHeader>
@@ -287,7 +304,7 @@ function AppSidebar({ open, onClose }) {
             <SidebarGroupContent>
               <SidebarMenu>
                 {primaryNav.map((item) => (
-                  <SidebarNavItem key={item.label} {...item} onClick={onClose} />
+                  <SidebarNavItem key={item.label} {...item} onClick={handleNavigate} />
                 ))}
               </SidebarMenu>
             </SidebarGroupContent>
@@ -298,7 +315,7 @@ function AppSidebar({ open, onClose }) {
             <SidebarGroupContent>
               <SidebarMenu>
                 {documentNav.map((item) => (
-                  <SidebarNavItem key={item.label} {...item} onClick={onClose} />
+                  <SidebarNavItem key={item.label} {...item} onClick={handleNavigate} />
                 ))}
               </SidebarMenu>
             </SidebarGroupContent>
@@ -310,12 +327,12 @@ function AppSidebar({ open, onClose }) {
             <SidebarGroupContent>
               <SidebarMenu>
                 {settingsNav.map((item) => (
-                  <SidebarNavItem key={item.label} {...item} onClick={onClose} />
+                  <SidebarNavItem key={item.label} {...item} onClick={handleNavigate} />
                 ))}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
-          <UserMenu onNavigate={onClose} />
+          <UserMenu onNavigate={handleNavigate} />
         </SidebarFooter>
       </Sidebar>
     </>
