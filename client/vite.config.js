@@ -10,11 +10,6 @@ const allowedHosts = process.env.CLIENT_ALLOWED_HOSTS
   ? process.env.CLIENT_ALLOWED_HOSTS.split(',').map(h => h.trim())
   : []
 
-// CORS origins
-const corsAllowedOrigins = process.env.CORS_ALLOWED_ORIGINS
-  ? process.env.CORS_ALLOWED_ORIGINS.split(',').map(o => o.trim())
-  : []
-
 export default defineConfig({
   plugins: [
     react(),
@@ -26,6 +21,7 @@ export default defineConfig({
       { find: '@/ui', replacement: path.resolve(__dirname, './src/shared/components/ui') },
       { find: '@/lib', replacement: path.resolve(__dirname, './src/shared/lib') },
       { find: '@/hooks', replacement: path.resolve(__dirname, './src/shared/hooks') },
+      { find: '@/components', replacement: path.resolve(__dirname, './src/shared/components/') },
       { find: '@', replacement: path.resolve(__dirname, './src') },
     ],
     extensions: ['.js', '.jsx', '.json', '.ts', '.tsx'],
@@ -34,11 +30,6 @@ export default defineConfig({
     port,
     host: true,
     allowedHosts,
-    cors: {
-      origin: corsAllowedOrigins,
-      credentials: true,
-    },
-    // Optional: helps Vite client match credentials mode for preloads
     hmr: {
       clientPort: port,
       protocol: 'ws',
@@ -48,7 +39,6 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        // Ensure crossorigin attribute is applied
         entryFileNames: '[name].js',
       },
     },
