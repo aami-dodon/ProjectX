@@ -323,3 +323,8 @@
 
 ## 2025-10-27 13:31:15 IST
 - Removed unused duplicates of the shared utility and mobile hooks by deleting `client/src/lib/utils.js`, `client/src/shared/lib/client.js`, and `client/src/hooks/use-mobile.js` now that the shared implementations cover all consumers.
+
+## 2025-10-27 15:02:29 IST
+- Versioned the Express application under `/api/v1` by updating the API mount prefix in `server/src/app.js` and aligning the startup log metadata in `server/src/index.js`.
+- Relocated Swagger UI to `/api/v1/docs` while updating the documented endpoint paths in `server/src/modules/email/email.router.js` and `server/src/modules/storage/storage.router.js` plus the default server URL in `server/src/config/swagger.js`.
+- Refreshed developer guidance in `agents.md` to reference the new Swagger documentation path.

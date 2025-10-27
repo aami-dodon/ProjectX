@@ -16,7 +16,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/storage/upload:
+ * /api/v1/storage/upload:
  *   post:
  *     summary: Upload an image to MinIO and retrieve a presigned access URL.
  *     tags: [Storage]

@@ -14,7 +14,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/email/test:
+ * /api/v1/email/test:
  *   post:
  *     summary: Send a transactional email connectivity test message.
  *     tags: [Email]

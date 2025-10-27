@@ -86,7 +86,7 @@ Write Code:
 ## Development Workflow
 
 - Follow JavaScript linting/formatting conventions (ESLint, Prettier) and keep `.env.example` configuration templates current.
-- Preserve API contracts with OpenAPI specs and JSON schemas stored in `/api/docs`. Backend developers must add OpenAPI annotations/decorators directly in code (e.g., JSDoc, decorators, inline comments) wherever a new API is created or an existing API is updated.
+- Preserve API contracts with OpenAPI specs and JSON schemas stored in `/api/v1/docs`. Backend developers must add OpenAPI annotations/decorators directly in code (e.g., JSDoc, decorators, inline comments) wherever a new API is created or an existing API is updated.
 - Coordinate breaking changes through versioning, migration notes, and announcements in the #dev-updates channel.
 
 ## Environment Variables & Configuration (dotenv)
