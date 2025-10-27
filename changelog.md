@@ -354,3 +354,7 @@
 ## 2025-10-27 22:12:08 IST
 - Updated the global error and not-found screens to adopt the auth layout's centered presentation and consistent internal routing links.
 - Adjusted the browser router configuration so unmatched paths bypass the default dashboard layout and render the standalone not-found experience.
+
+## 2025-10-27 22:25:31 IST
+- Introduced a shared `StatusPage` layout and updated the existing error and not-found experiences to reuse it for consistent styling and actions.
+- Added dedicated routes and pages for 401, 403, 408, 500, and 503 error states so other features can link to purpose-built guidance and recovery actions.
