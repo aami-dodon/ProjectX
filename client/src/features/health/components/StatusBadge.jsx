@@ -4,22 +4,18 @@ import { cn } from "@/shared/lib/utils";
 const STATUS_VARIANTS = {
   operational: {
     variant: "default",
-    className: "bg-emerald-500 text-emerald-50 dark:bg-emerald-400",
     label: "Operational",
   },
   degraded: {
     variant: "secondary",
-    className: "bg-amber-500 text-amber-50 dark:bg-amber-400",
     label: "Degraded",
   },
   outage: {
     variant: "destructive",
-    className: "bg-red-500 text-red-50 dark:bg-red-400",
     label: "Outage",
   },
   unknown: {
     variant: "outline",
-    className: "text-muted-foreground",
     label: "Unknown",
   },
 };
@@ -32,12 +28,15 @@ const normalizeStatus = (status) => {
 
 export function StatusBadge({ className, status, ...props }) {
   const normalized = normalizeStatus(status);
-  const { label, variant, className: variantClassName } = STATUS_VARIANTS[normalized];
+  const { label, variant } = STATUS_VARIANTS[normalized];
 
   return (
     <Badge
       variant={variant}
-      className={cn("uppercase tracking-wide", variantClassName, className)}
+      className={cn(
+        "uppercase tracking-wide font-medium",
+        className
+      )}
       {...props}
     >
       {label}
