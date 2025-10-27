@@ -40,7 +40,7 @@ export function LoginForm({
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Password</FieldLabel>
                   <Link
-                    to="/forgot-password"
+                    to="/auth/forgot-password"
                     className="ml-auto inline-block text-sm underline-offset-4 hover:underline">
                     Forgot your password?
                   </Link>
@@ -50,7 +50,7 @@ export function LoginForm({
               <Field>
                 <Button type="submit">Login</Button>
                 <FieldDescription className="text-center">
-                  Don&apos;t have an account? <Link to="/register" className="underline underline-offset-4">Sign up</Link>
+                  Don&apos;t have an account? <Link to="/auth/register" className="underline underline-offset-4">Sign up</Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>

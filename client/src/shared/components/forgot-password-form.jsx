@@ -1,4 +1,5 @@
 import { cn } from "@/shared/lib/utils"
+import { Link } from "react-router-dom"
 import { Button } from "@/shared/components/ui/button"
 import {
   Card,
@@ -43,7 +44,7 @@ export function ForgotPasswordForm({
               <Field>
                 <Button type="submit">Send reset link</Button>
                 <FieldDescription className="text-center">
-                  Remembered your password? <a href="/login">Back to login</a>
+                  Remembered your password? <Link to="/auth/login">Back to login</Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>

@@ -1,3 +1,7 @@
+## 2025-10-29 09:15:00 IST
+- Nested the authentication routes under `/auth/*`, moving the route configuration and layout into `client/src/features/auth`.
+- Updated all authentication links and forms to target the new `/auth` paths after removing the obsolete blank layout wrapper.
+
 ## 2025-10-28 17:15:00 IST
 - Added dedicated auth flow pages for forgot password, password reset, and verification along with their reusable form components and registered routes in the blank centered layout.
 
