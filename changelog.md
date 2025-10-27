@@ -1,3 +1,8 @@
+## 2025-10-27 12:30:00 IST
+- Renamed `client/src/app/layouts/MainLayout.jsx` to `DefaultLayout.jsx` and updated the router to consume the new default layout component.
+- Refactored the dashboard feature into `client/src/features/home`, renaming `DashboardPage.jsx` to `HomePage.jsx` and aligning all feature imports with the new path.
+- Adjusted the client scaffolding script to scaffold the `home` feature module structure and updated messaging to match the renamed home page entry point.
+
 ## 2025-10-27 11:09:01 IST
 - Converted the Vite alias map to an ordered array so nested aliases like `@/layout` resolve before the root `@` mapping, unblocking dashboard imports.
 - Hooked the dashboard layout and feature wrappers into the shared sidebar, header, chart, table, and card implementations via lightweight re-exports.

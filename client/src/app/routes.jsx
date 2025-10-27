@@ -1,6 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
-import MainLayout from "./layouts/MainLayout";
-import { DashboardPage } from "@/features/dashboard/pages/DashboardPage";
+import DefaultLayout from "./layouts/DefaultLayout";
+import { HomePage } from "@/features/home/pages/HomePage";
 
 
 import BlankCenteredLayout from "./layouts/BlankCenteredLayout";
@@ -8,9 +8,9 @@ import { LoginPage } from "@/features/auth/pages/LoginPage";
 
 export const router = createBrowserRouter([
   {
-    element: <MainLayout />,
+    element: <DefaultLayout />,
     children: [
-      { path: "/", element: <DashboardPage /> },
+      { path: "/", element: <HomePage /> },
     ],
   },
 
