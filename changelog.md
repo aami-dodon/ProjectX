@@ -1,3 +1,8 @@
+## 2025-10-27 11:09:01 IST
+- Converted the Vite alias map to an ordered array so nested aliases like `@/layout` resolve before the root `@` mapping, unblocking dashboard imports.
+- Hooked the dashboard layout and feature wrappers into the shared sidebar, header, chart, table, and card implementations via lightweight re-exports.
+- Filled in the shared `cn` utility so all shadcn/ui primitives compile again and verified the client build succeeds.
+
 ## 2025-10-26 20:35:33 IST
 - Replaced relative client imports with the `@/` alias across home feature components, editor primitives, and router modules to standardize pathing.
 - Updated the home feature README to reference the alias-based import pattern for future contributors.

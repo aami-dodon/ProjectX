@@ -11,14 +11,14 @@ export default defineConfig({
     tailwindcss(),
   ],
   resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@/ui': path.resolve(__dirname, './src/shared/components/ui'),
-      '@/lib': path.resolve(__dirname, './src/shared/lib'),
-      '@/hooks': path.resolve(__dirname, './src/shared/hooks'),
-      '@/layout': path.resolve(__dirname, './src/shared/components/layout'),
-    },
-    extensions: ['.js', '.jsx', '.json', '.ts', '.tsx'], // Add this line
+    alias: [
+      { find: '@/layout', replacement: path.resolve(__dirname, './src/shared/components/layout') },
+      { find: '@/ui', replacement: path.resolve(__dirname, './src/shared/components/ui') },
+      { find: '@/lib', replacement: path.resolve(__dirname, './src/shared/lib') },
+      { find: '@/hooks', replacement: path.resolve(__dirname, './src/shared/hooks') },
+      { find: '@', replacement: path.resolve(__dirname, './src') },
+    ],
+    extensions: ['.js', '.jsx', '.json', '.ts', '.tsx'],
   },
   server: {
     port,
