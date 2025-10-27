@@ -1,3 +1,8 @@
+## 2025-10-27 15:38:13 IST
+- Added a full-stack health monitoring feature with a `/health` dashboard that consumes the new `/api/v1/health` endpoint for system, database, and CORS diagnostics.
+- Introduced an Axios API client, auto-refreshing health hook, and shadcn/ui status cards to surface uptime, latency, and configuration warnings in the frontend.
+- Registered the health API module with Express using feature-based controllers, services, and repositories while aligning the CORS middleware with the enforced policy.
+
 ## 2025-10-28 11:30:00 IST
 - Clarified the recommended `CLIENT_USE_SECURE_HMR` settings in `.env.example`, noting to enable secure WebSockets when the dev server is proxied through HTTPS providers like Cloudflare.
 

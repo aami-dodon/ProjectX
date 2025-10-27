@@ -12,13 +12,22 @@ const { buildOpenApiSpec, swaggerUiOptions } = require('./config/swagger');
 const logger = createLogger('app');
 const emailRouter = require('./modules/email/email.router');
 const storageRouter = require('./modules/storage/storage.router');
+const healthRouter = require('./modules/health/routes');
 const swaggerSpec = buildOpenApiSpec();
 
 const createApp = () => {
   const app = express();
 
   app.use(helmet());
-  app.use(cors({ origin: env.CORS_ALLOWED_ORIGINS }));
+  const corsOptions = {
+    origin: env.CORS_ALLOWED_ORIGINS,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    allowedHeaders: ['Authorization', 'Content-Type', 'X-Request-ID'],
+  };
+
+  app.use(cors(corsOptions));
+  app.locals.corsOptions = corsOptions;
   app.use(express.json({ limit: '2mb' }));
   app.use(attachRequestIds);
   app.use(requestLogger);
@@ -29,6 +38,7 @@ const createApp = () => {
 
   app.use(`${apiPrefix}/email`, emailRouter);
   app.use(`${apiPrefix}/storage`, storageRouter);
+  app.use(`${apiPrefix}/health`, healthRouter);
 
   app.use((req, res) => {
     res.status(404).json({
