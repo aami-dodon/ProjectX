@@ -7,8 +7,8 @@
 # Create directories
 mkdir -p src/app/layouts
 mkdir -p src/app/providers
-mkdir -p src/features/dashboard/pages
-mkdir -p src/features/dashboard/components
+mkdir -p src/features/home/pages
+mkdir -p src/features/home/components
 mkdir -p src/shared/components/layout
 mkdir -p src/shared/components/ui
 mkdir -p src/shared/hooks
@@ -22,10 +22,10 @@ touch src/app/index.jsx
 touch src/app/providers/ThemeProvider.jsx
 
 # Feature pages/components
-touch src/features/dashboard/pages/DashboardPage.jsx
-touch src/features/dashboard/components/ChartAreaInteractive.jsx
-touch src/features/dashboard/components/DataTable.jsx
-touch src/features/dashboard/components/SectionCards.jsx
+touch src/features/home/pages/HomePage.jsx
+touch src/features/home/components/ChartAreaInteractive.jsx
+touch src/features/home/components/DataTable.jsx
+touch src/features/home/components/SectionCards.jsx
 
 # Layout components
 touch src/shared/components/layout/SiteHeader.jsx
@@ -52,5 +52,5 @@ if [ -f src/App.jsx ]; then mv src/App.jsx _old/; fi
 if [ -d src/components ]; then mv src/components _old/; fi
 
 echo "✅ Folder structure created successfully!"
-echo "➡ Your developer can now move existing dashboard code into:"
-echo "   src/features/dashboard/pages/DashboardPage.jsx"
+echo "➡ Your developer can now move existing home feature code into:"
+echo "   src/features/home/pages/HomePage.jsx"
