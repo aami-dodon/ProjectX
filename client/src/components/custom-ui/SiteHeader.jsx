@@ -4,23 +4,27 @@ import { Menu } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { useSidebar } from '@/components/ui/sidebar';
 
-function SiteHeader({ onToggleSidebar }) {
+function SiteHeader() {
   const { pathname } = useLocation();
+  const { toggleSidebar, state } = useSidebar();
 
   const isOverview = pathname === '/' || pathname === '';
   const headerTitle = isOverview ? 'Overview' : 'Workspace';
+  const isCollapsed = state === 'collapsed';
 
   return (
     <header className='sticky top-0 z-30 flex h-14 shrink-0 items-center gap-4 border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 lg:h-[60px] lg:px-6'>
       <div className='flex flex-1 items-center gap-3'>
-        <div className='lg:hidden'>
+        <div>
           <Button
             variant='outline'
             size='icon'
             type='button'
-            onClick={onToggleSidebar}
-            aria-label='Toggle sidebar'
+            onClick={toggleSidebar}
+            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            aria-pressed={isCollapsed}
           >
             <Menu className='h-4 w-4' aria-hidden />
           </Button>
