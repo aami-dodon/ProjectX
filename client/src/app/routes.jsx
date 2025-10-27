@@ -13,13 +13,15 @@ import { VerifyPasswordPage } from "@/features/auth/pages/VerifyPasswordPage";
 
 export const router = createBrowserRouter([
   {
+    path: "/",
     element: <DefaultLayout />,
     children: [
-      { path: "/", element: <HomePage /> },
-      { path: "/health", element: <HealthPage /> },
+      { index: true, element: <HomePage /> },
+      { path: "health", element: <HealthPage /> },
     ],
   },
   {
+    path: "/",
     element: <BlankCenteredLayout />,
     children: [
       { path: "/login", element: <LoginPage /> },
@@ -29,5 +31,4 @@ export const router = createBrowserRouter([
       { path: "/verify-password", element: <VerifyPasswordPage /> },
     ],
   },
-
 ]);
