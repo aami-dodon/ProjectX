@@ -10,18 +10,19 @@ import { RegisterPage } from "@/features/auth/pages/RegisterPage";
 
 export const router = createBrowserRouter([
   {
+    path: "/",
     element: <DefaultLayout />,
     children: [
-      { path: "/", element: <HomePage /> },
-      { path: "/health", element: <HealthPage /> },
+      { index: true, element: <HomePage /> },
+      { path: "health", element: <HealthPage /> },
     ],
   },
   {
+    path: "/",
     element: <BlankCenteredLayout />,
     children: [
-      { path: "/login", element: <LoginPage /> },
-      { path: "/register", element: <RegisterPage /> },
+      { path: "login", element: <LoginPage /> },
+      { path: "register", element: <RegisterPage /> },
     ],
   },
-
 ]);

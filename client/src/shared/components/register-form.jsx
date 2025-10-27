@@ -1,4 +1,5 @@
 import { cn } from "@/shared/lib/utils"
+import { Link } from "react-router-dom"
 import { Button } from "@/shared/components/ui/button"
 import {
   Card,
@@ -50,7 +51,7 @@ export function RegisterForm({
               <Field>
                 <Button type="submit">Create Account</Button>
                 <FieldDescription className="text-center">
-                  Already have an account? <a href="#">Login</a>
+                  Already have an account? <Link to="/login" className="underline underline-offset-4">Login</Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>
