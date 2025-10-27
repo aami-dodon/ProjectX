@@ -1,4 +1,26 @@
-# Usage: python scripts/generate_technical_specifications_pdf.py
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v python3 >/dev/null 2>&1; then
+  cat <<'MSG'
+Python 3 is required to run this script.
+macOS: brew install python
+Linux: sudo apt-get update && sudo apt-get install -y python3 python3-pip
+MSG
+  exit 1
+fi
+
+if ! python3 -c "import reportlab" >/dev/null 2>&1; then
+  cat <<'MSG'
+The 'reportlab' package is required to run this script.
+macOS: pip3 install reportlab
+Linux: pip3 install reportlab
+MSG
+  exit 1
+fi
+
+python3 - "$@" <<'PYCODE'
+# Usage: ./scripts/generate_about_pdf.sh
 """Generate a professional PDF consolidating markdown files from a folder.
 
 By default, the script reads all ``.md`` files (excluding ``readme.md``) from an
@@ -114,8 +136,8 @@ TOC_HEADING_TITLES = {"table of contents", "contents"}
 TOC_DIRECTIVES = {"[toc]", "[[toc]]", "{{toc}}", "<!-- toc -->", "<!--toc-->"}
 
 
-DEFAULT_INPUT_DIR = Path("docs/02-technical-specifications")
-DEFAULT_OUTPUT = DEFAULT_INPUT_DIR / "technical-specifications.pdf"  # legacy default; not used when deriving from folder
+DEFAULT_INPUT_DIR = Path("docs/01-about")
+DEFAULT_OUTPUT = DEFAULT_INPUT_DIR / "about-dossier.pdf"  # legacy default; not used when deriving from folder
 
 
 def _derive_title_from_folder_name(folder_name: str) -> str:
@@ -712,6 +734,7 @@ def parse_markdown(markdown_path: Path, styles) -> Iterable:
             bullets.clear()
             if bullet_flowable:
                 flowables.append(bullet_flowable)
+            # Skip the opening fence and capture until the closing fence
             index += 1
             code_lines: List[str] = []
             while index < len(lines):
@@ -982,3 +1005,5 @@ if __name__ == "__main__":  # pragma: no cover
 
     output_path = generate_pdf(input_dir, output_path.expanduser(), branding=dynamic_branding)
     print(f"Created PDF dossier at: {output_path}")
+
+PYCODE

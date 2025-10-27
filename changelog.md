@@ -1,3 +1,6 @@
+## 2025-10-29 11:45:00 IST
+- Embedded the PDF dossier generators directly into their Bash entrypoints and removed the migrated Python modules.
+
 ## 2025-10-28 22:15:00 IST
 - Replaced the Node.js feature scaffolding CLI with a Bash implementation that prompts for layouts, creates feature skeletons, and registers routes in the client router.
 ## 2025-10-29 09:15:00 IST
@@ -305,6 +308,10 @@
 ## 2025-10-26 05:34:00 IST
 - Moved `client/src/global.css` to `client/src/styles/global.css` to keep all styles under the `styles/` directory per project conventions.
 - Updated import in `client/src/main.jsx:5` to `import './styles/global.css';` and deleted the original file path.
+## 2025-10-27 21:42:26 IST
+- Converted the PDF helper scripts to shell wrappers that ensure Python 3 and ReportLab dependencies before invoking the Python implementations in `scripts/python/`.
+- Updated usage documentation within the Python modules to reference the new `.sh` entry points and preserved the existing PDF generation logic.
+
 ## 2025-10-26 05:34:20 IST
 - Migrated Axios base client from `client/src/api/client.js` to `client/lib/client.js` to align with shared library placement.
 - Added a temporary re-export at `client/src/api/client.js` to avoid breaking existing imports during transition.
