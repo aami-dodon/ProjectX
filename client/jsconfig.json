@@ -2,7 +2,11 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@/ui/*": ["src/shared/components/ui/*"],
+      "@/lib/*": ["src/shared/lib/*"],
+      "@/hooks/*": ["src/shared/hooks/*"],
+      "@/layout/*": ["src/shared/components/layout/*"]
     },
     "checkJs": false
   },
