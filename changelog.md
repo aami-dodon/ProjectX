@@ -323,6 +323,3 @@
 
 ## 2025-10-27 13:31:15 IST
 - Removed unused duplicates of the shared utility and mobile hooks by deleting `client/src/lib/utils.js`, `client/src/shared/lib/client.js`, and `client/src/hooks/use-mobile.js` now that the shared implementations cover all consumers.
-
-## 2025-10-27 14:20:00 IST
-- Added `crossorigin="anonymous"` and `data-cfasync="false"` to the Vite entry script in `client/index.html` so Cloudflare Rocket Loader keeps the credentials mode aligned with the preload request and stops warning about the unused `@vite/client` preload.
