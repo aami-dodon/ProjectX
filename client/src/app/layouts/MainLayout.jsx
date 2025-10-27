@@ -1,18 +1,23 @@
 import { Outlet } from "react-router-dom";
-import { SiteHeader } from "@/layout/SiteHeader";
 import { AppSidebar } from "@/layout/AppSidebar";
-import { SidebarProvider } from "@/ui/sidebar";
+import { SiteHeader } from "@/layout/SiteHeader";
+import { SidebarProvider, SidebarInset } from "@/ui/sidebar";
 
 export default function MainLayout() {
   return (
-    <SidebarProvider>
+    <SidebarProvider
+      style={{
+        "--sidebar-width": "calc(var(--spacing) * 72)",
+        "--header-height": "calc(var(--spacing) * 12)",
+      }}
+    >
       <AppSidebar variant="inset" />
-      <div className="flex flex-col flex-1">
+      <SidebarInset>
         <SiteHeader />
-        <main className="p-4">
+        <main className="flex-1 flex flex-col">
           <Outlet />
         </main>
-      </div>
+      </SidebarInset>
     </SidebarProvider>
   );
 }
