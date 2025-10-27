@@ -1,5 +1,3 @@
-## 2025-10-29 12:30:00 IST
-- Swapped the mobile sidebar trigger to display `PanelRightIcon` when the sheet is open so the button reflects the active state in the default layout header.
 ## 2025-10-29 15:10:00 IST
 - Added shadcn/ui-powered error and not-found experiences, routing them through the global and auth route configurations to handle HTTP failures consistently.
 
