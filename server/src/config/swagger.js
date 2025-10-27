@@ -2,7 +2,24 @@ const fs = require('fs');
 const path = require('path');
 const swaggerJsdoc = require('swagger-jsdoc');
 
+const DEFAULT_SERVER_URL = 'http://localhost:3000';
+
+const normalizeServerUrl = (url) => url.replace(/\/+$/, '');
+
+const resolveServerUrl = () => {
+  if (typeof process.env.SWAGGER_SERVER_URL === 'string' && process.env.SWAGGER_SERVER_URL.trim()) {
+    const sanitized = normalizeServerUrl(process.env.SWAGGER_SERVER_URL.trim());
+
+    if (sanitized) {
+      return sanitized;
+    }
+  }
+
+  return DEFAULT_SERVER_URL;
+};
+
 const buildOpenApiSpec = () => {
+  const serverUrl = resolveServerUrl();
   const options = {
     definition: {
       openapi: '3.0.3',
@@ -14,7 +31,7 @@ const buildOpenApiSpec = () => {
       },
       servers: [
         {
-          url: process.env.SWAGGER_SERVER_URL || 'http://localhost:3000/api/v1',
+          url: serverUrl,
           description: 'Primary API server',
         },
       ],
