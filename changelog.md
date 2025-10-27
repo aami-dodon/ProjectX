@@ -1,3 +1,10 @@
+## 2025-10-28 11:30:00 IST
+- Clarified the recommended `CLIENT_USE_SECURE_HMR` settings in `.env.example`, noting to enable secure WebSockets when the dev server is proxied through HTTPS providers like Cloudflare.
+
+## 2025-10-28 09:45:00 IST
+- Added environment switches so the Vite dev server upgrades HMR connections to WSS when required by secure deployments.
+- Documented the new HMR configuration flags in `.env.example` to guide remote development setups.
+
 ## 2025-10-27 12:30:00 IST
 - Renamed `client/src/app/layouts/MainLayout.jsx` to `DefaultLayout.jsx` and updated the router to consume the new default layout component.
 - Refactored the dashboard feature into `client/src/features/home`, renaming `DashboardPage.jsx` to `HomePage.jsx` and aligning all feature imports with the new path.
