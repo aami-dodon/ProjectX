@@ -1,6 +1,6 @@
 const express = require('express');
 
-const { requestPresignedUpload } = require('@/modules/upload/controllers/upload.controller');
+const { requestPresignedUpload } = require('@/modules/upload/upload.controller');
 
 const router = express.Router();
 
