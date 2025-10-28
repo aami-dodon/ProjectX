@@ -261,7 +261,10 @@ router.get('/', getHealth);
  *     description: >-
  *       Generates both PUT and GET presigned URLs so the health dashboard can upload
  *       and verify assets against the configured MinIO bucket. The request must
- *       identify the MIME type of the image being uploaded.
+ *       identify the MIME type of the image being uploaded. After receiving the
+ *       response, issue an HTTP PUT to the returned `uploadUrl` with the raw image
+ *       bytes as the request body and include every header from the `headers`
+ *       object (for example, `Content-Type`).
  *     tags:
  *       - Health
  *     security: []
@@ -278,6 +281,8 @@ router.get('/', getHealth);
  *                 type: string
  *                 example: image/png
  *                 description: MIME type of the asset that will be uploaded to object storage.
+ *           example:
+ *             contentType: image/png
  *     responses:
  *       '200':
  *         description: Upload target and presigned URL details.
@@ -312,9 +317,17 @@ router.get('/', getHealth);
  *                   description: Number of seconds before the presigned URLs expire.
  *                 headers:
  *                   type: object
- *                   description: Required headers to include with the PUT request.
+ *                   description: Required headers to include with the PUT request when uploading the file.
  *                   additionalProperties:
  *                     type: string
+ *               example:
+ *                 bucket: project-x-health
+ *                 objectName: health/1713865800123-a1b2c3d4.png
+ *                 uploadUrl: https://minio.local/upload
+ *                 downloadUrl: https://minio.local/download
+ *                 expiresIn: 900
+ *                 headers:
+ *                   Content-Type: image/png
  *       '400':
  *         description: The supplied content type was missing or unsupported.
  *         content:
@@ -355,7 +368,19 @@ router.get('/', getHealth);
  *                       nullable: true
  *                     traceId:
  *                       nullable: true
- */
+ *     x-codeSamples:
+ *       - lang: Shell
+ *         label: Request presign and upload image
+ *         source: >-
+ *           curl --request POST "$API_URL/api/health/storage/presign" \
+ *             --header 'Content-Type: application/json' \
+ *             --data '{"contentType":"image/png"}' \
+ *           | jq -r '. | "UPLOAD_URL=" + .uploadUrl + "\nHEADER=" + (.headers["Content-Type"])' \
+ *           | while IFS== read -r key value; do export "$key=$value"; done;
+ *           curl --request PUT "$UPLOAD_URL" \
+ *             --header "Content-Type: $HEADER" \
+ *             --data-binary '@image.png'
+*/
 router.post('/storage/presign', requestStoragePresign);
 
 /**
