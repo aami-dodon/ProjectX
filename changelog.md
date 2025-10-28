@@ -1,3 +1,6 @@
+## 2025-11-05 03:25:00 IST
+- Locked in the removal of the legacy health email and presign endpoints by adding regression coverage for 404 responses.
+
 ## 2025-10-29 02:58:32 IST
 - Retired the duplicated health presign and email test routes, updating the health dashboard to call the dedicated `/api/upload` and `/api/email` services instead.
 
