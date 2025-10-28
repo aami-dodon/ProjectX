@@ -40,7 +40,7 @@ export function MinioUploadTester() {
       setError(null);
 
       try {
-        const response = await apiClient.post("/api/health/storage/presign", {
+        const response = await apiClient.post("/api/upload/presign", {
           contentType: selectedFile.type,
         });
 
