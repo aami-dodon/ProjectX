@@ -10,7 +10,6 @@ RUN npm install --omit=dev
 RUN npx prisma generate
 
 COPY server/src ./src
-COPY shared /shared
 
 ENV NODE_ENV=production
 
