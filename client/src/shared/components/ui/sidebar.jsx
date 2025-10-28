@@ -2,7 +2,7 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva } from "class-variance-authority";
-import { PanelLeftIcon } from "lucide-react"
+import { MenuIcon, PanelLeftIcon } from "lucide-react"
 
 import { useIsMobile } from "@/shared/hooks/use-mobile"
 import { cn } from "@/shared/lib/utils"
@@ -240,7 +240,8 @@ function SidebarTrigger({
         toggleSidebar()
       }}
       {...props}>
-      <PanelLeftIcon />
+      <PanelLeftIcon aria-hidden className="hidden md:block" />
+      <MenuIcon aria-hidden className="md:hidden" />
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   );
