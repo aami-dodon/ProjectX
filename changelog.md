@@ -1,6 +1,3 @@
-## 2025-11-05 10:15:00 IST
-- Published Redoc-powered API reference at `/docs`, sourcing the live Swagger spec from `/api/docs/swagger.json` alongside the existing Swagger UI.
-
 ## 2025-11-03 12:30:00 IST
 - Updated the Swagger docs to serve the branded SVG favicon and Project-X browser title at `/api/docs`.
 
