@@ -7,6 +7,19 @@
   display: none !important;
 }
 
+
+button.btn.execute.opblock-control__btn {
+  background-color: black !important;
+  color: white !important;
+  border: none;
+  transition: background-color 0.3s ease; /* smooth color change */
+}
+
+button.btn.execute.opblock-control__btn:hover {
+  background-color: #1a1a1a !important; /* slightly lighter black on hover */
+}
+
+
 .swagger-ui *, .swagger-ui :after, .swagger-ui :before {
   box-sizing: inherit
 }
