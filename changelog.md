@@ -1,3 +1,6 @@
+## 2025-10-28 11:57:02 IST
+- Corrected the Swagger server base URL so endpoints now call `/api/...` without duplicating the prefix.
+
 ## 2025-10-28 11:28:58 IST
 - Restored the default Swagger UI styling by removing the custom theme, favicon, and title overrides from `/api/docs`.
 ## 2025-10-28 11:15:12 IST
