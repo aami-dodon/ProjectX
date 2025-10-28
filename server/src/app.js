@@ -31,8 +31,9 @@ const createApp = () => {
   setupSwaggerDocs(app);
 
   const docsAssetsPath = path.join(__dirname, '..', 'public', 'docs');
-  app.use('/docs-assets', express.static(docsAssetsPath, { maxAge: '1d' }));
-  app.get('/docs', (req, res) => {
+  const redocBasePath = '/api/redocs';
+  app.use(`${redocBasePath}/assets`, express.static(docsAssetsPath, { maxAge: '1d' }));
+  app.get([redocBasePath, `${redocBasePath}/`], (req, res) => {
     res.sendFile(path.join(docsAssetsPath, 'index.html'));
   });
 

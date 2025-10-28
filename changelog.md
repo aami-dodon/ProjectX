@@ -1,3 +1,6 @@
+## 2025-11-04 09:45:00 IST
+- Relocated the Redoc documentation portal to `/api/redocs` and updated asset paths to keep the docs page working under the new URL.
+
 ## 2025-11-03 19:30:00 IST
 - Copied the bundled Redoc assets into the production server container so `/docs` resolves `index.html` without filesystem errors.
 
