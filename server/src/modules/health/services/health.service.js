@@ -4,8 +4,6 @@ const { execSync } = require('node:child_process');
 const { env } = require('@/config/env');
 const { createLogger } = require('@/utils/logger');
 const { checkDatabaseConnection } = require('@/modules/health/repositories/health.repository');
-const { sendTestEmail } = require('@/modules/email/email.service');
-const { createPresignedUpload, IMAGE_EXTENSION_BY_MIME } = require('@/modules/upload/upload.service');
 
 const logger = createLogger('health-service');
 
@@ -261,17 +259,6 @@ const getHealthStatus = async ({ serverStartTime, corsOptions }) => {
   };
 };
 
-const createHealthUploadPresign = async ({ contentType }) =>
-  createPresignedUpload({
-    contentType,
-    prefix: 'health',
-    extensionMap: IMAGE_EXTENSION_BY_MIME,
-  });
-
-const sendHealthTestEmail = async ({ to }) => sendTestEmail({ to });
-
 module.exports = {
   getHealthStatus,
-  createHealthUploadPresign,
-  sendHealthTestEmail,
 };
