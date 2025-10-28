@@ -1,3 +1,11 @@
+## 2025-10-28 09:29:43 IST
+- Split the health dashboard metrics into backend and frontend sections with browser runtime insights and refined progress cards.
+- Extended the health API to expose structured backend host and process telemetry so the UI can display accurate CPU, memory, and disk values.
+
+## 2025-10-28 09:20:43 IST
+- Refreshed the `/health` dashboard with a minimal lucide-driven layout and inline CPU, memory, and disk summaries.
+- Extended the health API to expose runtime CPU, memory, and disk usage snapshots for the updated dashboard metrics.
+
 ## 2025-10-28 09:02:42 IST
 - Added a `/design-system` single page route mirroring the health layout with typography, color tokens, and comprehensive component showcases for shared UI primitives.
 - Linked the design system entry from the sidebar utility navigation so the documentation hub is reachable in-app.
