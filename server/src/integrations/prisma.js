@@ -1,6 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
-const { env } = require('../config/env');
-const { createLogger } = require('../utils/logger');
+const { env } = require('@/config/env');
+const { createLogger } = require('@/utils/logger');
 
 const logger = createLogger('prisma');
 

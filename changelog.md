@@ -1,3 +1,6 @@
+## 2025-10-30 14:45:00 IST
+- Standardized backend imports to use the `@/` module alias across server modules and updated Jest configuration for the alias mapping.
+
 ## 2025-10-30 13:00:00 IST
 - Removed the request context middleware and AsyncLocalStorage store from the server.
 - Updated logging, health checks, and error handling to operate without request-scoped identifiers.

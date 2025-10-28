@@ -1,6 +1,6 @@
 const express = require('express');
-const { createValidationError, createIntegrationError } = require('../../utils/error-handling');
-const { sendTestEmail } = require('./email.service');
+const { createValidationError, createIntegrationError } = require('@/utils/error-handling');
+const { sendTestEmail } = require('@/modules/email/email.service');
 
 const router = express.Router();
 

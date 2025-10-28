@@ -2,9 +2,9 @@ const {
   getHealthStatus,
   createHealthUploadPresign,
   sendHealthTestEmail,
-} = require('../services/health.service');
-const { createLogger } = require('../../../utils/logger');
-const { createIntegrationError, createValidationError } = require('../../../utils/error-handling');
+} = require('@/modules/health/services/health.service');
+const { createLogger } = require('@/utils/logger');
+const { createIntegrationError, createValidationError } = require('@/utils/error-handling');
 
 const logger = createLogger('health-controller');
 

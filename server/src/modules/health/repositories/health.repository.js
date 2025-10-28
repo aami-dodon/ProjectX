@@ -1,6 +1,6 @@
 const { performance } = require('perf_hooks');
 
-const { prisma } = require('../../../integrations/prisma');
+const { prisma } = require('@/integrations/prisma');
 
 const checkDatabaseConnection = async () => {
   const startedAt = performance.now();
