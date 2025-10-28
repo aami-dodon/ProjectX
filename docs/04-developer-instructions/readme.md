@@ -87,7 +87,7 @@ The compose file builds both services, injects values from `.env`, and exposes t
 ## 5. Coding Standards & Review Expectations
 
 - Stick to JavaScript (no TypeScript) and follow ESLint + Prettier defaults defined in each workspace.
-- Reuse shared Axios clients (`client/src/lib/client.js`) and centralized error handling (`shared/error-handling.js`).
+- Reuse shared Axios clients (`client/src/lib/client.js`) and centralized error handling (`server/src/utils/error-handling.js`).
 - Register new React routes via `client/src/app/routes.jsx`, exporting feature entry points from `client/src/features/<feature>/index.js`.
 - Keep Prisma schema updates in `server/prisma/schema.prisma`, generate migrations with `npx prisma migrate dev --name <change>`.
 - Manage Casbin policies in `server/src/policies/` and email templates under `server/src/templates/email/`.
