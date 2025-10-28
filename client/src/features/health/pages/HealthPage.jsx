@@ -1,13 +1,5 @@
 import { useMemo } from "react";
-import {
-  Cpu,
-  Database,
-  HardDrive,
-  MemoryStick,
-  RefreshCcw,
-  ServerCog,
-  ShieldCheck,
-} from "lucide-react";
+import { Cpu, HardDrive, MemoryStick, RefreshCcw } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
@@ -19,12 +11,6 @@ import { MinioUploadTester } from "../components/MinioUploadTester";
 import { StatusBadge } from "../components/StatusBadge";
 import { useClientRuntimeMetrics } from "../hooks/useClientRuntimeMetrics";
 import { useHealthStatus } from "../hooks/useHealthStatus";
-
-const STATUS_ICON_MAP = {
-  system: ServerCog,
-  api: Database,
-  cors: ShieldCheck,
-};
 
 const clampPercentage = (value) => {
   if (!Number.isFinite(value)) return 0;
@@ -221,32 +207,6 @@ export function HealthPage() {
     return items;
   }, [clientMetrics]);
 
-  const overviewItems = useMemo(() => {
-    return [
-      {
-        key: "system",
-        title: "System",
-        description: "Server runtime",
-        status: summary.statuses.system,
-        icon: STATUS_ICON_MAP.system,
-      },
-      {
-        key: "api",
-        title: "API",
-        description: "Database connectivity",
-        status: summary.statuses.api,
-        icon: STATUS_ICON_MAP.api,
-      },
-      {
-        key: "cors",
-        title: "CORS",
-        description: "Origin policies",
-        status: summary.statuses.cors,
-        icon: STATUS_ICON_MAP.cors,
-      },
-    ];
-  }, [summary.statuses.api, summary.statuses.cors, summary.statuses.system]);
-
   const renderMetricCards = (items) => (
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       {items.map((item) => {
@@ -287,7 +247,7 @@ export function HealthPage() {
           <div className="flex flex-col gap-1">
             <h1 className="text-2xl font-semibold">System Health</h1>
             <p className="text-sm text-muted-foreground">
-              Real-time diagnostics for the API, database connectivity, and CORS policy alignment.
+              Real-time diagnostics for the API and supporting infrastructure.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -314,7 +274,9 @@ export function HealthPage() {
             <Skeleton key={index} className="h-40 rounded-xl" />
           ))}
         </div>
-      ) : error ? (
+      ) : null}
+
+      {error ? (
         <Card className="border-destructive/60 bg-destructive/10">
           <CardHeader>
             <CardTitle className="text-destructive">Unable to load health status</CardTitle>
@@ -326,29 +288,7 @@ export function HealthPage() {
             </Button>
           </CardContent>
         </Card>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {overviewItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <Card key={item.key} className="border-border/60 bg-card/60">
-                <CardContent className="flex items-center gap-4 p-4">
-                  <span className="flex size-10 items-center justify-center rounded-lg border bg-background">
-                    <Icon className="size-5" />
-                  </span>
-                  <div className="flex flex-1 items-center justify-between">
-                    <div className="flex flex-col">
-                      <CardTitle className="text-sm font-medium">{item.title}</CardTitle>
-                      <CardDescription>{item.description}</CardDescription>
-                    </div>
-                    <StatusBadge status={item.status} />
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      )}
+      ) : null}
 
       {!isLoading && !error && data?.data ? (
         <>
@@ -392,101 +332,55 @@ export function HealthPage() {
               status={data.data.system?.status}
               description="Server uptime and runtime environment checks."
               items={[
-              {
-                label: "Process Uptime",
-                value: formatDuration(data.data.system?.uptimeSeconds ?? 0),
-                helpText: "Time since the Node.js process was started.",
-              },
-              {
-                label: "Started At",
-                value: data.data.system?.startedAt
-                  ? new Date(data.data.system.startedAt).toLocaleString()
-                  : "Unknown",
-                helpText: "Timestamp for the last server restart.",
-              },
-              {
-                label: "Node.js Version",
-                value: data.data.system?.nodeVersion ?? "Unknown",
-              },
-            ]}
-            footer={
-              data.data.system?.environment
-                ? `Environment: ${data.data.system.environment}`
-                : null
-            }
-          />
-          <HealthStatusCard
-            title="API Connectivity"
-            status={data.data.api?.status}
-            description="Database round trip and service availability checks."
-            items={[
-              {
-                label: "Database Status",
-                value: <StatusBadge status={data.data.api?.database?.status} />,
-                helpText: `Latency: ${data.data.api?.database?.latencyMs ?? "--"} ms`,
-              },
-              {
-                label: "Last Checked",
-                value: data.data.api?.checkedAt
-                  ? new Date(data.data.api.checkedAt).toLocaleString()
-                  : "Unknown",
-              },
-              {
-                label: "Error Details",
-                value: data.data.api?.database?.error
-                  ? data.data.api.database.error
-                  : "None",
-              },
-            ]}
-            footer={`Database Provider: ${data.data.api?.database?.provider ?? "PostgreSQL"}`}
-          />
-          <HealthStatusCard
-            title="CORS Configuration"
-            status={data.data.cors?.status}
-            description="Evaluates whether required origins and credential settings are active."
-            items={[
-              {
-                label: "Allowed Origins",
-                value: (
-                  <div className="flex flex-col gap-1">
-                    {(data.data.cors?.allowedOrigins ?? []).map((origin) => (
-                      <code
-                        key={origin}
-                        className="rounded-md bg-muted px-2 py-1 text-xs"
-                      >
-                        {origin}
-                      </code>
-                    ))}
-                    {data.data.cors?.allowedOrigins?.length === 0 ? (
-                      <span className="text-muted-foreground">No origins configured.</span>
-                    ) : null}
-                  </div>
-                ),
-              },
-              {
-                label: "Allows Credentials",
-                value: data.data.cors?.allowsCredentials ? "Yes" : "No",
-              },
-              {
-                label: "Required Headers",
-                value: (
-                  <div className="flex flex-wrap gap-1">
-                    {(data.data.cors?.allowedHeaders ?? []).map((header) => (
-                      <code key={header} className="rounded-md bg-muted px-2 py-1 text-xs">
-                        {header}
-                      </code>
-                    ))}
-                  </div>
-                ),
-              },
-            ]}
-            footer={
-              data.data.cors?.issues?.length
-                ? data.data.cors.issues.join(" • ")
-                : "CORS configuration matches the required policy."
-            }
-          />
-        </div>
+                {
+                  label: "Process Uptime",
+                  value: formatDuration(data.data.system?.uptimeSeconds ?? 0),
+                  helpText: "Time since the Node.js process was started.",
+                },
+                {
+                  label: "Started At",
+                  value: data.data.system?.startedAt
+                    ? new Date(data.data.system.startedAt).toLocaleString()
+                    : "Unknown",
+                  helpText: "Timestamp for the last server restart.",
+                },
+                {
+                  label: "Node.js Version",
+                  value: data.data.system?.nodeVersion ?? "Unknown",
+                },
+              ]}
+              footer={
+                data.data.system?.environment
+                  ? `Environment: ${data.data.system.environment}`
+                  : null
+              }
+            />
+            <HealthStatusCard
+              title="API Connectivity"
+              status={data.data.api?.status}
+              description="Database round trip and service availability checks."
+              items={[
+                {
+                  label: "Database Status",
+                  value: <StatusBadge status={data.data.api?.database?.status} />,
+                  helpText: `Latency: ${data.data.api?.database?.latencyMs ?? "--"} ms`,
+                },
+                {
+                  label: "Last Checked",
+                  value: data.data.api?.checkedAt
+                    ? new Date(data.data.api.checkedAt).toLocaleString()
+                    : "Unknown",
+                },
+                {
+                  label: "Error Details",
+                  value: data.data.api?.database?.error
+                    ? data.data.api.database.error
+                    : "None",
+                },
+              ]}
+              footer={`Database Provider: ${data.data.api?.database?.provider ?? "PostgreSQL"}`}
+            />
+          </div>
       </>
     ) : null}
 
