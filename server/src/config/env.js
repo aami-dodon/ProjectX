@@ -93,7 +93,7 @@ const parseEnvironment = () => {
 
   if (!result.success) {
     result.error.issues.forEach((issue) => {
-      logger.error({ code: 'ENV_VALIDATION_FAILED', detail: issue }, issue.message);
+      logger.error(issue.message, { code: 'ENV_VALIDATION_FAILED', detail: issue });
     });
 
     if (process.env.NODE_ENV === 'test') {

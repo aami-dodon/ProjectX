@@ -34,7 +34,7 @@ const requestLogger = morgan(
         try {
           payload = JSON.parse(trimmedMessage);
         } catch (error) {
-          httpLogger.warn({ error: error.message, raw: trimmedMessage }, 'Unable to parse HTTP log entry');
+          httpLogger.warn('Unable to parse HTTP log entry', { error: error.message, raw: trimmedMessage });
           return;
         }
 
@@ -42,13 +42,10 @@ const requestLogger = morgan(
 
         const level = statusCode >= 500 ? 'error' : statusCode >= 400 ? 'warn' : 'info';
 
-        httpLogger[level](
-          {
-            statusCode,
-            ...metadata,
-          },
-          'HTTP request completed'
-        );
+        httpLogger[level]('HTTP request completed', {
+          statusCode,
+          ...metadata,
+        });
       },
     },
   }

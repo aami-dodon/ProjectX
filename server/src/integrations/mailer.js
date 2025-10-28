@@ -19,7 +19,7 @@ const verifyTransporter = async () => {
     await transporter.verify();
     return true;
   } catch (error) {
-    logger.error({ error: error.message }, 'Failed to verify SMTP transport');
+    logger.error('Failed to verify SMTP transport', { error: error.message });
     throw error;
   }
 };

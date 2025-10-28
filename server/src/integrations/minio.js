@@ -21,7 +21,7 @@ const verifyBucket = async () => {
     }
     return true;
   } catch (error) {
-    logger.error({ error: error.message }, 'Failed to verify bucket existence');
+    logger.error('Failed to verify bucket existence', { error: error.message });
     throw error;
   }
 };

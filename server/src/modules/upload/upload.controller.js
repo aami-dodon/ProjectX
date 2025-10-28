@@ -20,7 +20,7 @@ const requestPresignedUpload = async (req, res, next) => {
 
     return res.json(payload);
   } catch (error) {
-    logger.error({ error: error.message }, 'Failed to create presigned upload URL');
+    logger.error('Failed to create presigned upload URL', { error: error.message });
     return next(createIntegrationError('Failed to create presigned upload URL', { cause: error.message }));
   }
 };

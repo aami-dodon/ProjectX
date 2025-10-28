@@ -60,7 +60,7 @@ const createApp = () => {
   app.use(errorHandler);
 
   if (env.NODE_ENV !== 'production') {
-    logger.debug({ environment: env.NODE_ENV }, 'Express application configured');
+    logger.debug('Express application configured', { environment: env.NODE_ENV });
   }
 
   return app;

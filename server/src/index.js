@@ -11,14 +11,15 @@ const serverStartTime = Date.now();
 app.locals.serverStartTime = serverStartTime;
 
 const server = app.listen(env.SERVER_PORT, () => {
-  logger.info(
-    { port: env.SERVER_PORT, apiBasePath: '/api', environment: env.NODE_ENV },
-    'Server is listening'
-  );
+  logger.info('Server is listening', {
+    port: env.SERVER_PORT,
+    apiBasePath: '/api',
+    environment: env.NODE_ENV,
+  });
 });
 
 const gracefulShutdown = async (signal) => {
-  logger.info({ signal }, 'Received shutdown signal, closing server');
+  logger.info('Received shutdown signal, closing server', { signal });
   server.close(() => {
     logger.info('HTTP server closed');
     process.exit(0);
