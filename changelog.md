@@ -1,3 +1,6 @@
+## 2025-11-03 14:45:00 IST
+- Removed the unused `/api/email/test` and `/api/storage/upload` endpoints along with their routers from the Express backend.
+
 ## 2025-11-03 12:30:00 IST
 - Updated the Swagger docs to serve the branded SVG favicon and Project-X browser title at `/api/docs`.
 
