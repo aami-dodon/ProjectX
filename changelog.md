@@ -434,3 +434,5 @@
 ## 2025-10-28 08:08:15 IST
 - Fixed a startup-breaking syntax error by closing the missing quote in `server/src/modules/email/email.router.js` for the centralized error handling import.
 - Corrected `server/src/modules/health/controllers/health.controller.js` to import from `server/src/utils/error-handling` instead of a non-existent shared path, aligning with centralized error handling.
+## 2025-10-28 11:36:30 IST
+- Styled Swagger UI by serving `server/src/config/swagger.css` at `/api/docs/swagger.css` and linking it via `customCssUrl` so `/api/docs` uses the selected theme.

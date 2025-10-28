@@ -39,6 +39,8 @@ const swaggerJsdocOptions = {
 const openApiSpecification = swaggerJsdoc(swaggerJsdocOptions);
 
 const swaggerUiOptions = {
+  // Link a custom stylesheet for Swagger UI
+  customCssUrl: '/api/docs/swagger.css',
   swaggerOptions: {
     persistAuthorization: true,
     displayRequestDuration: true,
@@ -48,6 +50,12 @@ const swaggerUiOptions = {
 const setupSwaggerDocs = (app) => {
   app.get('/api/docs.json', (req, res) => {
     res.json(openApiSpecification);
+  });
+
+  // Serve the custom Swagger UI theme CSS
+  app.get('/api/docs/swagger.css', (req, res) => {
+    res.type('text/css');
+    res.sendFile(path.resolve(__dirname, 'swagger.css'));
   });
 
   app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(openApiSpecification, swaggerUiOptions));
