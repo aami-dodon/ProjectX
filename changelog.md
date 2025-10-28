@@ -1,3 +1,6 @@
+## 2025-10-28 09:52:29 IST
+- Simplified the health dashboard by removing the CORS configuration and status overview cards.
+
 ## 2025-10-31 13:55:00 IST
 - Removed API versioned prefixes from the Express server so routes now mount under `/api`, updating the health feature clients accordingly.
 - Updated repository documentation to reference the unversioned `/api` paths across backend, integration, and system guides.
