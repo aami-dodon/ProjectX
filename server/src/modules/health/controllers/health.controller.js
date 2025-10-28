@@ -4,7 +4,7 @@ const {
   sendHealthTestEmail,
 } = require('../services/health.service');
 const { createLogger } = require('../../../utils/logger');
-const { createIntegrationError, createValidationError } = require('../../../../shared/error-handling');
+const { createIntegrationError, createValidationError } = require('../../../utils/error-handling');
 
 const logger = createLogger('health-controller');
 
