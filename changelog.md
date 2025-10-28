@@ -1,5 +1,7 @@
 ## 2025-10-28 11:15:12 IST
 - Documented health, storage, and email endpoints with detailed OpenAPI JSDoc so `/api/docs` now lists their request and response contracts.
+## 2025-11-02 16:15:00 IST
+- Switched the frontend theme provider to default to dark mode and set the root HTML class so the app loads with dark styling by default.
 ## 2025-10-28 11:13:04 IST
 - Restyled the Swagger documentation theme with a high-contrast dark mode palette to improve readability at `/api/docs`.
 
