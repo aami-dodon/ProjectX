@@ -22,7 +22,7 @@ const getHealth = async (req, res, next) => {
       },
     });
   } catch (error) {
-    logger.error({ error: error.message }, 'Failed to retrieve health status');
+    logger.error('Failed to retrieve health status', { error: error.message });
     next(error);
   }
 };

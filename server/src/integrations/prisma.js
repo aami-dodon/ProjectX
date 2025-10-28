@@ -17,10 +17,10 @@ prisma.$use(async (params, next) => {
   try {
     const result = await next(params);
     const elapsed = Date.now() - startedAt;
-    logger.debug({ action: params.action, model: params.model, elapsed }, 'Prisma query executed');
+    logger.debug('Prisma query executed', { action: params.action, model: params.model, elapsed });
     return result;
   } catch (error) {
-    logger.error({ error: error.message, params }, 'Prisma query failed');
+    logger.error('Prisma query failed', { error: error.message, params });
     throw error;
   }
 });

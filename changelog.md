@@ -1,3 +1,6 @@
+## 2025-11-05 04:01:37 IST
+- Standardised server logging calls to use message-first signatures so Winston metadata stays consistent across modules.
+
 ## 2025-11-05 03:25:00 IST
 - Locked in the removal of the legacy health email and presign endpoints by adding regression coverage for 404 responses.
 

@@ -11,13 +11,13 @@ const errorHandler = (err, req, res, _next) => {
 
   const error = err instanceof ApplicationError ? err : new ApplicationError(err.message || 'Unexpected error');
 
-  logger.error({
+  logger.error(err.message, {
     requestId,
     traceId,
     stack: err.stack,
     code: error.code,
     status,
-  }, err.message);
+  });
 
   res.status(status).json(buildErrorResponse(error, { requestId, traceId }));
 };

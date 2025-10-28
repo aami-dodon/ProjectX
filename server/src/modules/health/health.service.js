@@ -101,7 +101,7 @@ const getDiskSnapshot = () => {
       utilizationPercent,
     };
   } catch (error) {
-    logger.warn({ error: error.message }, 'Failed to collect disk usage metrics');
+    logger.warn('Failed to collect disk usage metrics', { error: error.message });
     return {
       totalBytes: null,
       freeBytes: null,
@@ -218,7 +218,7 @@ const getHealthStatus = async ({ serverStartTime, corsOptions }) => {
       ...result,
     };
   } catch (error) {
-    logger.error({ error: error.message }, 'Database health check failed');
+    logger.error('Database health check failed', { error: error.message });
     database = {
       status: 'outage',
       latencyMs: null,

@@ -19,7 +19,7 @@ const sendTestEmailHandler = async (req, res, next) => {
       messageId: info?.messageId ?? null,
     });
   } catch (error) {
-    logger.error({ error: error.message }, 'Failed to send test email');
+    logger.error('Failed to send test email', { error: error.message });
     return next(createIntegrationError('Failed to send test email', { cause: error.message }));
   }
 };
