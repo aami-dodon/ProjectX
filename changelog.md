@@ -1,3 +1,6 @@
+## 2025-11-03 16:30:00 IST
+- Added a Redoc-powered documentation portal at `/docs` that sources `/api/docs.json` while keeping the Swagger UI unchanged.
+
 ## 2025-11-03 14:45:00 IST
 - Removed the unused `/api/email/test` and `/api/storage/upload` endpoints along with their routers from the Express backend.
 

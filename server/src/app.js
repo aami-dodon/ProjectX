@@ -3,6 +3,7 @@ require('module-alias/register');
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
+const redoc = require('redoc-express');
 const { requestLogger } = require('@/middleware/request-logger');
 const { errorHandler } = require('@/middleware/error-handler');
 const { env } = require('@/config/env');
@@ -28,6 +29,14 @@ const createApp = () => {
   app.use(requestLogger);
 
   setupSwaggerDocs(app);
+  app.get(
+    '/docs',
+    redoc({
+      title: 'Project-X Docs',
+      specUrl: '/api/docs.json',
+      nonce: '',
+    })
+  );
 
   const apiPrefix = '/api';
 
