@@ -12,7 +12,7 @@ Write Code:
 
 - **Language:** 100% JavaScript across frontend, backend, tests, and tooling (no TypeScript anywhere).
 - **Frontend:** React (Vite toolchain) with React Router, TailwindCSS + shadcn/ui, Lucide icons, and Tiptap editor for evidence authoring/upload.
-  - For UI reference and guidelines you must comply with: `reference/ui-reference.md`
+  - For UI reference and guidelines you must comply with: `docs/04-developer-instructions/frontend`
 - **Backend:** Express on Node.js organized by feature modules:
   - `Auth`, `Governance Engine`, `Frameworks`, `Evidence`, `Notifications`, `Tasks`
 - **Data:** Prisma ORM with **externally hosted PostgreSQL** (configuration in `.env`); evidence binaries stored in **externally hosted MinIO** (configuration in `.env`) via presigned URLs.
@@ -43,7 +43,7 @@ Write Code:
 ## Email & Notifications (Nodemailer)
 
 - Store email templates in `server/src/templates/email/`.
-- Email templates must use branded design following the same design tokens and styling conventions defined in `reference/ui-reference.md`.
+- Email templates must use branded design following the same design tokens and styling conventions defined in `docs/04-developer-instructions/frontend`.
 - Build email HTML templates using inline styles derived from global CSS tokens (colors, typography, spacing) to ensure brand consistency.
 - Use the same color palette (`--primary`, `--secondary`, `--muted`, etc.) and typography scale as defined in the UI design system.
 - Email templates should be responsive and work across major email clients.
@@ -136,7 +136,7 @@ Write Code:
 
 ## Error Handling & Observability
 
-- All error handling must be carried out via centralized error handling defined in `shared/error-handling.js`.
+- All error handling must be carried out via centralized error handling defined in `server/src/utils/error-handling.js`.
 - Frontend must display human-readable error messages for all 4xx and 5xx responses.
 - Logs must include request IDs and trace IDs to enable cross-service debugging.
 

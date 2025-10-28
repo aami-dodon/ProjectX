@@ -2,6 +2,8 @@
 - Added presigned MinIO upload tooling to the health dashboard with an inline preview card for verifying object storage connectivity.
 - Introduced an email delivery test form so operators can validate SMTP credentials directly from the health page.
 - Extended the health API with presign and email test endpoints that reuse centralized error handling and mailer services.
+## 2025-10-28 07:50:51 IST
+- Retired the legacy UI reference document under `reference/` and pointed developer guidance to `docs/04-developer-instructions/frontend` for frontend standards.
 
 ## 2025-10-29 18:45:00 IST
 - Restored Swagger references in repository documentation while keeping the backend implementation Swagger-free per product direction.
@@ -375,3 +377,6 @@
 ## 2025-10-27 22:25:31 IST
 - Introduced a shared `StatusPage` layout and updated the existing error and not-found experiences to reuse it for consistent styling and actions.
 - Added dedicated routes and pages for 401, 403, 408, 500, and 503 error states so other features can link to purpose-built guidance and recovery actions.
+
+## 2025-10-28 07:52:03 IST
+- Relocated the centralized error handling utilities to `server/src/utils/error-handling.js` and updated all server imports and documentation references accordingly.

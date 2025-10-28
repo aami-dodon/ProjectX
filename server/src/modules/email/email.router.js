@@ -1,5 +1,5 @@
 const express = require('express');
-const { createValidationError, createIntegrationError } = require('../../../../shared/error-handling');
+const { createValidationError, createIntegrationError } = require('../../utils/error-handling);
 const { sendTestEmail } = require('./email.service');
 
 const router = express.Router();
