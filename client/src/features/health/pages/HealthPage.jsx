@@ -62,7 +62,7 @@ export function HealthPage() {
   }, [summary.statuses.api, summary.statuses.cors, summary.statuses.system]);
 
   return (
-    <div className="flex flex-1 flex-col gap-6 p-4 lg:p-6">
+    <div className="flex flex-1 flex-col gap-6">
       <div className="flex flex-col gap-4">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex flex-col gap-1">

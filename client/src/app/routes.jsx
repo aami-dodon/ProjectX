@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 
 import DefaultLayout from "./layouts/DefaultLayout";
+import SinglePageLayout from "./layouts/SinglePageLayout";
 import { ErrorPage } from "./pages/ErrorPage";
 import { ForbiddenPage } from "./pages/ForbiddenPage";
 import { InternalServerErrorPage } from "./pages/InternalServerErrorPage";
@@ -48,8 +49,13 @@ export const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: "health", element: <HealthPage /> },
     ],
+  },
+  {
+    path: "/health",
+    element: <SinglePageLayout />,
+    errorElement: <ErrorPage />,
+    children: [{ index: true, element: <HealthPage /> }],
   },
   ...statusRoutes,
   {
