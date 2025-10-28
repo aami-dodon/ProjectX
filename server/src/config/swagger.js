@@ -49,8 +49,37 @@ const swaggerUiOptions = {
   },
 };
 
+const generateRedocHtml = () => `<!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <title>Project X API Documentation</title>
+      <style>
+        body {
+          margin: 0;
+          padding: 0;
+        }
+        redoc {
+          height: 100vh;
+        }
+      </style>
+      <link rel="icon" type="image/svg+xml" href="/api/docs/favicon.svg" />
+    </head>
+    <body>
+      <redoc spec-url="/api/docs/swagger.json"></redoc>
+      <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"></script>
+    </body>
+  </html>`;
+
 const setupSwaggerDocs = (app) => {
+  const redocHtml = generateRedocHtml();
+
   app.get('/api/docs.json', (req, res) => {
+    res.json(openApiSpecification);
+  });
+
+  app.get('/api/docs/swagger.json', (req, res) => {
     res.json(openApiSpecification);
   });
 
@@ -66,6 +95,11 @@ const setupSwaggerDocs = (app) => {
   });
 
   app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(openApiSpecification, swaggerUiOptions));
+
+  app.get('/docs', (req, res) => {
+    res.type('html');
+    res.send(redocHtml);
+  });
 };
 
 module.exports = {
