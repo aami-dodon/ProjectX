@@ -1,3 +1,6 @@
+## 2025-10-28 10:48:33 IST
+- Updated the client HTML metadata with an SEO-optimised Project-X title, governance-focused descriptions, and social sharing tags.
+
 ## 2025-10-28 09:52:29 IST
 - Simplified the health dashboard by removing the CORS configuration and status overview cards.
 
