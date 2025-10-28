@@ -1,3 +1,5 @@
+## 2025-10-28 11:28:58 IST
+- Restored the default Swagger UI styling by removing the custom theme, favicon, and title overrides from `/api/docs`.
 ## 2025-10-28 11:15:12 IST
 - Documented health, storage, and email endpoints with detailed OpenAPI JSDoc so `/api/docs` now lists their request and response contracts.
 ## 2025-11-02 16:15:00 IST

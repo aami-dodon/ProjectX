@@ -1,10 +1,6 @@
-const fs = require('fs');
 const path = require('path');
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
-
-const themePath = path.resolve(__dirname, './swagger-theme.css');
-const faviconPath = path.resolve(__dirname, './favicon.svg');
 
 const swaggerDefinition = {
   openapi: '3.1.0',
@@ -42,12 +38,7 @@ const swaggerJsdocOptions = {
 
 const openApiSpecification = swaggerJsdoc(swaggerJsdocOptions);
 
-const swaggerThemeCss = fs.readFileSync(themePath, 'utf8');
-const faviconSvg = fs.readFileSync(faviconPath);
 const swaggerUiOptions = {
-  customCss: swaggerThemeCss,
-  customSiteTitle: 'Project X API Reference',
-  customfavIcon: `data:image/svg+xml;base64,${Buffer.from(faviconSvg).toString('base64')}`,
   swaggerOptions: {
     persistAuthorization: true,
     displayRequestDuration: true,
