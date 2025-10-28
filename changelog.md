@@ -1,3 +1,6 @@
+## 2025-10-29 02:58:32 IST
+- Retired the duplicated health presign and email test routes, updating the health dashboard to call the dedicated `/api/upload` and `/api/email` services instead.
+
 ## 2025-11-04 12:15:00 IST
 - Refactored the email and upload services into modular routers with shared helpers so health diagnostics reuse the new upload utility.
 
