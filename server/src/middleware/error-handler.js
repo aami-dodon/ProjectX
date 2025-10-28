@@ -1,5 +1,5 @@
-const { buildErrorResponse, ApplicationError } = require('../utils/error-handling');
-const { createLogger } = require('../utils/logger');
+const { buildErrorResponse, ApplicationError } = require('@/utils/error-handling');
+const { createLogger } = require('@/utils/logger');
 
 const logger = createLogger('error-handler');
 

@@ -1,8 +1,8 @@
 const express = require('express');
 const multer = require('multer');
-const { minioClient } = require('../../integrations/minio');
-const { env } = require('../../config/env');
-const { createValidationError, createIntegrationError } = require('../../utils/error-handling');
+const { minioClient } = require('@/integrations/minio');
+const { env } = require('@/config/env');
+const { createValidationError, createIntegrationError } = require('@/utils/error-handling');
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
 const router = express.Router();

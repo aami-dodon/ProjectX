@@ -1,6 +1,6 @@
 const Minio = require('minio');
-const { env } = require('../config/env');
-const { createLogger } = require('../utils/logger');
+const { env } = require('@/config/env');
+const { createLogger } = require('@/utils/logger');
 
 const logger = createLogger('minio');
 

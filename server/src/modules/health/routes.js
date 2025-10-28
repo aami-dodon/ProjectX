@@ -4,7 +4,7 @@ const {
   getHealth,
   requestStoragePresign,
   sendTestEmailFromHealth,
-} = require('./controllers/health.controller');
+} = require('@/modules/health/controllers/health.controller');
 
 const router = express.Router();
 

@@ -1,15 +1,17 @@
+require('module-alias/register');
+
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
-const { requestLogger } = require('./middleware/request-logger');
-const { errorHandler } = require('./middleware/error-handler');
-const { env } = require('./config/env');
-const { createLogger } = require('./utils/logger');
+const { requestLogger } = require('@/middleware/request-logger');
+const { errorHandler } = require('@/middleware/error-handler');
+const { env } = require('@/config/env');
+const { createLogger } = require('@/utils/logger');
 
 const logger = createLogger('app');
-const emailRouter = require('./modules/email/email.router');
-const storageRouter = require('./modules/storage/storage.router');
-const healthRouter = require('./modules/health/routes');
+const emailRouter = require('@/modules/email/email.router');
+const storageRouter = require('@/modules/storage/storage.router');
+const healthRouter = require('@/modules/health/routes');
 const createApp = () => {
   const app = express();
 

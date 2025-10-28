@@ -1,5 +1,5 @@
 const { z } = require('zod');
-const { createLogger } = require('../utils/logger');
+const { createLogger } = require('@/utils/logger');
 
 const logger = createLogger('env');
 

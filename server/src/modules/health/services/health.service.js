@@ -1,10 +1,10 @@
 const { randomUUID } = require('node:crypto');
 
-const { env } = require('../../../config/env');
-const { createLogger } = require('../../../utils/logger');
-const { minioClient } = require('../../../integrations/minio');
-const { checkDatabaseConnection } = require('../repositories/health.repository');
-const { sendTestEmail } = require('../../email/email.service');
+const { env } = require('@/config/env');
+const { createLogger } = require('@/utils/logger');
+const { minioClient } = require('@/integrations/minio');
+const { checkDatabaseConnection } = require('@/modules/health/repositories/health.repository');
+const { sendTestEmail } = require('@/modules/email/email.service');
 
 const logger = createLogger('health-service');
 

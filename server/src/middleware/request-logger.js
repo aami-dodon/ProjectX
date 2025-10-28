@@ -1,5 +1,5 @@
 const morgan = require('morgan');
-const { createLogger } = require('../utils/logger');
+const { createLogger } = require('@/utils/logger');
 
 const httpLogger = createLogger('http');
 
