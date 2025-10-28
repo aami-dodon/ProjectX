@@ -5,8 +5,8 @@ const logger = createLogger('error-handler');
 
 // eslint-disable-next-line no-unused-vars
 const errorHandler = (err, req, res, _next) => {
-  const requestId = req?.context?.requestId ?? null;
-  const traceId = req?.context?.traceId ?? null;
+  const requestId = null;
+  const traceId = null;
   const status = err instanceof ApplicationError ? err.status : 500;
 
   const error = err instanceof ApplicationError ? err : new ApplicationError(err.message || 'Unexpected error');
