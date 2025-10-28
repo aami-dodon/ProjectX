@@ -1,3 +1,7 @@
+## 2025-10-28 09:02:42 IST
+- Added a `/design-system` single page route mirroring the health layout with typography, color tokens, and comprehensive component showcases for shared UI primitives.
+- Linked the design system entry from the sidebar utility navigation so the documentation hub is reachable in-app.
+
 ## 2025-10-30 14:45:00 IST
 - Standardized backend imports to use the `@/` module alias across server modules and updated Jest configuration for the alias mapping.
 
