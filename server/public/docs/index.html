@@ -3,11 +3,52 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Project-X Docs</title>
-    <link rel="icon" href="/favicon.ico" />
+
+    <!-- HTML Meta Tags -->
+    <title>Project-X</title>
+    <meta name="description" content="">
+
+    <!-- Favicon -->
+    <link rel="icon" href="favicon.ico" />
+
+    <!-- Facebook Meta Tags -->
+    <meta property="og:url" content="https://projectx.dodon.in/api/redocs/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Project-X" />
+    <meta property="og:description" content="" />
+    <meta property="og:image" content="https://opengraph.b-cdn.net/production/images/56e5daee-4d6e-4e33-b840-76a15b8266cf.jpg?token=Et7ylcu2nQi4iEWxm5CdcO7nnCtF2VlW-3Veq_idcSU&height=750&width=1200&expires=33297637571" />
+
+    <!-- Twitter Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta property="twitter:domain" content="projectx.dodon.in" />
+    <meta property="twitter:url" content="https://projectx.dodon.in/api/redocs/" />
+    <meta name="twitter:title" content="Project-X" />
+    <meta name="twitter:description" content="" />
+    <meta name="twitter:image" content="https://opengraph.b-cdn.net/production/images/56e5daee-4d6e-4e33-b840-76a15b8266cf.jpg?token=Et7ylcu2nQi4iEWxm5CdcO7nnCtF2VlW-3Veq_idcSU&height=750&width=1200&expires=33297637571" />
+
+    <!-- Custom Branding Styles -->
+    <style>
+      body {
+        margin: 0;
+        font-family: 'Inter', sans-serif;
+      }
+      .brand-text {
+        font-size: 22px;
+        font-weight: 600;
+        padding: 16px 24px;
+        background-color: #f9f9f9;
+        border-bottom: 1px solid #eee;
+      }
+      #redoc-container {
+        height: 100vh;
+      }
+    </style>
   </head>
   <body>
+    <div class="brand-text">Project-X</div>
     <div id="redoc-container"></div>
+
+    <!-- Redoc Scripts -->
     <script src="/api/redocs/assets/redoc.standalone.js" defer></script>
     <script src="/api/redocs/assets/redoc.init.js" defer></script>
   </body>
