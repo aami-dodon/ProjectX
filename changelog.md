@@ -1,3 +1,6 @@
+## 2025-11-04 10:30:00 IST
+- Expanded the `/api/health/storage/presign` OpenAPI notes with file upload guidance, concrete examples, and a shell snippet.
+
 ## 2025-11-04 09:45:00 IST
 - Relocated the Redoc documentation portal to `/api/redocs` and updated asset paths to keep the docs page working under the new URL.
 
