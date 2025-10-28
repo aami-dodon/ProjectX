@@ -5,6 +5,7 @@ import {
   IconLayoutBoardSplit,
   IconLetterSpacing,
   IconPalette,
+  IconPencil,
   IconTypography,
 } from "@tabler/icons-react";
 
@@ -53,6 +54,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/shared/components/ui/tooltip";
+import { TextEditor } from "@/shared/components/text-editor";
 
 const baseColorTokens = [
   "background",
@@ -330,6 +332,67 @@ function FormShowcase() {
                 Billing tab content goes here.
               </TabsContent>
             </Tabs>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function RichTextShowcase() {
+  const [content, setContent] = useState(
+    "<p><strong>Draft remediation notes</strong> with inline highlights, evidence links, and alignment controls.</p><p>Use the toolbar to demonstrate headings, lists, and formatting tokens.</p>"
+  );
+
+  const wordCount = useMemo(() => {
+    const plainText = content
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&nbsp;/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    if (!plainText) {
+      return 0;
+    }
+
+    return plainText.split(" ").length;
+  }, [content]);
+
+  return (
+    <div className="grid gap-6 lg:grid-cols-2">
+      <Card className="border-border/70">
+        <CardHeader>
+          <CardTitle>Text editor</CardTitle>
+          <CardDescription>Shared rich text editor built on TipTap with shadcn styling.</CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          <TextEditor
+            value={content}
+            onChange={setContent}
+            placeholder="Draft remediation guidance..."
+            editorClassName="min-h-[16rem]"
+          />
+          <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+            <span>Includes headings, highlights, alignment, and link management controls.</span>
+            <span className="font-medium text-foreground">Word count: {wordCount}</span>
+          </div>
+        </CardContent>
+      </Card>
+      <Card className="border-border/70">
+        <CardHeader>
+          <CardTitle>Live preview</CardTitle>
+          <CardDescription>The formatted output mirrors how rich text renders in product surfaces.</CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          <div className="rounded-lg border bg-muted/20 p-4">
+            <div
+              className="prose prose-sm max-w-none dark:prose-invert"
+              dangerouslySetInnerHTML={{ __html: content }}
+            />
+          </div>
+          <div className="flex flex-col gap-2 text-xs">
+            <span className="font-medium text-muted-foreground">Serialized HTML</span>
+            <pre className="max-h-48 overflow-auto rounded-md border bg-muted/10 p-3 font-mono text-[11px] leading-relaxed whitespace-pre-wrap">{content}</pre>
           </div>
         </CardContent>
       </Card>
@@ -637,6 +700,15 @@ export function DesignSystemPage() {
         description="Shared form primitives for inputs, selects, checkboxes, skeletons, and tabs."
       >
         <FormShowcase />
+      </Section>
+
+      <Section
+        id="text-editor"
+        icon={IconPencil}
+        title="Rich Text Editor"
+        description="TipTap-powered editor with toolbar controls and live preview."
+      >
+        <RichTextShowcase />
       </Section>
 
       <Section

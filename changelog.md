@@ -1,3 +1,6 @@
+## 2025-11-05 05:15:00 IST
+- Added a rich text editor section to the design system page showcasing the shared TextEditor component with live preview and HTML output.
+
 ## 2025-11-05 04:45:00 IST
 - Documented the `LOG_LEVEL` and `VITE_LOG_LEVEL` environment variables so deployments can tune logging verbosity across the stack.
 
