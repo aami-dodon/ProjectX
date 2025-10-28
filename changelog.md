@@ -1,3 +1,6 @@
+## 2025-10-28 07:50:51 IST
+- Retired the legacy UI reference document under `reference/` and pointed developer guidance to `docs/04-developer-instructions/frontend` for frontend standards.
+
 ## 2025-10-29 18:45:00 IST
 - Restored Swagger references in repository documentation while keeping the backend implementation Swagger-free per product direction.
 
