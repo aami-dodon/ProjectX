@@ -3,7 +3,7 @@ const { execSync } = require('node:child_process');
 
 const { env } = require('@/config/env');
 const { createLogger } = require('@/utils/logger');
-const { checkDatabaseConnection } = require('@/modules/health/repositories/health.repository');
+const { checkDatabaseConnection } = require('@/modules/health/health.repository');
 
 const logger = createLogger('health-service');
 
