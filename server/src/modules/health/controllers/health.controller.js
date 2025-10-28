@@ -10,8 +10,6 @@ const logger = createLogger('health-controller');
 
 const getHealth = async (req, res, next) => {
   try {
-    const requestId = req?.context?.requestId ?? null;
-    const traceId = req?.context?.traceId ?? null;
     const serverStartTime = req.app.locals.serverStartTime ?? Date.now();
     const corsOptions = req.app.locals.corsOptions ?? {};
 
@@ -20,8 +18,8 @@ const getHealth = async (req, res, next) => {
     res.json({
       status: health.status,
       timestamp: new Date().toISOString(),
-      requestId,
-      traceId,
+      requestId: null,
+      traceId: null,
       data: {
         system: health.system,
         api: health.api,

@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 const { createLogger: createWinstonLogger, format, transports } = require('winston');
 const DailyRotateFile = require('winston-daily-rotate-file');
-const { getRequestContext } = require('./request-context-store');
 
 const LOG_DIR = path.join(__dirname, '..', '..', 'logs');
 
@@ -29,17 +28,6 @@ const baseFormat = format.combine(
       level,
       message,
     };
-
-    if (meta.context && typeof meta.context === 'object') {
-      const { requestId: contextRequestId, traceId: contextTraceId } = meta.context;
-      if (contextRequestId !== undefined && meta.requestId === undefined) {
-        payload.requestId = contextRequestId;
-      }
-      if (contextTraceId !== undefined && meta.traceId === undefined) {
-        payload.traceId = contextTraceId;
-      }
-      delete meta.context;
-    }
 
     if (meta.requestId !== undefined) {
       payload.requestId = meta.requestId;
@@ -149,41 +137,10 @@ const normalizeLogArguments = (args) => {
   return { message, meta };
 };
 
-const mergeContextIntoMeta = (meta = {}) => {
-  const context = getRequestContext();
-
-  if (!context || typeof context !== 'object') {
-    return meta;
-  }
-
-  const mergedMeta = { ...meta };
-
-  if (mergedMeta.requestId === undefined && context.requestId !== undefined) {
-    mergedMeta.requestId = context.requestId;
-  }
-
-  if (mergedMeta.traceId === undefined && context.traceId !== undefined) {
-    mergedMeta.traceId = context.traceId;
-  }
-
-  if (mergedMeta.userId === undefined && context.userId !== undefined) {
-    mergedMeta.userId = context.userId;
-  }
-
-  if (context && mergedMeta.context === undefined) {
-    mergedMeta.context = context;
-  } else if (context && mergedMeta.context && typeof mergedMeta.context === 'object') {
-    mergedMeta.context = { ...context, ...mergedMeta.context };
-  }
-
-  return mergedMeta;
-};
-
 const wrapLogger = (loggerInstance) => {
   const logWithLevel = (level, parameters) => {
     const { message, meta } = normalizeLogArguments(parameters);
-    const metaWithContext = mergeContextIntoMeta(meta);
-    loggerInstance.log({ level, message, ...metaWithContext });
+    loggerInstance.log({ level, message, ...meta });
   };
 
   return {

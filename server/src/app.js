@@ -1,7 +1,6 @@
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
-const { attachRequestIds } = require('./middleware/request-context');
 const { requestLogger } = require('./middleware/request-logger');
 const { errorHandler } = require('./middleware/error-handler');
 const { env } = require('./config/env');
@@ -25,7 +24,6 @@ const createApp = () => {
   app.use(cors(corsOptions));
   app.locals.corsOptions = corsOptions;
   app.use(express.json({ limit: '2mb' }));
-  app.use(attachRequestIds);
   app.use(requestLogger);
 
   const apiPrefix = '/api/v1';
@@ -40,8 +38,8 @@ const createApp = () => {
         message: 'Route not found',
         code: 'NOT_FOUND',
         details: null,
-        requestId: req?.context?.requestId ?? null,
-        traceId: req?.context?.traceId ?? null,
+        requestId: null,
+        traceId: null,
       },
     });
   });

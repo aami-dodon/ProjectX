@@ -1,3 +1,7 @@
+## 2025-10-30 13:00:00 IST
+- Removed the request context middleware and AsyncLocalStorage store from the server.
+- Updated logging, health checks, and error handling to operate without request-scoped identifiers.
+
 ## 2025-10-30 12:15:00 IST
 - Added presigned MinIO upload tooling to the health dashboard with an inline preview card for verifying object storage connectivity.
 - Introduced an email delivery test form so operators can validate SMTP credentials directly from the health page.
