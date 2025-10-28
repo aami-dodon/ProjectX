@@ -18,13 +18,7 @@ const requestLogger = morgan(
       contentLength: Number.isNaN(parsedContentLength) ? undefined : parsedContentLength,
       remoteAddress: tokens['remote-addr'](req, res),
       userAgent: tokens['user-agent'](req, res),
-      requestId: req?.context?.requestId ?? null,
-      traceId: req?.context?.traceId ?? null,
     };
-
-    if (req?.context?.userId) {
-      logPayload.userId = req.context.userId;
-    }
 
     return JSON.stringify(logPayload);
   },
@@ -44,14 +38,12 @@ const requestLogger = morgan(
           return;
         }
 
-        const { statusCode, requestId, traceId, ...metadata } = payload;
+        const { statusCode, ...metadata } = payload;
 
         const level = statusCode >= 500 ? 'error' : statusCode >= 400 ? 'warn' : 'info';
 
         httpLogger[level](
           {
-            requestId,
-            traceId,
             statusCode,
             ...metadata,
           },
