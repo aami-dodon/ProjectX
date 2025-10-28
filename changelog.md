@@ -1,3 +1,6 @@
+## 2025-10-28 11:07:57 IST
+- Updated Swagger UI to load the favicon from `server/src/config/favicon.svg` for the `/api/docs` page.
+ 
 ## 2025-10-28 10:47:35 IST
 - Reintroduced Swagger documentation with a branded UI at `/api/docs`, powered by swagger-ui-express and swagger-jsdoc, including Tailwind/Shadcn styling and the shared favicon.
 ## 2025-10-28 10:48:33 IST

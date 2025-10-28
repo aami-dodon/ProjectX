@@ -4,7 +4,7 @@ const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 
 const themePath = path.resolve(__dirname, './swagger-theme.css');
-const faviconPath = path.resolve(__dirname, '../../..', 'client/public/favicon.svg');
+const faviconPath = path.resolve(__dirname, './favicon.svg');
 
 const swaggerDefinition = {
   openapi: '3.1.0',
