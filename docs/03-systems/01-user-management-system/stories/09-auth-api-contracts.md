@@ -1,7 +1,7 @@
 # Story: Auth API Contracts
 
 ## Summary
-Document `/api/v1/auth` endpoints, payload expectations, and response semantics for core identity operations.
+Document `/api/auth` endpoints, payload expectations, and response semantics for core identity operations.
 
 ## As a…
 As an API consumer

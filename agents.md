@@ -29,7 +29,7 @@
 - Persist new UI behaviour with tests when practical (React Testing Library is not wired yet—if you introduce it, configure it inside `client/` and document the workflow).
 
 ## Backend Standards (`server/`)
-- Express is initialised in `server/src/app.js`. Register new modules beneath `/api/v1` and keep them behind dedicated routers. Honour the existing 404 handler and global error middleware from `server/src/middleware/error-handler.js`.
+- Express is initialised in `server/src/app.js`. Register new modules beneath `/api` and keep them behind dedicated routers. Honour the existing 404 handler and global error middleware from `server/src/middleware/error-handler.js`.
 - Module aliasing via `module-alias` resolves `@/` to `server/src`. Use it consistently for intra-server imports.
 - Centralised error utilities live in `server/src/utils/error-handling.js`. Always throw/forward `ApplicationError` instances (via helpers like `createValidationError`) so responses stay uniform.
 - Logging is provided by `server/src/utils/logger.js` (Winston + daily rotate). Produce structured logs and prefer contextual children from `createLogger('<module>')`. HTTP access logs flow through `server/src/middleware/request-logger.js`; keep new middleware compatible with this pipeline.
@@ -45,7 +45,7 @@
 - Update `changelog.md` with every user-visible change. Use Indian Standard Time (IST) timestamps in the format `YYYY-MM-DD HH:MM:SS IST` and append entries near the top.
 - Maintain architectural and runbook documentation inside `docs/`. Align any new processes with the indexes (especially `docs/readme.md` and the section-specific `readme.md` files).
 - Keep logging directories (`server/logs/`) out of version control—generated at runtime.
-- When touching both apps, validate that the Axios base URL (`VITE_API_URL`) and server routes stay in sync. Health checks (`/api/v1/health`) power the `/health` dashboard, including MinIO/email diagnostics—avoid breaking these endpoints without coordinating frontend updates.
+- When touching both apps, validate that the Axios base URL (`VITE_API_URL`) and server routes stay in sync. Health checks (`/api/health`) power the `/health` dashboard, including MinIO/email diagnostics—avoid breaking these endpoints without coordinating frontend updates.
 - Prefer npm for dependency management in both workspaces; lockfiles (`package-lock.json`) must stay in sync with `package.json` changes.
 
 Following these guidelines keeps Project X consistent with the current implementation while leaving room for the planned AI governance capabilities documented under `docs/`.

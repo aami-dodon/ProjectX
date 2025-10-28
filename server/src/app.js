@@ -28,7 +28,7 @@ const createApp = () => {
   app.use(express.json({ limit: '2mb' }));
   app.use(requestLogger);
 
-  const apiPrefix = '/api/v1';
+  const apiPrefix = '/api';
 
   app.use(`${apiPrefix}/email`, emailRouter);
   app.use(`${apiPrefix}/storage`, storageRouter);

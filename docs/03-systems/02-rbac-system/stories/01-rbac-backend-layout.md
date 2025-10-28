@@ -14,4 +14,4 @@ So that I can extend policies without breaking conventions
 
 ## Acceptance Criteria
 - [ ] Directory guidance covers casbin configs, services, repositories, and middleware entry points.
-- [ ] Routes and adapters show how RBAC endpoints mount under `/api/v1/auth`.
+- [ ] Routes and adapters show how RBAC endpoints mount under `/api/auth`.

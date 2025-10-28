@@ -72,13 +72,13 @@ server/src/modules/reports/
 - **Templates & Serializers:** Keep export templates versioned, localized, and extensible; serializers must normalize units, currency, and timestamps so downstream consumers receive compliant artefacts.【F:docs/01-about/01-project-overview.md†L63-L83】
 
 ### API Surface
-- `GET /api/v1/reports/dashboards/framework-scores` — Returns framework posture with historical trend slices and optional filtering by framework, domain, or time window.
-- `GET /api/v1/reports/dashboards/control-health` — Aggregates failing controls, SLA state, ownership, and risk tier for heatmaps.
-- `GET /api/v1/reports/dashboards/remediation` — Provides task throughput, escalation counts, and SLA adherence metrics sourced from the Task Management module.【F:docs/03-systems/13-task-management-system/readme.md†L41-L120】
-- `GET /api/v1/reports/dashboards/evidence` — Summarizes freshness, retention windows, and coverage gaps using Evidence Management metadata.【F:docs/03-systems/11-evidence-management-system/readme.md†L49-L152】
-- `POST /api/v1/reports/exports` — Creates export jobs with filters, format, and schedule details, validating RBAC policies and Casbin domains before enqueueing.
-- `GET /api/v1/reports/exports/:id` — Retrieves job status and signed artifact URLs from MinIO once processing completes.【F:docs/02-technical-specifications/01-system-architecture.md†L168-L181】
-- `POST /api/v1/reports/exports/:id/retry` — Re-queues failed jobs with idempotency safeguards and audit logging hooks.【F:docs/02-technical-specifications/06-security-implementation.md†L124-L144】
+- `GET /api/reports/dashboards/framework-scores` — Returns framework posture with historical trend slices and optional filtering by framework, domain, or time window.
+- `GET /api/reports/dashboards/control-health` — Aggregates failing controls, SLA state, ownership, and risk tier for heatmaps.
+- `GET /api/reports/dashboards/remediation` — Provides task throughput, escalation counts, and SLA adherence metrics sourced from the Task Management module.【F:docs/03-systems/13-task-management-system/readme.md†L41-L120】
+- `GET /api/reports/dashboards/evidence` — Summarizes freshness, retention windows, and coverage gaps using Evidence Management metadata.【F:docs/03-systems/11-evidence-management-system/readme.md†L49-L152】
+- `POST /api/reports/exports` — Creates export jobs with filters, format, and schedule details, validating RBAC policies and Casbin domains before enqueueing.
+- `GET /api/reports/exports/:id` — Retrieves job status and signed artifact URLs from MinIO once processing completes.【F:docs/02-technical-specifications/01-system-architecture.md†L168-L181】
+- `POST /api/reports/exports/:id/retry` — Re-queues failed jobs with idempotency safeguards and audit logging hooks.【F:docs/02-technical-specifications/06-security-implementation.md†L124-L144】
 
 ### Workers & Scheduling
 - BullMQ queues (`score-aggregator.worker.ts`, `remediation.worker.ts`, `export.worker.ts`) subscribe to governance engine broadcasts, task updates, and evidence changes to keep analytics fresh. Jobs must be idempotent, respect tenant isolation, and emit audit events for traceability.【F:docs/03-systems/12-governance-engine/readme.md†L49-L105】【F:docs/03-systems/13-task-management-system/readme.md†L41-L168】【F:docs/03-systems/11-evidence-management-system/readme.md†L41-L158】

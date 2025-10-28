@@ -213,7 +213,7 @@ All endpoints use secure HTTPS communication and JWT-based authorization.
 
 ### Documentation
 - All endpoints are defined and auto-documented via Swagger (OpenAPI).
-- Live documentation is published at `/api/v1/docs` using Swagger UI.
+- Live documentation is published at `/api/docs` using Swagger UI.
 - CI validates the OpenAPI build through `npm run openapi:check`, and docs update automatically with each release.
 
 ---
@@ -238,9 +238,9 @@ The backend uses unified error management and structured logging for observabili
 
 ## 2.7 Versioning and Documentation
 
-### API Versioning
-- All endpoints are versioned under `/api/v1/` to maintain compatibility across clients.
-- Deprecated APIs remain accessible for legacy clients until migration.  
+### API Namespacing
+- All endpoints are mounted beneath the unversioned `/api` prefix; compatibility is maintained through additive changes and feature negotiation.
+- Deprecated APIs are sunset via explicit route deprecation notices and targeted client migrations instead of versioned URLs.
 
 ### Documentation and Change Management
 - API documentation generated automatically with Swagger.  

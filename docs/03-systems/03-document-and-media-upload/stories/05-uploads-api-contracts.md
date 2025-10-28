@@ -1,7 +1,7 @@
 # Story: Uploads API Contracts
 
 ## Summary
-Capture `/api/v1/uploads` endpoints, payloads, and webhook callbacks for presign and completion flows.
+Capture `/api/uploads` endpoints, payloads, and webhook callbacks for presign and completion flows.
 
 ## As a…
 As an API consumer

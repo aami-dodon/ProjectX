@@ -88,14 +88,14 @@ server/src/modules/governance/controls/
 
 | Endpoint | Method | Purpose | Notes |
 |----------|--------|---------|-------|
-| `/api/v1/controls` | GET | List controls with taxonomy, framework, and scoring filters. | Supports pagination, risk tier filters, ownership scoping, and ETag caching for UI grids.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L194-L207】 |
-| `/api/v1/controls` | POST | Create draft or active control records. | Payload validated via Zod DTOs requiring taxonomy path, rationale, enforcement weight, and at least one mapping stub; emits `control.created` for governance subscribers.【F:docs/03-systems/12-governance-engine/readme.md†L33-L88】 |
-| `/api/v1/controls/:id` | GET | Fetch control details, mappings, scores, evidence references, and audit cursors. | Accepts `includeDraftMappings` for reviewers and returns aggregated metrics. |
-| `/api/v1/controls/:id` | PATCH | Update metadata, weights, lifecycle status, or mappings. | Version bump triggers when risk tier or enforcement changes; approvals enforced before publish. |
-| `/api/v1/controls/:id/archive` | POST | Soft-archive controls with deprecation rationale. | Schedules remap jobs and notifies check owners to reassess coverage. |
-| `/api/v1/controls/:id/mappings` | PUT | Replace framework/check mapping matrix. | Validates referential integrity via Framework Mapping service before committing transaction.【F:docs/03-systems/10-framework-mapping-system/readme.md†L57-L170】 |
-| `/api/v1/controls/:id/scores` | GET | Retrieve historical score trends and contributing checks. | Offers `granularity` (daily/weekly/monthly) and cursor pagination for dashboards. |
-| `/api/v1/controls/:id/remediation` | POST | Force remediation cycle (open task, notify owners). | Bridges to Task & Notification services; returns task IDs and notification receipts for traceability.【F:docs/03-systems/13-task-management-system/readme.md†L51-L115】【F:docs/03-systems/04-notification-system/readme.md†L56-L126】 |
+| `/api/controls` | GET | List controls with taxonomy, framework, and scoring filters. | Supports pagination, risk tier filters, ownership scoping, and ETag caching for UI grids.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L194-L207】 |
+| `/api/controls` | POST | Create draft or active control records. | Payload validated via Zod DTOs requiring taxonomy path, rationale, enforcement weight, and at least one mapping stub; emits `control.created` for governance subscribers.【F:docs/03-systems/12-governance-engine/readme.md†L33-L88】 |
+| `/api/controls/:id` | GET | Fetch control details, mappings, scores, evidence references, and audit cursors. | Accepts `includeDraftMappings` for reviewers and returns aggregated metrics. |
+| `/api/controls/:id` | PATCH | Update metadata, weights, lifecycle status, or mappings. | Version bump triggers when risk tier or enforcement changes; approvals enforced before publish. |
+| `/api/controls/:id/archive` | POST | Soft-archive controls with deprecation rationale. | Schedules remap jobs and notifies check owners to reassess coverage. |
+| `/api/controls/:id/mappings` | PUT | Replace framework/check mapping matrix. | Validates referential integrity via Framework Mapping service before committing transaction.【F:docs/03-systems/10-framework-mapping-system/readme.md†L57-L170】 |
+| `/api/controls/:id/scores` | GET | Retrieve historical score trends and contributing checks. | Offers `granularity` (daily/weekly/monthly) and cursor pagination for dashboards. |
+| `/api/controls/:id/remediation` | POST | Force remediation cycle (open task, notify owners). | Bridges to Task & Notification services; returns task IDs and notification receipts for traceability.【F:docs/03-systems/13-task-management-system/readme.md†L51-L115】【F:docs/03-systems/04-notification-system/readme.md†L56-L126】 |
 
 **DTO Conventions**
 - Request DTOs use camelCase keys, enumerations for status (`draft`, `active`, `deprecated`), enforcement (`advisory`, `mandatory`), and risk (`low`, `medium`, `high`). Response objects wrap payloads inside `{ status, message, data }` with consistent error contracts (`code`, `details`).【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L194-L207】

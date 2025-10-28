@@ -39,7 +39,7 @@ server/src/modules/auth/
 │   ├── role.repository.ts
 │   └── policy.repository.ts
 ├── casbin-adapter.ts
-└── routes/rbac.routes.ts      # Mounts /api/v1/auth RBAC endpoints
+└── routes/rbac.routes.ts      # Mounts /api/auth RBAC endpoints
 
 server/src/middleware/
 └── authorization.ts
@@ -58,18 +58,18 @@ Policies combine resource type, identifier, and action verb (e.g., `framework:12
 Middleware in `server/src/middleware/authorization.ts` validates JWTs, builds Casbin subjects/domains/objects/actions, and denies or allows requests with audit logging. Module-specific helpers extend enforcement into Governance Engine, Evidence, Notifications, and Tasks modules to guarantee consistent authorization across feature services.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L56-L115】 Observability hooks log decisions to `audit_logs` for compliance and forensics, forwarding structured JSON to the centralized monitoring stack mandated by DevOps and security governance.【F:docs/02-technical-specifications/06-security-implementation.md†L120-L156】【F:docs/02-technical-specifications/05-devops-infrastructure.md†L64-L141】
 
 ### API Contracts & Module Interfaces
-RBAC functionality is exposed through dedicated REST endpoints served by the Auth Service and versioned under `/api/v1` in line with the platform's API standards.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L90-L151】【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L200-L251】
+RBAC functionality is exposed through dedicated REST endpoints served by the Auth Service and mounted under the `/api` prefix in line with the platform's API standards.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L90-L151】【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L200-L251】
 
 | Endpoint | Method | Purpose |
 | --- | --- | --- |
-| `/api/v1/auth/roles` | GET/POST | List existing roles, create custom roles, or clone baseline templates. |
-| `/api/v1/auth/roles/:id` | GET/PATCH/DELETE | Inspect role metadata, adjust inheritance, or retire roles while preserving revision history. |
-| `/api/v1/auth/policies` | GET/POST | Manage granular Casbin `p` rules for resources and actions with dry-run support. |
-| `/api/v1/auth/policies/:id` | PATCH/DELETE | Update or revoke specific policies; mutation events invalidate caches. |
-| `/api/v1/auth/access-reviews` | POST | Launch scheduled or ad-hoc access recertification workflows that integrate with the Task Service. |
-| `/api/v1/auth/service-accounts` | POST/PATCH | Issue scoped credentials for automation and partner integrations with domain-bound permissions. |
+| `/api/auth/roles` | GET/POST | List existing roles, create custom roles, or clone baseline templates. |
+| `/api/auth/roles/:id` | GET/PATCH/DELETE | Inspect role metadata, adjust inheritance, or retire roles while preserving revision history. |
+| `/api/auth/policies` | GET/POST | Manage granular Casbin `p` rules for resources and actions with dry-run support. |
+| `/api/auth/policies/:id` | PATCH/DELETE | Update or revoke specific policies; mutation events invalidate caches. |
+| `/api/auth/access-reviews` | POST | Launch scheduled or ad-hoc access recertification workflows that integrate with the Task Service. |
+| `/api/auth/service-accounts` | POST/PATCH | Issue scoped credentials for automation and partner integrations with domain-bound permissions. |
 
-All endpoints require JWT authentication and are guarded by Casbin middleware before reaching controller logic. Responses follow the standardized `{ status, message, data, error }` schema and publish OpenAPI documentation through `/api/v1/docs` to keep implementation and documentation in sync.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L208-L251】
+All endpoints require JWT authentication and are guarded by Casbin middleware before reaching controller logic. Responses follow the standardized `{ status, message, data, error }` schema and publish OpenAPI documentation through `/api/docs` to keep implementation and documentation in sync.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L208-L251】
 
 ### Domain Events & Integrations
 RBAC emits and consumes domain events to keep downstream systems synchronized:
@@ -106,7 +106,7 @@ client/src/components/guards/
 
 ### Reusable Components & UI Flows
 - **Shared Guards:** `RequirePermission` and `RequireRole` components gate admin navigation, dashboards, and inline actions with Casbin-backed checks exposed via the Auth Context.【F:docs/02-technical-specifications/03-frontend-architecture.md†L96-L139】
-- **Policy Management Screens:** Admin pages provide CRUD experiences for roles, inheritance, and policies, invoking `/api/v1/auth/roles`, `/api/v1/auth/policies`, and `/api/v1/auth/access-reviews` endpoints with optimistic updates and conflict resolution modals. The list → detail → policy editor flow surfaces contextual breadcrumbs (`Access Control / Roles`) so admins always understand which tenant domain and Casbin scope they are adjusting.
+- **Policy Management Screens:** Admin pages provide CRUD experiences for roles, inheritance, and policies, invoking `/api/auth/roles`, `/api/auth/policies`, and `/api/auth/access-reviews` endpoints with optimistic updates and conflict resolution modals. The list → detail → policy editor flow surfaces contextual breadcrumbs (`Access Control / Roles`) so admins always understand which tenant domain and Casbin scope they are adjusting.
 - **Access Review Workflows:** `AccessReviewSummary` surfaces outstanding reviews, integrates with task notifications, and links into the Governance Engine for remediation triggers.
 - **Visualizations:** Components such as `RoleInheritanceGraph` and `PermissionMatrix` reuse charting primitives from `client/src/components/charts` to display effective permissions per tenant.
 
@@ -128,8 +128,8 @@ Schema migrations are executed through Prisma migration bundles submitted via th
 
 ### Updating Casbin Policies
 1. **Plan:** Document desired permission updates and map the affected endpoints using the [Auth Service specification](../../02-technical-specifications/02-backend-architecture-and-apis.md#auth-service). Capture rationale and risk assessment for Security Council review.
-2. **Edit:** Use the Admin UI or `/api/v1/auth/policies` API to adjust `p` (permission) or `g` (inheritance) rules; bulk updates leverage the RBAC sync CLI to push YAML manifests through the adapter.
-3. **Validate:** Run `/api/v1/auth/policies/dry-run` to preview effects, execute automated regression suites, and confirm separation-of-duty constraints enforced by Casbin and ABAC checks.【F:docs/02-technical-specifications/06-security-implementation.md†L96-L116】
+2. **Edit:** Use the Admin UI or `/api/auth/policies` API to adjust `p` (permission) or `g` (inheritance) rules; bulk updates leverage the RBAC sync CLI to push YAML manifests through the adapter.
+3. **Validate:** Run `/api/auth/policies/dry-run` to preview effects, execute automated regression suites, and confirm separation-of-duty constraints enforced by Casbin and ABAC checks.【F:docs/02-technical-specifications/06-security-implementation.md†L96-L116】
 4. **Deploy:** Ship accompanying migrations when introducing new roles/resources, coordinate cache invalidation across regions, and allow CI/CD promotion gates to verify policy load success before production rollout.【F:docs/02-technical-specifications/05-devops-infrastructure.md†L108-L167】
 5. **Audit:** Verify `auth_policy_revisions` captures the change with justification and reviewer sign-off, then export summaries for immutable evidence storage.
 

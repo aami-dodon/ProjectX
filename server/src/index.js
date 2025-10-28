@@ -12,7 +12,7 @@ app.locals.serverStartTime = serverStartTime;
 
 const server = app.listen(env.SERVER_PORT, () => {
   logger.info(
-    { port: env.SERVER_PORT, apiBasePath: '/api/v1', environment: env.NODE_ENV },
+    { port: env.SERVER_PORT, apiBasePath: '/api', environment: env.NODE_ENV },
     'Server is listening'
   );
 });

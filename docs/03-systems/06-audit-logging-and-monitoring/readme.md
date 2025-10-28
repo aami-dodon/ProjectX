@@ -53,7 +53,7 @@ server/src/lib/logging/
 - **`transports/winston-https.ts`:** Streams structured events into the centralized log collector (OpenSearch, Loki, Splunk) with mTLS enforced per environment.【F:docs/02-technical-specifications/01-system-architecture.md†L204-L224】
 
 #### API Endpoints & Event Contracts
-- **REST hooks:** `/api/v1/audit/events` (ingest events from trusted services), `/api/v1/audit/exports` (generate signed archive manifests), `/api/v1/audit/ledger/:batchId` (validate integrity) – secured via service tokens with Casbin scopes `audit:write`, `audit:read`, and `audit:verify` respectively.【F:docs/02-technical-specifications/06-security-implementation.md†L58-L144】
+- **REST hooks:** `/api/audit/events` (ingest events from trusted services), `/api/audit/exports` (generate signed archive manifests), `/api/audit/ledger/:batchId` (validate integrity) – secured via service tokens with Casbin scopes `audit:write`, `audit:read`, and `audit:verify` respectively.【F:docs/02-technical-specifications/06-security-implementation.md†L58-L144】
 - **Event bus topics:**
   - `audit.event.appended.v1` — emitted for every persisted event and consumed by Notification and Task services to trigger escalations.【F:docs/03-systems/04-notification-system/readme.md†L7-L184】【F:docs/03-systems/13-task-management-system/readme.md†L7-L226】
   - `audit.archive.created.v1` — signals completion of immutable snapshots so Evidence Management can reconcile retention schedules.【F:docs/02-technical-specifications/04-database-design.md†L148-L162】

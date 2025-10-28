@@ -52,7 +52,7 @@ server/src/modules/governance/
 - **`checks.service.js`** – CRUD endpoints for definitions, validation of control/probe bindings, serialization of metadata, and enforcement of lifecycle guards (draft → ready → active → retired).【F:docs/01-about/03-concept-summary.md†L214-L318】
 - **`execution.service.js`** – Orchestrates automated, manual, and hybrid executions, invokes probe adapters, hydrates evidence references, and persists raw outputs for downstream analytics.【F:docs/03-systems/07-probe-management-system/readme.md†L7-L172】
 - **`lifecycle.service.js`** – Applies governance approvals, manages version bumps, archives retired checks, and emits audit events consumed by the Governance Engine pipeline.【F:docs/03-systems/12-governance-engine/readme.md†L7-L120】
-- **Controllers** – Express routers mounted under `/api/v1/governance/checks` that expose definition, result, and review-queue APIs with shared middleware for JWT authentication, Casbin authorization, and request validation.【F:docs/02-technical-specifications/06-security-implementation.md†L35-L146】
+- **Controllers** – Express routers mounted under `/api/governance/checks` that expose definition, result, and review-queue APIs with shared middleware for JWT authentication, Casbin authorization, and request validation.【F:docs/02-technical-specifications/06-security-implementation.md†L35-L146】
 - **`governance.scheduler.js`** – Configures cron/event triggers, seeds BullMQ queues, and coordinates retries and backoff policies aligned with Probe Management cadence definitions.【F:docs/03-systems/07-probe-management-system/readme.md†L32-L166】
 - **Event Emitters** – `check.failed.js` and `check.published.js` push structured payloads onto the platform event bus for Notification, Task, and Dashboard systems to consume.【F:docs/03-systems/04-notification-system/readme.md†L7-L192】【F:docs/03-systems/13-task-management-system/readme.md†L7-L226】【F:docs/03-systems/14-dashboard-and-reporting-system/readme.md†L21-L108】
 
@@ -70,17 +70,17 @@ server/src/modules/governance/
 
 ### API Surface & Integration Contracts
 - **Definitions:**
-  - `GET /api/v1/governance/checks` – Paginated catalogue with filtering by lifecycle state, control, probe, framework, and risk tier.
-  - `POST /api/v1/governance/checks` – Create draft definitions with schema validation, Casbin policy checks, and automatic audit capture.
-  - `PUT /api/v1/governance/checks/:id` – Update metadata, bind probes, and enqueue governance approvals when lifecycle transitions occur.
-  - `POST /api/v1/governance/checks/:id/activate` – Transition `ready_for_validation` definitions to `active` once approvals complete.
+  - `GET /api/governance/checks` – Paginated catalogue with filtering by lifecycle state, control, probe, framework, and risk tier.
+  - `POST /api/governance/checks` – Create draft definitions with schema validation, Casbin policy checks, and automatic audit capture.
+  - `PUT /api/governance/checks/:id` – Update metadata, bind probes, and enqueue governance approvals when lifecycle transitions occur.
+  - `POST /api/governance/checks/:id/activate` – Transition `ready_for_validation` definitions to `active` once approvals complete.
 - **Execution & Results:**
-  - `POST /api/v1/governance/checks/:id/run` – Trigger ad-hoc executions, immediately enqueueing BullMQ jobs with tenant-specific priorities.
-  - `GET /api/v1/governance/checks/:id/results` – Fetch historical outcomes with filtering by severity, publication state, or time window.
-  - `POST /api/v1/governance/results/:resultId/publish` – Validate reviewer sign-off and promote pending results into published dashboards.
+  - `POST /api/governance/checks/:id/run` – Trigger ad-hoc executions, immediately enqueueing BullMQ jobs with tenant-specific priorities.
+  - `GET /api/governance/checks/:id/results` – Fetch historical outcomes with filtering by severity, publication state, or time window.
+  - `POST /api/governance/results/:resultId/publish` – Validate reviewer sign-off and promote pending results into published dashboards.
 - **Review Queue:**
-  - `GET /api/v1/governance/review-queue` – List manual/hybrid tasks with SLA metadata, role-gated by Casbin policies.
-  - `POST /api/v1/governance/review-queue/:itemId/complete` – Capture reviewer decision, attach evidence references, and route to publishing workflow.
+  - `GET /api/governance/review-queue` – List manual/hybrid tasks with SLA metadata, role-gated by Casbin policies.
+  - `POST /api/governance/review-queue/:itemId/complete` – Capture reviewer decision, attach evidence references, and route to publishing workflow.
 - **Cross-System Hooks:** REST responses include hypermedia links to Control, Evidence, Notification, and Task endpoints so that client applications can jump between modules without additional lookups.【F:docs/03-systems/09-control-management-system/readme.md†L7-L159】【F:docs/03-systems/11-evidence-management-system/readme.md†L47-L115】【F:docs/03-systems/04-notification-system/readme.md†L7-L192】【F:docs/03-systems/13-task-management-system/readme.md†L7-L226】
 
 ### Execution Workflows
