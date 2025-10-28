@@ -110,6 +110,6 @@ The compose file builds both services, injects values from `.env`, and exposes t
 - Keep `changelog.md` current with IST timestamps for every merged change.
 - Cross-link documentation updates in `docs/` when introducing new systems or altering workflows.
 - Coordinate breaking changes via the #dev-updates channel and include migration notes in PR descriptions.
-- Reference design guidance in `reference/ui-reference.md` when shipping visual changes.
+- Reference design guidance in `docs/04-developer-instructions/frontend` when shipping visual changes.
 
 By following this onboarding guide you’ll align with the existing workflows, keep environments reproducible, and ensure smooth collaboration across the Project X team.
