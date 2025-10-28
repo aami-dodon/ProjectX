@@ -25,7 +25,7 @@ export function EmailTestCard() {
       setStatus(null);
 
       try {
-        const response = await apiClient.post("/api/v1/health/email/test", {
+        const response = await apiClient.post("/api/health/email/test", {
           to: trimmedEmail,
         });
 

@@ -1,7 +1,7 @@
 # Story: RBAC API Contracts
 
 ## Summary
-Detail role, policy, access review, and service account endpoints exposed under `/api/v1/auth`.
+Detail role, policy, access review, and service account endpoints exposed under `/api/auth`.
 
 ## As a…
 As an API integrator

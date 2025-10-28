@@ -25,7 +25,7 @@ export function useHealthStatus({ autoRefreshMs = 30000 } = {}) {
     setError(null);
 
     try {
-      const response = await apiClient.get("/api/v1/health");
+      const response = await apiClient.get("/api/health");
       const payload = response?.data ?? null;
       const status = payload?.status ? normalizeStatus(payload.status) : "unknown";
 

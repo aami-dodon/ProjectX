@@ -1,3 +1,7 @@
+## 2025-10-31 13:55:00 IST
+- Removed API versioned prefixes from the Express server so routes now mount under `/api`, updating the health feature clients accordingly.
+- Updated repository documentation to reference the unversioned `/api` paths across backend, integration, and system guides.
+
 ## 2025-10-28 09:29:43 IST
 - Split the health dashboard metrics into backend and frontend sections with browser runtime insights and refined progress cards.
 - Extended the health API to expose structured backend host and process telemetry so the UI can display accurate CPU, memory, and disk values.
@@ -56,7 +60,7 @@
 - Added a `scripts/scaffold-feature.js` automation to scaffold client features, prompt for a layout, and register routes in the router configuration.
 
 ## 2025-10-27 15:38:13 IST
-- Added a full-stack health monitoring feature with a `/health` dashboard that consumes the new `/api/v1/health` endpoint for system, database, and CORS diagnostics.
+- Added a full-stack health monitoring feature with a `/health` dashboard that consumes the new `/api/health` endpoint for system, database, and CORS diagnostics.
 - Introduced an Axios API client, auto-refreshing health hook, and shadcn/ui status cards to surface uptime, latency, and configuration warnings in the frontend.
 - Registered the health API module with Express using feature-based controllers, services, and repositories while aligning the CORS middleware with the enforced policy.
 
@@ -391,8 +395,8 @@
 - Removed unused duplicates of the shared utility and mobile hooks by deleting `client/src/lib/utils.js`, `client/src/shared/lib/client.js`, and `client/src/hooks/use-mobile.js` now that the shared implementations cover all consumers.
 
 ## 2025-10-27 15:02:29 IST
-- Versioned the Express application under `/api/v1` by updating the API mount prefix in `server/src/app.js` and aligning the startup log metadata in `server/src/index.js`.
-- Relocated Swagger UI to `/api/v1/docs` while updating the documented endpoint paths in `server/src/modules/email/email.router.js` and `server/src/modules/storage/storage.router.js` plus the default server URL in `server/src/config/swagger.js`.
+- Versioned the Express application under `/api` by updating the API mount prefix in `server/src/app.js` and aligning the startup log metadata in `server/src/index.js`.
+- Relocated Swagger UI to `/api/docs` while updating the documented endpoint paths in `server/src/modules/email/email.router.js` and `server/src/modules/storage/storage.router.js` plus the default server URL in `server/src/config/swagger.js`.
 - Refreshed developer guidance in `agents.md` to reference the new Swagger documentation path.
 
 ## 2025-10-27 22:12:08 IST
