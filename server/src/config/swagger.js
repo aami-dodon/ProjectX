@@ -41,6 +41,8 @@ const openApiSpecification = swaggerJsdoc(swaggerJsdocOptions);
 const swaggerUiOptions = {
   // Link a custom stylesheet for Swagger UI
   customCssUrl: '/api/docs/swagger.css',
+  customfavIcon: '/api/docs/favicon.svg',
+  customSiteTitle: 'Project-X',
   swaggerOptions: {
     persistAuthorization: true,
     displayRequestDuration: true,
@@ -56,6 +58,11 @@ const setupSwaggerDocs = (app) => {
   app.get('/api/docs/swagger.css', (req, res) => {
     res.type('text/css');
     res.sendFile(path.resolve(__dirname, 'swagger.css'));
+  });
+
+  app.get('/api/docs/favicon.svg', (req, res) => {
+    res.type('image/svg+xml');
+    res.sendFile(path.resolve(__dirname, 'favicon.svg'));
   });
 
   app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(openApiSpecification, swaggerUiOptions));

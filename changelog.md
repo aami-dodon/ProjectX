@@ -1,3 +1,6 @@
+## 2025-11-03 12:30:00 IST
+- Updated the Swagger docs to serve the branded SVG favicon and Project-X browser title at `/api/docs`.
+
 ## 2025-10-28 11:57:02 IST
 - Corrected the Swagger server base URL so endpoints now call `/api/...` without duplicating the prefix.
 
