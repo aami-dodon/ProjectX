@@ -1,3 +1,5 @@
+## 2025-10-31 12:30:00 IST
+- Ensured both the client build tooling and Express server load `NODE_ENV` from `.env` files with a default of `development` so logging and bundling respect the configured environment.
 ## 2025-10-28 09:18:31 IST
 - Updated the sidebar trigger to display a hamburger icon on mobile viewports while keeping the panel icon on larger screens.
 ## 2025-10-28 09:02:42 IST

@@ -1,5 +1,14 @@
+const { config: loadEnvConfig } = require('dotenv');
 const { z } = require('zod');
 const { createLogger } = require('@/utils/logger');
+
+loadEnvConfig();
+
+const DEFAULT_NODE_ENV = 'development';
+
+if (!process.env.NODE_ENV || process.env.NODE_ENV.trim().length === 0) {
+  process.env.NODE_ENV = DEFAULT_NODE_ENV;
+}
 
 const logger = createLogger('env');
 
@@ -10,7 +19,7 @@ const splitCommaSeparated = (value) =>
     .filter(Boolean);
 
 const defaults = {
-  NODE_ENV: 'development',
+  NODE_ENV: DEFAULT_NODE_ENV,
   SERVER_PORT: '5000',
   CORS_ALLOWED_ORIGINS: 'http://localhost:5173',
   DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/projectx',

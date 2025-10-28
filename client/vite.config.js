@@ -2,6 +2,21 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import tsconfigPaths from 'vite-tsconfig-paths'
+import { config as loadEnvConfig } from 'dotenv'
+
+loadEnvConfig()
+
+const DEFAULT_NODE_ENV = 'development'
+
+const normalizeNodeEnv = value => {
+  if (typeof value !== 'string') return DEFAULT_NODE_ENV
+  const trimmed = value.trim()
+  return trimmed.length > 0 ? trimmed : DEFAULT_NODE_ENV
+}
+
+const nodeEnv = normalizeNodeEnv(process.env.NODE_ENV)
+
+process.env.NODE_ENV = nodeEnv
 
 const port = parseInt(process.env.CLIENT_PORT) || 5173
 
@@ -30,8 +45,11 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-    tsconfigPaths(), 
+    tsconfigPaths(),
   ],
+  define: {
+    'process.env.NODE_ENV': JSON.stringify(nodeEnv),
+  },
   server: {
     port,
     host: true,
