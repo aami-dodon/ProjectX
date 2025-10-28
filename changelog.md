@@ -1,3 +1,6 @@
+## 2025-11-04 12:15:00 IST
+- Refactored the email and upload services into modular routers with shared helpers so health diagnostics reuse the new upload utility.
+
 ## 2025-11-04 10:30:00 IST
 - Expanded the `/api/health/storage/presign` OpenAPI notes with file upload guidance, concrete examples, and a shell snippet.
 
