@@ -68,11 +68,11 @@ export function MinioUploadTester() {
           throw new Error("MinIO rejected the uploaded image. Please try again.");
         }
 
-        const cacheBustedUrl = data.downloadUrl
-          ? `${data.downloadUrl}${data.downloadUrl.includes("?") ? "&" : "?"}t=${Date.now()}`
-          : null;
-
-        setPreviewUrl(cacheBustedUrl);
+        // Important: Do NOT mutate presigned URLs. Any extra query params
+        // will invalidate the AWS Signature and result in 403s from MinIO.
+        // The signed URL already contains unique query params, so it is
+        // sufficient for cache-busting on each request.
+        setPreviewUrl(data.downloadUrl ?? null);
         setUploadDetails({
           objectName: data.objectName,
           expiresIn: data.expiresIn,
