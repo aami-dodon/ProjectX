@@ -10,8 +10,6 @@ const { createLogger } = require('@/utils/logger');
 const { setupSwaggerDocs } = require('@/config/swagger');
 
 const logger = createLogger('app');
-const emailRouter = require('@/modules/email/email.router');
-const storageRouter = require('@/modules/storage/storage.router');
 const healthRouter = require('@/modules/health/health.router');
 const createApp = () => {
   const app = express();
@@ -33,8 +31,6 @@ const createApp = () => {
 
   const apiPrefix = '/api';
 
-  app.use(`${apiPrefix}/email`, emailRouter);
-  app.use(`${apiPrefix}/storage`, storageRouter);
   app.use(`${apiPrefix}/health`, healthRouter);
 
   app.use((req, res) => {
