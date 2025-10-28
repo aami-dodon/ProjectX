@@ -1,18 +1,37 @@
-const path = require('path');
-const dotenv = require('dotenv');
 const { z } = require('zod');
 const { createLogger } = require('../utils/logger');
 
 const logger = createLogger('env');
-
-const envPath = path.resolve(__dirname, '../../..', '.env');
-dotenv.config({ path: envPath });
 
 const splitCommaSeparated = (value) =>
   value
     .split(',')
     .map((item) => item.trim())
     .filter(Boolean);
+
+const defaults = {
+  NODE_ENV: 'development',
+  SERVER_PORT: '5000',
+  CORS_ALLOWED_ORIGINS: 'http://localhost:5173',
+  DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/projectx',
+  MINIO_ENDPOINT: 'localhost',
+  MINIO_PORT: '9000',
+  MINIO_USE_SSL: 'false',
+  MINIO_ACCESS_KEY: 'minioadmin',
+  MINIO_SECRET_KEY: 'minioadmin',
+  MINIO_REGION: 'us-east-1',
+  MINIO_BUCKET: 'evidence',
+  MINIO_PRESIGNED_URL_EXPIRATION_SECONDS: '900',
+  EMAIL_FROM: 'no-reply@projectx.local',
+  EMAIL_SMTP_HOST: 'localhost',
+  EMAIL_SMTP_PORT: '1025',
+  EMAIL_SMTP_SECURE: 'false',
+  EMAIL_SMTP_USER: 'smtp-user',
+  EMAIL_SMTP_PASS: 'smtp-pass',
+  CLIENT_PORT: '5173',
+  CLIENT_ALLOWED_HOSTS: 'localhost',
+  VITE_API_URL: 'http://localhost:5000/api',
+};
 
 const EnvSchema = z.object({
   NODE_ENV: z.string().min(1, { message: 'NODE_ENV must be defined' }),
@@ -60,7 +79,8 @@ const EnvSchema = z.object({
 });
 
 const parseEnvironment = () => {
-  const result = EnvSchema.safeParse(process.env);
+  const envSource = { ...defaults, ...process.env };
+  const result = EnvSchema.safeParse(envSource);
 
   if (!result.success) {
     result.error.issues.forEach((issue) => {
