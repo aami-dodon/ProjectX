@@ -11,6 +11,7 @@ import {
   IconHelp,
   IconInnerShadowTop,
   IconListDetails,
+  IconPalette,
   IconReport,
   IconSearch,
   IconSettings,
@@ -113,6 +114,11 @@ const data = {
     },
   ],
   navSecondary: [
+    {
+      title: "Design System",
+      url: "/design-system",
+      icon: IconPalette,
+    },
     {
       title: "Settings",
       url: "#",

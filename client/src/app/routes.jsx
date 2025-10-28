@@ -10,6 +10,7 @@ import { RequestTimeoutPage } from "./pages/RequestTimeoutPage";
 import { ServiceUnavailablePage } from "./pages/ServiceUnavailablePage";
 import { UnauthorizedPage } from "./pages/UnauthorizedPage";
 import { HomePage } from "@/features/home/pages/HomePage";
+import { DesignSystemPage } from "@/features/design-system";
 import { HealthPage } from "@/features/health";
 
 import { authRoutes } from "@/features/auth";
@@ -56,6 +57,12 @@ export const router = createBrowserRouter([
     element: <SinglePageLayout />,
     errorElement: <ErrorPage />,
     children: [{ index: true, element: <HealthPage /> }],
+  },
+  {
+    path: "/design-system",
+    element: <SinglePageLayout />,
+    errorElement: <ErrorPage />,
+    children: [{ index: true, element: <DesignSystemPage /> }],
   },
   ...statusRoutes,
   {

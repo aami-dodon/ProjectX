@@ -1,3 +1,6 @@
+## 2025-10-28 09:02:42 IST
+- Added a `/design-system` single page route mirroring the health layout with typography, color tokens, and comprehensive component showcases for shared UI primitives.
+- Linked the design system entry from the sidebar utility navigation so the documentation hub is reachable in-app.
 ## 2025-10-31 09:00:00 IST
 - Rewrote the root `agents.md` guidance to match the current client/server stack, integration points, and workflow expectations.
 
