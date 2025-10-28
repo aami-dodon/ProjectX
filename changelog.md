@@ -1,3 +1,8 @@
+## 2025-10-30 12:15:00 IST
+- Added presigned MinIO upload tooling to the health dashboard with an inline preview card for verifying object storage connectivity.
+- Introduced an email delivery test form so operators can validate SMTP credentials directly from the health page.
+- Extended the health API with presign and email test endpoints that reuse centralized error handling and mailer services.
+
 ## 2025-10-29 18:45:00 IST
 - Restored Swagger references in repository documentation while keeping the backend implementation Swagger-free per product direction.
 

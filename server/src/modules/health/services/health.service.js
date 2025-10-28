@@ -1,8 +1,23 @@
+const { randomUUID } = require('node:crypto');
+
 const { env } = require('../../../config/env');
 const { createLogger } = require('../../../utils/logger');
+const { minioClient } = require('../../../integrations/minio');
 const { checkDatabaseConnection } = require('../repositories/health.repository');
+const { sendTestEmail } = require('../../email/email.service');
 
 const logger = createLogger('health-service');
+
+const IMAGE_EXTENSION_BY_MIME = {
+  'image/jpeg': 'jpg',
+  'image/jpg': 'jpg',
+  'image/png': 'png',
+  'image/gif': 'gif',
+  'image/webp': 'webp',
+  'image/svg+xml': 'svg',
+  'image/heic': 'heic',
+  'image/heif': 'heif',
+};
 
 const determineOverallStatus = (statuses) => {
   if (statuses.some((status) => status === 'outage')) {
@@ -115,6 +130,41 @@ const getHealthStatus = async ({ serverStartTime, corsOptions }) => {
   };
 };
 
+const resolveImageExtension = (contentType) => {
+  if (!contentType) {
+    return '';
+  }
+
+  const normalized = contentType.toLowerCase();
+  const extension = IMAGE_EXTENSION_BY_MIME[normalized];
+
+  return extension ? `.${extension}` : '';
+};
+
+const createHealthUploadPresign = async ({ contentType }) => {
+  const extension = resolveImageExtension(contentType);
+  const objectName = `health/${Date.now()}-${randomUUID()}${extension}`;
+  const expiresIn = env.MINIO_PRESIGNED_URL_EXPIRATION_SECONDS;
+
+  const uploadUrl = await minioClient.presignedPutObject(env.MINIO_BUCKET, objectName, expiresIn);
+  const downloadUrl = await minioClient.presignedGetObject(env.MINIO_BUCKET, objectName, expiresIn);
+
+  return {
+    bucket: env.MINIO_BUCKET,
+    objectName,
+    uploadUrl,
+    downloadUrl,
+    expiresIn,
+    headers: {
+      'Content-Type': contentType,
+    },
+  };
+};
+
+const sendHealthTestEmail = async ({ to }) => sendTestEmail({ to });
+
 module.exports = {
   getHealthStatus,
+  createHealthUploadPresign,
+  sendHealthTestEmail,
 };
