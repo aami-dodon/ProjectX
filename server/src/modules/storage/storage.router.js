@@ -7,6 +7,30 @@ const { createValidationError, createIntegrationError } = require('@/utils/error
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
 const router = express.Router();
 
+/**
+ * @openapi
+ * /api/storage/upload:
+ *   post:
+ *     summary: Upload an image to object storage and receive a presigned URL.
+ *     tags:
+ *       - Storage
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - file
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *                 description: Image file to upload to MinIO.
+ *     responses:
+ *       '200':
+ *         description: Upload result details including the presigned URL.
+ */
 router.post('/upload', upload.single('file'), async (req, res, next) => {
   if (!req.file) {
     return next(createValidationError('Image file is required'));

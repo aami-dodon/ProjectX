@@ -4,6 +4,30 @@ const { sendTestEmail } = require('@/modules/email/email.service');
 
 const router = express.Router();
 
+/**
+ * @openapi
+ * /api/email/test:
+ *   post:
+ *     summary: Send a smoke-test email using the configured SMTP transport.
+ *     tags:
+ *       - Email
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - to
+ *             properties:
+ *               to:
+ *                 type: string
+ *                 format: email
+ *                 description: Destination inbox for the test email.
+ *     responses:
+ *       '200':
+ *         description: Identifiers for the enqueued email message.
+ */
 router.post('/test', async (req, res, next) => {
   const { to } = req.body ?? {};
 
