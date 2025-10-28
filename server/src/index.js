@@ -1,6 +1,8 @@
-const { createApp } = require('./app');
-const { env } = require('./config/env');
-const { createLogger } = require('./utils/logger');
+require('module-alias/register');
+
+const { createApp } = require('@/app');
+const { env } = require('@/config/env');
+const { createLogger } = require('@/utils/logger');
 
 const logger = createLogger('server');
 const app = createApp();
