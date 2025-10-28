@@ -6,7 +6,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /api/upload/presign:
+ * /api/upload/test:
  *   post:
  *     tags:
  *       - Uploads
@@ -54,6 +54,6 @@ const router = express.Router();
  *       '500':
  *         description: Failed to create the presigned URL.
  */
-router.post('/presign', requestPresignedUpload);
+router.post('/test', requestPresignedUpload);
 
 module.exports = router;
