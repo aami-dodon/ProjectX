@@ -1,7 +1,7 @@
 const express = require('express');
 const { transporter } = require('../../integrations/mailer');
 const { env } = require('../../config/env');
-const { createValidationError, createIntegrationError } = require('../../../../shared/error-handling');
+const { createValidationError, createIntegrationError } = require('../../utils/error-handling');
 
 const router = express.Router();
 

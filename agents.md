@@ -136,7 +136,7 @@ Write Code:
 
 ## Error Handling & Observability
 
-- All error handling must be carried out via centralized error handling defined in `shared/error-handling.js`.
+- All error handling must be carried out via centralized error handling defined in `server/src/utils/error-handling.js`.
 - Frontend must display human-readable error messages for all 4xx and 5xx responses.
 - Logs must include request IDs and trace IDs to enable cross-service debugging.
 
