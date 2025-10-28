@@ -1,4 +1,4 @@
-const { getHealthStatus } = require('@/modules/health/services/health.service');
+const { getHealthStatus } = require('@/modules/health/health.service');
 const { createLogger } = require('@/utils/logger');
 
 const logger = createLogger('health-controller');
