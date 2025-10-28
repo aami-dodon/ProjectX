@@ -1,5 +1,12 @@
 ## 2025-11-02 15:45:00 IST
 - Forced the client Vite config to align `NODE_ENV` with the active mode so React no longer throws dead code elimination errors when local development uses production environment variables.
+## 2025-10-28 09:29:43 IST
+- Split the health dashboard metrics into backend and frontend sections with browser runtime insights and refined progress cards.
+- Extended the health API to expose structured backend host and process telemetry so the UI can display accurate CPU, memory, and disk values.
+
+## 2025-10-28 09:20:43 IST
+- Refreshed the `/health` dashboard with a minimal lucide-driven layout and inline CPU, memory, and disk summaries.
+- Extended the health API to expose runtime CPU, memory, and disk usage snapshots for the updated dashboard metrics.
 
 ## 2025-10-31 12:30:00 IST
 - Ensured both the client build tooling and Express server load `NODE_ENV` from `.env` files with a default of `development` so logging and bundling respect the configured environment.
