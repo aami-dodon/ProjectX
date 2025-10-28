@@ -1,3 +1,5 @@
+## 2025-11-02 15:45:00 IST
+- Forced the client Vite config to align `NODE_ENV` with the active mode so React no longer throws dead code elimination errors when local development uses production environment variables.
 ## 2025-10-28 09:29:43 IST
 - Split the health dashboard metrics into backend and frontend sections with browser runtime insights and refined progress cards.
 - Extended the health API to expose structured backend host and process telemetry so the UI can display accurate CPU, memory, and disk values.
