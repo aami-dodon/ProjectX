@@ -1,3 +1,7 @@
+## 2025-10-30 12:15:00 IST
+- Added presigned MinIO upload tooling to the health dashboard with an inline preview card for verifying object storage connectivity.
+- Introduced an email delivery test form so operators can validate SMTP credentials directly from the health page.
+- Extended the health API with presign and email test endpoints that reuse centralized error handling and mailer services.
 ## 2025-10-28 07:50:51 IST
 - Retired the legacy UI reference document under `reference/` and pointed developer guidance to `docs/04-developer-instructions/frontend` for frontend standards.
 

@@ -5,7 +5,9 @@ import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 
+import { EmailTestCard } from "../components/EmailTestCard";
 import { HealthStatusCard } from "../components/HealthStatusCard";
+import { MinioUploadTester } from "../components/MinioUploadTester";
 import { StatusBadge } from "../components/StatusBadge";
 import { useHealthStatus } from "../hooks/useHealthStatus";
 
@@ -234,6 +236,11 @@ export function HealthPage() {
           />
         </div>
       ) : null}
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <MinioUploadTester />
+        <EmailTestCard />
+      </div>
     </div>
   );
 }

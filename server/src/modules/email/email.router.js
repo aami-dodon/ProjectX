@@ -1,7 +1,6 @@
 const express = require('express');
-const { transporter } = require('../../integrations/mailer');
-const { env } = require('../../config/env');
-const { createValidationError, createIntegrationError } = require('../../utils/error-handling');
+const { createValidationError, createIntegrationError } = require('../../utils/error-handling);
+const { sendTestEmail } = require('./email.service');
 
 const router = express.Router();
 
@@ -13,12 +12,7 @@ router.post('/test', async (req, res, next) => {
   }
 
   try {
-    const info = await transporter.sendMail({
-      to,
-      from: env.EMAIL_FROM,
-      subject: 'Project X Connectivity Test',
-      text: 'This is a connectivity test email from Project X health check.',
-    });
+    const info = await sendTestEmail({ to });
 
     return res.json({
       status: 'sent',
