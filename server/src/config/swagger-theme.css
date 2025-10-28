@@ -1,0 +1,207 @@
+:root {
+  --radius: 0.65rem;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.141 0.005 285.823);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.141 0.005 285.823);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.141 0.005 285.823);
+  --primary: oklch(0.648 0.2 131.684);
+  --primary-foreground: oklch(0.986 0.031 120.757);
+  --secondary: oklch(0.967 0.001 286.375);
+  --secondary-foreground: oklch(0.21 0.006 285.885);
+  --muted: oklch(0.967 0.001 286.375);
+  --muted-foreground: oklch(0.552 0.016 285.938);
+  --accent: oklch(0.967 0.001 286.375);
+  --accent-foreground: oklch(0.21 0.006 285.885);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.92 0.004 286.32);
+  --input: oklch(0.92 0.004 286.32);
+  --ring: oklch(0.841 0.238 128.85);
+  --chart-1: oklch(0.871 0.15 154.449);
+  --chart-2: oklch(0.723 0.219 149.579);
+  --chart-3: oklch(0.627 0.194 149.214);
+  --chart-4: oklch(0.527 0.154 150.069);
+  --chart-5: oklch(0.448 0.119 151.328);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.141 0.005 285.823);
+  --sidebar-primary: oklch(0.648 0.2 131.684);
+  --sidebar-primary-foreground: oklch(0.986 0.031 120.757);
+  --sidebar-accent: oklch(0.967 0.001 286.375);
+  --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
+  --sidebar-border: oklch(0.92 0.004 286.32);
+  --sidebar-ring: oklch(0.841 0.238 128.85);
+}
+
+body.swagger-ui {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', 'SF Pro Text', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont,
+    'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.swagger-ui .topbar {
+  background: var(--sidebar);
+  border-bottom: 1px solid var(--sidebar-border);
+  padding: 1rem 2.5rem;
+  box-shadow: none;
+}
+
+.swagger-ui .topbar .link img {
+  display: none;
+}
+
+.swagger-ui .topbar .link span {
+  font-weight: 600;
+  color: var(--sidebar-foreground);
+  font-size: 1.125rem;
+}
+
+.swagger-ui .info,
+.swagger-ui .scheme-container,
+.swagger-ui .opblock-tag-section,
+.swagger-ui .opblock,
+.swagger-ui .model-box {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--foreground);
+  box-shadow: none;
+}
+
+.swagger-ui .info {
+  padding: 2rem 2.5rem 1.5rem;
+}
+
+.swagger-ui .info .title,
+.swagger-ui .info .base-url {
+  color: var(--foreground);
+}
+
+.swagger-ui .markdown code,
+.swagger-ui pre,
+.swagger-ui .response-col_status {
+  background: var(--muted);
+  color: var(--muted-foreground);
+  border-radius: calc(var(--radius) - 2px);
+  border: 1px solid var(--border);
+}
+
+.swagger-ui .btn,
+.swagger-ui button {
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  font-weight: 500;
+  transition: background 150ms ease, color 150ms ease, transform 150ms ease;
+}
+
+.swagger-ui .btn.authorize,
+.swagger-ui .opblock .opblock-summary-method,
+.swagger-ui .opblock .opblock-summary-control {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  box-shadow: none;
+}
+
+.swagger-ui .btn.authorize:hover,
+.swagger-ui .opblock .opblock-summary-method:hover,
+.swagger-ui .opblock .opblock-summary-control:hover {
+  filter: brightness(0.95);
+  transform: translateY(-1px);
+}
+
+.swagger-ui .btn.cancel,
+.swagger-ui .btn.try-out__btn {
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+}
+
+.swagger-ui .btn.cancel:hover,
+.swagger-ui .btn.try-out__btn:hover {
+  filter: brightness(0.96);
+}
+
+.swagger-ui .opblock.is-open .opblock-summary {
+  border-bottom: 1px solid var(--border);
+}
+
+.swagger-ui select,
+.swagger-ui input[type='text'],
+.swagger-ui textarea {
+  background: var(--input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--foreground);
+  box-shadow: none;
+}
+
+.swagger-ui select:focus,
+.swagger-ui input[type='text']:focus,
+.swagger-ui textarea:focus {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+.swagger-ui table thead tr th,
+.swagger-ui table tbody tr td {
+  border-color: var(--border);
+}
+
+.swagger-ui .response-col_links a,
+.swagger-ui .model-toggle {
+  color: var(--primary);
+}
+
+.swagger-ui .model-title,
+.swagger-ui .property-name {
+  color: var(--foreground);
+  font-weight: 500;
+}
+
+.swagger-ui .opblock-tag {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.swagger-ui .opblock-tag small {
+  color: var(--muted-foreground);
+}
+
+.swagger-ui .opblock.opblock-post {
+  border-left: 4px solid var(--primary);
+}
+
+.swagger-ui .opblock.opblock-get {
+  border-left: 4px solid var(--chart-1);
+}
+
+.swagger-ui .opblock.opblock-delete {
+  border-left: 4px solid var(--destructive);
+}
+
+.swagger-ui .opblock.opblock-put {
+  border-left: 4px solid var(--chart-3);
+}
+
+.swagger-ui .version-stamp {
+  background: var(--accent);
+  color: var(--accent-foreground);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  padding: 0.25rem 0.5rem;
+}
+
+.swagger-ui .copy-to-clipboard {
+  color: var(--muted-foreground);
+}
+
+.swagger-ui .copy-to-clipboard:hover {
+  color: var(--foreground);
+}

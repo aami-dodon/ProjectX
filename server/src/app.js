@@ -7,6 +7,7 @@ const { requestLogger } = require('@/middleware/request-logger');
 const { errorHandler } = require('@/middleware/error-handler');
 const { env } = require('@/config/env');
 const { createLogger } = require('@/utils/logger');
+const { setupSwaggerDocs } = require('@/config/swagger');
 
 const logger = createLogger('app');
 const emailRouter = require('@/modules/email/email.router');
@@ -27,6 +28,8 @@ const createApp = () => {
   app.locals.corsOptions = corsOptions;
   app.use(express.json({ limit: '2mb' }));
   app.use(requestLogger);
+
+  setupSwaggerDocs(app);
 
   const apiPrefix = '/api';
 
