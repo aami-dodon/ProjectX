@@ -1,3 +1,6 @@
+## 2025-11-03 19:30:00 IST
+- Copied the bundled Redoc assets into the production server container so `/docs` resolves `index.html` without filesystem errors.
+
 ## 2025-11-03 19:00:00 IST
 - Fixed the `/docs` route to serve the locally bundled Redoc assets so the page loads correctly in production containers.
 
