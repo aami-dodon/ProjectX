@@ -1,3 +1,6 @@
+## 2025-10-28 11:15:12 IST
+- Documented health, storage, and email endpoints with detailed OpenAPI JSDoc so `/api/docs` now lists their request and response contracts.
+
 ## 2025-10-28 11:07:57 IST
 - Updated Swagger UI to load the favicon from `server/src/config/favicon.svg` for the `/api/docs` page.
  

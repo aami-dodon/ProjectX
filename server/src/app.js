@@ -12,7 +12,7 @@ const { setupSwaggerDocs } = require('@/config/swagger');
 const logger = createLogger('app');
 const emailRouter = require('@/modules/email/email.router');
 const storageRouter = require('@/modules/storage/storage.router');
-const healthRouter = require('@/modules/health/routes');
+const healthRouter = require('@/modules/health/health.router');
 const createApp = () => {
   const app = express();
 

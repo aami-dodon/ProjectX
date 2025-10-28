@@ -12,8 +12,10 @@ const router = express.Router();
  * /api/storage/upload:
  *   post:
  *     summary: Upload an image to object storage and receive a presigned URL.
+ *     description: Handles health dashboard uploads by streaming the provided image to MinIO and returning a GET URL for verification.
  *     tags:
  *       - Storage
+ *     security: []
  *     requestBody:
  *       required: true
  *       content:
@@ -30,6 +32,65 @@ const router = express.Router();
  *     responses:
  *       '200':
  *         description: Upload result details including the presigned URL.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - bucket
+ *                 - objectName
+ *                 - presignedUrl
+ *               properties:
+ *                 bucket:
+ *                   type: string
+ *                   description: MinIO bucket that stores the uploaded image.
+ *                 objectName:
+ *                   type: string
+ *                   description: Generated object key that includes a health namespace prefix.
+ *                 presignedUrl:
+ *                   type: string
+ *                   format: uri
+ *                   description: GET URL that can be used to read the uploaded asset until it expires.
+ *       '400':
+ *         description: The upload was missing or used an unsupported MIME type.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     message:
+ *                       type: string
+ *                     code:
+ *                       type: string
+ *                     details:
+ *                       nullable: true
+ *                     requestId:
+ *                       nullable: true
+ *                     traceId:
+ *                       nullable: true
+ *       '502':
+ *         description: MinIO rejected the upload or was unreachable.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     message:
+ *                       type: string
+ *                     code:
+ *                       type: string
+ *                     details:
+ *                       nullable: true
+ *                     requestId:
+ *                       nullable: true
+ *                     traceId:
+ *                       nullable: true
  */
 router.post('/upload', upload.single('file'), async (req, res, next) => {
   if (!req.file) {
