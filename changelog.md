@@ -1,3 +1,9 @@
+## 2025-11-03 19:00:00 IST
+- Fixed the `/docs` route to serve the locally bundled Redoc assets so the page loads correctly in production containers.
+
+## 2025-11-03 18:15:00 IST
+- Hosted the Redoc assets locally and removed inline scripts so `/docs` complies with the CSP enforced by Helmet.
+
 ## 2025-11-03 16:30:00 IST
 - Added a Redoc-powered documentation portal at `/docs` that sources `/api/docs.json` while keeping the Swagger UI unchanged.
 
