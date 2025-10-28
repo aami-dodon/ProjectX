@@ -1,3 +1,6 @@
+## 2025-10-31 09:00:00 IST
+- Rewrote the root `agents.md` guidance to match the current client/server stack, integration points, and workflow expectations.
+
 ## 2025-10-30 14:45:00 IST
 - Standardized backend imports to use the `@/` module alias across server modules and updated Jest configuration for the alias mapping.
 
