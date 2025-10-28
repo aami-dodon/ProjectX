@@ -1,3 +1,6 @@
+## 2025-11-02 15:45:00 IST
+- Forced the client Vite config to align `NODE_ENV` with the active mode so React no longer throws dead code elimination errors when local development uses production environment variables.
+
 ## 2025-10-31 12:30:00 IST
 - Ensured both the client build tooling and Express server load `NODE_ENV` from `.env` files with a default of `development` so logging and bundling respect the configured environment.
 ## 2025-10-28 09:18:31 IST
