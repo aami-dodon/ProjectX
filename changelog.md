@@ -1,5 +1,7 @@
 ## 2025-10-28 10:47:35 IST
 - Reintroduced Swagger documentation with a branded UI at `/api/docs`, powered by swagger-ui-express and swagger-jsdoc, including Tailwind/Shadcn styling and the shared favicon.
+## 2025-10-28 10:48:33 IST
+- Updated the client HTML metadata with an SEO-optimised Project-X title, governance-focused descriptions, and social sharing tags.
 
 ## 2025-10-28 09:52:29 IST
 - Simplified the health dashboard by removing the CORS configuration and status overview cards.
