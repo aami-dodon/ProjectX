@@ -1,3 +1,6 @@
+## 2025-11-05 04:10:31 IST
+- Renamed the upload presign diagnostic endpoint to `/api/upload/test` and updated the health dashboard MinIO upload tester to call the new route.
+
 ## 2025-11-05 04:01:37 IST
 - Standardised server logging calls to use message-first signatures so Winston metadata stays consistent across modules.
 
