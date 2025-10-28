@@ -1,20 +1,16 @@
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
-const swaggerUi = require('swagger-ui-express');
 const { attachRequestIds } = require('./middleware/request-context');
 const { requestLogger } = require('./middleware/request-logger');
 const { errorHandler } = require('./middleware/error-handler');
 const { env } = require('./config/env');
 const { createLogger } = require('./utils/logger');
-const { buildOpenApiSpec, swaggerUiOptions } = require('./config/swagger');
 
 const logger = createLogger('app');
 const emailRouter = require('./modules/email/email.router');
 const storageRouter = require('./modules/storage/storage.router');
 const healthRouter = require('./modules/health/routes');
-const swaggerSpec = buildOpenApiSpec();
-
 const createApp = () => {
   const app = express();
 
@@ -33,8 +29,6 @@ const createApp = () => {
   app.use(requestLogger);
 
   const apiPrefix = '/api/v1';
-
-  app.use(`${apiPrefix}/docs`, swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions));
 
   app.use(`${apiPrefix}/email`, emailRouter);
   app.use(`${apiPrefix}/storage`, storageRouter);

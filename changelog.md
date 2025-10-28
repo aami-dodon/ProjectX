@@ -1,3 +1,9 @@
+## 2025-10-29 18:45:00 IST
+- Restored Swagger references in repository documentation while keeping the backend implementation Swagger-free per product direction.
+
+## 2025-10-29 17:30:00 IST
+- Removed the Swagger-based API documentation tooling from the server by deleting the config, docs route, and annotations while cleaning up dependencies and tests.
+
 ## 2025-10-29 11:45:00 IST
 - Embedded the PDF dossier generators directly into their Bash entrypoints and removed the migrated Python modules.
 ## 2025-10-29 15:10:00 IST
