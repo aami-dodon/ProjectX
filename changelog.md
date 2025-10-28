@@ -1,3 +1,6 @@
+## 2025-11-05 04:45:00 IST
+- Documented the `LOG_LEVEL` and `VITE_LOG_LEVEL` environment variables so deployments can tune logging verbosity across the stack.
+
 ## 2025-11-05 04:10:31 IST
 - Renamed the upload presign diagnostic endpoint to `/api/upload/test` and updated the health dashboard MinIO upload tester to call the new route.
 

@@ -1,14 +1,24 @@
 const { config: loadEnvConfig } = require('dotenv');
 const { z } = require('zod');
-const { createLogger } = require('@/utils/logger');
 
 loadEnvConfig();
 
 const DEFAULT_NODE_ENV = 'development';
+const resolveDefaultLogLevel = (nodeEnv) => (nodeEnv === 'development' ? 'debug' : 'info');
 
 if (!process.env.NODE_ENV || process.env.NODE_ENV.trim().length === 0) {
   process.env.NODE_ENV = DEFAULT_NODE_ENV;
+} else {
+  process.env.NODE_ENV = process.env.NODE_ENV.trim();
 }
+
+if (!process.env.LOG_LEVEL || process.env.LOG_LEVEL.trim().length === 0) {
+  process.env.LOG_LEVEL = resolveDefaultLogLevel(process.env.NODE_ENV);
+} else {
+  process.env.LOG_LEVEL = process.env.LOG_LEVEL.trim().toLowerCase();
+}
+
+const { createLogger } = require('@/utils/logger');
 
 const logger = createLogger('env');
 
@@ -17,6 +27,8 @@ const splitCommaSeparated = (value) =>
     .split(',')
     .map((item) => item.trim())
     .filter(Boolean);
+
+const LOG_LEVEL_VALUES = ['error', 'warn', 'info', 'http', 'verbose', 'debug', 'silly'];
 
 const defaults = {
   NODE_ENV: DEFAULT_NODE_ENV,
@@ -40,6 +52,7 @@ const defaults = {
   CLIENT_PORT: '5173',
   CLIENT_ALLOWED_HOSTS: 'localhost',
   VITE_API_URL: 'http://localhost:5000/api',
+  LOG_LEVEL: process.env.LOG_LEVEL,
 };
 
 const EnvSchema = z.object({
@@ -85,6 +98,9 @@ const EnvSchema = z.object({
     .min(1, { message: 'CLIENT_ALLOWED_HOSTS must be defined' })
     .transform(splitCommaSeparated),
   VITE_API_URL: z.string().url({ message: 'VITE_API_URL must be a valid URL' }),
+  LOG_LEVEL: z.enum(LOG_LEVEL_VALUES, {
+    message: `LOG_LEVEL must be one of: ${LOG_LEVEL_VALUES.join(', ')}`,
+  }),
 });
 
 const parseEnvironment = () => {
