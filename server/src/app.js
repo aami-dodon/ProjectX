@@ -30,7 +30,7 @@ const createApp = () => {
 
   setupSwaggerDocs(app);
 
-  const docsAssetsPath = path.join(__dirname, 'public', 'docs');
+  const docsAssetsPath = path.join(__dirname, '..', 'public', 'docs');
   app.use('/docs-assets', express.static(docsAssetsPath, { maxAge: '1d' }));
   app.get('/docs', (req, res) => {
     res.sendFile(path.join(docsAssetsPath, 'index.html'));
