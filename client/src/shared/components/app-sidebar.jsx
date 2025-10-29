@@ -19,7 +19,7 @@ import {
   IconUsers,
 } from "@tabler/icons-react"
 
-import { useCurrentUser } from "@/features/auth/hooks/use-current-user"
+import { useCurrentUser } from "@/features/auth"
 import { NavDocuments } from "@/shared/components/nav-documents"
 import { NavMain } from "@/shared/components/nav-main"
 import { NavSecondary } from "@/shared/components/nav-secondary"
