@@ -61,6 +61,16 @@ const defaults = {
   LOG_LEVEL: process.env.LOG_LEVEL,
 };
 
+const optionalFromString = (schema) =>
+  z.preprocess((value) => {
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+      return trimmed === '' ? undefined : trimmed;
+    }
+
+    return value;
+  }, schema.optional());
+
 // ✅ Zod validation schema
 const EnvSchema = z.object({
   NODE_ENV: z.string().min(1),
@@ -95,6 +105,10 @@ const EnvSchema = z.object({
   CLIENT_ALLOWED_HOSTS: z.string().min(1).transform(splitCommaSeparated),
   VITE_API_URL: z.string().url(),
   LOG_LEVEL: z.enum(LOG_LEVEL_VALUES),
+  AUTH_DEFAULT_ADMIN_EMAIL: optionalFromString(z.string().email()),
+  AUTH_DEFAULT_ADMIN_PASSWORD: optionalFromString(z.string().min(12)),
+  AUTH_DEFAULT_ADMIN_NAME: optionalFromString(z.string().min(1)),
+  AUTH_DEFAULT_ADMIN_TENANT_ID: optionalFromString(z.string().min(1)),
 });
 
 // ✅ Validate and export environment

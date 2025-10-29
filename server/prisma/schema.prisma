@@ -105,6 +105,7 @@ model AuthRoleAssignment {
 
   @@index([userId])
   @@index([roleId])
+  @@unique([userId, roleId])
   @@map("auth_role_assignments")
 }
 
