@@ -7,6 +7,9 @@ const { logAuthEvent } = require('@/modules/auth/auth.repository');
 const {
   listUsers,
   updateUserById,
+  findUserById,
+  listRoles,
+  findRolesByIds,
 } = require('./admin.repository');
 
 const logger = createLogger('admin-service');
@@ -44,6 +47,13 @@ const serializeUser = (user) => ({
     name: assignment.role.name,
     description: assignment.role.description,
   })),
+});
+
+const serializeRole = (role) => ({
+  id: role.id,
+  name: role.name,
+  description: role.description ?? null,
+  isSystemDefault: role.isSystemDefault,
 });
 
 const buildWhereClause = ({ search, status }) => {
@@ -145,13 +155,18 @@ const buildRegistrationTrend = (users) => {
 
 const getAdminUsers = async ({ search, status } = {}) => {
   const where = buildWhereClause({ search, status });
-  const users = await listUsers({ where });
+
+  const [users, roles] = await Promise.all([
+    listUsers({ where }),
+    listRoles(),
+  ]);
 
   const { totals, statusDistribution } = buildStatusMetrics(users);
   const monthlyRegistrations = buildRegistrationTrend(users);
 
   return {
     users: users.map(serializeUser),
+    roles: roles.map(serializeRole),
     metrics: {
       totals,
       statusDistribution,
@@ -175,6 +190,7 @@ const updateUserAccount = async ({ userId, updates = {}, actorId }) => {
   }
 
   const payload = {};
+  const fields = [];
 
   if (Object.prototype.hasOwnProperty.call(updates, 'fullName')) {
     const { fullName } = updates;
@@ -187,6 +203,8 @@ const updateUserAccount = async ({ userId, updates = {}, actorId }) => {
         field: 'fullName',
       });
     }
+
+    fields.push('fullName');
   }
 
   if (Object.prototype.hasOwnProperty.call(updates, 'tenantId')) {
@@ -200,6 +218,8 @@ const updateUserAccount = async ({ userId, updates = {}, actorId }) => {
         field: 'tenantId',
       });
     }
+
+    fields.push('tenantId');
   }
 
   if (Object.prototype.hasOwnProperty.call(updates, 'status')) {
@@ -210,16 +230,79 @@ const updateUserAccount = async ({ userId, updates = {}, actorId }) => {
       });
     }
     payload.status = normalizedStatus;
+    fields.push('status');
   }
 
-  const fields = Object.keys(payload);
-  if (fields.length === 0) {
+  let roleAssignmentsUpdate = null;
+
+  if (Object.prototype.hasOwnProperty.call(updates, 'roleIds')) {
+    if (!Array.isArray(updates.roleIds)) {
+      throw createValidationError('Roles must be provided as an array', {
+        field: 'roleIds',
+      });
+    }
+
+    const normalizedRoleIds = Array.from(
+      new Set(
+        updates.roleIds
+          .filter((roleId) => typeof roleId === 'string')
+          .map((roleId) => roleId.trim())
+          .filter((roleId) => roleId.length > 0)
+      )
+    );
+
+    const existingUser = await findUserById(userId);
+    if (!existingUser) {
+      throw createNotFoundError('Requested user could not be found');
+    }
+
+    const currentRoleIds = new Set(
+      (existingUser.roleAssignments ?? []).map((assignment) => assignment.roleId)
+    );
+
+    const rolesChanged =
+      normalizedRoleIds.length !== currentRoleIds.size ||
+      normalizedRoleIds.some((roleId) => !currentRoleIds.has(roleId));
+
+    if (rolesChanged) {
+      if (normalizedRoleIds.length > 0) {
+        const matchedRoles = await findRolesByIds(normalizedRoleIds);
+        if (matchedRoles.length !== normalizedRoleIds.length) {
+          throw createValidationError('One or more provided roles are invalid', {
+            field: 'roleIds',
+          });
+        }
+      }
+
+      const createAssignments = normalizedRoleIds.map((roleId) => ({
+        role: {
+          connect: { id: roleId },
+        },
+        assignedBy: actorId ?? null,
+      }));
+
+      roleAssignmentsUpdate = {
+        deleteMany: {},
+        ...(createAssignments.length > 0 ? { create: createAssignments } : {}),
+      };
+
+      fields.push('roles');
+    }
+  }
+
+  if (fields.length === 0 && !roleAssignmentsUpdate) {
     throw createValidationError('No valid fields provided for update');
+  }
+
+  const data = { ...payload };
+
+  if (roleAssignmentsUpdate) {
+    data.roleAssignments = roleAssignmentsUpdate;
   }
 
   let updatedUser;
   try {
-    updatedUser = await updateUserById(userId, payload);
+    updatedUser = await updateUserById(userId, data);
   } catch (error) {
     if (error.code === 'P2025') {
       throw createNotFoundError('Requested user could not be found');

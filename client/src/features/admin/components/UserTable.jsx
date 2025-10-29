@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { CardDescription } from "@/shared/components/ui/card";
+import { Checkbox } from "@/shared/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -50,8 +51,13 @@ function formatDate(value) {
   }
 }
 
-function UserEditDrawer({ open, onOpenChange, user, onSubmit }) {
-  const [formState, setFormState] = useState({ fullName: "", status: "", tenantId: "" });
+function UserEditDrawer({ open, onOpenChange, user, onSubmit, availableRoles = [] }) {
+  const [formState, setFormState] = useState({
+    fullName: "",
+    status: "",
+    tenantId: "",
+    roleIds: [],
+  });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -66,10 +72,24 @@ function UserEditDrawer({ open, onOpenChange, user, onSubmit }) {
         fullName: user.fullName ?? "",
         status: user.status ?? "ACTIVE",
         tenantId: user.tenantId ?? "",
+        roleIds: (user.roles ?? []).map((role) => role.id),
       });
       setError("");
     }
   }, [user]);
+
+  const handleRoleToggle = useCallback((roleId, checked) => {
+    setFormState((prev) => {
+      const nextRoleIds = checked
+        ? Array.from(new Set([...prev.roleIds, roleId]))
+        : prev.roleIds.filter((id) => id !== roleId);
+
+      return {
+        ...prev,
+        roleIds: nextRoleIds,
+      };
+    });
+  }, []);
 
   const handleSubmit = useCallback(
     async (event) => {
@@ -86,6 +106,7 @@ function UserEditDrawer({ open, onOpenChange, user, onSubmit }) {
           fullName: formState.fullName,
           status: formState.status,
           tenantId: formState.tenantId,
+          roleIds: formState.roleIds,
         });
         toast.success("User updated", {
           description: `${user.email} has been updated successfully`,
@@ -99,7 +120,15 @@ function UserEditDrawer({ open, onOpenChange, user, onSubmit }) {
         setSubmitting(false);
       }
     },
-    [formState.fullName, formState.status, formState.tenantId, onOpenChange, onSubmit, user]
+    [
+      formState.fullName,
+      formState.status,
+      formState.tenantId,
+      formState.roleIds,
+      onOpenChange,
+      onSubmit,
+      user,
+    ]
   );
 
   return (
@@ -189,6 +218,37 @@ function UserEditDrawer({ open, onOpenChange, user, onSubmit }) {
               </SelectContent>
             </Select>
           </div>
+          <div className="space-y-2">
+            <Label>Roles</Label>
+            <div className="space-y-2 rounded-md border p-3">
+              {availableRoles.length > 0 ? (
+                availableRoles.map((role) => {
+                  const checked = formState.roleIds.includes(role.id);
+                  return (
+                    <label
+                      key={role.id}
+                      htmlFor={`role-${role.id}`}
+                      className="flex items-start gap-2 text-sm"
+                    >
+                      <Checkbox
+                        id={`role-${role.id}`}
+                        checked={checked}
+                        onCheckedChange={(value) => handleRoleToggle(role.id, value === true)}
+                      />
+                      <span className="flex flex-1 flex-col">
+                        <span className="font-medium leading-none">{role.name}</span>
+                        {role.description ? (
+                          <span className="text-xs text-muted-foreground">{role.description}</span>
+                        ) : null}
+                      </span>
+                    </label>
+                  );
+                })
+              ) : (
+                <p className="text-sm text-muted-foreground">No roles available for assignment.</p>
+              )}
+            </div>
+          </div>
           {error ? <p className="text-sm text-destructive">{error}</p> : null}
         </form>
       )}
@@ -212,7 +272,14 @@ function UserEditDrawer({ open, onOpenChange, user, onSubmit }) {
   );
 }
 
-export function UserTable({ users = [], isLoading = false, error, onRefresh, onUpdate }) {
+export function UserTable({
+  users = [],
+  availableRoles = [],
+  isLoading = false,
+  error,
+  onRefresh,
+  onUpdate,
+}) {
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -375,6 +442,7 @@ export function UserTable({ users = [], isLoading = false, error, onRefresh, onU
         onOpenChange={closeDrawer}
         user={selectedUser}
         onSubmit={onUpdate}
+        availableRoles={availableRoles}
       />
     </>
   );

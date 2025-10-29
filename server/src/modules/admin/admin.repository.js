@@ -30,9 +30,25 @@ const updateUserById = (id, data) =>
     include: USER_INCLUDE,
   });
 
+const listRoles = () =>
+  prisma.authRole.findMany({
+    orderBy: { name: 'asc' },
+  });
+
+const findRolesByIds = (ids = []) =>
+  prisma.authRole.findMany({
+    where: {
+      id: {
+        in: ids,
+      },
+    },
+  });
+
 module.exports = {
   listUsers,
   countUsers,
   findUserById,
   updateUserById,
+  listRoles,
+  findRolesByIds,
 };
