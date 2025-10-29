@@ -36,6 +36,10 @@ export function UserCharts({ statusDistribution = [], monthlyRegistrations = [],
     []
   );
 
+  // Memoize tooltip content elements to avoid creating new instances each render
+  const pieTooltip = useMemo(() => <ChartTooltipContent hideLabel />, []);
+  const areaTooltip = useMemo(() => <ChartTooltipContent indicator="dot" />, []);
+
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <Card className="shadow-none">
@@ -49,10 +53,10 @@ export function UserCharts({ statusDistribution = [], monthlyRegistrations = [],
           ) : (
             <ChartContainer config={statusConfig} className="h-[240px] w-full">
               <PieChart>
-                <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+                <ChartTooltip content={pieTooltip} />
                 <Pie data={statusDistribution} dataKey="value" nameKey="label" innerRadius={60} outerRadius={100} paddingAngle={4}>
-                  {statusDistribution.map((entry) => (
-                    <Cell key={entry.status} fill={STATUS_COLOR_MAP[entry.status] ?? "var(--color-muted)"} />
+                  {statusDistribution.map((entry, index) => (
+                    <Cell key={`${entry.status}-${index}`} fill={STATUS_COLOR_MAP[entry.status] ?? "var(--color-muted)"} />
                   ))}
                 </Pie>
               </PieChart>
@@ -73,7 +77,7 @@ export function UserCharts({ statusDistribution = [], monthlyRegistrations = [],
               <AreaChart data={monthlyRegistrations}>
                 <CartesianGrid vertical={false} />
                 <XAxis dataKey="label" tickLine={false} axisLine={false} />
-                <ChartTooltip content={<ChartTooltipContent indicator="dot" />} />
+                <ChartTooltip content={areaTooltip} />
                 <Area
                   dataKey="value"
                   type="monotone"
