@@ -89,7 +89,6 @@ function UserEditDrawer({ open, onOpenChange, user, onSubmit, availableRoles = [
   const [formState, setFormState] = useState({
     fullName: "",
     status: "",
-    tenantId: "",
     roleIds: [],
   });
   const [submitting, setSubmitting] = useState(false);
@@ -106,7 +105,6 @@ function UserEditDrawer({ open, onOpenChange, user, onSubmit, availableRoles = [
       setFormState({
         fullName: user.fullName ?? "",
         status: user.status ?? "ACTIVE",
-        tenantId: user.tenantId ?? "",
         roleIds: (user.roles ?? []).map((role) => `${role.id}`),
       });
       setError("");
@@ -146,7 +144,6 @@ function UserEditDrawer({ open, onOpenChange, user, onSubmit, availableRoles = [
         await onSubmit(user.id, {
           fullName: formState.fullName,
           status: formState.status,
-          tenantId: formState.tenantId,
           roleIds: formState.roleIds,
         });
         toast.success("User updated", {
@@ -164,7 +161,6 @@ function UserEditDrawer({ open, onOpenChange, user, onSubmit, availableRoles = [
     [
       formState.fullName,
       formState.status,
-      formState.tenantId,
       formState.roleIds,
       onOpenChange,
       onSubmit,
@@ -207,17 +203,6 @@ function UserEditDrawer({ open, onOpenChange, user, onSubmit, availableRoles = [
                       setFormState((prev) => ({ ...prev, fullName: event.target.value }))
                     }
                     placeholder="Enter full name"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="tenantId">Tenant ID</Label>
-                  <Input
-                    id="tenantId"
-                    value={formState.tenantId}
-                    onChange={(event) =>
-                      setFormState((prev) => ({ ...prev, tenantId: event.target.value }))
-                    }
-                    placeholder="Optional tenant identifier"
                   />
                 </div>
                 <div className="space-y-2">
@@ -320,7 +305,6 @@ function UserEditDrawer({ open, onOpenChange, user, onSubmit, availableRoles = [
                     "—"
                   )}
                 </DetailRow>
-                <DetailRow label="Tenant ID">{user?.tenantId || "—"}</DetailRow>
                 <DetailRow label="Last login">{formatDate(user?.lastLoginAt)}</DetailRow>
                 <DetailRow label="Verified">{user?.emailVerifiedAt ? "Yes" : "No"}</DetailRow>
               </div>
@@ -383,7 +367,7 @@ export function UserTable({
   const filteredUsers = useMemo(() => {
     return users.filter((user) => {
       const matchesSearch = searchTerm.trim()
-        ? [user.fullName, user.email, user.tenantId]
+        ? [user.fullName, user.email]
             .filter(Boolean)
             .some((value) =>
               value.toLowerCase().includes(searchTerm.trim().toLowerCase())
@@ -446,7 +430,7 @@ export function UserTable({
                   <IconSearch className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2" />
                   <Input
                     id="user-search"
-                    placeholder="Search by name, email, or tenant"
+                    placeholder="Search by name or email"
                     value={searchTerm}
                     onChange={(event) => setSearchTerm(event.target.value)}
                     className="pl-9"
@@ -586,12 +570,9 @@ export function UserTable({
                   ? filteredUsers.map((user) => (
                       <TableRow key={user.id} className="hover:bg-muted/50">
                         <TableCell>
-                          <div className="flex flex-col gap-1">
+                          <div className="flex flex-col">
                             <span className="font-medium text-foreground">
                               {user.fullName ?? "—"}
-                            </span>
-                            <span className="text-xs text-muted-foreground">
-                              {user.tenantId ? `Tenant • ${user.tenantId}` : "No tenant"}
                             </span>
                           </div>
                         </TableCell>

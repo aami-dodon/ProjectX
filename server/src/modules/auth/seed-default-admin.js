@@ -26,8 +26,6 @@ const ensureDefaultAdmin = async () => {
 
   const normalizedEmail = email.trim().toLowerCase();
   const fullName = env.AUTH_DEFAULT_ADMIN_NAME?.trim() || 'Administrator';
-  const tenantId = env.AUTH_DEFAULT_ADMIN_TENANT_ID?.trim() || null;
-
   const adminRole = await upsertRole({
     name: ADMIN_ROLE_NAME,
     description: ADMIN_ROLE_DESCRIPTION,
@@ -42,7 +40,6 @@ const ensureDefaultAdmin = async () => {
       email: normalizedEmail,
       passwordHash,
       fullName,
-      tenantId,
       status: 'ACTIVE',
     });
 
@@ -86,10 +83,6 @@ const ensureDefaultAdmin = async () => {
 
   if (fullName && existingUser.fullName !== fullName) {
     updates.fullName = fullName;
-  }
-
-  if (tenantId && existingUser.tenantId !== tenantId) {
-    updates.tenantId = tenantId;
   }
 
   const hasUpdates = Object.keys(updates).length > 0;

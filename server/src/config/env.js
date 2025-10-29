@@ -108,7 +108,6 @@ const EnvSchema = z.object({
   AUTH_DEFAULT_ADMIN_EMAIL: optionalFromString(z.string().email()),
   AUTH_DEFAULT_ADMIN_PASSWORD: optionalFromString(z.string().min(12)),
   AUTH_DEFAULT_ADMIN_NAME: optionalFromString(z.string().min(1)),
-  AUTH_DEFAULT_ADMIN_TENANT_ID: optionalFromString(z.string().min(1)),
 });
 
 // ✅ Validate and export environment

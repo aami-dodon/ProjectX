@@ -36,7 +36,6 @@ if ! command -v uuidgen >/dev/null 2>&1; then
 fi
 
 # --- Configuration ---
-DEMO_TENANT_MARKER="demo-users-seed"
 DEMO_PASSWORD_HASH='$2b$12$ARqaoXVJVQXstRxDfLtw5O5xpgyBmVdcGwGRU0mLOgfntMylJgTh6'
 DEMO_DATA_FILE="$SCRIPT_DIR/demo-users.csv"
 MIN_COUNT=100
@@ -55,7 +54,7 @@ Options:
   --count <number> Number of demo users to insert when using --load (default/minimum: $DEFAULT_COUNT).
   -h, --help       Show this help text.
 
-All demo users are tagged with tenant_id "$DEMO_TENANT_MARKER" and share the password "DemoPass123!".
+All demo users share the password "DemoPass123!".
 Records are sourced from $DEMO_DATA_FILE (CSV with email,full_name columns).
 USAGE
 }
@@ -117,8 +116,40 @@ run_psql() {
     psql "$DATABASE_URL" -v ON_ERROR_STOP=1 "$@"
 }
 
-get_demo_count() {
-    run_psql -At -c "SELECT COUNT(*) FROM auth_users WHERE tenant_id = '$DEMO_TENANT_MARKER';"
+sql_escape() {
+    local value="$1"
+    printf "%s" "${value//\'/''}"
+}
+
+build_email_array_literal() {
+    local emails=("$@")
+    if [[ ${#emails[@]} -eq 0 ]]; then
+        printf "ARRAY[]::text[]"
+        return
+    fi
+
+    local quoted=()
+    local email
+    for email in "${emails[@]}"; do
+        quoted+=("'$(sql_escape "$email")'")
+    done
+
+    printf "ARRAY[%s]" "$(IFS=,; echo "${quoted[*]}")"
+}
+
+get_demo_count_for_emails() {
+    local emails=("$@")
+    if [[ ${#emails[@]} -eq 0 ]]; then
+        echo "0"
+        return
+    fi
+
+    local email_array
+    email_array=$(build_email_array_literal "${emails[@]}")
+
+    run_psql -At <<SQL
+SELECT COUNT(*) FROM auth_users WHERE email = ANY($email_array);
+SQL
 }
 
 load_demo_users() {
@@ -146,7 +177,8 @@ load_demo_users() {
         exit 1
     fi
 
-    before_count="$(get_demo_count)"
+    local emails=()
+    local email
 
     sql_buffer=$'BEGIN;'
     for ((i = 0; i < desired_count; i++)); do
@@ -154,6 +186,7 @@ load_demo_users() {
         email="$(echo "$email" | xargs)"
         full_name="$(echo "$full_name" | xargs)"
         uuid="$(uuidgen)"
+        emails+=("$email")
         sql_buffer+=$'\n'
         sql_buffer+=$(cat <<SQL
 INSERT INTO auth_users (
@@ -161,7 +194,6 @@ INSERT INTO auth_users (
     email,
     password_hash,
     full_name,
-    tenant_id,
     status,
     email_verified_at,
     mfa_enabled,
@@ -172,7 +204,6 @@ INSERT INTO auth_users (
     '$email',
     '$DEMO_PASSWORD_HASH',
     '$full_name',
-    '$DEMO_TENANT_MARKER',
     'ACTIVE',
     NOW(),
     FALSE,
@@ -184,23 +215,58 @@ SQL
     done
     sql_buffer+=$'\nCOMMIT;'
 
+    before_count="$(get_demo_count_for_emails "${emails[@]}")"
+
     run_psql -q <<SQL
 $sql_buffer
 SQL
 
-    after_count="$(get_demo_count)"
+    after_count="$(get_demo_count_for_emails "${emails[@]}")"
     inserted=$((after_count - before_count))
 
-    echo "✅ Requested $desired_count demo users; $inserted new users added (tenant_id=$DEMO_TENANT_MARKER)."
+    echo "✅ Requested $desired_count demo users; $inserted new users added."
     echo "ℹ️  Each demo user uses the password: DemoPass123!"
     echo "ℹ️  User records sourced from $DEMO_DATA_FILE."
 }
 
 delete_demo_users() {
-    local deleted_count
+    local dataset=()
+    local emails=()
+    local deleted_count email entry
+
+    if command -v mapfile >/dev/null 2>&1; then
+        mapfile -t dataset < <(tail -n +2 "$DEMO_DATA_FILE" | sed -e '/^\s*#/d' -e '/^\s*$/d')
+    else
+        while IFS= read -r line; do
+            [[ "$line" =~ ^\s*# ]] && continue
+            [[ "$line" =~ ^\s*$ ]] && continue
+            dataset+=("$line")
+        done < <(tail -n +2 "$DEMO_DATA_FILE")
+    fi
+
+    if [[ ${#dataset[@]} -eq 0 ]]; then
+        echo "ℹ️  No demo user records found in $DEMO_DATA_FILE."
+        return
+    fi
+
+    for entry in "${dataset[@]}"; do
+        IFS=',' read -r email _ <<<"$entry"
+        email="$(echo "$email" | xargs)"
+        [[ -z "$email" ]] && continue
+        emails+=("$email")
+    done
+
+    if [[ ${#emails[@]} -eq 0 ]]; then
+        echo "ℹ️  No valid demo user emails found in $DEMO_DATA_FILE."
+        return
+    fi
+
+    local email_array
+    email_array=$(build_email_array_literal "${emails[@]}")
+
     deleted_count="$(run_psql -At <<SQL
 WITH deleted AS (
-    DELETE FROM auth_users WHERE tenant_id = '$DEMO_TENANT_MARKER' RETURNING 1
+    DELETE FROM auth_users WHERE email = ANY($email_array) RETURNING 1
 )
 SELECT COUNT(*) FROM deleted;
 SQL
@@ -210,7 +276,7 @@ SQL
         deleted_count=0
     fi
 
-    echo "🧹 Removed $deleted_count demo users tagged with tenant_id=$DEMO_TENANT_MARKER."
+    echo "🧹 Removed $deleted_count demo users sourced from $DEMO_DATA_FILE."
 }
 
 # --- Main execution ---

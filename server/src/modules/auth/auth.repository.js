@@ -20,13 +20,12 @@ const findUserById = (id) =>
     include: USER_INCLUDE,
   });
 
-const createUser = ({ email, passwordHash, fullName, tenantId, status }) =>
+const createUser = ({ email, passwordHash, fullName, status }) =>
   prisma.authUser.create({
     data: {
       email,
       passwordHash,
       fullName,
-      tenantId,
       status,
     },
     include: USER_INCLUDE,

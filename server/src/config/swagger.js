@@ -41,10 +41,6 @@ const swaggerDefinition = {
             type: 'string',
             nullable: true,
           },
-          tenantId: {
-            type: 'string',
-            nullable: true,
-          },
           status: {
             type: 'string',
             enum: ['PENDING_VERIFICATION', 'ACTIVE', 'SUSPENDED', 'INVITED'],

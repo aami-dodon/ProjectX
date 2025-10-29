@@ -1,3 +1,6 @@
+## 2025-11-07 18:45:00 IST
+- Removed tenant support across authentication flows, admin tooling, and demo utilities, including a schema migration and UI updates.
+
 ## 2025-10-30 03:47:19 IST
 - Rebuilt the admin user management table with a dedicated layout, filters, and drawer so it no longer depends on the shared data-table component.
 

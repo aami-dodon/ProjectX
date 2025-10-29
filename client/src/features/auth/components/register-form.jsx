@@ -28,7 +28,6 @@ export function RegisterForm({ className, ...props }) {
     password: "",
     confirmPassword: "",
   })
-  const [tenantId, setTenantId] = useState("")
   const [submitting, setSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
 
@@ -60,7 +59,6 @@ export function RegisterForm({ className, ...props }) {
           email,
           password: formState.password,
           fullName: formState.fullName.trim() || undefined,
-          tenantId: tenantId.trim() || undefined,
         })
 
         toast.success("Account created", {
@@ -78,7 +76,7 @@ export function RegisterForm({ className, ...props }) {
         setSubmitting(false)
       }
     },
-    [formState, tenantId, navigate]
+    [formState, navigate]
   )
 
   return (
@@ -103,17 +101,6 @@ export function RegisterForm({ className, ...props }) {
                   autoComplete="name"
                   value={formState.fullName}
                   onChange={handleChange}
-                />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="tenantId">Tenant or organisation</FieldLabel>
-                <Input
-                  id="tenantId"
-                  name="tenantId"
-                  type="text"
-                  placeholder="Optional tenant identifier"
-                  value={tenantId}
-                  onChange={(event) => setTenantId(event.target.value)}
                 />
               </Field>
               <Field>

@@ -54,7 +54,6 @@ const sanitizeUser = (user) => {
     fullName: user.fullName,
     avatarObjectName: user.avatarObjectName ?? null,
     avatarUrl: null,
-    tenantId: user.tenantId,
     status: user.status,
     emailVerifiedAt: user.emailVerifiedAt,
     lastLoginAt: user.lastLoginAt,
@@ -119,7 +118,7 @@ const ensureDefaultRole = async () => {
   return role;
 };
 
-const registerUser = async ({ email, password, fullName, tenantId }) => {
+const registerUser = async ({ email, password, fullName }) => {
   const normalizedEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
   if (!normalizedEmail) {
     throw createValidationError('Email is required for registration');
@@ -139,7 +138,6 @@ const registerUser = async ({ email, password, fullName, tenantId }) => {
     email: normalizedEmail,
     passwordHash,
     fullName,
-    tenantId,
     status: 'PENDING_VERIFICATION',
   });
 
@@ -174,7 +172,6 @@ const registerUser = async ({ email, password, fullName, tenantId }) => {
     eventType: 'auth.user.registered',
     payload: {
       email: normalizedEmail,
-      tenantId,
     },
   });
 
