@@ -1,3 +1,6 @@
+## 2025-11-07 13:17:41 IST
+- Unified the shared data table row drawer with consistent view/edit tabs and updated the home outline and user management tables to consume the new UI.
+
 ## 2025-11-07 12:30:00 IST
 - Redirected post-logout navigation to the public home route so users return to the pre-login experience after signing out.
 

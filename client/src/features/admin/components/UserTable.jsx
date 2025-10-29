@@ -10,18 +10,10 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/shared/components/ui/drawer";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
-import { DataTable } from "@/shared/components/data-table";
+import { DataTable, DataTableRowDrawer } from "@/shared/components/data-table";
 import { cn } from "@/shared/lib/utils";
 import { IconChevronDown, IconLayoutColumns } from "@tabler/icons-react";
 
@@ -62,6 +54,11 @@ function UserEditDrawer({ open, onOpenChange, user, onSubmit }) {
   const [formState, setFormState] = useState({ fullName: "", status: "", tenantId: "" });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+
+  const formId = useMemo(
+    () => (user?.id ? `user-${user.id}-edit` : "user-edit"),
+    [user?.id]
+  );
 
   useEffect(() => {
     if (user) {
@@ -106,67 +103,112 @@ function UserEditDrawer({ open, onOpenChange, user, onSubmit }) {
   );
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <DrawerHeader className="text-left">
-            <DrawerTitle>Edit user</DrawerTitle>
-            <CardDescription>{user?.email}</CardDescription>
-          </DrawerHeader>
-          <div className="px-4 space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="fullName">Full name</Label>
-              <Input
-                id="fullName"
-                value={formState.fullName}
-                onChange={(event) => setFormState((prev) => ({ ...prev, fullName: event.target.value }))}
-                placeholder="Enter full name"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="tenantId">Tenant ID</Label>
-              <Input
-                id="tenantId"
-                value={formState.tenantId}
-                onChange={(event) => setFormState((prev) => ({ ...prev, tenantId: event.target.value }))}
-                placeholder="Optional tenant identifier"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
-              <Select
-                value={formState.status}
-                onValueChange={(value) => setFormState((prev) => ({ ...prev, status: value }))}
-              >
-                <SelectTrigger id="status" className="w-full">
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  {STATUS_OPTIONS.map((status) => (
-                    <SelectItem key={status} value={status}>
-                      {STATUS_LABELS[status]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            {error ? <p className="text-sm text-destructive">{error}</p> : null}
+    <DataTableRowDrawer
+      open={open}
+      onOpenChange={onOpenChange}
+      item={user}
+      defaultTab="edit"
+      title="Edit user"
+      description={({ item: current }) =>
+        current?.email ? <CardDescription>{current.email}</CardDescription> : null
+      }
+      renderView={({ item: current }) => (
+        <div className="grid gap-4 text-sm">
+          <div className="space-y-1">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Full name</p>
+            <p className="text-base font-medium">{current?.fullName ?? "—"}</p>
           </div>
-          <DrawerFooter className="border-t bg-muted/40">
-            <div className="flex w-full items-center justify-between gap-2">
-              <DrawerClose asChild>
-                <Button type="button" variant="ghost">
-                  Cancel
-                </Button>
-              </DrawerClose>
-              <Button type="submit" disabled={submitting}>
-                {submitting ? "Saving…" : "Save changes"}
-              </Button>
-            </div>
-          </DrawerFooter>
+          <div className="space-y-1">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Email</p>
+            <p className="font-medium">{current?.email ?? "—"}</p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Status</p>
+            <Badge
+              variant="outline"
+              className={cn("capitalize", STATUS_BADGE_STYLES[current?.status] ?? "")}
+            >
+              {STATUS_LABELS[current?.status] ?? current?.status ?? "—"}
+            </Badge>
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Roles</p>
+            <p className="text-sm text-muted-foreground">
+              {(current?.roles ?? []).map((role) => role.name).join(", ") || "—"}
+            </p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Tenant ID</p>
+            <p className="font-medium">{current?.tenantId || "—"}</p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Last login</p>
+            <p className="font-medium">{formatDate(current?.lastLoginAt)}</p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Verified</p>
+            <p className="font-medium">{current?.emailVerifiedAt ? "Yes" : "No"}</p>
+          </div>
+        </div>
+      )}
+      renderEdit={() => (
+        <form id={formId} onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="fullName">Full name</Label>
+            <Input
+              id="fullName"
+              value={formState.fullName}
+              onChange={(event) => setFormState((prev) => ({ ...prev, fullName: event.target.value }))}
+              placeholder="Enter full name"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="tenantId">Tenant ID</Label>
+            <Input
+              id="tenantId"
+              value={formState.tenantId}
+              onChange={(event) => setFormState((prev) => ({ ...prev, tenantId: event.target.value }))}
+              placeholder="Optional tenant identifier"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="status">Status</Label>
+            <Select
+              value={formState.status}
+              onValueChange={(value) => setFormState((prev) => ({ ...prev, status: value }))}
+            >
+              <SelectTrigger id="status" className="w-full">
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                {STATUS_OPTIONS.map((status) => (
+                  <SelectItem key={status} value={status}>
+                    {STATUS_LABELS[status]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          {error ? <p className="text-sm text-destructive">{error}</p> : null}
         </form>
-      </DrawerContent>
-    </Drawer>
+      )}
+      renderEditFooter={({ close }) => (
+        <div className="flex w-full items-center justify-between gap-2">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => {
+              setError("");
+              close();
+            }}>
+            Cancel
+          </Button>
+          <Button type="submit" form={formId} disabled={submitting}>
+            {submitting ? "Saving…" : "Save changes"}
+          </Button>
+        </div>
+      )}
+    />
   );
 }
 
