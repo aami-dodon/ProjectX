@@ -22,7 +22,7 @@ export default defineConfig([
     },
   },
   {
-    files: ['**/__tests__/**/*.js'],
+    files: ['**/__tests__/**/*.js', 'tests/**/*.js', '**/*.test.js', '**/*.spec.js'],
     languageOptions: {
       globals: {
         ...globals.node,
