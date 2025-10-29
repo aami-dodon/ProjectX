@@ -1,3 +1,6 @@
+## 2025-11-05 19:30:00 IST
+- Refactored the MinIO integration into a presigned-URL storage service with authenticated file routes and private bucket access controls.
+
 ## 2025-11-05 18:45:00 IST
 - Removed the MinIO upload diagnostic route and health dashboard tester so the stack no longer exposes the `/api/upload/test` endpoint.
 
