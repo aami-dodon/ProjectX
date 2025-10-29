@@ -1,3 +1,7 @@
+import { useCallback } from "react"
+import { useNavigate } from "react-router-dom"
+import { toast } from "sonner"
+
 import {
   IconCreditCard,
   IconDotsVertical,
@@ -57,6 +61,33 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar()
   const initials = getInitials(user?.name ?? user?.email)
+  const navigate = useNavigate()
+
+  const handleLogout = useCallback(() => {
+    if (typeof window === "undefined") {
+      return
+    }
+
+    try {
+      window.localStorage.removeItem("accessToken")
+      window.localStorage.removeItem("refreshToken")
+      window.localStorage.removeItem("user")
+
+      window.dispatchEvent(new Event("px:user-updated"))
+
+      toast.success("Signed out", {
+        description: "You have been logged out.",
+      })
+    } catch (error) {
+      console.error("Failed to clear auth tokens during logout", error)
+      toast.error("Logout failed", {
+        description: "Please try again.",
+      })
+      return
+    }
+
+    navigate("/auth/login", { replace: true })
+  }, [navigate])
 
   return (
     <SidebarMenu>
@@ -107,16 +138,12 @@ export function NavUser({
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <IconCreditCard />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
                 <IconNotification />
                 Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onSelect={handleLogout}>
               <IconLogout />
               Log out
             </DropdownMenuItem>
