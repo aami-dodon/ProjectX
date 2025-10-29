@@ -1,3 +1,6 @@
+## 2025-10-30 03:47:19 IST
+- Rebuilt the admin user management table with a dedicated layout, filters, and drawer so it no longer depends on the shared data-table component.
+
 ## 2025-10-30 03:34:54 IST
 - Enabled multi-role assignment in the admin user management suite, including API support, a role picker in the drawer, and refreshed documentation.
 
