@@ -1,3 +1,6 @@
+## 2025-11-06 10:00:00 IST
+- Documented reuse guidelines for the auth, files, and health backend modules so developers can onboard quickly.
+
 ## 2025-11-05 19:30:00 IST
 - Refactored the MinIO integration into a presigned-URL storage service with authenticated file routes and private bucket access controls.
 
