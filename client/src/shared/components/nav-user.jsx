@@ -65,9 +65,7 @@ export function NavUser({
   const navigate = useNavigate()
 
   const handleLogout = useCallback(async (event) => {
-    try {
-      event?.preventDefault?.()
-    } catch {}
+    event?.preventDefault?.()
 
     try {
       const refreshToken = window?.localStorage?.getItem("refreshToken")
@@ -75,20 +73,22 @@ export function NavUser({
         await apiClient.post("/api/auth/logout", { refreshToken })
       }
     } catch (error) {
-      // Ignore API errors during logout; proceed to clear client state.
-    } finally {
-      try {
-        window?.localStorage?.removeItem("accessToken")
-        window?.localStorage?.removeItem("refreshToken")
-        window?.localStorage?.removeItem("user")
-        window?.dispatchEvent?.(new Event("px:user-updated"))
-      } catch {}
-
-      toast.success("Signed out", {
-        description: "You have been logged out.",
-      })
-      navigate("/auth/login", { replace: true })
+      console.warn("Failed to revoke session during logout", error)
     }
+
+    try {
+      window?.localStorage?.removeItem("accessToken")
+      window?.localStorage?.removeItem("refreshToken")
+      window?.localStorage?.removeItem("user")
+      window?.dispatchEvent?.(new Event("px:user-updated"))
+    } catch (storageError) {
+      console.warn("Failed to clear local auth state", storageError)
+    }
+
+    toast.success("Signed out", {
+      description: "You have been logged out.",
+    })
+    navigate("/auth/login", { replace: true })
   }, [navigate])
 
   return (

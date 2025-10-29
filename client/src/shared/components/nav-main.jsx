@@ -1,4 +1,5 @@
 import { IconCirclePlusFilled, IconMail } from "@tabler/icons-react";
+import { NavLink, useLocation } from "react-router-dom";
 
 import { Button } from "@/shared/components/ui/button"
 import {
@@ -12,6 +13,20 @@ import {
 export function NavMain({
   items
 }) {
+  const location = useLocation()
+
+  const resolveIsActive = (item) => {
+    if (!item?.url || typeof item.url !== "string") {
+      return false
+    }
+
+    if (typeof item.match === "function") {
+      return Boolean(item.match(location))
+    }
+
+    return location.pathname.startsWith(item.url)
+  }
+
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
@@ -35,10 +50,19 @@ export function NavMain({
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton tooltip={item.title}>
-                {item.icon && <item.icon />}
-                <span>{item.title}</span>
-              </SidebarMenuButton>
+              {item.url && item.url.startsWith("/") ? (
+                <SidebarMenuButton asChild tooltip={item.title} isActive={resolveIsActive(item)}>
+                  <NavLink to={item.url} className="flex w-full items-center gap-2">
+                    {item.icon && <item.icon />}
+                    <span>{item.title}</span>
+                  </NavLink>
+                </SidebarMenuButton>
+              ) : (
+                <SidebarMenuButton tooltip={item.title}>
+                  {item.icon && <item.icon />}
+                  <span>{item.title}</span>
+                </SidebarMenuButton>
+              )}
             </SidebarMenuItem>
           ))}
         </SidebarMenu>

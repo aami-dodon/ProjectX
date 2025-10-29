@@ -14,6 +14,7 @@ const { errorHandler } = require('@/middleware/errorHandler');
 
 // Routers
 const { router: healthRouter } = require('@/modules/health');
+const { router: adminRouter } = require('@/modules/admin');
 const authRouter = require('@/modules/auth/auth.router');
 const { router: filesRouter } = require('@/modules/files');
 
@@ -47,6 +48,7 @@ const createApp = () => {
   const apiPrefix = '/api';
 
   app.use(`${apiPrefix}/health`, healthRouter);
+  app.use(`${apiPrefix}/admin`, adminRouter);
   app.use(`${apiPrefix}/auth`, authRouter);
   app.use(`${apiPrefix}/files`, filesRouter);
 
