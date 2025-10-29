@@ -5,16 +5,21 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 ENV_FILE="$ROOT_DIR/.env"
 
+# --- Load only DATABASE_URL from .env ---
 if [[ -f "$ENV_FILE" ]]; then
-    set -a
-    # shellcheck disable=SC1090
-    source "$ENV_FILE"
-    set +a
+    echo "🔹 Reading DATABASE_URL from $ENV_FILE"
+    DATABASE_URL="$(grep -E '^DATABASE_URL=' "$ENV_FILE" | sed -E 's/^DATABASE_URL=//')"
+    if [[ -z "$DATABASE_URL" ]]; then
+        echo "❌ DATABASE_URL not found in $ENV_FILE"
+        exit 1
+    fi
+    export DATABASE_URL
 else
     echo "❌ .env file not found at $ENV_FILE"
     exit 1
 fi
 
+# --- Validate required tools ---
 if [[ -z "${DATABASE_URL:-}" ]]; then
     echo "❌ DATABASE_URL is not set in $ENV_FILE"
     exit 1
@@ -30,6 +35,7 @@ if ! command -v uuidgen >/dev/null 2>&1; then
     exit 1
 fi
 
+# --- Configuration ---
 DEMO_TENANT_MARKER="demo-users-seed"
 DEMO_PASSWORD_HASH='$2b$12$ARqaoXVJVQXstRxDfLtw5O5xpgyBmVdcGwGRU0mLOgfntMylJgTh6'
 DEMO_DATA_FILE="$SCRIPT_DIR/demo-users.csv"
@@ -38,6 +44,7 @@ DEFAULT_COUNT=$MIN_COUNT
 ACTION="load"
 COUNT="$DEFAULT_COUNT"
 
+# --- Usage help ---
 usage() {
     cat <<USAGE
 Usage: $(basename "$0") [--load|--delete] [--count <number>]
@@ -53,6 +60,7 @@ Records are sourced from $DEMO_DATA_FILE (CSV with email,full_name columns).
 USAGE
 }
 
+# --- Argument parsing ---
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --load)
@@ -104,6 +112,7 @@ if [[ "$ACTION" == "load" ]]; then
     fi
 fi
 
+# --- Helper functions ---
 run_psql() {
     psql "$DATABASE_URL" -v ON_ERROR_STOP=1 "$@"
 }
@@ -114,9 +123,22 @@ get_demo_count() {
 
 load_demo_users() {
     local desired_count="$1"
-    local before_count after_count inserted sql_buffer uuid email full_name dataset available_count
+    local before_count after_count inserted sql_buffer uuid email full_name available_count
+    local dataset=()
 
-    mapfile -t dataset < <(tail -n +2 "$DEMO_DATA_FILE" | sed -e '/^\s*#/d' -e '/^\s*$/d')
+    # --- Cross-platform CSV reading (macOS & Linux) ---
+    if command -v mapfile >/dev/null 2>&1; then
+        # Linux / Bash >= 4
+        mapfile -t dataset < <(tail -n +2 "$DEMO_DATA_FILE" | sed -e '/^\s*#/d' -e '/^\s*$/d')
+    else
+        # macOS fallback
+        while IFS= read -r line; do
+            [[ "$line" =~ ^\s*# ]] && continue
+            [[ "$line" =~ ^\s*$ ]] && continue
+            dataset+=("$line")
+        done < <(tail -n +2 "$DEMO_DATA_FILE")
+    fi
+
     available_count="${#dataset[@]}"
 
     if [[ "$available_count" -lt "$desired_count" ]]; then
@@ -191,6 +213,7 @@ SQL
     echo "🧹 Removed $deleted_count demo users tagged with tenant_id=$DEMO_TENANT_MARKER."
 }
 
+# --- Main execution ---
 case "$ACTION" in
     load)
         load_demo_users "$COUNT"
