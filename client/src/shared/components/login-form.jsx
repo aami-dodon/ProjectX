@@ -45,7 +45,7 @@ export function LoginForm({ className, ...props }) {
       setErrorMessage("")
 
       try {
-        const { data } = await apiClient.post("/auth/login", {
+        const { data } = await apiClient.post("/api/auth/login", {
           email,
           password: formState.password,
         })

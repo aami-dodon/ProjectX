@@ -51,7 +51,7 @@ export function ResetPasswordForm({ token, className, ...props }) {
       setErrorMessage("")
 
       try {
-        await apiClient.post("/auth/reset-password", {
+        await apiClient.post("/api/auth/reset-password", {
           token,
           password: formState.password,
         })
