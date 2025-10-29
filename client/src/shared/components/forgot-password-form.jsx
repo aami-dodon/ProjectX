@@ -41,7 +41,7 @@ export function ForgotPasswordForm({ className, ...props }) {
       setErrorMessage("")
 
       try {
-        await apiClient.post("/auth/forgot-password", { email: normalizedEmail })
+        await apiClient.post("/api/auth/forgot-password", { email: normalizedEmail })
 
         setConfirmation(
           "If an account exists for that email we&apos;ve sent password reset instructions."

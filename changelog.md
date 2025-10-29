@@ -1,3 +1,6 @@
+## 2025-11-05 12:15:00 IST
+- Updated the client authentication forms to call the `/api/auth/*` endpoints so logins and password flows reach the Express router successfully.
+
 ## 2025-11-05 11:30:00 IST
 - Ensured the production server container runs `prisma migrate deploy` before booting so required tables are created automatically.
 

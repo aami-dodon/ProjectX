@@ -40,7 +40,7 @@ export function VerifyPasswordForm({ token, className, ...props }) {
       setErrorMessage("")
 
       try {
-        await apiClient.post("/auth/verify-email", { token: tokenValue })
+        await apiClient.post("/api/auth/verify-email", { token: tokenValue })
 
         toast.success("Account verified", {
           description: "Your account is active. You can now sign in.",
