@@ -24,7 +24,7 @@ const {
   updateUser,
   upsertRole,
 } = require('./auth.repository');
-const { sendEmail } = require('@/modules/email/email.service');
+const { sendMail } = require('@/integrations/mailer');
 const { renderVerificationEmail } = require('./emails/verification-email');
 const { renderPasswordResetEmail } = require('./emails/password-reset-email');
 const {
@@ -143,7 +143,7 @@ const registerUser = async ({ email, password, fullName, tenantId }) => {
     appBaseUrl: env.APP_BASE_URL,
   });
 
-  await sendEmail(verificationEmail);
+  await sendMail(verificationEmail);
   await logAuthEvent({
     userId: user.id,
     eventType: 'auth.user.registered',
@@ -327,7 +327,7 @@ const requestPasswordReset = async ({ email }) => {
     appBaseUrl: env.APP_BASE_URL,
   });
 
-  await sendEmail(resetEmail);
+  await sendMail(resetEmail);
   await logAuthEvent({
     userId: user.id,
     eventType: 'auth.password.reset_requested',
