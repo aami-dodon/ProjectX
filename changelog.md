@@ -1,3 +1,5 @@
+## 2025-11-06 10:00:00 IST
+- Documented reuse guidelines for the auth, files, and health backend modules so developers can onboard quickly.
 ## 2025-11-05 20:15:00 IST
 - Updated routing so the login experience lives at `/`, `/home` becomes the authenticated landing page, and post-login visitors are redirected away from auth screens and onto guarded dashboards.
 
