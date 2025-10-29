@@ -1,3 +1,6 @@
+## 2025-11-05 13:30:00 IST
+- Redirected the auth shell's base and unknown routes to the login screen so pre-login navigation bypasses layout-level 404s and relies on the global error pages.
+
 ## 2025-11-05 12:45:00 IST
 - Restricted the home dashboard route behind authentication so unauthenticated visitors are redirected to the login screen.
 
