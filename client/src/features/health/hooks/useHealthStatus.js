@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { apiClient } from "@/lib";
+import { apiClient } from "@/lib/client";
 
 const STATUS_ORDER = ["operational", "degraded", "outage"];
 

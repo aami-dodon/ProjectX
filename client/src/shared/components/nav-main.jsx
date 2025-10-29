@@ -1,13 +1,13 @@
 import { IconCirclePlusFilled, IconMail } from "@tabler/icons-react";
 
-import { Button } from "@/ui"
+import { Button } from "@/shared/components/ui/button"
 import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/ui"
+} from "@/shared/components/ui/sidebar"
 
 export function NavMain({
   items
