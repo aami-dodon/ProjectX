@@ -1,6 +1,7 @@
 import { useCallback } from "react"
 import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
+import { apiClient } from "@/shared/lib/client"
 
 import {
   IconCreditCard,
@@ -61,6 +62,34 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar()
   const initials = getInitials(user?.name ?? user?.email)
+  const navigate = useNavigate()
+
+  const handleLogout = useCallback(async (event) => {
+    try {
+      event?.preventDefault?.()
+    } catch {}
+
+    try {
+      const refreshToken = window?.localStorage?.getItem("refreshToken")
+      if (refreshToken) {
+        await apiClient.post("/api/auth/logout", { refreshToken })
+      }
+    } catch (error) {
+      // Ignore API errors during logout; proceed to clear client state.
+    } finally {
+      try {
+        window?.localStorage?.removeItem("accessToken")
+        window?.localStorage?.removeItem("refreshToken")
+        window?.localStorage?.removeItem("user")
+        window?.dispatchEvent?.(new Event("px:user-updated"))
+      } catch {}
+
+      toast.success("Signed out", {
+        description: "You have been logged out.",
+      })
+      navigate("/auth/login", { replace: true })
+    }
+  }, [navigate])
 
   return (
     <SidebarMenu>
