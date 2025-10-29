@@ -1,3 +1,5 @@
+## 2025-10-30 02:03:39 IST
+- Restored the post-login redirect by syncing auth status updates with the custom `px:user-updated` event so successful sign-ins reach `/home` without refreshing.
 ## 2025-10-30 01:52:01 IST
 - Introduced an admin-only user management suite with new API endpoints, dashboard cards/charts/table editing, and dedicated navigation links to health and design system views.
 ## 2025-11-06 19:05:00 IST

@@ -25,16 +25,22 @@ export function useAuthStatus() {
       return undefined;
     }
 
+    function syncAuthStatus() {
+      setIsAuthenticated(hasAccessToken());
+    }
+
     function handleStorage(event) {
       if (event.key === "accessToken") {
-        setIsAuthenticated(hasAccessToken());
+        syncAuthStatus();
       }
     }
 
     window.addEventListener("storage", handleStorage);
+    window.addEventListener("px:user-updated", syncAuthStatus);
 
     return () => {
       window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("px:user-updated", syncAuthStatus);
     };
   }, []);
 
