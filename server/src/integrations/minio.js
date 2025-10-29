@@ -1,7 +1,7 @@
 const Minio = require('minio');
-const { Readable } = require('node:stream');
 
 const { env } = require('@/config/env');
+const { ApplicationError, createIntegrationError } = require('@/utils/errors');
 const { createLogger } = require('@/utils/logger');
 
 const logger = createLogger('minio');
@@ -15,123 +15,67 @@ const minioClient = new Minio.Client({
   region: env.MINIO_REGION,
 });
 
-const verifyBucket = async (bucketName = env.MINIO_BUCKET) => {
+async function verifyBucket(bucketName = env.MINIO_BUCKET) {
   try {
     const exists = await minioClient.bucketExists(bucketName);
     if (!exists) {
-      throw new Error(`Bucket ${bucketName} does not exist`);
-    }
-    return true;
-  } catch (error) {
-    logger.error('Failed to verify bucket existence', {
-      bucket: bucketName,
-      error: error.message,
-    });
-    throw error;
-  }
-};
-
-const ensureBucketExists = async (bucketName = env.MINIO_BUCKET, region = env.MINIO_REGION) => {
-  try {
-    const exists = await minioClient.bucketExists(bucketName);
-
-    if (!exists) {
-      await minioClient.makeBucket(bucketName, region);
-      logger.info('Created missing MinIO bucket', { bucket: bucketName, region });
+      throw createIntegrationError(`Bucket ${bucketName} does not exist`);
     }
 
     return true;
   } catch (error) {
-    logger.error('Failed to ensure bucket existence', {
+    logger.error('Failed to verify MinIO bucket', {
       bucket: bucketName,
-      region,
       error: error.message,
     });
-    throw error;
+
+    if (error instanceof ApplicationError) {
+      throw error;
+    }
+
+    throw createIntegrationError('Failed to verify MinIO bucket', { bucket: bucketName });
   }
-};
+}
 
-const isReadableStream = (value) => Boolean(value && typeof value.pipe === 'function');
+async function getPresignedUploadUrl(bucket, objectName, expiry = 600) {
+  const targetBucket = bucket ?? env.MINIO_BUCKET;
 
-const normalizeBodyInput = (body) => {
-  if (Buffer.isBuffer(body)) {
-    return { data: body, size: body.length };
-  }
-
-  if (typeof body === 'string') {
-    const buffer = Buffer.from(body);
-    return { data: buffer, size: buffer.length };
-  }
-
-  if (body instanceof Readable || isReadableStream(body)) {
-    return { data: body };
-  }
-
-  throw new Error('MinIO upload body must be a Buffer, string, or readable stream');
-};
-
-const uploadObject = async ({
-  bucket = env.MINIO_BUCKET,
-  objectName,
-  body,
-  size,
-  contentType,
-  metadata = {},
-  ensureBucket = false,
-} = {}) => {
-  if (!objectName || typeof objectName !== 'string') {
-    throw new Error('objectName must be provided when uploading to MinIO');
-  }
-
-  if (!body) {
-    throw new Error('body must be provided when uploading to MinIO');
-  }
-
-  if (ensureBucket) {
-    await ensureBucketExists(bucket);
-  } else {
-    await verifyBucket(bucket);
-  }
-
-  const normalized = normalizeBodyInput(body);
-  const uploadSize = typeof size === 'number' ? size : normalized.size;
-
-  if (normalized.data instanceof Readable && (typeof uploadSize !== 'number' || Number.isNaN(uploadSize))) {
-    throw new Error('size must be provided when uploading a stream to MinIO');
-  }
-
-  const metaData = { ...metadata };
-  if (contentType && !metaData['Content-Type']) {
-    metaData['Content-Type'] = contentType;
-  }
+  await verifyBucket(targetBucket);
 
   try {
-    await minioClient.putObject(bucket, objectName, normalized.data, uploadSize, metaData);
-    logger.info('Uploaded object to MinIO', {
-      bucket,
-      objectName,
-      size: uploadSize,
-    });
-
-    return {
-      bucket,
-      objectName,
-      size: uploadSize,
-      metadata: metaData,
-    };
+    return await minioClient.presignedPutObject(targetBucket, objectName, expiry);
   } catch (error) {
-    logger.error('Failed to upload object to MinIO', {
-      bucket,
+    logger.error('Failed to generate MinIO upload URL', {
+      bucket: targetBucket,
       objectName,
       error: error.message,
     });
-    throw error;
+
+    throw createIntegrationError('Failed to generate MinIO upload URL');
   }
-};
+}
+
+async function getPresignedDownloadUrl(bucket, objectName, expiry = 300) {
+  const targetBucket = bucket ?? env.MINIO_BUCKET;
+
+  await verifyBucket(targetBucket);
+
+  try {
+    return await minioClient.presignedGetObject(targetBucket, objectName, expiry);
+  } catch (error) {
+    logger.error('Failed to generate MinIO download URL', {
+      bucket: targetBucket,
+      objectName,
+      error: error.message,
+    });
+
+    throw createIntegrationError('Failed to generate MinIO download URL');
+  }
+}
 
 module.exports = {
   minioClient,
   verifyBucket,
-  ensureBucketExists,
-  uploadObject,
+  getPresignedUploadUrl,
+  getPresignedDownloadUrl,
 };
