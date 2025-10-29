@@ -942,99 +942,102 @@ function ContentShowcase() {
 
 export function DesignSystemPage() {
   return (
-    <div className="flex flex-1 flex-col gap-8">
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex flex-col gap-1">
-            <h1 className="text-2xl font-semibold">Design System</h1>
-            <p className="text-sm text-muted-foreground">
-              Central reference for typography, colors, and reusable interface components powering the client.
-            </p>
+    <div className="flex flex-1 flex-col">
+      <div className="@container/main mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 px-4 py-6 lg:px-6">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-col gap-1">
+              <h1 className="text-2xl font-semibold">Design System</h1>
+              <p className="text-sm text-muted-foreground">
+                Central reference for typography, colors, and reusable interface components powering the client.
+              </p>
+            </div>
+            <Badge variant="secondary" className="text-xs font-medium">
+              Updated {new Date().toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
+            </Badge>
           </div>
-          <Badge variant="secondary" className="text-xs font-medium">
-            Updated {new Date().toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
-          </Badge>
+          <p className="text-xs text-muted-foreground">
+            This page mirrors the single page layout used by system health and surfaces every shared component with example
+            variants.
+          </p>
         </div>
-        <p className="text-xs text-muted-foreground">
-          This page mirrors the single page layout used by system health and surfaces every shared component with example variants.
-        </p>
+
+        <Section
+          id="css-tokens"
+          icon={IconColorSwatch}
+          title="CSS Tokens"
+          description="Global CSS custom properties configured in index.css."
+        >
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-3">
+              <h3 className="text-lg font-semibold">Base surfaces</h3>
+              <ColorGrid tokens={baseColorTokens} />
+            </div>
+            <div className="flex flex-col gap-3">
+              <h3 className="text-lg font-semibold">Semantic tokens</h3>
+              <ColorGrid tokens={semanticColorTokens} />
+            </div>
+            <div className="flex flex-col gap-3">
+              <h3 className="text-lg font-semibold">Extended palette</h3>
+              <ColorGrid tokens={extendedColorTokens} />
+            </div>
+          </div>
+        </Section>
+
+        <Section
+          id="typography"
+          icon={IconTypography}
+          title="Typography"
+          description="Heading hierarchy, body copy, and supporting text scales."
+        >
+          <TypographySamples />
+        </Section>
+
+        <Section
+          id="buttons"
+          icon={IconComponents}
+          title="Buttons & Badges"
+          description="Interactive button variants, sizes, and supporting badges."
+        >
+          <ButtonShowcase />
+        </Section>
+
+        <Section
+          id="forms"
+          icon={IconLetterSpacing}
+          title="Form Controls"
+          description="Shared form primitives for inputs, selects, checkboxes, skeletons, and tabs."
+        >
+          <FormShowcase />
+        </Section>
+
+        <Section
+          id="text-editor"
+          icon={IconPencil}
+          title="Rich Text Editor"
+          description="TipTap-powered editor with toolbar controls and live preview."
+        >
+          <RichTextShowcase />
+        </Section>
+
+        <Section
+          id="interactions"
+          icon={IconPalette}
+          title="Interactive Elements"
+          description="Toggle family, dropdown menus, tooltips, and sheets."
+        >
+          <InteractiveShowcase />
+        </Section>
+
+        <Section
+          id="content"
+          icon={IconLayoutBoardSplit}
+          title="Content Patterns"
+          description="Cards, avatars, breadcrumbs, and tables composed with shared tokens."
+        >
+          <ContentShowcase />
+        </Section>
       </div>
-
-      <Section
-        id="css-tokens"
-        icon={IconColorSwatch}
-        title="CSS Tokens"
-        description="Global CSS custom properties configured in index.css."
-      >
-        <div className="flex flex-col gap-6">
-          <div className="flex flex-col gap-3">
-            <h3 className="text-lg font-semibold">Base surfaces</h3>
-            <ColorGrid tokens={baseColorTokens} />
-          </div>
-          <div className="flex flex-col gap-3">
-            <h3 className="text-lg font-semibold">Semantic tokens</h3>
-            <ColorGrid tokens={semanticColorTokens} />
-          </div>
-          <div className="flex flex-col gap-3">
-            <h3 className="text-lg font-semibold">Extended palette</h3>
-            <ColorGrid tokens={extendedColorTokens} />
-          </div>
-        </div>
-      </Section>
-
-      <Section
-        id="typography"
-        icon={IconTypography}
-        title="Typography"
-        description="Heading hierarchy, body copy, and supporting text scales."
-      >
-        <TypographySamples />
-      </Section>
-
-      <Section
-        id="buttons"
-        icon={IconComponents}
-        title="Buttons & Badges"
-        description="Interactive button variants, sizes, and supporting badges."
-      >
-        <ButtonShowcase />
-      </Section>
-
-      <Section
-        id="forms"
-        icon={IconLetterSpacing}
-        title="Form Controls"
-        description="Shared form primitives for inputs, selects, checkboxes, skeletons, and tabs."
-      >
-        <FormShowcase />
-      </Section>
-
-      <Section
-        id="text-editor"
-        icon={IconPencil}
-        title="Rich Text Editor"
-        description="TipTap-powered editor with toolbar controls and live preview."
-      >
-        <RichTextShowcase />
-      </Section>
-
-      <Section
-        id="interactions"
-        icon={IconPalette}
-        title="Interactive Elements"
-        description="Toggle family, dropdown menus, tooltips, and sheets."
-      >
-        <InteractiveShowcase />
-      </Section>
-
-      <Section
-        id="content"
-        icon={IconLayoutBoardSplit}
-        title="Content Patterns"
-        description="Cards, avatars, breadcrumbs, and tables composed with shared tokens."
-      >
-        <ContentShowcase />
-      </Section>
     </div>
   );
 }

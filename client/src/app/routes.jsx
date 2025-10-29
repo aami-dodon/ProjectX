@@ -1,7 +1,6 @@
 import { Navigate, createBrowserRouter } from "react-router-dom";
 
 import DefaultLayout from "./layouts/DefaultLayout";
-import SinglePageLayout from "./layouts/SinglePageLayout";
 import { ErrorPage } from "./pages/ErrorPage";
 import { ForbiddenPage } from "./pages/ForbiddenPage";
 import { InternalServerErrorPage } from "./pages/InternalServerErrorPage";
@@ -80,6 +79,8 @@ const statusRoutes = [
 const defaultLayoutRoutes = [
   { path: "/home", element: <HomePage /> },
   { path: "/account", element: <AccountSettingsPage /> },
+  { path: "/health", element: <HealthPage /> },
+  { path: "/design-system", element: <DesignSystemPage /> },
 ];
 
 export const router = createBrowserRouter([
@@ -96,24 +97,6 @@ export const router = createBrowserRouter([
     ),
     errorElement: <ErrorPage />,
     children: defaultLayoutRoutes,
-  },
-  {
-    element: (
-      <ProtectedRoute>
-        <SinglePageLayout />
-      </ProtectedRoute>
-    ),
-    errorElement: <ErrorPage />,
-    children: [{ path: "/health", element: <HealthPage /> }],
-  },
-  {
-    element: (
-      <ProtectedRoute>
-        <SinglePageLayout />
-      </ProtectedRoute>
-    ),
-    errorElement: <ErrorPage />,
-    children: [{ path: "/design-system", element: <DesignSystemPage /> }],
   },
   ...statusRoutes,
   authRoutes,
