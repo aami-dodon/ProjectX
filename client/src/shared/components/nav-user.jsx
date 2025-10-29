@@ -88,7 +88,7 @@ export function NavUser({
     toast.success("Signed out", {
       description: "You have been logged out.",
     })
-    navigate("/auth/login", { replace: true })
+    navigate("/", { replace: true })
   }, [navigate])
 
   return (

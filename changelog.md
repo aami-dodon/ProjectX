@@ -1,3 +1,6 @@
+## 2025-11-07 12:30:00 IST
+- Redirected post-logout navigation to the public home route so users return to the pre-login experience after signing out.
+
 ## 2025-10-30 02:03:39 IST
 - Restored the post-login redirect by syncing auth status updates with the custom `px:user-updated` event so successful sign-ins reach `/home` without refreshing.
 ## 2025-10-30 01:52:01 IST
