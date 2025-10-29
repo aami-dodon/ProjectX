@@ -12,18 +12,69 @@ const STATUS_COLOR_MAP = {
   INVITED: "var(--color-chart-4)",
 };
 
+const CHART_COLORS = [
+  "var(--color-chart-1)",
+  "var(--color-chart-2)",
+  "var(--color-chart-3)",
+  "var(--color-chart-4)",
+  "var(--color-chart-5)",
+];
+
+const sanitizeChartKey = (value) =>
+  value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+
+const getFallbackColor = (identifier) => {
+  if (!identifier) {
+    return "var(--color-muted)";
+  }
+
+  const normalized = identifier.toString().toUpperCase();
+  const hash = Array.from(normalized).reduce((acc, char) => acc + char.charCodeAt(0), 0);
+
+  return CHART_COLORS[hash % CHART_COLORS.length];
+};
+
 export function UserCharts({ statusDistribution = [], monthlyRegistrations = [], isLoading = false }) {
+  const normalizedStatusDistribution = useMemo(
+    () =>
+      statusDistribution.map((entry, index) => {
+        const label = entry.label ?? entry.status ?? "Unknown";
+        const identifier = entry.status ?? label ?? `status-${index}`;
+        const color = STATUS_COLOR_MAP[entry.status] ?? getFallbackColor(identifier);
+        const chartKey = sanitizeChartKey(identifier) || `status-${index}`;
+
+        return {
+          ...entry,
+          label,
+          color,
+          chartKey,
+        };
+      }),
+    [statusDistribution]
+  );
+
   const statusConfig = useMemo(
     () =>
-      statusDistribution.reduce((acc, entry) => {
-        const key = entry.status.toLowerCase();
+      normalizedStatusDistribution.reduce((acc, entry, index) => {
+        const key = entry.chartKey || `status-${index}`;
+
         acc[key] = {
-          label: entry.label ?? entry.status,
-          color: STATUS_COLOR_MAP[entry.status] ?? "var(--color-muted-foreground)",
+          label: entry.label,
+          color: entry.color,
         };
+
+        if (entry.label && !(entry.label in acc)) {
+          acc[entry.label] = {
+            label: entry.label,
+          };
+        }
+
         return acc;
       }, {}),
-    [statusDistribution]
+    [normalizedStatusDistribution]
   );
 
   const registrationConfig = useMemo(
@@ -50,9 +101,9 @@ export function UserCharts({ statusDistribution = [], monthlyRegistrations = [],
             <ChartContainer config={statusConfig} className="h-[240px] w-full">
               <PieChart>
                 <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-                <Pie data={statusDistribution} dataKey="value" nameKey="label" innerRadius={60} outerRadius={100} paddingAngle={4}>
-                  {statusDistribution.map((entry) => (
-                    <Cell key={entry.status} fill={STATUS_COLOR_MAP[entry.status] ?? "var(--color-muted)"} />
+                <Pie data={normalizedStatusDistribution} dataKey="value" nameKey="label" innerRadius={60} outerRadius={100} paddingAngle={4}>
+                  {normalizedStatusDistribution.map((entry, index) => (
+                    <Cell key={entry.status ?? entry.chartKey ?? `status-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
               </PieChart>
