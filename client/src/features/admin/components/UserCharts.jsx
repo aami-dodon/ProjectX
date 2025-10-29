@@ -6,10 +6,10 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/shared/comp
 import { Skeleton } from "@/shared/components/ui/skeleton";
 
 const STATUS_COLOR_MAP = {
-  ACTIVE: "hsl(var(--chart-1))",
-  PENDING_VERIFICATION: "hsl(var(--chart-2))",
-  SUSPENDED: "hsl(var(--chart-3))",
-  INVITED: "hsl(var(--chart-4))",
+  ACTIVE: "var(--color-chart-1)",
+  PENDING_VERIFICATION: "var(--color-chart-2)",
+  SUSPENDED: "var(--color-chart-3)",
+  INVITED: "var(--color-chart-4)",
 };
 
 export function UserCharts({ statusDistribution = [], monthlyRegistrations = [], isLoading = false }) {
@@ -19,7 +19,7 @@ export function UserCharts({ statusDistribution = [], monthlyRegistrations = [],
         const key = entry.status.toLowerCase();
         acc[key] = {
           label: entry.label ?? entry.status,
-          color: STATUS_COLOR_MAP[entry.status] ?? "hsl(var(--muted-foreground))",
+          color: STATUS_COLOR_MAP[entry.status] ?? "var(--color-muted-foreground)",
         };
         return acc;
       }, {}),
@@ -30,7 +30,7 @@ export function UserCharts({ statusDistribution = [], monthlyRegistrations = [],
     () => ({
       registrations: {
         label: "Registrations",
-        color: "hsl(var(--chart-5))",
+        color: "var(--color-chart-5)",
       },
     }),
     []
@@ -52,7 +52,7 @@ export function UserCharts({ statusDistribution = [], monthlyRegistrations = [],
                 <ChartTooltip content={<ChartTooltipContent hideLabel />} />
                 <Pie data={statusDistribution} dataKey="value" nameKey="label" innerRadius={60} outerRadius={100} paddingAngle={4}>
                   {statusDistribution.map((entry) => (
-                    <Cell key={entry.status} fill={STATUS_COLOR_MAP[entry.status] ?? "hsl(var(--muted))"} />
+                    <Cell key={entry.status} fill={STATUS_COLOR_MAP[entry.status] ?? "var(--color-muted)"} />
                   ))}
                 </Pie>
               </PieChart>
