@@ -1,3 +1,9 @@
+## 2025-11-05 08:30:00 IST
+- Added server test coverage for the email and upload diagnostics to verify happy paths, validation failures, and integration errors.
+
+## 2025-11-05 07:45:00 IST
+- Added automated client/server test runners with Vitest and Jest plus CI coverage so pull requests verify both apps end-to-end.
+
 ## 2025-11-05 06:50:24 IST
 - Refreshed the design system typography section to read index.css CSS custom properties for headings, body copy, and token references.
 

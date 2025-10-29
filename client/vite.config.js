@@ -9,6 +9,7 @@ loadEnvConfig()
 const DEFAULT_NODE_ENV = {
   development: 'development',
   production: 'production',
+  test: 'test',
 }
 
 const parseBoolean = (value, defaultValue = false) => {
@@ -21,12 +22,14 @@ const parseBoolean = (value, defaultValue = false) => {
 const resolveNodeEnv = mode => {
   if (mode === 'development') return DEFAULT_NODE_ENV.development
   if (mode === 'production') return DEFAULT_NODE_ENV.production
+  if (mode === 'test') return DEFAULT_NODE_ENV.test
   const trimmed = typeof process.env.NODE_ENV === 'string'
     ? process.env.NODE_ENV.trim()
     : ''
 
   if (!trimmed) return DEFAULT_NODE_ENV.production
   if (trimmed === 'development') return DEFAULT_NODE_ENV.development
+  if (trimmed === 'test') return DEFAULT_NODE_ENV.test
   return DEFAULT_NODE_ENV.production
 }
 
@@ -59,6 +62,12 @@ export default defineConfig(({ mode }) => {
     ],
     define: {
       'process.env.NODE_ENV': JSON.stringify(nodeEnv),
+    },
+    test: {
+      environment: 'jsdom',
+      setupFiles: './tests/setup.js',
+      globals: true,
+      css: true,
     },
     server: {
       port,
