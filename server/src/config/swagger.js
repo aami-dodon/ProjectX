@@ -24,6 +24,67 @@ const swaggerDefinition = {
         bearerFormat: 'JWT',
       },
     },
+    schemas: {
+      AuthUser: {
+        type: 'object',
+        required: ['id', 'email', 'status', 'roles', 'createdAt', 'updatedAt'],
+        properties: {
+          id: {
+            type: 'string',
+            format: 'uuid',
+          },
+          email: {
+            type: 'string',
+            format: 'email',
+          },
+          fullName: {
+            type: 'string',
+            nullable: true,
+          },
+          tenantId: {
+            type: 'string',
+            nullable: true,
+          },
+          status: {
+            type: 'string',
+            enum: ['PENDING_VERIFICATION', 'ACTIVE', 'SUSPENDED', 'INVITED'],
+          },
+          emailVerifiedAt: {
+            type: 'string',
+            format: 'date-time',
+            nullable: true,
+          },
+          lastLoginAt: {
+            type: 'string',
+            format: 'date-time',
+            nullable: true,
+          },
+          mfaEnabled: {
+            type: 'boolean',
+          },
+          roles: {
+            type: 'array',
+            items: {
+              type: 'object',
+              required: ['id', 'name'],
+              properties: {
+                id: { type: 'string', format: 'uuid' },
+                name: { type: 'string' },
+                description: { type: 'string', nullable: true },
+              },
+            },
+          },
+          createdAt: {
+            type: 'string',
+            format: 'date-time',
+          },
+          updatedAt: {
+            type: 'string',
+            format: 'date-time',
+          },
+        },
+      },
+    },
   },
   security: [{ bearerAuth: [] }],
 };
