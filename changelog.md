@@ -1,3 +1,5 @@
+## 2025-10-30 01:52:01 IST
+- Introduced an admin-only user management suite with new API endpoints, dashboard cards/charts/table editing, and dedicated navigation links to health and design system views.
 ## 2025-11-06 19:05:00 IST
 - Standardised presigned download links to reuse the configured MinIO expiry (one hour by default) and documented the behaviour.
 ## 2025-11-06 18:20:00 IST

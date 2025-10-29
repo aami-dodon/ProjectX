@@ -8,6 +8,7 @@ import {
   IconFileDescription,
   IconFileWord,
   IconFolder,
+  IconHeartbeat,
   IconHelp,
   IconInnerShadowTop,
   IconListDetails,
@@ -33,7 +34,25 @@ import {
   SidebarMenuItem,
 } from "@/shared/components/ui/sidebar"
 
-const sidebarData = {
+const sharedDocuments = [
+  {
+    name: "Data Library",
+    url: "#",
+    icon: IconDatabase,
+  },
+  {
+    name: "Reports",
+    url: "#",
+    icon: IconReport,
+  },
+  {
+    name: "Word Assistant",
+    url: "#",
+    icon: IconFileWord,
+  },
+]
+
+const defaultSidebarData = {
   navMain: [
     {
       title: "Dashboard",
@@ -131,23 +150,45 @@ const sidebarData = {
       icon: IconSearch,
     },
   ],
-  documents: [
+  documents: sharedDocuments,
+}
+
+const adminSidebarData = {
+  navMain: [
     {
-      name: "Data Library",
-      url: "#",
-      icon: IconDatabase,
+      title: "Home",
+      url: "/home",
+      icon: IconDashboard,
     },
     {
-      name: "Reports",
-      url: "#",
-      icon: IconReport,
+      title: "User Management",
+      url: "/admin/users",
+      icon: IconUsers,
     },
     {
-      name: "Word Assistant",
-      url: "#",
-      icon: IconFileWord,
+      title: "Health",
+      url: "/health",
+      icon: IconHeartbeat,
     },
   ],
+  navSecondary: [
+    {
+      title: "Design System",
+      url: "/design-system",
+      icon: IconPalette,
+    },
+    {
+      title: "Account Settings",
+      url: "/account",
+      icon: IconSettings,
+    },
+    {
+      title: "Get Help",
+      url: "#",
+      icon: IconHelp,
+    },
+  ],
+  documents: sharedDocuments,
 }
 
 const fallbackUser = {
@@ -160,6 +201,11 @@ export function AppSidebar({
   ...props
 }) {
   const currentUser = useCurrentUser()
+
+  const isAdmin = React.useMemo(
+    () => (currentUser?.roles ?? []).some((role) => role.name?.toLowerCase() === "admin"),
+    [currentUser?.roles]
+  )
 
   const user = React.useMemo(() => {
     if (!currentUser) {
@@ -182,6 +228,8 @@ export function AppSidebar({
     }
   }, [currentUser])
 
+  const navigation = isAdmin ? adminSidebarData : defaultSidebarData
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -197,9 +245,9 @@ export function AppSidebar({
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={sidebarData.navMain} />
-        <NavDocuments items={sidebarData.documents} />
-        <NavSecondary items={sidebarData.navSecondary} className="mt-auto" />
+        <NavMain items={navigation.navMain} />
+        <NavDocuments items={navigation.documents} />
+        <NavSecondary items={navigation.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={user} />

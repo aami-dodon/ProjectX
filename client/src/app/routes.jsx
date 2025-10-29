@@ -5,10 +5,12 @@ import { HomePage } from "@/features/home/pages/HomePage";
 import { DesignSystemPage } from "@/features/design-system";
 import { HealthPage } from "@/features/health";
 import { AccountSettingsPage } from "@/features/account";
+import { UserManagementPage } from "@/features/admin";
 
 import { authRoutes } from "@/features/auth";
 import { AuthLayout } from "@/features/auth/components/AuthLayout";
 import { useAuthStatus } from "@/features/auth/hooks/use-auth-status";
+import { useHasRole } from "@/features/auth/hooks/use-has-role";
 import { LoginPage } from "@/features/auth/pages/LoginPage";
 import {
   ErrorPage,
@@ -45,6 +47,21 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
+function AdminRoute({ children }) {
+  const isAuthenticated = useAuthStatus();
+  const hasAdminRole = useHasRole("admin");
+
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (!hasAdminRole) {
+    return <Navigate to="/403" replace />;
+  }
+
+  return children;
+}
+
 function UnknownRouteHandler() {
   const isAuthenticated = useAuthStatus();
 
@@ -56,6 +73,14 @@ const defaultLayoutRoutes = [
   { path: "/account", element: <AccountSettingsPage /> },
   { path: "/health", element: <HealthPage /> },
   { path: "/design-system", element: <DesignSystemPage /> },
+  {
+    path: "/admin/users",
+    element: (
+      <AdminRoute>
+        <UserManagementPage />
+      </AdminRoute>
+    ),
+  },
 ];
 
 export const router = createBrowserRouter([
