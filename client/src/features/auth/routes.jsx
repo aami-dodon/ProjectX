@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
 
-import { ErrorPage } from "@/app/pages/ErrorPage";
+import { ErrorPage } from "@/features/status-pages";
 import { AuthLayout } from "./components/AuthLayout";
 import { useAuthStatus } from "./hooks/use-auth-status";
 import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
