@@ -24,7 +24,32 @@ const verifyTransporter = async () => {
   }
 };
 
+const sendMail = async (message) => {
+  const payload = {
+    from: env.EMAIL_FROM,
+    ...message,
+  };
+
+  try {
+    const info = await transporter.sendMail(payload);
+    logger.info('Email sent successfully', {
+      messageId: info.messageId,
+      to: payload.to,
+      subject: payload.subject,
+    });
+    return info;
+  } catch (error) {
+    logger.error('Failed to send email', {
+      error: error.message,
+      to: payload.to,
+      subject: payload.subject,
+    });
+    throw error;
+  }
+};
+
 module.exports = {
   transporter,
   verifyTransporter,
+  sendMail,
 };

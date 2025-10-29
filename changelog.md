@@ -1,3 +1,9 @@
+## 2025-11-05 17:30:00 IST
+- Retired the standalone email module and test diagnostics so all SMTP traffic flows through the mailer integration and the health dashboard no longer links to the removed endpoint.
+
+## 2025-11-05 16:45:00 IST
+- Centralised backend email sending through the mailer integration and updated the email service to use the shared helper.
+
 ## 2025-11-05 15:30:00 IST
 - Added a logout control to the dashboard header so signed-in users can clear their session and return to the login screen.
 

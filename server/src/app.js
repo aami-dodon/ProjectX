@@ -12,7 +12,6 @@ const { setupSwaggerDocs } = require('@/config/swagger');
 
 const logger = createLogger('app');
 const healthRouter = require('@/modules/health/health.router');
-const emailRouter = require('@/modules/email/email.router');
 const uploadRouter = require('@/modules/upload/upload.router');
 const authRouter = require('@/modules/auth/auth.router');
 const createApp = () => {
@@ -44,7 +43,6 @@ const createApp = () => {
 
   app.use(`${apiPrefix}/health`, healthRouter);
   app.use(`${apiPrefix}/auth`, authRouter);
-  app.use(`${apiPrefix}/email`, emailRouter);
   app.use(`${apiPrefix}/upload`, uploadRouter);
 
   app.use((req, res) => {
