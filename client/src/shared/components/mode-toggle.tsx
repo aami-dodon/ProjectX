@@ -1,28 +1,29 @@
-import { Moon, Sun, Laptop } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { useTheme } from "@/components/theme-provider"
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react";
+import { Laptop, Moon, Sun } from "lucide-react";
+
+import { Button } from "@/shared/components/ui/button";
+import { useTheme } from "@/shared/components/theme-provider";
+import { cn } from "@/shared/lib/utils";
+
+const nextTheme = (currentTheme) => {
+  if (currentTheme === "system") return "dark";
+  if (currentTheme === "dark") return "light";
+  return "system";
+};
 
 export function ModeToggle() {
-  const { setTheme, theme } = useTheme()
-  const [currentTheme, setCurrentTheme] = useState(theme)
+  const { setTheme, theme } = useTheme();
+  const [currentTheme, setCurrentTheme] = useState(theme);
 
   useEffect(() => {
-    setCurrentTheme(theme)
-  }, [theme])
+    setCurrentTheme(theme);
+  }, [theme]);
 
   const handleToggle = () => {
-    let nextTheme
-    if (currentTheme === "system") {
-      nextTheme = "dark"
-    } else if (currentTheme === "dark") {
-      nextTheme = "light"
-    } else {
-      nextTheme = "system"
-    }
-    setTheme(nextTheme)
-    setCurrentTheme(nextTheme)
-  }
+    const updatedTheme = nextTheme(currentTheme);
+    setTheme(updatedTheme);
+    setCurrentTheme(updatedTheme);
+  };
 
   return (
     <Button
@@ -30,24 +31,27 @@ export function ModeToggle() {
       size="icon"
       onClick={handleToggle}
       aria-label="Toggle theme"
+      className="relative"
     >
-      {/* Sun icon for light mode */}
       <Sun
-        className={`h-[1.2rem] w-[1.2rem] transition-all
-          ${currentTheme === "light" ? "scale-100 rotate-0" : "scale-0 -rotate-90"}`}
+        className={cn(
+          "size-[1.2rem] rotate-0 scale-100 transition-all",
+          currentTheme !== "light" && "-rotate-90 scale-0"
+        )}
       />
-
-      {/* Moon icon for dark mode */}
       <Moon
-        className={`absolute h-[1.2rem] w-[1.2rem] transition-all
-          ${currentTheme === "dark" ? "scale-100 rotate-0" : "scale-0 rotate-90"}`}
+        className={cn(
+          "absolute size-[1.2rem] rotate-90 scale-0 transition-all",
+          currentTheme === "dark" && "rotate-0 scale-100"
+        )}
       />
-
-      {/* Laptop icon for system mode */}
       <Laptop
-        className={`absolute h-[1.2rem] w-[1.2rem] transition-all
-          ${currentTheme === "system" ? "scale-100 rotate-0" : "scale-0 rotate-90"}`}
+        className={cn(
+          "absolute size-[1.2rem] rotate-90 scale-0 transition-all",
+          currentTheme === "system" && "rotate-0 scale-100"
+        )}
       />
+      <span className="sr-only">Toggle theme</span>
     </Button>
-  )
+  );
 }
