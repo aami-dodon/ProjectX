@@ -18,7 +18,7 @@ import { AuthLayout } from "@/features/auth/components/AuthLayout";
 import { useAuthStatus } from "@/features/auth/hooks/use-auth-status";
 import { LoginPage } from "@/features/auth/pages/LoginPage";
 
-function RootLayout() {
+function AuthRoute() {
   const isAuthenticated = useAuthStatus();
 
   if (isAuthenticated) {
@@ -86,7 +86,7 @@ const defaultLayoutRoutes = [
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <RootLayout />,
+    element: <AuthRoute />,
     errorElement: <ErrorPage />,
   },
   {
