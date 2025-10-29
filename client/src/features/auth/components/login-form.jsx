@@ -53,6 +53,18 @@ export function LoginForm({ className, ...props }) {
         window.localStorage.setItem("accessToken", data.accessToken)
         window.localStorage.setItem("refreshToken", data.refreshToken)
 
+        try {
+          if (data.user) {
+            window.localStorage.setItem("user", JSON.stringify(data.user))
+          } else {
+            window.localStorage.removeItem("user")
+          }
+        } catch (storageError) {
+          console.error("Unable to persist user profile", storageError)
+        }
+
+        window.dispatchEvent(new Event("px:user-updated"))
+
         toast.success("Welcome back!", {
           description: "You have successfully signed in.",
         })
