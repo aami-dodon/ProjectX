@@ -13,7 +13,7 @@ const { requestLogger } = require('@/middleware/request-logger');
 const { errorHandler } = require('@/middleware/errorHandler');
 
 // Routers
-const healthRouter = require('@/modules/health/health.router');
+const { router: healthRouter } = require('@/modules/health');
 const authRouter = require('@/modules/auth/auth.router');
 const { router: filesRouter } = require('@/modules/files');
 
