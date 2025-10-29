@@ -43,12 +43,13 @@ The User Management backend lives under `server/src/modules/auth`, following the
 
 ```
 server/src/modules/auth/
-├── controllers/        # Express handlers for /api/auth endpoints
-├── services/           # Registration, login, token rotation, and email orchestration
-├── repositories/       # Prisma data access for users, sessions, and roles
-├── middleware/         # JWT validation, rate limiting, MFA hooks
+├── auth.router.js      # Express router mounting /api/auth endpoints
+├── auth.controller.js  # HTTP handlers that normalise requests and responses
+├── auth.service.js     # Registration, login, token rotation, and email orchestration
+├── auth.repository.js  # Prisma data access for users, sessions, and roles
+├── auth.middleware.js  # JWT validation, rate limiting, MFA hooks
 ├── emails/             # Nodemailer templates and delivery helpers
-└── routes.ts           # Mounts the /api/auth router into the application
+└── index.js            # Module entry point used by the application bootstrap
 ```
 
 ### Service Responsibilities & Collaborators
@@ -68,7 +69,7 @@ The Auth Service coordinates user lifecycle operations, session control, and sec
 #### Registration (`POST /api/auth/register`)
 1. Validate input payload (email, password, organization context).
 2. Hash the password with bcrypt (≥12 rounds) and persist the user record with default RBAC role assignments.
-3. Trigger optional verification or welcome emails via Nodemailer integration.
+3. Send a verification email via Nodemailer and require users to confirm their address before activating the account.
 4. Log the event for audit purposes and apply rate limiting to prevent abuse.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L74-L86】【F:docs/02-technical-specifications/06-security-implementation.md†L54-L75】
 
 #### Login (`POST /api/auth/login`)
@@ -99,7 +100,7 @@ The Auth Service coordinates user lifecycle operations, session control, and sec
 - **Service and partner tokens (`POST /api/auth/service-tokens`):** Issue scoped API credentials used by probes and integrations under the shared Partner API governance model, including rotation and revocation hooks.【F:docs/01-about/04-security-and-data-protection.md†L219-L226】【F:docs/02-technical-specifications/07-integration-architecture.md†L145-L187】
 
 ### API Surface & Contracts
-The module exposes REST endpoints aligned with the platform’s OpenAPI standards; controllers reside in `controllers/` and leverage shared error handlers to return the canonical `{ status, message, data, error }` response shape.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L74-L118】
+The module exposes REST endpoints aligned with the platform’s OpenAPI standards; route handlers inside `auth.controller.js` leverage shared error utilities to return the canonical `{ status, message, data, error }` response shape.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L74-L118】
 
 | Endpoint | Purpose | Expected Inputs | Responses & Side Effects |
 |----------|---------|-----------------|--------------------------|
@@ -133,30 +134,25 @@ React-based authentication experiences live within `client/src/features/auth`, c
 
 ```
 client/src/features/auth/
-├── pages/
-│   ├── LoginPage.tsx
-│   ├── RegisterPage.tsx
-│   ├── ForgotPasswordPage.tsx
-│   └── ResetPasswordPage.tsx
 ├── components/
-│   ├── MfaEnrollmentWizard.tsx
-│   └── PasswordStrengthMeter.tsx
-├── hooks/
-│   └── useAuthForm.ts
-└── index.ts
-
-client/src/state/auth/
-├── AuthContext.tsx
-└── authSlice.ts
+│   └── AuthLayout.jsx        # Shared shell for auth-specific routes
+├── pages/
+│   ├── ForgotPasswordPage.jsx
+│   ├── LoginPage.jsx
+│   ├── RegisterPage.jsx
+│   ├── ResetPasswordPage.jsx
+│   └── VerifyPasswordPage.jsx
+├── routes.jsx                # Route definition consumed by the app router
+└── index.js                  # Feature entry that re-exports routes
 ```
 
 ### Reusable Components & UI Flows
 
-- **Shared Components:** `client/src/components/forms/ControlledInput.tsx`, `client/src/components/layout/AuthGuard.tsx`, and `client/src/components/feedback/SessionTimeoutModal.tsx` are reused across login, registration, and MFA flows to deliver consistent experiences.
+- **Shared Components:** `client/src/shared/components/login-form.jsx`, `client/src/shared/components/register-form.jsx`, `client/src/shared/components/forgot-password-form.jsx`, `client/src/shared/components/reset-password-form.jsx`, and `client/src/shared/components/verify-password-form.jsx` provide the UI shells for each auth flow while reusing primitives from `client/src/shared/components/ui/`.
 
-- **Authentication Screens:** Login, registration, password reset, and MFA setup pages mirror backend `/api/auth` endpoints with form validation, CSRF headers, and contextual messaging for account states.【F:docs/02-technical-specifications/03-frontend-architecture.md†L50-L139】
+- **Authentication Screens:** Login, registration, password reset, verification, and MFA placeholder pages mirror backend `/api/auth` endpoints with client-side validation and contextual messaging for account states.【F:docs/02-technical-specifications/03-frontend-architecture.md†L50-L139】
 
-- **Session Awareness:** Global `AuthContext` persists JWT tokens, handles refresh logic, and surfaces role metadata so protected routes can enforce access in layouts and navigation.【F:docs/02-technical-specifications/03-frontend-architecture.md†L96-L139】
+- **Session Awareness:** The shared Axios client (`client/src/shared/lib/client.js`) injects bearer tokens stored in `localStorage`, enabling `AuthLayout.jsx` and downstream pages to coordinate refresh and guard logic without relying on TypeScript-only contexts.【F:docs/02-technical-specifications/03-frontend-architecture.md†L96-L139】
 
 - **Security UX:** UI flows integrate security feedback (password strength meter, device trust prompts, session timeout modals) to align user experience with backend governance controls.【F:docs/02-technical-specifications/03-frontend-architecture.md†L143-L160】
 
