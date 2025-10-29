@@ -21,25 +21,31 @@ import { LoginPage } from "@/features/auth/pages/LoginPage";
 function RootLayout() {
   const isAuthenticated = useAuthStatus();
 
-  if (!isAuthenticated) {
-    return (
-      <AuthLayout>
-        <LoginPage />
-      </AuthLayout>
-    );
+  if (isAuthenticated) {
+    return <Navigate to="/home" replace />;
   }
 
-  return <DefaultLayout />;
+  return (
+    <AuthLayout>
+      <LoginPage />
+    </AuthLayout>
+  );
 }
 
-function UnknownRouteHandler() {
+function ProtectedRoute({ children }) {
   const isAuthenticated = useAuthStatus();
 
   if (!isAuthenticated) {
     return <Navigate to="/" replace />;
   }
 
-  return <NotFoundPage />;
+  return children;
+}
+
+function UnknownRouteHandler() {
+  const isAuthenticated = useAuthStatus();
+
+  return isAuthenticated ? <NotFoundPage /> : <Navigate to="/" replace />;
 }
 
 const statusRoutes = [
@@ -75,21 +81,33 @@ export const router = createBrowserRouter([
     path: "/",
     element: <RootLayout />,
     errorElement: <ErrorPage />,
-    children: [
-      { index: true, element: <HomePage /> },
-    ],
   },
   {
-    path: "/health",
-    element: <SinglePageLayout />,
+    element: (
+      <ProtectedRoute>
+        <DefaultLayout />
+      </ProtectedRoute>
+    ),
     errorElement: <ErrorPage />,
-    children: [{ index: true, element: <HealthPage /> }],
+    children: [{ path: "/home", element: <HomePage /> }],
   },
   {
-    path: "/design-system",
-    element: <SinglePageLayout />,
+    element: (
+      <ProtectedRoute>
+        <SinglePageLayout />
+      </ProtectedRoute>
+    ),
     errorElement: <ErrorPage />,
-    children: [{ index: true, element: <DesignSystemPage /> }],
+    children: [{ path: "/health", element: <HealthPage /> }],
+  },
+  {
+    element: (
+      <ProtectedRoute>
+        <SinglePageLayout />
+      </ProtectedRoute>
+    ),
+    errorElement: <ErrorPage />,
+    children: [{ path: "/design-system", element: <DesignSystemPage /> }],
   },
   ...statusRoutes,
   authRoutes,
