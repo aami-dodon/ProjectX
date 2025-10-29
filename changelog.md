@@ -491,3 +491,5 @@
 - Styled Swagger UI by serving `server/src/config/swagger.css` at `/api/docs/swagger.css` and linking it via `customCssUrl` so `/api/docs` uses the selected theme.
 ## 2025-10-29 06:01:40 IST
 - Fixed the rich text editor crash by migrating to the `lowlight@3` API: create an instance via `createLowlight(common)` and pass it to TipTap’s `CodeBlockLowlight` extension to restore code block rendering.
+## 2025-10-29 06:37:00 IST
+- Fixed Rich Text Editor preview styling by adding `@tailwindcss/typography` and enabling `prose` classes so headings (H1–H3), ordered/bulleted lists, blockquotes, and code blocks render correctly in the Design System page.
