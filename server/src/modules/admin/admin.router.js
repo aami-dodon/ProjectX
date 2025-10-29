@@ -23,7 +23,7 @@ router.use(requireRoles('admin'));
  *         name: search
  *         schema:
  *           type: string
- *         description: Optional free text filter that matches against email, full name or tenant ID.
+ *         description: Optional free text filter that matches against email or full name.
  *       - in: query
  *         name: status
  *         schema:

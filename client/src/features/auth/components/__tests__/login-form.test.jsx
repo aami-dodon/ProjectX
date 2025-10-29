@@ -54,7 +54,6 @@ describe('LoginForm', () => {
       id: 'user-1',
       email: 'test@example.com',
       fullName: 'Test User',
-      tenantId: 'tenant-123',
       status: 'ACTIVE',
       emailVerifiedAt: '2024-01-01T00:00:00.000Z',
       lastLoginAt: '2024-01-02T00:00:00.000Z',

@@ -35,7 +35,6 @@ const serializeUser = (user) => ({
   email: user.email,
   fullName: user.fullName,
   avatarObjectName: user.avatarObjectName ?? null,
-  tenantId: user.tenantId,
   status: user.status,
   emailVerifiedAt: user.emailVerifiedAt,
   lastLoginAt: user.lastLoginAt,
@@ -74,7 +73,6 @@ const buildWhereClause = ({ search, status }) => {
       where.OR = [
         { email: { contains: trimmed, mode: 'insensitive' } },
         { fullName: { contains: trimmed, mode: 'insensitive' } },
-        { tenantId: { contains: trimmed, mode: 'insensitive' } },
       ];
     }
   }
@@ -205,21 +203,6 @@ const updateUserAccount = async ({ userId, updates = {}, actorId }) => {
     }
 
     fields.push('fullName');
-  }
-
-  if (Object.prototype.hasOwnProperty.call(updates, 'tenantId')) {
-    const { tenantId } = updates;
-    if (tenantId === null || tenantId === undefined || tenantId === '') {
-      payload.tenantId = null;
-    } else if (typeof tenantId === 'string') {
-      payload.tenantId = tenantId.trim();
-    } else {
-      throw createValidationError('Tenant ID must be a string or null', {
-        field: 'tenantId',
-      });
-    }
-
-    fields.push('tenantId');
   }
 
   if (Object.prototype.hasOwnProperty.call(updates, 'status')) {

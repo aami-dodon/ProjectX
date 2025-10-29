@@ -50,9 +50,6 @@ describe('RegisterForm', () => {
     fireEvent.change(screen.getByLabelText(/full name/i), {
       target: { value: '  Test User  ' },
     })
-    fireEvent.change(screen.getByLabelText(/tenant or organisation/i), {
-      target: { value: '   ' },
-    })
     fireEvent.change(screen.getByLabelText(/^email/i), {
       target: { value: 'NewUser@example.com' },
     })
@@ -71,7 +68,6 @@ describe('RegisterForm', () => {
       email: 'newuser@example.com',
       password: 'super-secure-pass',
       fullName: 'Test User',
-      tenantId: undefined,
     })
     expect(mockToastSuccess).toHaveBeenCalledWith('Account created', {
       description: 'Check your inbox for a verification link before signing in.',

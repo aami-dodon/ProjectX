@@ -104,8 +104,6 @@ router.patch('/me', authenticateRequest, updateCurrentUser);
  *                 minLength: 12
  *               fullName:
  *                 type: string
- *               tenantId:
- *                 type: string
  *     responses:
  *       '201':
  *         description: User created successfully and verification email dispatched.
