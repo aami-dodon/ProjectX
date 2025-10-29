@@ -18,6 +18,7 @@ import {
   IconUsers,
 } from "@tabler/icons-react"
 
+import { useCurrentUser } from "@/features/auth/hooks/use-current-user"
 import { NavDocuments } from "@/shared/components/nav-documents"
 import { NavMain } from "@/shared/components/nav-main"
 import { NavSecondary } from "@/shared/components/nav-secondary"
@@ -32,12 +33,7 @@ import {
   SidebarMenuItem,
 } from "@/shared/components/ui/sidebar"
 
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
+const sidebarData = {
   navMain: [
     {
       title: "Dashboard",
@@ -154,9 +150,33 @@ const data = {
   ],
 }
 
+const fallbackUser = {
+  name: "Acme User",
+  email: "user@example.com",
+  avatar: "/avatars/shadcn.jpg",
+}
+
 export function AppSidebar({
   ...props
 }) {
+  const currentUser = useCurrentUser()
+
+  const user = React.useMemo(() => {
+    if (!currentUser) {
+      return fallbackUser
+    }
+
+    const displayName = currentUser.fullName?.trim()
+      ? currentUser.fullName.trim()
+      : currentUser.email ?? fallbackUser.name
+
+    return {
+      name: displayName,
+      email: currentUser.email ?? fallbackUser.email,
+      avatar: fallbackUser.avatar,
+    }
+  }, [currentUser])
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -172,12 +192,12 @@ export function AppSidebar({
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavMain items={sidebarData.navMain} />
+        <NavDocuments items={sidebarData.documents} />
+        <NavSecondary items={sidebarData.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={user} />
       </SidebarFooter>
     </Sidebar>
   );

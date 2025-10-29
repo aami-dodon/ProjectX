@@ -6,6 +6,7 @@ const mockNavigate = vi.fn()
 const mockToastSuccess = vi.fn()
 const mockToastError = vi.fn()
 const mockApiPost = vi.fn()
+let dispatchEventSpy
 
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom')
@@ -34,6 +35,11 @@ describe('LoginForm', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     window.localStorage.clear()
+    dispatchEventSpy = vi.spyOn(window, 'dispatchEvent')
+  })
+
+  afterEach(() => {
+    dispatchEventSpy?.mockRestore()
   })
 
   const renderLoginForm = () =>
@@ -44,12 +50,27 @@ describe('LoginForm', () => {
     )
 
   it('submits credentials, stores tokens, and navigates on success', async () => {
+    const mockUser = {
+      id: 'user-1',
+      email: 'test@example.com',
+      fullName: 'Test User',
+      tenantId: 'tenant-123',
+      status: 'ACTIVE',
+      emailVerifiedAt: '2024-01-01T00:00:00.000Z',
+      lastLoginAt: '2024-01-02T00:00:00.000Z',
+      mfaEnabled: false,
+      roles: [],
+      createdAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-01T00:00:00.000Z',
+    }
+
     mockApiPost.mockResolvedValue({
       data: {
         accessToken: 'access-token',
         refreshToken: 'refresh-token',
         expiresIn: 3600,
         refreshExpiresAt: '2099-01-01T00:00:00.000Z',
+        user: mockUser,
       },
     })
 
@@ -74,6 +95,12 @@ describe('LoginForm', () => {
     })
     expect(window.localStorage.getItem('accessToken')).toBe('access-token')
     expect(window.localStorage.getItem('refreshToken')).toBe('refresh-token')
+    expect(JSON.parse(window.localStorage.getItem('user') ?? '{}')).toEqual(
+      mockUser,
+    )
+    expect(dispatchEventSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'px:user-updated' }),
+    )
     expect(mockToastSuccess).toHaveBeenCalledWith('Welcome back!', {
       description: 'You have successfully signed in.',
     })
@@ -109,6 +136,8 @@ describe('LoginForm', () => {
     })
     expect(window.localStorage.getItem('accessToken')).toBeNull()
     expect(window.localStorage.getItem('refreshToken')).toBeNull()
+    expect(window.localStorage.getItem('user')).toBeNull()
+    expect(dispatchEventSpy).not.toHaveBeenCalled()
     expect(mockNavigate).not.toHaveBeenCalled()
   })
 

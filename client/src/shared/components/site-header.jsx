@@ -18,6 +18,9 @@ export function SiteHeader() {
     try {
       window.localStorage.removeItem("accessToken")
       window.localStorage.removeItem("refreshToken")
+      window.localStorage.removeItem("user")
+
+      window.dispatchEvent(new Event("px:user-updated"))
 
       toast.success("Signed out", {
         description: "You have been logged out.",
