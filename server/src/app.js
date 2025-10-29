@@ -1,19 +1,24 @@
-require('module-alias/register');
-
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
 const path = require('path');
-const { requestLogger } = require('@/middleware/request-logger');
-const { errorHandler } = require('@/middleware/errorHandler');
+
+// Config & utils
 const { env } = require('@/config/env');
 const { createLogger } = require('@/utils/logger');
 const { setupSwaggerDocs } = require('@/config/swagger');
 
-const logger = createLogger('app');
+// Middleware
+const { requestLogger } = require('@/middleware/request-logger');
+const { errorHandler } = require('@/middleware/errorHandler');
+
+// Routers
 const healthRouter = require('@/modules/health/health.router');
 const authRouter = require('@/modules/auth/auth.router');
 const { router: filesRouter } = require('@/modules/files');
+
+const logger = createLogger('app');
+
 const createApp = () => {
   const app = express();
 
@@ -66,6 +71,4 @@ const createApp = () => {
   return app;
 };
 
-module.exports = {
-  createApp,
-};
+module.exports = { createApp };
