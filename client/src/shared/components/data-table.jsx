@@ -497,6 +497,196 @@ function renderDefaultFooter({
     )
   }
 
+  const sensors = useSensors(
+    useSensor(MouseSensor, {}),
+    useSensor(TouchSensor, {}),
+    useSensor(KeyboardSensor, {})
+  )
+
+  const handleDataChange = React.useCallback(
+    (updater) => {
+      setTableData((previous) => {
+        const nextData =
+          typeof updater === "function" ? updater(previous) : updater ?? previous
+
+        if (nextData !== previous) {
+          onDataChange?.(nextData)
+        }
+
+        return nextData
+      })
+    },
+    [onDataChange]
+  )
+
+  const handleDragEnd = React.useCallback(
+    (event) => {
+      if (!enableRowReorder) {
+        return
+      }
+
+      const { active, over } = event
+      if (!over || active.id === over.id) {
+        return
+      }
+
+      handleDataChange((current) => {
+        const currentIds = current.map((row, index) => resolvedGetRowId(row, index))
+        const oldIndex = currentIds.indexOf(active.id)
+        const newIndex = currentIds.indexOf(over.id)
+
+        if (oldIndex === -1 || newIndex === -1) {
+          return current
+        }
+
+        return arrayMove(current, oldIndex, newIndex)
+      })
+    },
+    [enableRowReorder, handleDataChange, resolvedGetRowId]
+  )
+
+  const refreshButton =
+    typeof onRefresh === "function" ? (
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={onRefresh}
+        disabled={isLoading}>
+        Refresh
+      </Button>
+    ) : null
+
+  const headerNode =
+    typeof renderHeader === "function"
+      ? normalizeHeader(renderHeader({ table, isLoading }))
+      : renderDefaultHeader({
+          title,
+          description,
+          headerActions,
+          refreshButton,
+        })
+
+  const toolbarNode =
+    typeof renderToolbar === "function"
+      ? renderToolbar({ table, isLoading })
+      : toolbar
+      ? <div className="px-4 lg:px-6">{toolbar}</div>
+      : null
+
+  const errorNode = errorMessage ? (
+    <div className="px-4 text-sm text-destructive lg:px-6">{errorMessage}</div>
+  ) : null
+
+  const renderCells = React.useCallback(
+    (row) =>
+      row.getVisibleCells().map((cell) => (
+        <TableCell
+          key={cell.id}
+          className={cn(cell.column.columnDef.meta?.cellClassName)}>
+          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+        </TableCell>
+      )),
+    []
+  )
+
+  const bodyContent = isLoading
+    ? Array.from({ length: skeletonRowCount }).map((_, index) => (
+        <TableRow key={`skeleton-${index}`}>
+          <TableCell colSpan={columnCount}>
+            <Skeleton className="h-6 w-full" />
+          </TableCell>
+        </TableRow>
+      ))
+    : table.getRowModel().rows?.length
+    ? enableRowReorder
+      ? (
+          <SortableContext
+            items={table.getRowModel().rows.map((row) => row.id)}
+            strategy={verticalListSortingStrategy}>
+            {table.getRowModel().rows.map((row) => (
+              <DraggableRow
+                key={row.id}
+                row={row}
+                renderCells={renderCells}
+              />
+            ))}
+          </SortableContext>
+        )
+      : table.getRowModel().rows.map((row) => (
+          <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+            {renderCells(row)}
+          </TableRow>
+        ))
+    : (
+        <TableRow>
+          <TableCell
+            colSpan={columnCount}
+            className="text-center text-sm text-muted-foreground">
+            {emptyMessage}
+          </TableCell>
+        </TableRow>
+      )
+
+  const tableElement = (
+    <Table>
+      <TableHeader className={cn(stickyHeader && "bg-muted sticky top-0 z-10")}>
+        {table.getHeaderGroups().map((headerGroup) => (
+          <TableRow key={headerGroup.id}>
+            {headerGroup.headers.map((header) => {
+              if (header.isPlaceholder) {
+                return <TableHead key={header.id} colSpan={header.colSpan} />
+              }
+
+              return (
+                <TableHead
+                  key={header.id}
+                  colSpan={header.colSpan}
+                  className={cn(header.column.columnDef.meta?.headerClassName)}>
+                  {flexRender(
+                    header.column.columnDef.header,
+                    header.getContext()
+                  )}
+                </TableHead>
+              )
+            })}
+          </TableRow>
+        ))}
+      </TableHeader>
+      <TableBody className={cn(enableRowReorder && "**:data-[slot=table-cell]:first:w-8")}>
+        {bodyContent}
+      </TableBody>
+    </Table>
+  )
+
+  const tableContent = enableRowReorder ? (
+    <DndContext
+      collisionDetection={closestCenter}
+      modifiers={[restrictToVerticalAxis]}
+      onDragEnd={handleDragEnd}
+      sensors={sensors}>
+      {tableElement}
+    </DndContext>
+  ) : (
+    tableElement
+  )
+
+  const footerNode =
+    typeof renderFooter === "function"
+      ? renderFooter({
+          table,
+          enableRowSelection,
+          enablePagination,
+          pageSizeOptions,
+          selectionMessage,
+        })
+      : renderDefaultFooter({
+          table,
+          enableRowSelection,
+          enablePagination,
+          pageSizeOptions,
+          selectionMessage,
+        })
+
   return (
     <div className="flex items-center justify-between px-4 pb-4 lg:px-6">
       {selectionText ? (
