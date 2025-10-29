@@ -6,6 +6,8 @@ const {
   requestPasswordReset,
   resetPassword,
   verifyEmail,
+  getCurrentUserProfile,
+  updateUserProfile,
 } = require('./auth.service');
 const { createLogger } = require('@/utils/logger');
 
@@ -89,6 +91,31 @@ const verifyEmailHandler = async (req, res, next) => {
   }
 };
 
+const getCurrentUser = async (req, res, next) => {
+  try {
+    const user = await getCurrentUserProfile({
+      userId: req.user?.id,
+    });
+    return res.json({ user });
+  } catch (error) {
+    logger.warn('Profile retrieval failed', { error: error.message });
+    return next(error);
+  }
+};
+
+const updateCurrentUser = async (req, res, next) => {
+  try {
+    const user = await updateUserProfile({
+      userId: req.user?.id,
+      profileUpdates: req.body ?? {},
+    });
+    return res.json({ user });
+  } catch (error) {
+    logger.warn('Profile update failed', { error: error.message });
+    return next(error);
+  }
+};
+
 module.exports = {
   forgotPassword,
   login,
@@ -97,4 +124,6 @@ module.exports = {
   register,
   resetPassword: resetPasswordHandler,
   verifyEmail: verifyEmailHandler,
+  getCurrentUser,
+  updateCurrentUser,
 };
