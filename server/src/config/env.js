@@ -49,6 +49,14 @@ const defaults = {
   EMAIL_SMTP_SECURE: 'false',
   EMAIL_SMTP_USER: 'smtp-user',
   EMAIL_SMTP_PASS: 'smtp-pass',
+  AUTH_ACCESS_TOKEN_SECRET: 'dev-access-token-secret-change-me',
+  AUTH_REFRESH_TOKEN_SECRET: 'dev-refresh-token-secret-change-me',
+  AUTH_ACCESS_TOKEN_TTL_SECONDS: '900',
+  AUTH_REFRESH_TOKEN_TTL_SECONDS: '604800',
+  AUTH_PASSWORD_RESET_TOKEN_TTL_MINUTES: '30',
+  AUTH_EMAIL_VERIFICATION_TOKEN_TTL_MINUTES: '1440',
+  AUTH_PASSWORD_SALT_ROUNDS: '12',
+  APP_BASE_URL: 'http://localhost:5173',
   CLIENT_PORT: '5173',
   CLIENT_ALLOWED_HOSTS: 'localhost',
   VITE_API_URL: 'http://localhost:5000/api',
@@ -89,6 +97,33 @@ const EnvSchema = z.object({
   EMAIL_SMTP_SECURE: z.enum(['true', 'false']).transform((value) => value === 'true'),
   EMAIL_SMTP_USER: z.string().min(1, { message: 'EMAIL_SMTP_USER must be defined' }),
   EMAIL_SMTP_PASS: z.string().min(1, { message: 'EMAIL_SMTP_PASS must be defined' }),
+  AUTH_ACCESS_TOKEN_SECRET: z
+    .string()
+    .min(32, { message: 'AUTH_ACCESS_TOKEN_SECRET must be at least 32 characters' }),
+  AUTH_REFRESH_TOKEN_SECRET: z
+    .string()
+    .min(32, { message: 'AUTH_REFRESH_TOKEN_SECRET must be at least 32 characters' }),
+  AUTH_ACCESS_TOKEN_TTL_SECONDS: z
+    .coerce.number({ invalid_type_error: 'AUTH_ACCESS_TOKEN_TTL_SECONDS must be a valid number' })
+    .int()
+    .positive({ message: 'AUTH_ACCESS_TOKEN_TTL_SECONDS must be a positive integer' }),
+  AUTH_REFRESH_TOKEN_TTL_SECONDS: z
+    .coerce.number({ invalid_type_error: 'AUTH_REFRESH_TOKEN_TTL_SECONDS must be a valid number' })
+    .int()
+    .positive({ message: 'AUTH_REFRESH_TOKEN_TTL_SECONDS must be a positive integer' }),
+  AUTH_PASSWORD_RESET_TOKEN_TTL_MINUTES: z
+    .coerce.number({ invalid_type_error: 'AUTH_PASSWORD_RESET_TOKEN_TTL_MINUTES must be a valid number' })
+    .int()
+    .positive({ message: 'AUTH_PASSWORD_RESET_TOKEN_TTL_MINUTES must be a positive integer' }),
+  AUTH_EMAIL_VERIFICATION_TOKEN_TTL_MINUTES: z
+    .coerce.number({ invalid_type_error: 'AUTH_EMAIL_VERIFICATION_TOKEN_TTL_MINUTES must be a valid number' })
+    .int()
+    .positive({ message: 'AUTH_EMAIL_VERIFICATION_TOKEN_TTL_MINUTES must be a positive integer' }),
+  AUTH_PASSWORD_SALT_ROUNDS: z
+    .coerce.number({ invalid_type_error: 'AUTH_PASSWORD_SALT_ROUNDS must be a valid number' })
+    .int()
+    .min(10, { message: 'AUTH_PASSWORD_SALT_ROUNDS must be at least 10' }),
+  APP_BASE_URL: z.string().url({ message: 'APP_BASE_URL must be a valid URL' }),
   CLIENT_PORT: z
     .coerce.number({ invalid_type_error: 'CLIENT_PORT must be a valid number' })
     .int()

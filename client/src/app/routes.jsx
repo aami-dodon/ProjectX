@@ -65,10 +65,10 @@ export const router = createBrowserRouter([
     children: [{ index: true, element: <DesignSystemPage /> }],
   },
   ...statusRoutes,
+  authRoutes,
   {
     path: "*",
     element: <NotFoundPage />,
     errorElement: <ErrorPage />,
   },
-  authRoutes,
 ]);
