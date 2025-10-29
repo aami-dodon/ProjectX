@@ -51,6 +51,18 @@ import {
   TableRow,
 } from "@/shared/components/ui/table"
 import { Skeleton } from "@/shared/components/ui/skeleton"
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/shared/components/ui/drawer"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs"
+import { Separator } from "@/shared/components/ui/separator"
+import { useIsMobile } from "@/shared/hooks/use-mobile"
 import { cn } from "@/shared/lib/utils"
 
 function DraggableRow({
@@ -565,5 +577,207 @@ function renderDefaultFooter({
         </div>
       </div>
     </div>
+  )
+}
+
+function renderSlot(slot, args) {
+  if (!slot) {
+    return null
+  }
+
+  const value = typeof slot === "function" ? slot(args) : slot
+
+  if (value == null || value === false) {
+    return null
+  }
+
+  if (Array.isArray(value)) {
+    return React.Children.toArray(value)
+  }
+
+  return value
+}
+
+export function DataTableRowDrawer({
+  trigger,
+  item,
+  title,
+  description,
+  headerActions,
+  renderView,
+  renderEdit,
+  renderViewFooter,
+  renderEditFooter,
+  viewLabel = "View",
+  editLabel = "Edit",
+  defaultTab,
+  direction,
+  mobileDirection = "bottom",
+  onOpenChange,
+  open,
+  initialOpen = false,
+  contentClassName,
+  headerClassName,
+  tabsWrapperClassName,
+  tabsListClassName,
+  viewContentClassName,
+  editContentClassName,
+  viewFooterClassName,
+  editFooterClassName,
+  ...drawerProps
+}) {
+  const isMobile = useIsMobile()
+  const resolvedDirection = isMobile
+    ? mobileDirection ?? direction ?? "bottom"
+    : direction ?? "right"
+  const [uncontrolledOpen, setUncontrolledOpen] = React.useState(initialOpen)
+  const isControlled = typeof open === "boolean"
+  const openState = isControlled ? open : uncontrolledOpen
+
+  const tabs = React.useMemo(() => {
+    const config = []
+
+    if (renderView) {
+      config.push({ value: "view", label: viewLabel })
+    }
+
+    if (renderEdit) {
+      config.push({ value: "edit", label: editLabel })
+    }
+
+    return config
+  }, [renderEdit, renderView, editLabel, viewLabel])
+
+  const normalizedDefaultTab = React.useMemo(() => {
+    if (defaultTab) {
+      return defaultTab
+    }
+
+    if (renderView) {
+      return "view"
+    }
+
+    if (renderEdit) {
+      return "edit"
+    }
+
+    return "view"
+  }, [defaultTab, renderEdit, renderView])
+
+  const [activeTab, setActiveTab] = React.useState(normalizedDefaultTab)
+
+  React.useEffect(() => {
+    if (!openState) {
+      setActiveTab(normalizedDefaultTab)
+    }
+  }, [normalizedDefaultTab, openState])
+
+  const setOpenState = React.useCallback(
+    (nextOpen) => {
+      if (!isControlled) {
+        setUncontrolledOpen(nextOpen)
+      }
+
+      if (!nextOpen) {
+        setActiveTab(normalizedDefaultTab)
+      }
+
+      onOpenChange?.(nextOpen)
+    },
+    [isControlled, normalizedDefaultTab, onOpenChange]
+  )
+
+  const close = React.useCallback(() => {
+    setOpenState(false)
+  }, [setOpenState])
+
+  const handleOpenChange = React.useCallback(
+    (nextOpen) => {
+      setOpenState(nextOpen)
+    },
+    [setOpenState]
+  )
+
+  const args = React.useMemo(
+    () => ({ item, close, setTab: setActiveTab }),
+    [item, close]
+  )
+
+  if (!renderView && !renderEdit) {
+    return trigger ?? null
+  }
+
+  return (
+    <Drawer
+      open={openState}
+      onOpenChange={handleOpenChange}
+      direction={resolvedDirection}
+      {...drawerProps}>
+      {trigger ? <DrawerTrigger asChild>{trigger}</DrawerTrigger> : null}
+      <DrawerContent className={cn("flex h-full max-h-[80vh] flex-col sm:max-w-xl", contentClassName)}>
+        <DrawerHeader className={cn("gap-1 border-b px-4 py-4 text-left", headerClassName)}>
+          {title ? <DrawerTitle>{renderSlot(title, args)}</DrawerTitle> : null}
+          {description ? (
+            <DrawerDescription>{renderSlot(description, args)}</DrawerDescription>
+          ) : null}
+          {headerActions ? (
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              {renderSlot(headerActions, args)}
+            </div>
+          ) : null}
+        </DrawerHeader>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex h-full flex-1 flex-col">
+          {tabs.length > 1 ? (
+            <div className={cn("border-b px-4 pb-3 pt-3", tabsWrapperClassName)}>
+              <TabsList
+                className={cn(
+                  "bg-muted/70 text-muted-foreground h-9 w-fit items-center justify-start",
+                  tabsListClassName
+                )}>
+                {tabs.map((tab) => (
+                  <TabsTrigger key={tab.value} value={tab.value}>
+                    {tab.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </div>
+          ) : (
+            <Separator />
+          )}
+          {tabs.map((tab) => {
+            const isView = tab.value === "view"
+            const content = renderSlot(isView ? renderView : renderEdit, args)
+            const footer = renderSlot(
+              isView ? renderViewFooter : renderEditFooter,
+              args
+            )
+
+            return (
+              <TabsContent
+                key={tab.value}
+                value={tab.value}
+                className="flex flex-1 flex-col">
+                <div
+                  className={cn(
+                    "flex-1 overflow-y-auto px-4 pb-6 text-sm",
+                    isView ? viewContentClassName : editContentClassName
+                  )}>
+                  {content}
+                </div>
+                {footer ? (
+                  <DrawerFooter
+                    className={cn(
+                      "mt-0 border-t bg-muted/40",
+                      isView ? viewFooterClassName : editFooterClassName
+                    )}>
+                    {footer}
+                  </DrawerFooter>
+                ) : null}
+              </TabsContent>
+            )
+          })}
+        </Tabs>
+      </DrawerContent>
+    </Drawer>
   )
 }

@@ -1,3 +1,5 @@
+## 2025-11-07 13:17:41 IST
+- Unified the shared data table row drawer with consistent view/edit tabs and updated the home outline and user management tables to consume the new UI.
 ## 2025-11-07 13:15:00 IST
 - Documented reuse guidelines for the admin backend module and added the missing module README.
 
