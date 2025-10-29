@@ -12,6 +12,7 @@ import { UnauthorizedPage } from "./pages/UnauthorizedPage";
 import { HomePage } from "@/features/home/pages/HomePage";
 import { DesignSystemPage } from "@/features/design-system";
 import { HealthPage } from "@/features/health";
+import { AccountSettingsPage } from "@/features/account";
 
 import { authRoutes } from "@/features/auth";
 import { AuthLayout } from "@/features/auth/components/AuthLayout";
@@ -76,6 +77,11 @@ const statusRoutes = [
   },
 ];
 
+const defaultLayoutRoutes = [
+  { path: "/home", element: <HomePage /> },
+  { path: "/account", element: <AccountSettingsPage /> },
+];
+
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -89,7 +95,7 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     errorElement: <ErrorPage />,
-    children: [{ path: "/home", element: <HomePage /> }],
+    children: defaultLayoutRoutes,
   },
   {
     element: (
