@@ -3,20 +3,43 @@ import { toast } from "sonner";
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { CardDescription } from "@/shared/components/ui/card";
-import { Checkbox } from "@/shared/components/ui/checkbox";
 import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/shared/components/ui/dropdown-menu";
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
+import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
-import { DataTable, DataTableRowDrawer } from "@/shared/components/data-table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shared/components/ui/select";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/shared/components/ui/drawer";
+import { Skeleton } from "@/shared/components/ui/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/shared/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { cn } from "@/shared/lib/utils";
-import { IconChevronDown, IconLayoutColumns } from "@tabler/icons-react";
+import { IconSearch } from "@tabler/icons-react";
 
 const STATUS_LABELS = {
   ACTIVE: "Active",
@@ -51,6 +74,17 @@ function formatDate(value) {
   }
 }
 
+function DetailRow({ label, children }) {
+  return (
+    <div className="space-y-1">
+      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        {label}
+      </p>
+      <div className="text-sm leading-tight text-foreground">{children}</div>
+    </div>
+  );
+}
+
 function UserEditDrawer({ open, onOpenChange, user, onSubmit, availableRoles = [] }) {
   const [formState, setFormState] = useState({
     fullName: "",
@@ -60,6 +94,7 @@ function UserEditDrawer({ open, onOpenChange, user, onSubmit, availableRoles = [
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [activeTab, setActiveTab] = useState("edit");
 
   const formId = useMemo(
     () => (user?.id ? `user-${user.id}-edit` : "user-edit"),
@@ -72,11 +107,17 @@ function UserEditDrawer({ open, onOpenChange, user, onSubmit, availableRoles = [
         fullName: user.fullName ?? "",
         status: user.status ?? "ACTIVE",
         tenantId: user.tenantId ?? "",
-        roleIds: (user.roles ?? []).map((role) => role.id),
+        roleIds: (user.roles ?? []).map((role) => `${role.id}`),
       });
       setError("");
     }
   }, [user]);
+
+  useEffect(() => {
+    if (!open) {
+      setActiveTab("edit");
+    }
+  }, [open]);
 
   const handleRoleToggle = useCallback((roleId, checked) => {
     setFormState((prev) => {
@@ -131,144 +172,171 @@ function UserEditDrawer({ open, onOpenChange, user, onSubmit, availableRoles = [
     ]
   );
 
+  const handleCancel = useCallback(() => {
+    setError("");
+    onOpenChange(false);
+  }, [onOpenChange]);
+
   return (
-    <DataTableRowDrawer
-      open={open}
-      onOpenChange={onOpenChange}
-      item={user}
-      defaultTab="edit"
-      title="Edit user"
-      description={({ item: current }) =>
-        current?.email ? <CardDescription>{current.email}</CardDescription> : null
-      }
-      renderView={({ item: current }) => (
-        <div className="grid gap-4 text-sm">
-          <div className="space-y-1">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Full name</p>
-            <p className="text-base font-medium">{current?.fullName ?? "—"}</p>
+    <Drawer open={open} onOpenChange={onOpenChange} direction="right">
+      <DrawerContent className="flex h-full max-h-[85vh] w-full flex-col overflow-hidden border-l bg-background shadow-xl sm:max-w-xl">
+        <DrawerHeader className="border-b px-6 py-6 text-left">
+          <DrawerTitle>Edit user</DrawerTitle>
+          {user?.email ? <DrawerDescription>{user.email}</DrawerDescription> : null}
+        </DrawerHeader>
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="flex h-full flex-1 flex-col"
+        >
+          <div className="border-b px-6 py-3">
+            <TabsList className="bg-muted/60 text-muted-foreground h-9 gap-2">
+              <TabsTrigger value="edit">Edit</TabsTrigger>
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+            </TabsList>
           </div>
-          <div className="space-y-1">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Email</p>
-            <p className="font-medium">{current?.email ?? "—"}</p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Status</p>
-            <Badge
-              variant="outline"
-              className={cn("capitalize", STATUS_BADGE_STYLES[current?.status] ?? "")}
-            >
-              {STATUS_LABELS[current?.status] ?? current?.status ?? "—"}
-            </Badge>
-          </div>
-          <div className="space-y-1">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Roles</p>
-            <p className="text-sm text-muted-foreground">
-              {(current?.roles ?? []).map((role) => role.name).join(", ") || "—"}
-            </p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Tenant ID</p>
-            <p className="font-medium">{current?.tenantId || "—"}</p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Last login</p>
-            <p className="font-medium">{formatDate(current?.lastLoginAt)}</p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Verified</p>
-            <p className="font-medium">{current?.emailVerifiedAt ? "Yes" : "No"}</p>
-          </div>
-        </div>
-      )}
-      renderEdit={() => (
-        <form id={formId} onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="fullName">Full name</Label>
-            <Input
-              id="fullName"
-              value={formState.fullName}
-              onChange={(event) => setFormState((prev) => ({ ...prev, fullName: event.target.value }))}
-              placeholder="Enter full name"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="tenantId">Tenant ID</Label>
-            <Input
-              id="tenantId"
-              value={formState.tenantId}
-              onChange={(event) => setFormState((prev) => ({ ...prev, tenantId: event.target.value }))}
-              placeholder="Optional tenant identifier"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="status">Status</Label>
-            <Select
-              value={formState.status}
-              onValueChange={(value) => setFormState((prev) => ({ ...prev, status: value }))}
-            >
-              <SelectTrigger id="status" className="w-full">
-                <SelectValue placeholder="Select status" />
-              </SelectTrigger>
-              <SelectContent>
-                {STATUS_OPTIONS.map((status) => (
-                  <SelectItem key={status} value={status}>
-                    {STATUS_LABELS[status]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label>Roles</Label>
-            <div className="space-y-2 rounded-md border p-3">
-              {availableRoles.length > 0 ? (
-                availableRoles.map((role) => {
-                  const checked = formState.roleIds.includes(role.id);
-                  return (
-                    <label
-                      key={role.id}
-                      htmlFor={`role-${role.id}`}
-                      className="flex items-start gap-2 text-sm"
-                    >
-                      <Checkbox
-                        id={`role-${role.id}`}
-                        checked={checked}
-                        onCheckedChange={(value) => handleRoleToggle(role.id, value === true)}
-                      />
-                      <span className="flex flex-1 flex-col">
-                        <span className="font-medium leading-none">{role.name}</span>
-                        {role.description ? (
-                          <span className="text-xs text-muted-foreground">{role.description}</span>
-                        ) : null}
-                      </span>
-                    </label>
-                  );
-                })
-              ) : (
-                <p className="text-sm text-muted-foreground">No roles available for assignment.</p>
-              )}
+          <TabsContent value="edit" className="flex flex-1 flex-col">
+            <div className="flex-1 overflow-y-auto px-6 py-4">
+              <form id={formId} onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">Full name</Label>
+                  <Input
+                    id="fullName"
+                    value={formState.fullName}
+                    onChange={(event) =>
+                      setFormState((prev) => ({ ...prev, fullName: event.target.value }))
+                    }
+                    placeholder="Enter full name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="tenantId">Tenant ID</Label>
+                  <Input
+                    id="tenantId"
+                    value={formState.tenantId}
+                    onChange={(event) =>
+                      setFormState((prev) => ({ ...prev, tenantId: event.target.value }))
+                    }
+                    placeholder="Optional tenant identifier"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="status">Status</Label>
+                  <Select
+                    value={formState.status}
+                    onValueChange={(value) =>
+                      setFormState((prev) => ({ ...prev, status: value }))
+                    }
+                  >
+                    <SelectTrigger id="status" className="w-full">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {STATUS_OPTIONS.map((status) => (
+                        <SelectItem key={status} value={status}>
+                          {STATUS_LABELS[status]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Roles</Label>
+                  <div className="space-y-2 rounded-md border p-3">
+                    {availableRoles.length > 0 ? (
+                      availableRoles.map((role) => {
+                        const roleId = `${role.id}`;
+                        const checked = formState.roleIds.includes(roleId);
+                        return (
+                          <label
+                            key={roleId}
+                            htmlFor={`role-${roleId}`}
+                            className="flex items-start gap-2 text-sm"
+                          >
+                            <Checkbox
+                              id={`role-${roleId}`}
+                              checked={checked}
+                              onCheckedChange={(value) =>
+                                handleRoleToggle(roleId, value === true)
+                              }
+                            />
+                            <span className="flex flex-1 flex-col">
+                              <span className="font-medium leading-none">{role.name}</span>
+                              {role.description ? (
+                                <span className="text-xs text-muted-foreground">
+                                  {role.description}
+                                </span>
+                              ) : null}
+                            </span>
+                          </label>
+                        );
+                      })
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        No roles available for assignment.
+                      </p>
+                    )}
+                  </div>
+                </div>
+                {error ? <p className="text-sm text-destructive">{error}</p> : null}
+              </form>
             </div>
-          </div>
-          {error ? <p className="text-sm text-destructive">{error}</p> : null}
-        </form>
-      )}
-      renderEditFooter={({ close }) => (
-        <div className="flex w-full items-center justify-between gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => {
-              setError("");
-              close();
-            }}>
-            Cancel
-          </Button>
-          <Button type="submit" form={formId} disabled={submitting}>
-            {submitting ? "Saving…" : "Save changes"}
-          </Button>
-        </div>
-      )}
-    />
+            <DrawerFooter className="border-t px-6 py-4">
+              <div className="flex w-full items-center justify-between gap-2">
+                <Button type="button" variant="ghost" onClick={handleCancel}>
+                  Cancel
+                </Button>
+                <Button type="submit" form={formId} disabled={submitting}>
+                  {submitting ? "Saving…" : "Save changes"}
+                </Button>
+              </div>
+            </DrawerFooter>
+          </TabsContent>
+          <TabsContent value="overview" className="flex flex-1 flex-col">
+            <div className="flex-1 overflow-y-auto px-6 py-4">
+              <div className="grid gap-4 text-sm">
+                <DetailRow label="Full name">{user?.fullName ?? "—"}</DetailRow>
+                <DetailRow label="Email">
+                  <span className="font-mono text-sm">{user?.email ?? "—"}</span>
+                </DetailRow>
+                <DetailRow label="Status">
+                  <Badge
+                    variant="outline"
+                    className={cn("capitalize", STATUS_BADGE_STYLES[user?.status] ?? "")}
+                  >
+                    {STATUS_LABELS[user?.status] ?? user?.status ?? "—"}
+                  </Badge>
+                </DetailRow>
+                <DetailRow label="Roles">
+                  {(user?.roles ?? []).length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {user.roles.map((role) => (
+                        <Badge key={role.id} variant="outline" className="px-2 py-1 text-xs">
+                          {role.name}
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : (
+                    "—"
+                  )}
+                </DetailRow>
+                <DetailRow label="Tenant ID">{user?.tenantId || "—"}</DetailRow>
+                <DetailRow label="Last login">{formatDate(user?.lastLoginAt)}</DetailRow>
+                <DetailRow label="Verified">{user?.emailVerifiedAt ? "Yes" : "No"}</DetailRow>
+              </div>
+            </div>
+            <DrawerFooter className="border-t px-6 py-4">
+              <div className="flex w-full items-center justify-between gap-2">
+                <Button type="button" variant="outline" onClick={handleCancel}>
+                  Close
+                </Button>
+                <Button type="button" onClick={() => setActiveTab("edit")}>Edit user</Button>
+              </div>
+            </DrawerFooter>
+          </TabsContent>
+        </Tabs>
+      </DrawerContent>
+    </Drawer>
   );
 }
 
@@ -282,80 +350,14 @@ export function UserTable({
 }) {
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [roleFilter, setRoleFilter] = useState("all");
 
   const handleEdit = useCallback((userId) => {
     setSelectedUserId(userId);
     setDrawerOpen(true);
   }, []);
-
-  const columns = useMemo(
-    () => [
-      {
-        accessorKey: "fullName",
-        header: "Name",
-        cell: ({ row }) => <div className="font-medium">{row.original.fullName ?? "—"}</div>,
-      },
-      {
-        accessorKey: "email",
-        header: "Email",
-        cell: ({ row }) => <span className="font-mono text-sm">{row.original.email}</span>,
-      },
-      {
-        accessorKey: "status",
-        header: "Status",
-        cell: ({ row }) => (
-          <Badge
-            variant="outline"
-            className={cn("capitalize", STATUS_BADGE_STYLES[row.original.status] ?? "")}
-          >
-            {STATUS_LABELS[row.original.status] ?? row.original.status}
-          </Badge>
-        ),
-      },
-      {
-        id: "roles",
-        header: "Roles",
-        cell: ({ row }) => (
-          <p className="max-w-[220px] truncate text-sm text-muted-foreground">
-            {(row.original.roles ?? []).map((role) => role.name).join(", ") || "—"}
-          </p>
-        ),
-      },
-      {
-        accessorKey: "lastLoginAt",
-        header: "Last login",
-        cell: ({ row }) => <span className="text-sm">{formatDate(row.original.lastLoginAt)}</span>,
-      },
-      {
-        id: "verified",
-        header: "Verified",
-        cell: ({ row }) =>
-          row.original.emailVerifiedAt ? (
-            <Badge variant="secondary">Yes</Badge>
-          ) : (
-            <Badge variant="outline">No</Badge>
-          ),
-      },
-      {
-        id: "actions",
-        header: () => null,
-        enableSorting: false,
-        enableHiding: false,
-        meta: {
-          headerClassName: "w-0",
-          cellClassName: "text-right",
-        },
-        cell: ({ row }) => (
-          <div className="flex justify-end">
-            <Button size="sm" variant="ghost" onClick={() => handleEdit(row.original.id)}>
-              Edit
-            </Button>
-          </div>
-        ),
-      },
-    ],
-    [handleEdit]
-  );
 
   const closeDrawer = useCallback(
     (open) => {
@@ -367,76 +369,290 @@ export function UserTable({
     []
   );
 
-  const selectedUser = useMemo(() => users.find((user) => user.id === selectedUserId) ?? null, [
-    selectedUserId,
-    users,
-  ]);
+  const normalizedRoles = useMemo(
+    () => availableRoles.map((role) => ({ ...role, id: `${role.id}` })),
+    [availableRoles]
+  );
+
+  const filtersApplied = useMemo(() => {
+    return (
+      searchTerm.trim() !== "" || statusFilter !== "all" || roleFilter !== "all"
+    );
+  }, [searchTerm, statusFilter, roleFilter]);
+
+  const filteredUsers = useMemo(() => {
+    return users.filter((user) => {
+      const matchesSearch = searchTerm.trim()
+        ? [user.fullName, user.email, user.tenantId]
+            .filter(Boolean)
+            .some((value) =>
+              value.toLowerCase().includes(searchTerm.trim().toLowerCase())
+            )
+        : true;
+
+      const matchesStatus =
+        statusFilter === "all" ? true : user.status === statusFilter;
+
+      const matchesRole =
+        roleFilter === "all"
+          ? true
+          : (user.roles ?? []).some((role) => `${role.id}` === roleFilter);
+
+      return matchesSearch && matchesStatus && matchesRole;
+    });
+  }, [users, searchTerm, statusFilter, roleFilter]);
+
+  const errorMessage = typeof error === "string" ? error : error?.message;
+
+  const selectedUser = useMemo(
+    () => users.find((user) => user.id === selectedUserId) ?? null,
+    [selectedUserId, users]
+  );
 
   return (
     <>
-      <DataTable
-        columns={columns}
-        data={users}
-        isLoading={isLoading}
-        error={error}
-        emptyMessage="No users found"
-        getRowId={(row) => row.id}
-        className="px-4 lg:px-6"
-        stickyHeader
-        renderHeader={({ table }) => ({
-          leading: (
-            <div className="space-y-1">
-              <h2 className="text-lg font-semibold leading-tight">User management</h2>
-              <p className="text-sm text-muted-foreground">
-                Review and edit account information
-              </p>
+      <Card className="overflow-hidden border">
+        <CardHeader className="flex flex-col gap-4 border-b px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <CardTitle className="text-lg font-semibold leading-tight">
+              User management
+            </CardTitle>
+            <CardDescription>Review and edit account information</CardDescription>
+          </div>
+          <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
+            <Badge variant="outline" className="bg-muted/60 text-xs font-medium">
+              {filteredUsers.length} of {users.length} users
+            </Badge>
+            {onRefresh ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onRefresh}
+                disabled={isLoading}
+              >
+                Refresh
+              </Button>
+            ) : null}
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4 px-6 py-5">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+            <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-end">
+              <div className="w-full sm:max-w-xs">
+                <Label htmlFor="user-search" className="sr-only">
+                  Search users
+                </Label>
+                <div className="relative">
+                  <IconSearch className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2" />
+                  <Input
+                    id="user-search"
+                    placeholder="Search by name, email, or tenant"
+                    value={searchTerm}
+                    onChange={(event) => setSearchTerm(event.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+                <div className="sm:w-48">
+                  <Label htmlFor="status-filter" className="sr-only">
+                    Filter by status
+                  </Label>
+                  <Select
+                    value={statusFilter}
+                    onValueChange={setStatusFilter}
+                  >
+                    <SelectTrigger id="status-filter" className="w-full">
+                      <SelectValue placeholder="All statuses" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All statuses</SelectItem>
+                      {STATUS_OPTIONS.map((status) => (
+                        <SelectItem key={status} value={status}>
+                          {STATUS_LABELS[status]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="sm:w-48">
+                  <Label htmlFor="role-filter" className="sr-only">
+                    Filter by role
+                  </Label>
+                  <Select
+                    value={roleFilter}
+                    onValueChange={setRoleFilter}
+                  >
+                    <SelectTrigger id="role-filter" className="w-full">
+                      <SelectValue placeholder="All roles" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All roles</SelectItem>
+                      {normalizedRoles.map((role) => (
+                        <SelectItem key={role.id} value={role.id}>
+                          {role.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </div>
-          ),
-          trailing: (
             <div className="flex items-center gap-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <IconLayoutColumns />
-                    <span className="hidden lg:inline">Customize Columns</span>
-                    <span className="lg:hidden">Columns</span>
-                    <IconChevronDown />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  {table
-                    .getAllColumns()
-                    .filter(
-                      (column) =>
-                        typeof column.accessorFn !== "undefined" &&
-                        column.getCanHide()
-                    )
-                    .map((column) => (
-                      <DropdownMenuCheckboxItem
-                        key={column.id}
-                        className="capitalize"
-                        checked={column.getIsVisible()}
-                        onCheckedChange={(value) =>
-                          column.toggleVisibility(!!value)
-                        }>
-                        {column.id}
-                      </DropdownMenuCheckboxItem>
-                    ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-              {onRefresh ? (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={onRefresh}
-                  disabled={isLoading}>
-                  Refresh
-                </Button>
-              ) : null}
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSearchTerm("");
+                  setStatusFilter("all");
+                  setRoleFilter("all");
+                }}
+                disabled={!filtersApplied}
+              >
+                Clear filters
+              </Button>
             </div>
-          ),
-        })}
-      />
+          </div>
+
+          {errorMessage ? (
+            <div className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+              {errorMessage}
+            </div>
+          ) : null}
+
+          <div className="overflow-hidden rounded-lg border">
+            <Table>
+              <TableHeader className="bg-muted/60">
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Roles</TableHead>
+                  <TableHead>Last login</TableHead>
+                  <TableHead>Verified</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {isLoading
+                  ? Array.from({ length: 5 }).map((_, index) => (
+                      <TableRow key={`skeleton-${index}`}>
+                        <TableCell>
+                          <div className="flex flex-col gap-2">
+                            <Skeleton className="h-4 w-32" />
+                            <Skeleton className="h-3 w-24" />
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-4 w-40" />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-6 w-20" />
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            <Skeleton className="h-6 w-16" />
+                            <Skeleton className="h-6 w-16" />
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-4 w-24" />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-4 w-12" />
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Skeleton className="ml-auto h-8 w-16" />
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  : null}
+
+                {!isLoading && filteredUsers.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={7}
+                      className="h-24 text-center text-sm text-muted-foreground"
+                    >
+                      {filtersApplied
+                        ? "No users match your filters."
+                        : "No users found."}
+                    </TableCell>
+                  </TableRow>
+                ) : null}
+
+                {!isLoading
+                  ? filteredUsers.map((user) => (
+                      <TableRow key={user.id} className="hover:bg-muted/50">
+                        <TableCell>
+                          <div className="flex flex-col gap-1">
+                            <span className="font-medium text-foreground">
+                              {user.fullName ?? "—"}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {user.tenantId ? `Tenant • ${user.tenantId}` : "No tenant"}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <span className="font-mono text-sm">{user.email}</span>
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant="outline"
+                            className={cn(
+                              "capitalize",
+                              STATUS_BADGE_STYLES[user.status] ?? ""
+                            )}
+                          >
+                            {STATUS_LABELS[user.status] ?? user.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {(user.roles ?? []).length > 0 ? (
+                            <div className="flex max-w-[260px] flex-wrap gap-2">
+                              {user.roles.map((role) => (
+                                <Badge
+                                  key={role.id}
+                                  variant="outline"
+                                  className="rounded-full px-2 py-1 text-xs"
+                                >
+                                  {role.name}
+                                </Badge>
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="text-sm text-muted-foreground">—</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-sm">{formatDate(user.lastLoginAt)}</span>
+                        </TableCell>
+                        <TableCell>
+                          {user.emailVerifiedAt ? (
+                            <Badge variant="secondary">Yes</Badge>
+                          ) : (
+                            <Badge variant="outline">No</Badge>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleEdit(user.id)}
+                          >
+                            Edit
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  : null}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
       <UserEditDrawer
         open={drawerOpen}
         onOpenChange={closeDrawer}
