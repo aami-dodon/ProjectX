@@ -111,10 +111,6 @@ export function NavUser({
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <IconCreditCard />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
                 <IconNotification />
                 Notifications
               </DropdownMenuItem>
