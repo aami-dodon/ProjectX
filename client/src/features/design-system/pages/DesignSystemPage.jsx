@@ -55,6 +55,7 @@ import {
   TooltipTrigger,
 } from "@/shared/components/ui/tooltip";
 import { TextEditor } from "@/shared/components/text-editor";
+import { ModeToggle } from "@/components/mode-toggle";
 
 const baseColorTokens = [
   "background",
@@ -644,9 +645,12 @@ export function DesignSystemPage() {
               Central reference for typography, colors, and reusable interface components powering the client.
             </p>
           </div>
-          <Badge variant="secondary" className="text-xs font-medium">
-            Updated {new Date().toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="text-xs font-medium">
+              Updated {new Date().toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
+            </Badge>
+            <ModeToggle />
+          </div>
         </div>
         <p className="text-xs text-muted-foreground">
           This page mirrors the single page layout used by system health and surfaces every shared component with example variants.

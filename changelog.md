@@ -1,3 +1,6 @@
+## 2025-11-05 06:30:00 IST
+- Added the theme mode toggle to the health dashboard and design system reference so operators can switch appearance modes from either page.
+
 ## 2025-11-05 05:45:00 IST
 - Added shared ESLint and Prettier workflows for the client and server, including CI checks to block merges on lint or formatting errors.
 ## 2025-10-29 05:31:06 IST
