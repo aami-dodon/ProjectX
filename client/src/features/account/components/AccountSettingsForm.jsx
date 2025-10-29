@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { useCurrentUser } from "@/features/auth/hooks/use-current-user";
+import { apiClient } from "@/shared/lib/client";
 import {
   Avatar,
   AvatarFallback,
@@ -28,23 +29,27 @@ import { cn } from "@/shared/lib/utils";
 const DEFAULT_AVATAR = "/avatars/shadcn.jpg";
 
 function getInitials(name = "") {
-  if (!name.trim()) {
+  if (!name) {
     return "PX";
   }
 
-  const parts = name
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2);
-
-  if (!parts.length) {
+  const trimmed = name.trim();
+  if (!trimmed) {
     return "PX";
   }
 
-  return parts
+  const parts = trimmed.split(/\s+/).filter(Boolean);
+
+  if (parts.length === 1) {
+    return parts[0][0]?.toUpperCase() ?? "PX";
+  }
+
+  const initials = parts
+    .slice(0, 2)
     .map((part) => part[0]?.toUpperCase() ?? "")
     .join("");
+
+  return initials || "PX";
 }
 
 export function AccountSettingsForm({ className, ...props }) {
@@ -52,39 +57,91 @@ export function AccountSettingsForm({ className, ...props }) {
   const [formState, setFormState] = useState({
     fullName: "",
     email: "",
-    avatarPreview: "",
+    avatarObjectName: null,
   });
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState("");
   const [formErrors, setFormErrors] = useState({});
   const [isSaving, setIsSaving] = useState(false);
 
-  const avatarSource = useMemo(() => {
-    if (formState.avatarPreview) {
-      return formState.avatarPreview;
+  const revokePreview = useCallback((previewUrl) => {
+    if (
+      previewUrl &&
+      typeof URL !== "undefined" &&
+      typeof URL.revokeObjectURL === "function"
+    ) {
+      try {
+        URL.revokeObjectURL(previewUrl);
+      } catch (error) {
+        console.warn("Failed to revoke avatar preview URL", error);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return undefined;
     }
 
-    if (currentUser?.avatar) {
-      return currentUser.avatar;
+    const hasAccessToken = Boolean(window.localStorage.getItem("accessToken"));
+    if (!hasAccessToken) {
+      return undefined;
+    }
+
+    let isMounted = true;
+
+    async function refreshProfile() {
+      try {
+        const { data } = await apiClient.get("/api/auth/me");
+        if (!isMounted) {
+          return;
+        }
+
+        if (data?.user) {
+          window.localStorage.setItem("user", JSON.stringify(data.user));
+          window.dispatchEvent(new Event("px:user-updated"));
+        }
+      } catch (error) {
+        console.error("Failed to refresh account profile", error);
+      }
+    }
+
+    refreshProfile();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => () => revokePreview(avatarPreview), [avatarPreview, revokePreview]);
+
+  useEffect(() => {
+    setFormState({
+      fullName: currentUser?.fullName ?? "",
+      email: currentUser?.email ?? "",
+      avatarObjectName: currentUser?.avatarObjectName ?? null,
+    });
+    setFormErrors({});
+    setAvatarFile(null);
+    setAvatarPreview((previous) => {
+      if (previous) {
+        revokePreview(previous);
+      }
+      return "";
+    });
+  }, [currentUser?.avatarObjectName, currentUser?.email, currentUser?.fullName, revokePreview]);
+
+  const avatarSource = useMemo(() => {
+    if (avatarPreview) {
+      return avatarPreview;
+    }
+
+    if (currentUser?.avatarUrl) {
+      return currentUser.avatarUrl;
     }
 
     return DEFAULT_AVATAR;
-  }, [currentUser?.avatar, formState.avatarPreview]);
-
-  useEffect(() => {
-    if (!currentUser) {
-      setFormState({
-        fullName: "",
-        email: "",
-        avatarPreview: "",
-      });
-      return;
-    }
-
-    setFormState({
-      fullName: currentUser.fullName ?? "",
-      email: currentUser.email ?? "",
-      avatarPreview: "",
-    });
-  }, [currentUser]);
+  }, [avatarPreview, currentUser?.avatarUrl]);
 
   const handleFieldChange = useCallback((event) => {
     const { name, value } = event.target;
@@ -92,39 +149,47 @@ export function AccountSettingsForm({ className, ...props }) {
     setFormErrors((prev) => ({ ...prev, [name]: undefined }));
   }, []);
 
-  const handleAvatarChange = useCallback((event) => {
-    const file = event.target.files?.[0];
-    if (!file) {
-      return;
-    }
+  const handleAvatarChange = useCallback(
+    (event) => {
+      const file = event.target.files?.[0];
+      if (!file) {
+        return;
+      }
 
-    if (!file.type.startsWith("image/")) {
-      setFormErrors((prev) => ({
-        ...prev,
-        avatar: "Please choose an image file.",
-      }));
-      return;
-    }
+      if (!file.type.startsWith("image/")) {
+        setFormErrors((prev) => ({
+          ...prev,
+          avatar: "Please choose an image file.",
+        }));
+        setAvatarFile(null);
+        setAvatarPreview((previous) => {
+          if (previous) {
+            revokePreview(previous);
+          }
+          return "";
+        });
+        return;
+      }
 
-    const reader = new FileReader();
-    reader.addEventListener("load", () => {
-      setFormState((prev) => ({
-        ...prev,
-        avatarPreview: typeof reader.result === "string" ? reader.result : "",
-      }));
+      let previewUrl = "";
+      if (typeof URL !== "undefined" && typeof URL.createObjectURL === "function") {
+        previewUrl = URL.createObjectURL(file);
+      }
+
+      setAvatarFile(file);
+      setAvatarPreview((previous) => {
+        if (previous) {
+          revokePreview(previous);
+        }
+        return previewUrl;
+      });
       setFormErrors((prev) => ({ ...prev, avatar: undefined }));
-    });
-    reader.addEventListener("error", () => {
-      setFormErrors((prev) => ({
-        ...prev,
-        avatar: "We couldn't read that file. Please try a different image.",
-      }));
-    });
-    reader.readAsDataURL(file);
-  }, []);
+    },
+    [revokePreview]
+  );
 
   const handleSubmit = useCallback(
-    (event) => {
+    async (event) => {
       event.preventDefault();
 
       const sanitizedEmail = formState.email.trim().toLowerCase();
@@ -145,56 +210,113 @@ export function AccountSettingsForm({ className, ...props }) {
       setIsSaving(true);
       setFormErrors({});
 
-      if (typeof window === "undefined") {
-        toast.error("Update failed", {
-          description: "We couldn't save your changes. Please try again.",
-        });
-        setIsSaving(false);
-        return;
-      }
+      let uploadedObjectName = null;
 
-      const baseUser = currentUser ? { ...currentUser } : {};
-      const updatedUser = {
-        ...baseUser,
-        email: sanitizedEmail,
-        fullName: sanitizedName || null,
-      };
+      if (avatarFile) {
+        try {
+          const { data: uploadData } = await apiClient.get("/api/files/upload-url", {
+            params: {
+              filename: avatarFile.name,
+              mimeType: avatarFile.type,
+            },
+          });
 
-      if (formState.avatarPreview) {
-        updatedUser.avatar = formState.avatarPreview;
-      } else if (!baseUser.avatar) {
-        updatedUser.avatar = DEFAULT_AVATAR;
+          const response = await fetch(uploadData.uploadUrl, {
+            method: "PUT",
+            headers: {
+              "Content-Type": avatarFile.type || "application/octet-stream",
+            },
+            body: avatarFile,
+          });
+
+          if (!response.ok) {
+            throw new Error(`Upload failed with status ${response.status}`);
+          }
+
+          uploadedObjectName = uploadData.objectName;
+        } catch (error) {
+          console.error("Failed to upload avatar image", error);
+          toast.error("Avatar upload failed", {
+            description: error?.message ?? "We couldn't upload your avatar. Please try again.",
+          });
+          setFormErrors((prev) => ({
+            ...prev,
+            avatar: "We couldn't upload your avatar. Please try again.",
+          }));
+          setIsSaving(false);
+          return;
+        }
       }
 
       try {
-        window.localStorage.setItem("user", JSON.stringify(updatedUser));
-        window.dispatchEvent(new Event("px:user-updated"));
+        const payload = {
+          fullName: sanitizedName ? sanitizedName : null,
+          email: sanitizedEmail,
+        };
+
+        if (uploadedObjectName) {
+          payload.avatarObjectName = uploadedObjectName;
+        }
+
+        const { data } = await apiClient.patch("/api/auth/me", payload);
+        const updatedUser = data?.user;
+
+        if (updatedUser) {
+          try {
+            window.localStorage.setItem("user", JSON.stringify(updatedUser));
+            window.dispatchEvent(new Event("px:user-updated"));
+          } catch (storageError) {
+            console.error("Unable to persist updated user", storageError);
+          }
+
+          setFormState({
+            fullName: updatedUser.fullName ?? "",
+            email: updatedUser.email ?? sanitizedEmail,
+            avatarObjectName: updatedUser.avatarObjectName ?? null,
+          });
+          setAvatarFile(null);
+          setAvatarPreview((previous) => {
+            if (previous) {
+              revokePreview(previous);
+            }
+            return "";
+          });
+        }
+
         toast.success("Account updated", {
           description: "Your account settings have been saved.",
         });
-        setFormState((prev) => ({ ...prev, avatarPreview: "" }));
       } catch (error) {
-        console.error("Failed to persist updated profile", error);
+        console.error("Failed to update account settings", error);
+        const message = error?.message ?? "We couldn't save your changes. Please try again.";
+        const field = error?.data?.error?.details?.field;
+
+        if (field) {
+          const fieldKey = field === "avatarObjectName" ? "avatar" : field;
+          setFormErrors((prev) => ({
+            ...prev,
+            [fieldKey]: message,
+          }));
+        }
+
         toast.error("Update failed", {
-          description: "We couldn't save your changes. Please try again.",
+          description: message,
         });
       } finally {
         setIsSaving(false);
       }
     },
-    [currentUser, formState.avatarPreview, formState.email, formState.fullName]
+    [avatarFile, formState.email, formState.fullName, revokePreview]
   );
 
   const initials = useMemo(() => {
-    const sourceName = formState.fullName || currentUser?.fullName || currentUser?.email;
+    const sourceName =
+      formState.fullName || currentUser?.fullName || currentUser?.email || "";
     return getInitials(sourceName);
   }, [currentUser?.email, currentUser?.fullName, formState.fullName]);
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className={cn("space-y-6", className)}
-      {...props}>
+    <form onSubmit={handleSubmit} className={cn("space-y-6", className)} {...props}>
       <Card>
         <CardHeader>
           <CardTitle>Account settings</CardTitle>

@@ -1,3 +1,9 @@
+## 2025-11-06 19:05:00 IST
+- Standardised presigned download links to reuse the configured MinIO expiry (one hour by default) and documented the behaviour.
+## 2025-11-06 18:20:00 IST
+- Wired the account settings page to the authenticated profile APIs, uploading avatars through MinIO and persisting email/name updates on the server with refreshed sidebar avatars.
+## 2025-11-06 15:55:00 IST
+- Added an account settings page with profile editing and avatar uploads, linked from the sidebar Account menu for quick self-service updates.
 ## 2025-11-06 15:55:00 IST
 - Added an account settings page with profile editing and avatar uploads, linked from the sidebar Account menu for quick self-service updates.
 ## 2025-11-06 16:00:00 IST

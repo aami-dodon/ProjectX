@@ -171,8 +171,8 @@ export function AppSidebar({
       : currentUser.email ?? fallbackUser.name
 
     const avatar =
-      typeof currentUser.avatar === "string" && currentUser.avatar
-        ? currentUser.avatar
+      typeof currentUser.avatarUrl === "string" && currentUser.avatarUrl
+        ? currentUser.avatarUrl
         : fallbackUser.avatar
 
     return {

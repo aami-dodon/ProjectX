@@ -23,8 +23,9 @@ const { router: fileRouter, fileService } = require('@/modules/files');
 
 1. **Generating upload slots from another module** – call `fileService.createUploadSlot(userId,
    filename, mimeType)` to get a presigned PUT URL and the resulting object key.
-2. **Issuing download links** – call `fileService.getFileAccessLink(objectName, userId)` to produce a
-   time-bound GET URL after verifying the caller owns the object prefix.
+2. **Issuing download links** – call `fileService.getFileAccessLink(objectName, userId, expirySeconds?)` to produce a
+   time-bound GET URL after verifying the caller owns the object prefix. When omitted, the link duration defaults to the
+   `MINIO_PRESIGNED_URL_EXPIRATION_SECONDS` environment value (one hour by default).
 3. **Classifying file types** – reuse `fileService.classifyFile(mimeType)` to validate MIME types and
    map them to storage buckets when you need the same rules outside the router.
 
