@@ -1,6 +1,6 @@
 import { useSearchParams } from "react-router-dom"
 
-import { VerifyPasswordForm } from "@/components/verify-password-form"
+import { VerifyPasswordForm } from "../components/verify-password-form"
 
 export function VerifyPasswordPage() {
   const [params] = useSearchParams()
