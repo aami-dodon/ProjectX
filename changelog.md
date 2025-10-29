@@ -1,3 +1,6 @@
+## 2025-11-05 10:15:00 IST
+- Added the initial Prisma migration to create auth and health tables so the API can provision its database schema reliably.
+
 ## 2025-11-05 09:45:00 IST
 - Implemented the full user management system across the API and React client, including JWT authentication, session rotation, password reset flows, verification emails, and refreshed auth layouts with actionable feedback and toasts.
 

@@ -1,0 +1,2 @@
+# This file was created manually to lock the Prisma migration provider.
+provider = "postgresql"
