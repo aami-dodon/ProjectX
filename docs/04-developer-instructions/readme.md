@@ -37,7 +37,7 @@
 | `client/` | Vite + React 19 SPA. Routing and layouts live under `src/app`, feature modules under `src/features`, and reusable primitives under `src/shared`. |
 | `client/src/shared/lib` | Shared browser utilities including the configured Axios instance (`client.js`), logger helpers, and class name utilities. |
 | `server/` | Express 4 API backed by Prisma. `src/index.js` bootstraps the app via `src/app.js`, wiring middleware, routers, and graceful shutdown. |
-| `server/src/modules/*` | Feature modules (email, health diagnostics, uploads) split into `router`, `controller`, and `service` layers with repositories when needed. |
+| `server/src/modules/*` | Feature modules (auth, health diagnostics) split into `router`, `controller`, and `service` layers with repositories when needed. |
 | `server/src/integrations` | Prisma client factory, MinIO helpers, and Nodemailer transport configuration. |
 | `server/src/config` | Environment validation (`env.js`), Swagger setup, and shared assets (favicon, stylesheet) for API docs. |
 | `docs/` | Authoritative documentation hub. Update the relevant collection whenever you add or modify features. |

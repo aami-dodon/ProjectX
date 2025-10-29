@@ -1,3 +1,6 @@
+## 2025-11-05 18:45:00 IST
+- Removed the MinIO upload diagnostic route and health dashboard tester so the stack no longer exposes the `/api/upload/test` endpoint.
+
 ## 2025-11-05 17:30:00 IST
 - Retired the standalone email module and test diagnostics so all SMTP traffic flows through the mailer integration and the health dashboard no longer links to the removed endpoint.
 

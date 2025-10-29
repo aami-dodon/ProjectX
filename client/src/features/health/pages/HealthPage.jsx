@@ -6,7 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/sha
 import { Skeleton } from "@/shared/components/ui/skeleton";
 
 import { HealthStatusCard } from "../components/HealthStatusCard";
-import { MinioUploadTester } from "../components/MinioUploadTester";
 import { StatusBadge } from "../components/StatusBadge";
 import { useClientRuntimeMetrics } from "../hooks/useClientRuntimeMetrics";
 import { useHealthStatus } from "../hooks/useHealthStatus";
@@ -383,9 +382,6 @@ export function HealthPage() {
       </>
     ) : null}
 
-      <div className="grid gap-6">
-        <MinioUploadTester />
-      </div>
     </div>
   );
 }
