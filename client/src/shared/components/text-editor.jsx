@@ -1,11 +1,19 @@
 import { useEffect, useMemo } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
+import { mergeAttributes } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
 import Placeholder from "@tiptap/extension-placeholder";
 import Highlight from "@tiptap/extension-highlight";
+import Heading from "@tiptap/extension-heading";
+import Paragraph from "@tiptap/extension-paragraph";
+import BulletList from "@tiptap/extension-bullet-list";
+import OrderedList from "@tiptap/extension-ordered-list";
+import Blockquote from "@tiptap/extension-blockquote";
+import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import { lowlight } from "lowlight";
 import {
   Bold,
   Italic,
@@ -40,13 +48,84 @@ import {
 import { Separator } from "@/shared/components/ui/separator";
 import { cn } from "@/shared/lib/utils";
 
+const StyledHeading = Heading.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      class: {
+        default: null,
+      },
+    };
+  },
+  renderHTML({ node, HTMLAttributes }) {
+    const level = node.attrs.level;
+    const className =
+      level === 1
+        ? "text-4xl font-bold text-primary dark:text-primary"
+        : level === 2
+          ? "text-2xl font-semibold text-primary dark:text-primary"
+          : "text-xl font-medium text-primary dark:text-primary";
+
+    return [
+      `h${level}`,
+      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
+        class: className,
+      }),
+    ];
+  },
+});
+
+const StyledParagraph = Paragraph.configure({
+  HTMLAttributes: {
+    class: "text-base text-foreground dark:text-foreground",
+  },
+});
+
+const StyledBulletList = BulletList.configure({
+  HTMLAttributes: {
+    class: "list-disc pl-6 text-foreground dark:text-foreground",
+  },
+});
+
+const StyledOrderedList = OrderedList.configure({
+  HTMLAttributes: {
+    class: "list-decimal pl-6 text-foreground dark:text-foreground",
+  },
+});
+
+const StyledBlockquote = Blockquote.configure({
+  HTMLAttributes: {
+    class:
+      "border-l-4 border-muted-foreground dark:border-muted-foreground pl-4 italic text-muted-foreground dark:text-muted-foreground",
+  },
+});
+
+const StyledCodeBlock = CodeBlockLowlight.configure({
+  lowlight,
+  HTMLAttributes: {
+    class:
+      "bg-muted dark:bg-zinc-900 text-sm font-mono text-foreground dark:text-zinc-100 p-3 rounded-md block overflow-x-auto",
+  },
+});
+
 function createDefaultExtensions(placeholder) {
   return [
     StarterKit.configure({
-      heading: {
-        levels: [1, 2, 3],
-      },
+      heading: false,
+      paragraph: false,
+      bulletList: false,
+      orderedList: false,
+      blockquote: false,
+      codeBlock: false,
     }),
+    StyledHeading.configure({
+      levels: [1, 2, 3],
+    }),
+    StyledParagraph,
+    StyledBulletList,
+    StyledOrderedList,
+    StyledBlockquote,
+    StyledCodeBlock,
     Underline,
     Highlight,
     Link.configure({
