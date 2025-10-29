@@ -1,3 +1,6 @@
+## 2025-10-29 23:52:42 IST
+- Matched the admin user management table UI to the shared outline data table, reusing the drawer and layout for consistency.
+
 ## 2025-10-30 04:31:36 IST
 - Blocked suspended or inactive accounts from authenticating API requests and added middleware coverage for the guard.
 
