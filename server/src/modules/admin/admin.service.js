@@ -242,13 +242,18 @@ const updateUserAccount = async ({ userId, updates = {}, actorId }) => {
       });
     }
 
+    const invalidRoleId = updates.roleIds.find(
+      (roleId) => typeof roleId !== 'string' || roleId.trim().length === 0
+    );
+
+    if (invalidRoleId !== undefined) {
+      throw createValidationError('All role IDs must be non-empty strings', {
+        field: 'roleIds',
+      });
+    }
+
     const normalizedRoleIds = Array.from(
-      new Set(
-        updates.roleIds
-          .filter((roleId) => typeof roleId === 'string')
-          .map((roleId) => roleId.trim())
-          .filter((roleId) => roleId.length > 0)
-      )
+      new Set(updates.roleIds.map((roleId) => roleId.trim()))
     );
 
     const existingUser = await findUserById(userId);
