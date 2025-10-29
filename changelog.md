@@ -1,3 +1,5 @@
+## 2025-11-06 15:55:00 IST
+- Added an account settings page with profile editing and avatar uploads, linked from the sidebar Account menu for quick self-service updates.
 ## 2025-11-06 16:00:00 IST
 - Moved the logout action from the dashboard header into the sidebar profile menu so sign-out sits alongside account controls.
 
