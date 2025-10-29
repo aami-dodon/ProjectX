@@ -56,7 +56,7 @@ export function RegisterForm({ className, ...props }) {
       setErrorMessage("")
 
       try {
-        await apiClient.post("/auth/register", {
+        await apiClient.post("/api/auth/register", {
           email,
           password: formState.password,
           fullName: formState.fullName.trim() || undefined,
