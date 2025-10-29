@@ -14,22 +14,15 @@ import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
 import { toast } from "sonner"
 import { z } from "zod"
 
-import { DataTable as SharedDataTable } from "@/shared/components/data-table"
+import {
+  DataTable as SharedDataTable,
+  DataTableRowDrawer,
+} from "@/shared/components/data-table"
 import { useIsMobile } from "@/shared/hooks/use-mobile"
 import { Badge } from "@/shared/components/ui/badge"
 import { Button } from "@/shared/components/ui/button"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/shared/components/ui/chart"
 import { Checkbox } from "@/shared/components/ui/checkbox"
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/shared/components/ui/drawer"
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -278,23 +271,41 @@ const chartConfig = {
 
 function TableCellViewer({ item }) {
   const isMobile = useIsMobile()
+  const formId = React.useMemo(
+    () => (item?.id ? `proposal-section-${item.id}-edit` : "proposal-section-edit"),
+    [item?.id]
+  )
+
+  const handleSubmit = React.useCallback(
+    (event) => {
+      event.preventDefault()
+
+      const header = item?.header ?? "section"
+
+      toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
+        loading: `Saving ${header}`,
+        success: "Done",
+        error: "Error",
+      })
+    },
+    [item]
+  )
 
   return (
-    <Drawer direction={isMobile ? "bottom" : "right"}>
-      <DrawerTrigger asChild>
+    <DataTableRowDrawer
+      item={item}
+      trigger={
         <Button variant="link" className="text-foreground w-fit px-0 text-left">
           {item.header}
         </Button>
-      </DrawerTrigger>
-      <DrawerContent>
-        <DrawerHeader className="gap-1">
-          <DrawerTitle>{item.header}</DrawerTitle>
-          <DrawerDescription>
-            Showing total visitors for the last 6 months
-          </DrawerDescription>
-        </DrawerHeader>
-        <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
-          {!isMobile && (
+      }
+      title={({ item: current }) => current?.header ?? "Section"}
+      description="Showing total visitors for the last 6 months"
+      direction="right"
+      mobileDirection="bottom"
+      renderView={({ item: current }) => (
+        <div className="flex flex-col gap-6 text-sm">
+          {!isMobile ? (
             <>
               <ChartContainer config={chartConfig}>
                 <AreaChart
@@ -334,90 +345,124 @@ function TableCellViewer({ item }) {
               </ChartContainer>
               <Separator />
               <div className="grid gap-2">
-                <div className="flex gap-2 leading-none font-medium">
-                  Trending up by 5.2% this month{" "}
+                <div className="flex items-center gap-2 text-sm font-medium leading-none">
+                  Trending up by 5.2% this month
                   <IconTrendingUp className="size-4" />
                 </div>
-                <div className="text-muted-foreground">
-                  Showing total visitors for the last 6 months. This is just
-                  some random text to test the layout. It spans multiple lines
-                  and should wrap around.
-                </div>
+                <p className="text-muted-foreground">
+                  Showing total visitors for the last 6 months. This is just some random text to test the
+                  layout. It spans multiple lines and should wrap around.
+                </p>
               </div>
               <Separator />
             </>
-          )}
-          <form className="flex flex-col gap-4">
+          ) : null}
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-1">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Type</p>
+              <p className="text-sm">{current?.type}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Status</p>
+              <Badge variant="outline" className="text-muted-foreground px-1.5">
+                {current?.status === "Done" ? (
+                  <IconCircleCheckFilled className="fill-green-500 dark:fill-green-400" />
+                ) : (
+                  <IconLoader />
+                )}
+                {current?.status}
+              </Badge>
+            </div>
+            <div className="space-y-1">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Target</p>
+              <p className="font-medium">{current?.target}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Limit</p>
+              <p className="font-medium">{current?.limit}</p>
+            </div>
+            <div className="space-y-1 md:col-span-2">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Reviewer</p>
+              <p className="font-medium">{current?.reviewer}</p>
+            </div>
+          </div>
+        </div>
+      )}
+      renderEdit={() => (
+        <form id={formId} onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3">
+            <Label htmlFor={`${formId}-header`}>Header</Label>
+            <Input id={`${formId}-header`} defaultValue={item.header} />
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-3">
-              <Label htmlFor="header">Header</Label>
-              <Input id="header" defaultValue={item.header} />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-3">
-                <Label htmlFor="type">Type</Label>
-                <Select defaultValue={item.type}>
-                  <SelectTrigger id="type" className="w-full">
-                    <SelectValue placeholder="Select a type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Table of Contents">Table of Contents</SelectItem>
-                    <SelectItem value="Executive Summary">Executive Summary</SelectItem>
-                    <SelectItem value="Technical Approach">Technical Approach</SelectItem>
-                    <SelectItem value="Design">Design</SelectItem>
-                    <SelectItem value="Capabilities">Capabilities</SelectItem>
-                    <SelectItem value="Focus Documents">Focus Documents</SelectItem>
-                    <SelectItem value="Narrative">Narrative</SelectItem>
-                    <SelectItem value="Cover Page">Cover Page</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex flex-col gap-3">
-                <Label htmlFor="status">Status</Label>
-                <Select defaultValue={item.status}>
-                  <SelectTrigger id="status" className="w-full">
-                    <SelectValue placeholder="Select a status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Done">Done</SelectItem>
-                    <SelectItem value="In Progress">In Progress</SelectItem>
-                    <SelectItem value="Not Started">Not Started</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-3">
-                <Label htmlFor="target">Target</Label>
-                <Input id="target" defaultValue={item.target} />
-              </div>
-              <div className="flex flex-col gap-3">
-                <Label htmlFor="limit">Limit</Label>
-                <Input id="limit" defaultValue={item.limit} />
-              </div>
-            </div>
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="reviewer">Reviewer</Label>
-              <Select defaultValue={item.reviewer}>
-                <SelectTrigger id="reviewer" className="w-full">
-                  <SelectValue placeholder="Select a reviewer" />
+              <Label htmlFor={`${formId}-type`}>Type</Label>
+              <Select defaultValue={item.type}>
+                <SelectTrigger id={`${formId}-type`} className="w-full">
+                  <SelectValue placeholder="Select a type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Eddie Lake">Eddie Lake</SelectItem>
-                  <SelectItem value="Jamik Tashpulatov">Jamik Tashpulatov</SelectItem>
-                  <SelectItem value="Emily Whalen">Emily Whalen</SelectItem>
+                  <SelectItem value="Table of Contents">Table of Contents</SelectItem>
+                  <SelectItem value="Executive Summary">Executive Summary</SelectItem>
+                  <SelectItem value="Technical Approach">Technical Approach</SelectItem>
+                  <SelectItem value="Design">Design</SelectItem>
+                  <SelectItem value="Capabilities">Capabilities</SelectItem>
+                  <SelectItem value="Focus Documents">Focus Documents</SelectItem>
+                  <SelectItem value="Narrative">Narrative</SelectItem>
+                  <SelectItem value="Cover Page">Cover Page</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-          </form>
+            <div className="flex flex-col gap-3">
+              <Label htmlFor={`${formId}-status`}>Status</Label>
+              <Select defaultValue={item.status}>
+                <SelectTrigger id={`${formId}-status`} className="w-full">
+                  <SelectValue placeholder="Select a status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Done">Done</SelectItem>
+                  <SelectItem value="In Progress">In Progress</SelectItem>
+                  <SelectItem value="Not Started">Not Started</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-3">
+              <Label htmlFor={`${formId}-target`}>Target</Label>
+              <Input id={`${formId}-target`} defaultValue={item.target} />
+            </div>
+            <div className="flex flex-col gap-3">
+              <Label htmlFor={`${formId}-limit`}>Limit</Label>
+              <Input id={`${formId}-limit`} defaultValue={item.limit} />
+            </div>
+          </div>
+          <div className="flex flex-col gap-3">
+            <Label htmlFor={`${formId}-reviewer`}>Reviewer</Label>
+            <Select defaultValue={item.reviewer}>
+              <SelectTrigger id={`${formId}-reviewer`} className="w-full">
+                <SelectValue placeholder="Select a reviewer" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Eddie Lake">Eddie Lake</SelectItem>
+                <SelectItem value="Jamik Tashpulatov">Jamik Tashpulatov</SelectItem>
+                <SelectItem value="Emily Whalen">Emily Whalen</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </form>
+      )}
+      renderEditFooter={({ close }) => (
+        <div className="flex w-full flex-col gap-2 sm:flex-row sm:justify-end">
+          <Button type="submit" form={formId}>
+            Submit
+          </Button>
+          <Button type="button" variant="outline" onClick={close}>
+            Done
+          </Button>
         </div>
-        <DrawerFooter>
-          <Button>Submit</Button>
-          <DrawerClose asChild>
-            <Button variant="outline">Done</Button>
-          </DrawerClose>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
+      )}
+    />
   )
 }
 
