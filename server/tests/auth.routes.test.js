@@ -4,7 +4,7 @@ const {
   createNotFoundError,
   createUnauthorizedError,
   createValidationError,
-} = require('@/utils/error-handling')
+} = require('@/utils/errors')
 
 const mockRegisterUser = jest.fn()
 const mockLoginUser = jest.fn()

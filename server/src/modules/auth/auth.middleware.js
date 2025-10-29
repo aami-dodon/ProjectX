@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 
 const { env } = require('@/config/env');
-const { createUnauthorizedError } = require('@/utils/error-handling');
+const { createUnauthorizedError } = require('@/utils/errors');
 const { createLogger } = require('@/utils/logger');
 const { findUserById } = require('./auth.repository');
 
