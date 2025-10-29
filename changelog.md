@@ -1,3 +1,6 @@
+## 2025-11-05 11:30:00 IST
+- Ensured the production server container runs `prisma migrate deploy` before booting so required tables are created automatically.
+
 ## 2025-11-05 10:15:00 IST
 - Added the initial Prisma migration to create auth and health tables so the API can provision its database schema reliably.
 
