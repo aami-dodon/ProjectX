@@ -8,15 +8,27 @@
       "@/layout/*": [
         "src/shared/components/layout/*"
       ],
+      "@/ui": [
+        "src/shared/components/ui/index.js"
+      ],
       "@/ui/*": [
         "src/shared/components/ui/*"
+      ],
+      "@/lib": [
+        "src/shared/lib/index.js"
       ],
       "@/lib/*": [
         "src/lib/*",
         "src/shared/lib/*"
       ],
+      "@/hooks": [
+        "src/shared/hooks/index.js"
+      ],
       "@/hooks/*": [
         "src/shared/hooks/*"
+      ],
+      "@/components": [
+        "src/shared/components/index.js"
       ],
       "@/components/*": [
         "src/shared/components/*"

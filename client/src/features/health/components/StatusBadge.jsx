@@ -1,5 +1,5 @@
-import { Badge } from "@/shared/components/ui/badge";
-import { cn } from "@/shared/lib/utils";
+import { Badge } from "@/ui";
+import { cn } from "@/lib";
 
 const STATUS_VARIANTS = {
   operational: {

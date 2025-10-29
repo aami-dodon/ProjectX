@@ -1,1 +1,1 @@
-export { ChartAreaInteractive } from "@/shared/components/chart-area-interactive";
+export { ChartAreaInteractive } from "@/components"

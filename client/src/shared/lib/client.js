@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { createLogger } from "@/shared/lib/logger";
+import { createLogger } from "./logger";
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
