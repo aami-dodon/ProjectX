@@ -1,6 +1,6 @@
 const { createPresignedUpload, IMAGE_EXTENSION_BY_MIME } = require('@/modules/upload/upload.service');
 const { createLogger } = require('@/utils/logger');
-const { createValidationError, createIntegrationError } = require('@/utils/error-handling');
+const { createValidationError, createIntegrationError } = require('@/utils/errors');
 
 const logger = createLogger('upload-controller');
 

@@ -1,4 +1,4 @@
-const { buildErrorResponse, ApplicationError } = require('@/utils/error-handling');
+const { buildErrorResponse, ApplicationError } = require('@/utils/errors');
 const { createLogger } = require('@/utils/logger');
 
 const logger = createLogger('error-handler');

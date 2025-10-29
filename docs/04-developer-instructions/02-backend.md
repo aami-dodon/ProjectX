@@ -41,9 +41,9 @@ When you create a new module:
 ## 3. Request Lifecycle & Middleware
 
 - Perform lightweight validation as close to the router as possible. Simple checks can live in the controller (see the upload controller for an example); complex workflows should add dedicated middleware inside the module.
-- Wrap asynchronous controllers in `try/catch` blocks and forward unexpected errors with `next(error)` so the global handler in `server/src/middleware/error-handler.js` can format the response.
+- Wrap asynchronous controllers in `try/catch` blocks and forward unexpected errors with `next(error)` so the global handler in `server/src/middleware/errorHandler.js` can format the response.
 - Preserve observability by passing each request through the logger middleware defined in `server/src/middleware/request-logger.js`. Avoid early `res.end` calls that would bypass logging and metrics.
-- Surface domain-specific errors with `ApplicationError` instances from `server/src/utils/error-handling.js`. Set `statusCode`, `code`, and `details` to keep responses uniform.
+- Surface domain-specific errors with `ApplicationError` instances from `server/src/utils/errors.js`. Set `statusCode`, `code`, and `details` to keep responses uniform.
 
 ## 4. Database & Integrations
 

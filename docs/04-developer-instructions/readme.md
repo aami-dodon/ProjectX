@@ -106,7 +106,7 @@ The compose file builds both services, injects values from `.env`, and exposes t
 - Reuse shared Axios clients and helpers from `client/src/shared/lib` (notably `client.js` and `utils.js`) instead of redefining fetch logic inside features.
 - Route new React pages via `client/src/app/routes.jsx`, exporting feature entry points from `client/src/features/<feature>/index.js`. Layout shells reside in `client/src/app/layouts`.
 - Tailwind tokens live in `client/src/index.css`; extend design primitives through the existing `@theme` block and reuse shadcn/ui components under `client/src/shared/components/ui`.
-- On the server, surface errors through `server/src/utils/error-handling.js` and structured logging via `server/src/utils/logger.js`. Keep middleware compatible with the request logger in `server/src/middleware/request-logger.js`.
+- On the server, surface errors through `server/src/utils/errors.js` and structured logging via `server/src/utils/logger.js`. Keep middleware compatible with the request logger in `server/src/middleware/request-logger.js`.
 - In the browser, prefer the shared logger (`client/src/shared/lib/logger.js`) so log levels respect `VITE_LOG_LEVEL` and payloads stay structured.
 - Place new API routers under `server/src/modules/<feature>` following the existing controller/service patterns, and update `server/src/app.js` when wiring them in.
 - Keep Prisma schema updates in `server/prisma/schema.prisma`; generate migrations with `npx prisma migrate dev --name <change>` and run `npm run lint` afterwards.

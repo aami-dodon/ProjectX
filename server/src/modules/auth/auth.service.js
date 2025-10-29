@@ -31,7 +31,7 @@ const {
   createValidationError,
   createUnauthorizedError,
   createNotFoundError,
-} = require('@/utils/error-handling');
+} = require('@/utils/errors');
 
 const logger = createLogger('auth-service');
 

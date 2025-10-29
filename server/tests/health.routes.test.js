@@ -1,6 +1,6 @@
 const request = require('supertest')
 
-const { createIntegrationError, createValidationError } = require('@/utils/error-handling')
+const { createIntegrationError, createValidationError } = require('@/utils/errors')
 
 const mockGetHealthStatus = jest.fn()
 
