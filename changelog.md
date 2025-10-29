@@ -1,3 +1,6 @@
+## 2025-11-05 05:45:00 IST
+- Added shared ESLint and Prettier workflows for the client and server, including CI checks to block merges on lint or formatting errors.
+
 ## 2025-11-05 05:15:00 IST
 - Added a rich text editor section to the design system page showcasing the shared TextEditor component with live preview and HTML output.
 
