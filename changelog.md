@@ -1,3 +1,6 @@
+## 2025-11-05 15:30:00 IST
+- Added a logout control to the dashboard header so signed-in users can clear their session and return to the login screen.
+
 ## 2025-11-05 14:45:00 IST
 - Reworked the client router so unauthenticated visitors land on the login layout at `/` while authenticated users keep the dashboard at the root and receive 404s for unknown routes.
 
