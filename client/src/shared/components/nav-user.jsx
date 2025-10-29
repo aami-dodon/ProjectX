@@ -1,3 +1,7 @@
+import { useCallback } from "react"
+import { useNavigate } from "react-router-dom"
+import { toast } from "sonner"
+
 import {
   IconCreditCard,
   IconDotsVertical,
@@ -116,7 +120,7 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onSelect={handleLogout}>
               <IconLogout />
               Log out
             </DropdownMenuItem>
