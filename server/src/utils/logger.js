@@ -81,7 +81,6 @@ const transportsList = [
 if (process.env.NODE_ENV === 'test') {
   transportsList.forEach((transportInstance) => {
     // Silence log output during automated tests
-    // eslint-disable-next-line no-param-reassign
     transportInstance.silent = true;
   });
 }

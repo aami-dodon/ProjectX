@@ -3,7 +3,6 @@ const { createLogger } = require('@/utils/logger');
 
 const logger = createLogger('error-handler');
 
-// eslint-disable-next-line no-unused-vars
 const errorHandler = (err, req, res, _next) => {
   const requestId = null;
   const traceId = null;
