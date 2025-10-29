@@ -1,6 +1,21 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
-
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import {
+  closestCenter,
+  DndContext,
+  KeyboardSensor,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import {
   flexRender,
   getCoreRowModel,
@@ -9,17 +24,50 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import {
+  IconChevronDown,
+  IconChevronLeft,
+  IconChevronRight,
+  IconChevronsLeft,
+  IconChevronsRight,
+  IconCircleCheckFilled,
+  IconDotsVertical,
+  IconGripVertical,
+  IconLayoutColumns,
+  IconPlus,
+  IconSearch,
+  IconTrendingUp,
+} from "@tabler/icons-react";
+import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
+import { toast } from "sonner";
+import { z } from "zod";
 
+import { useIsMobile } from "@/shared/hooks/use-mobile";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/shared/components/ui/chart";
 import { Checkbox } from "@/shared/components/ui/checkbox";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/shared/components/ui/drawer";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/shared/components/ui/dropdown-menu";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import {
@@ -29,23 +77,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/shared/components/ui/drawer";
-import { Skeleton } from "@/shared/components/ui/skeleton";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/shared/components/ui/dropdown-menu";
+import { Separator } from "@/shared/components/ui/separator";
 import {
   Table,
   TableBody,
@@ -55,15 +87,8 @@ import {
   TableRow,
 } from "@/shared/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import { cn } from "@/shared/lib/utils";
-import {
-  IconArrowDown,
-  IconArrowUp,
-  IconArrowsSort,
-  IconChevronDown,
-  IconDotsVertical,
-  IconSearch,
-} from "@tabler/icons-react";
 
 const STATUS_LABELS = {
   ACTIVE: "Active",
@@ -71,8 +96,6 @@ const STATUS_LABELS = {
   INVITED: "Invited",
   SUSPENDED: "Suspended",
 };
-
-const STATUS_OPTIONS = Object.keys(STATUS_LABELS);
 
 const STATUS_BADGE_STYLES = {
   ACTIVE:
@@ -84,6 +107,23 @@ const STATUS_BADGE_STYLES = {
   SUSPENDED:
     "bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-500/10 dark:text-rose-300 dark:border-rose-500/20",
 };
+
+const userSchema = z.object({
+  id: z.union([z.string(), z.number()]),
+  fullName: z.string().optional(),
+  email: z.string().optional(),
+  status: z.string().optional(),
+  roles: z
+    .array(
+      z.object({
+        id: z.union([z.string(), z.number()]),
+        name: z.string(),
+      })
+    )
+    .optional(),
+  lastLoginAt: z.string().nullable().optional(),
+  emailVerifiedAt: z.string().nullable().optional(),
+});
 
 function formatDate(value) {
   if (!value) {
@@ -98,55 +138,113 @@ function formatDate(value) {
   }
 }
 
-function DetailRow({ label, children }) {
+function DragHandle({ id }) {
+  const { attributes, listeners } = useSortable({
+    id,
+  });
+
   return (
-    <div className="space-y-1">
-      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-        {label}
-      </p>
-      <div className="text-sm leading-tight text-foreground">{children}</div>
+    <Button
+      {...attributes}
+      {...listeners}
+      variant="ghost"
+      size="icon"
+      className="text-muted-foreground size-7 hover:bg-transparent"
+    >
+      <IconGripVertical className="text-muted-foreground size-3" />
+      <span className="sr-only">Drag to reorder</span>
+    </Button>
+  );
+}
+
+function RoleBadge({ roles = [] }) {
+  if (!roles.length) {
+    return <span className="text-muted-foreground text-xs">—</span>;
+  }
+
+  if (roles.length === 1) {
+    return (
+      <Badge variant="outline" className="px-2 py-0.5 text-xs">
+        {roles[0]?.name ?? "—"}
+      </Badge>
+    );
+  }
+
+  const [first, second, ...rest] = roles;
+  return (
+    <div className="flex flex-wrap items-center gap-1">
+      {[first, second]
+        .filter(Boolean)
+        .map((role) => (
+          <Badge key={role.id} variant="outline" className="px-2 py-0.5 text-xs">
+            {role.name}
+          </Badge>
+        ))}
+      {rest.length ? (
+        <Badge variant="outline" className="px-2 py-0.5 text-xs">
+          +{rest.length}
+        </Badge>
+      ) : null}
     </div>
   );
 }
 
-function UserEditDrawer({ open, onOpenChange, user, onSubmit, availableRoles = [] }) {
-  const [formState, setFormState] = useState({
-    fullName: "",
-    status: "",
-    roleIds: [],
-  });
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
-  const [activeTab, setActiveTab] = useState("edit");
+const chartData = [
+  { month: "January", desktop: 186, mobile: 80 },
+  { month: "February", desktop: 305, mobile: 200 },
+  { month: "March", desktop: 237, mobile: 120 },
+  { month: "April", desktop: 73, mobile: 190 },
+  { month: "May", desktop: 209, mobile: 130 },
+  { month: "June", desktop: 214, mobile: 140 },
+];
 
-  const formId = useMemo(
-    () => (user?.id ? `user-${user.id}-edit` : "user-edit"),
-    [user?.id]
+const chartConfig = {
+  desktop: {
+    label: "Desktop",
+    color: "var(--primary)",
+  },
+  mobile: {
+    label: "Mobile",
+    color: "var(--primary)",
+  },
+};
+
+function UserDetailDrawer({ user, availableRoles, onUpdate, onEdit }) {
+  const parsedUser = userSchema.parse(user);
+  const isMobile = useIsMobile();
+  const [open, setOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [formState, setFormState] = useState({
+    fullName: parsedUser.fullName ?? "",
+    status: parsedUser.status ?? "ACTIVE",
+    roleIds: (parsedUser.roles ?? []).map((role) => `${role.id}`),
+  });
+  const [error, setError] = useState("");
+
+  const normalizedRoles = useMemo(
+    () => (availableRoles ?? []).map((role) => ({ ...role, id: `${role.id}` })),
+    [availableRoles]
   );
 
   useEffect(() => {
-    if (user) {
+    if (open) {
       setFormState({
-        fullName: user.fullName ?? "",
-        status: user.status ?? "ACTIVE",
-        roleIds: (user.roles ?? []).map((role) => `${role.id}`),
+        fullName: parsedUser.fullName ?? "",
+        status: parsedUser.status ?? "ACTIVE",
+        roleIds: (parsedUser.roles ?? []).map((role) => `${role.id}`),
       });
       setError("");
+      if (typeof onEdit === "function") {
+        onEdit(parsedUser.id);
+      }
     }
-  }, [user]);
-
-  useEffect(() => {
-    if (!open) {
-      setActiveTab("edit");
-    }
-  }, [open]);
+  }, [open, parsedUser, onEdit]);
 
   const handleRoleToggle = useCallback((roleId, checked) => {
     setFormState((prev) => {
       const nextRoleIds = checked
         ? Array.from(new Set([...prev.roleIds, roleId]))
         : prev.roleIds.filter((id) => id !== roleId);
-
       return {
         ...prev,
         roleIds: nextRoleIds,
@@ -157,7 +255,8 @@ function UserEditDrawer({ open, onOpenChange, user, onSubmit, availableRoles = [
   const handleSubmit = useCallback(
     async (event) => {
       event.preventDefault();
-      if (!user) {
+      if (typeof onUpdate !== "function") {
+        setOpen(false);
         return;
       }
 
@@ -165,15 +264,15 @@ function UserEditDrawer({ open, onOpenChange, user, onSubmit, availableRoles = [
       setError("");
 
       try {
-        await onSubmit(user.id, {
+        await onUpdate(parsedUser.id, {
           fullName: formState.fullName,
           status: formState.status,
           roleIds: formState.roleIds,
         });
         toast.success("User updated", {
-          description: `${user.email} has been updated successfully`,
+          description: `${parsedUser.email ?? "User"} has been updated successfully`,
         });
-        onOpenChange(false);
+        setOpen(false);
       } catch (err) {
         const message = err?.message ?? "Unable to update the user";
         toast.error("Update failed", { description: message });
@@ -182,169 +281,232 @@ function UserEditDrawer({ open, onOpenChange, user, onSubmit, availableRoles = [
         setSubmitting(false);
       }
     },
-    [
-      formState.fullName,
-      formState.status,
-      formState.roleIds,
-      onOpenChange,
-      onSubmit,
-      user,
-    ]
+    [formState.fullName, formState.status, formState.roleIds, onUpdate, parsedUser]
   );
 
-  const handleCancel = useCallback(() => {
-    setError("");
-    onOpenChange(false);
-  }, [onOpenChange]);
-
   return (
-    <Drawer open={open} onOpenChange={onOpenChange} direction="right">
-      <DrawerContent className="flex h-full max-h-[85vh] w-full flex-col overflow-hidden border-l bg-background shadow-xl sm:max-w-xl">
+    <Drawer open={open} onOpenChange={setOpen} direction={isMobile ? "bottom" : "right"}>
+      <DrawerTrigger asChild>
+        <Button variant="link" className="text-foreground flex w-full flex-col items-start gap-1 px-0 py-1 text-left">
+          <span className="font-medium leading-tight">
+            {parsedUser.fullName || parsedUser.email || "—"}
+          </span>
+          <span className="text-muted-foreground text-xs">
+            {parsedUser.email ?? "—"}
+          </span>
+        </Button>
+      </DrawerTrigger>
+      <DrawerContent className="h-full max-h-[85vh] w-full overflow-hidden border-l bg-background shadow-xl sm:max-w-xl">
         <DrawerHeader className="border-b px-6 py-6 text-left">
-          <DrawerTitle>Edit user</DrawerTitle>
-          {user?.email ? <DrawerDescription>{user.email}</DrawerDescription> : null}
+          <DrawerTitle>{parsedUser.fullName || parsedUser.email || "User details"}</DrawerTitle>
+          {parsedUser.email ? <DrawerDescription>{parsedUser.email}</DrawerDescription> : null}
         </DrawerHeader>
-        <Tabs
-          value={activeTab}
-          onValueChange={setActiveTab}
-          className="flex h-full flex-1 flex-col"
-        >
-          <div className="border-b px-6 py-3">
-            <TabsList className="bg-muted/60 text-muted-foreground h-9 gap-2">
-              <TabsTrigger value="edit">Edit</TabsTrigger>
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-            </TabsList>
-          </div>
-          <TabsContent value="edit" className="flex flex-1 flex-col">
-            <div className="flex-1 overflow-y-auto px-6 py-4">
-              <form id={formId} onSubmit={handleSubmit} className="flex flex-col gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="fullName">Full name</Label>
-                  <Input
-                    id="fullName"
-                    value={formState.fullName}
-                    onChange={(event) =>
-                      setFormState((prev) => ({ ...prev, fullName: event.target.value }))
-                    }
-                    placeholder="Enter full name"
+        <div className="flex-1 overflow-y-auto px-6 py-6 text-sm">
+          {!isMobile ? (
+            <div className="mb-6 space-y-4">
+              <ChartContainer config={chartConfig}>
+                <AreaChart
+                  accessibilityLayer
+                  data={chartData}
+                  margin={{
+                    left: 0,
+                    right: 10,
+                  }}
+                >
+                  <CartesianGrid vertical={false} />
+                  <XAxis
+                    dataKey="month"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    tickFormatter={(value) => value.slice(0, 3)}
+                    hide
                   />
+                  <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
+                  <Area
+                    dataKey="mobile"
+                    type="natural"
+                    fill="var(--color-mobile)"
+                    fillOpacity={0.6}
+                    stroke="var(--color-mobile)"
+                    stackId="a"
+                  />
+                  <Area
+                    dataKey="desktop"
+                    type="natural"
+                    fill="var(--color-desktop)"
+                    fillOpacity={0.4}
+                    stroke="var(--color-desktop)"
+                    stackId="a"
+                  />
+                </AreaChart>
+              </ChartContainer>
+              <Separator />
+              <div className="grid gap-2">
+                <div className="flex items-center gap-2 text-sm font-medium leading-none">
+                  Trending up by 5.2% this month <IconTrendingUp className="size-4" />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="status">Status</Label>
-                  <Select
-                    value={formState.status}
-                    onValueChange={(value) =>
-                      setFormState((prev) => ({ ...prev, status: value }))
-                    }
-                  >
-                    <SelectTrigger id="status" className="w-full">
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {STATUS_OPTIONS.map((status) => (
-                        <SelectItem key={status} value={status}>
-                          {STATUS_LABELS[status]}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Roles</Label>
-                  <div className="space-y-2 rounded-md border p-3">
-                    {availableRoles.length > 0 ? (
-                      availableRoles.map((role) => {
-                        const roleId = `${role.id}`;
-                        const checked = formState.roleIds.includes(roleId);
-                        return (
-                          <label
-                            key={roleId}
-                            htmlFor={`role-${roleId}`}
-                            className="flex items-start gap-2 text-sm"
-                          >
-                            <Checkbox
-                              id={`role-${roleId}`}
-                              checked={checked}
-                              onCheckedChange={(value) =>
-                                handleRoleToggle(roleId, value === true)
-                              }
-                            />
-                            <span className="flex flex-1 flex-col">
-                              <span className="font-medium leading-none">{role.name}</span>
-                              {role.description ? (
-                                <span className="text-xs text-muted-foreground">
-                                  {role.description}
-                                </span>
-                              ) : null}
-                            </span>
-                          </label>
-                        );
-                      })
-                    ) : (
-                      <p className="text-sm text-muted-foreground">
-                        No roles available for assignment.
-                      </p>
-                    )}
-                  </div>
-                </div>
-                {error ? <p className="text-sm text-destructive">{error}</p> : null}
-              </form>
+                <p className="text-muted-foreground">
+                  Showing sign-in activity for the last 6 months. Use this information to understand engagement trends for this
+                  user.
+                </p>
+              </div>
+              <Separator />
             </div>
-            <DrawerFooter className="border-t px-6 py-4">
-              <div className="flex w-full items-center justify-between gap-2">
-                <Button type="button" variant="ghost" onClick={handleCancel}>
+          ) : null}
+          <div className="grid gap-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Status</p>
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    "mt-1 capitalize",
+                    STATUS_BADGE_STYLES[parsedUser.status] ?? ""
+                  )}
+                >
+                  {STATUS_LABELS[parsedUser.status] ?? parsedUser.status ?? "—"}
+                </Badge>
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Verified</p>
+                <div className="mt-1 flex items-center gap-2 text-sm">
+                  {parsedUser.emailVerifiedAt ? (
+                    <>
+                      <IconCircleCheckFilled className="text-emerald-500 size-4" />
+                      Verified
+                    </>
+                  ) : (
+                    <span className="text-muted-foreground">Not verified</span>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Last login</p>
+              <p className="mt-1 text-sm text-foreground">{formatDate(parsedUser.lastLoginAt)}</p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Roles</p>
+              <RoleBadge roles={parsedUser.roles ?? []} />
+            </div>
+          </div>
+          <Separator className="my-6" />
+          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+            <div className="flex flex-col gap-3">
+              <Label htmlFor={`fullName-${parsedUser.id}`}>Full name</Label>
+              <Input
+                id={`fullName-${parsedUser.id}`}
+                value={formState.fullName}
+                onChange={(event) =>
+                  setFormState((prev) => ({ ...prev, fullName: event.target.value }))
+                }
+                placeholder="Enter full name"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-3">
+                <Label htmlFor={`status-${parsedUser.id}`}>Status</Label>
+                <Select
+                  value={formState.status}
+                  onValueChange={(value) =>
+                    setFormState((prev) => ({ ...prev, status: value }))
+                  }
+                >
+                  <SelectTrigger id={`status-${parsedUser.id}`} className="w-full">
+                    <SelectValue placeholder="Select a status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.keys(STATUS_LABELS).map((status) => (
+                      <SelectItem key={status} value={status}>
+                        {STATUS_LABELS[status]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex flex-col gap-3">
+                <Label htmlFor={`last-login-${parsedUser.id}`}>Last login</Label>
+                <Input
+                  id={`last-login-${parsedUser.id}`}
+                  value={formatDate(parsedUser.lastLoginAt)}
+                  disabled
+                />
+              </div>
+            </div>
+            <div className="flex flex-col gap-3">
+              <Label>Roles</Label>
+              <div className="space-y-2 rounded-md border p-3">
+                {normalizedRoles.length ? (
+                  normalizedRoles.map((role) => {
+                    const roleId = `${role.id}`;
+                    const checked = formState.roleIds.includes(roleId);
+
+                    return (
+                      <label key={roleId} htmlFor={`role-${parsedUser.id}-${roleId}`} className="flex items-start gap-2 text-sm">
+                        <Checkbox
+                          id={`role-${parsedUser.id}-${roleId}`}
+                          checked={checked}
+                          onCheckedChange={(value) =>
+                            handleRoleToggle(roleId, value === true)
+                          }
+                        />
+                        <span className="flex flex-1 flex-col">
+                          <span className="font-medium leading-none">{role.name}</span>
+                          {role.description ? (
+                            <span className="text-muted-foreground text-xs">
+                              {role.description}
+                            </span>
+                          ) : null}
+                        </span>
+                      </label>
+                    );
+                  })
+                ) : (
+                  <p className="text-sm text-muted-foreground">No roles available for assignment.</p>
+                )}
+              </div>
+            </div>
+            {error ? <p className="text-sm text-destructive">{error}</p> : null}
+            <div className="flex items-center justify-end gap-2">
+              <DrawerClose asChild>
+                <Button type="button" variant="ghost" disabled={submitting}>
                   Cancel
                 </Button>
-                <Button type="submit" form={formId} disabled={submitting}>
-                  {submitting ? "Saving…" : "Save changes"}
-                </Button>
-              </div>
-            </DrawerFooter>
-          </TabsContent>
-          <TabsContent value="overview" className="flex flex-1 flex-col">
-            <div className="flex-1 overflow-y-auto px-6 py-4">
-              <div className="grid gap-4 text-sm">
-                <DetailRow label="Full name">{user?.fullName ?? "—"}</DetailRow>
-                <DetailRow label="Email">
-                  <span className="font-mono text-sm">{user?.email ?? "—"}</span>
-                </DetailRow>
-                <DetailRow label="Status">
-                  <Badge
-                    variant="outline"
-                    className={cn("capitalize", STATUS_BADGE_STYLES[user?.status] ?? "")}
-                  >
-                    {STATUS_LABELS[user?.status] ?? user?.status ?? "—"}
-                  </Badge>
-                </DetailRow>
-                <DetailRow label="Roles">
-                  {(user?.roles ?? []).length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {user.roles.map((role) => (
-                        <Badge key={role.id} variant="outline" className="px-2 py-1 text-xs">
-                          {role.name}
-                        </Badge>
-                      ))}
-                    </div>
-                  ) : (
-                    "—"
-                  )}
-                </DetailRow>
-                <DetailRow label="Last login">{formatDate(user?.lastLoginAt)}</DetailRow>
-                <DetailRow label="Verified">{user?.emailVerifiedAt ? "Yes" : "No"}</DetailRow>
-              </div>
+              </DrawerClose>
+              <Button type="submit" disabled={submitting}>
+                {submitting ? "Saving…" : "Save changes"}
+              </Button>
             </div>
-            <DrawerFooter className="border-t px-6 py-4">
-              <div className="flex w-full items-center justify-between gap-2">
-                <Button type="button" variant="outline" onClick={handleCancel}>
-                  Close
-                </Button>
-                <Button type="button" onClick={() => setActiveTab("edit")}>Edit user</Button>
-              </div>
-            </DrawerFooter>
-          </TabsContent>
-        </Tabs>
+          </form>
+        </div>
       </DrawerContent>
     </Drawer>
+  );
+}
+
+function DraggableRow({ row }) {
+  const { transform, transition, setNodeRef, isDragging } = useSortable({
+    id: row.id,
+  });
+
+  return (
+    <TableRow
+      data-state={row.getIsSelected() && "selected"}
+      data-dragging={isDragging}
+      ref={setNodeRef}
+      className="relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80"
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+      }}
+    >
+      {row.getVisibleCells().map((cell) => (
+        <TableCell key={cell.id} className={cell.column.columnDef?.meta?.className}>
+          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+        </TableCell>
+      ))}
+    </TableRow>
   );
 }
 
@@ -360,55 +522,38 @@ export function UserTable({
   onMakeCopy,
   onSelectionChange,
 }) {
-  const [selectedUserId, setSelectedUserId] = useState(null);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [sorting, setSorting] = useState([]);
-  const [columnFilters, setColumnFilters] = useState([]);
-  const [globalFilter, setGlobalFilter] = useState("");
+  const [data, setData] = useState([]);
   const [rowSelection, setRowSelection] = useState({});
+  const [columnVisibility, setColumnVisibility] = useState({});
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [sorting, setSorting] = useState([]);
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: 10,
+  });
 
-  const handleEdit = useCallback(
-    (userId) => {
-      setSelectedUserId(userId);
-      setDrawerOpen(true);
-      if (typeof onEdit === "function") {
-        onEdit(userId);
-      }
-    },
-    [onEdit]
+  const sensors = useSensors(
+    useSensor(MouseSensor, {}),
+    useSensor(TouchSensor, {}),
+    useSensor(KeyboardSensor, {})
   );
 
-  const handleSuspend = useCallback(
-    (userId) => {
-      if (typeof onSuspend === "function") {
-        onSuspend(userId);
-      }
-    },
-    [onSuspend]
+  const normalizedUsers = useMemo(
+    () =>
+      (users ?? []).map((user) => ({
+        ...user,
+        roles: (user.roles ?? []).map((role) => ({ ...role, id: role.id ?? role.name })),
+      })),
+    [users]
   );
 
-  const handleMakeCopy = useCallback(
-    (userId) => {
-      if (typeof onMakeCopy === "function") {
-        onMakeCopy(userId);
-      }
-    },
-    [onMakeCopy]
-  );
+  useEffect(() => {
+    setData(normalizedUsers);
+  }, [normalizedUsers]);
 
-  const closeDrawer = useCallback(
-    (open) => {
-      setDrawerOpen(open);
-      if (!open) {
-        setSelectedUserId(null);
-      }
-    },
-    []
-  );
-
-  const normalizedRoles = useMemo(
-    () => availableRoles.map((role) => ({ ...role, id: `${role.id}` })),
-    [availableRoles]
+  const dataIds = useMemo(
+    () => data.map((item) => `${item.id ?? item.email}`),
+    [data]
   );
 
   const globalFilterFn = useCallback((row, _columnId, value) => {
@@ -424,46 +569,29 @@ export function UserTable({
       .some((item) => item.toLowerCase().includes(search));
   }, []);
 
-  const columns = useMemo(() => {
-    const createSortableHeader = (title, alignment = "left") => ({ column }) => {
-      const sorted = column.getIsSorted();
-
-      return (
-        <button
-          type="button"
-          onClick={column.getToggleSortingHandler()}
-          className={cn(
-            "flex w-full items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground", 
-            alignment === "right" ? "justify-end text-right" : "justify-start text-left"
-          )}
-        >
-          <span>{title}</span>
-          {sorted === "asc" ? (
-            <IconArrowUp className="h-3.5 w-3.5" />
-          ) : sorted === "desc" ? (
-            <IconArrowDown className="h-3.5 w-3.5" />
-          ) : (
-            <IconArrowsSort className="h-3.5 w-3.5 opacity-60" />
-          )}
-        </button>
-      );
-    };
-
-    return [
+  const columns = useMemo(
+    () => [
+      {
+        id: "drag",
+        header: () => null,
+        cell: ({ row }) => <DragHandle id={row.id} />,
+      },
       {
         id: "select",
         header: ({ table }) => (
-          <Checkbox
-            checked={
-              table.getIsAllPageRowsSelected() ||
-              (table.getIsSomePageRowsSelected() && "indeterminate")
-            }
-            onCheckedChange={(value) => table.toggleAllPageRowsSelected(Boolean(value))}
-            aria-label="Select all"
-          />
+          <div className="flex items-center justify-center">
+            <Checkbox
+              checked={
+                table.getIsAllPageRowsSelected() ||
+                (table.getIsSomePageRowsSelected() && "indeterminate")
+              }
+              onCheckedChange={(value) => table.toggleAllPageRowsSelected(Boolean(value))}
+              aria-label="Select all"
+            />
+          </div>
         ),
         cell: ({ row }) => (
-          <div className="flex justify-center">
+          <div className="flex items-center justify-center">
             <Checkbox
               checked={row.getIsSelected()}
               onCheckedChange={(value) => row.toggleSelected(Boolean(value))}
@@ -472,35 +600,41 @@ export function UserTable({
           </div>
         ),
         enableSorting: false,
-        enableColumnFilter: false,
         enableHiding: false,
-        size: 48,
         meta: {
           className: "w-12 text-center",
         },
       },
       {
         accessorKey: "fullName",
-        id: "name",
-        header: createSortableHeader("Name"),
+        header: "User",
         cell: ({ row }) => (
-          <div className="flex flex-col">
-            <span className="font-medium text-foreground">
-              {row.original.fullName ?? "—"}
-            </span>
+          <div className="flex flex-col gap-1">
+            <UserDetailDrawer
+              user={row.original}
+              availableRoles={availableRoles}
+              onUpdate={onUpdate}
+              onEdit={onEdit}
+            />
           </div>
         ),
+        meta: {
+          className: "min-w-[200px]",
+        },
       },
       {
         accessorKey: "email",
-        header: createSortableHeader("Email"),
+        header: "Email",
         cell: ({ row }) => (
-          <span className="font-mono text-sm">{row.original.email}</span>
+          <span className="font-mono text-xs">{row.original.email ?? "—"}</span>
         ),
+        meta: {
+          className: "min-w-[200px]",
+        },
       },
       {
         accessorKey: "status",
-        header: createSortableHeader("Status"),
+        header: "Status",
         cell: ({ row }) => {
           const status = row.original.status;
           return (
@@ -512,368 +646,242 @@ export function UserTable({
             </Badge>
           );
         },
-        filterFn: (row, columnId, filterValue) => {
-          if (!filterValue) {
-            return true;
-          }
-
-          return row.getValue(columnId) === filterValue;
+        meta: {
+          className: "w-40",
         },
       },
       {
-        id: "roles",
-        accessorFn: (row) => row.roles ?? [],
-        header: createSortableHeader("Roles"),
-        cell: ({ row }) => {
-          const roles = row.original.roles ?? [];
-
-          if (roles.length === 0) {
-            return <span className="text-sm text-muted-foreground">—</span>;
-          }
-
-          return (
-            <div className="flex max-w-[260px] flex-wrap gap-2">
-              {roles.map((role) => (
-                <Badge key={role.id} variant="outline" className="rounded-full px-2 py-1 text-xs">
-                  {role.name}
-                </Badge>
-              ))}
-            </div>
-          );
-        },
-        filterFn: (row, columnId, filterValue) => {
-          if (!filterValue || filterValue.length === 0) {
-            return true;
-          }
-
-          const roleIds = Array.isArray(filterValue) ? filterValue : [filterValue];
-          const rowRoles = row.original.roles ?? [];
-
-          return roleIds.some((roleId) =>
-            rowRoles.some((role) => `${role.id}` === `${roleId}`)
-          );
-        },
-        sortingFn: (rowA, rowB) => {
-          const rolesA = (rowA.original.roles ?? [])
-            .map((role) => role.name)
-            .join(", ");
-          const rolesB = (rowB.original.roles ?? [])
-            .map((role) => role.name)
-            .join(", ");
-
-          return rolesA.localeCompare(rolesB);
+        accessorKey: "roles",
+        header: "Roles",
+        cell: ({ row }) => <RoleBadge roles={row.original.roles ?? []} />,
+        meta: {
+          className: "min-w-[160px]",
         },
       },
       {
         accessorKey: "lastLoginAt",
-        header: createSortableHeader("Last login"),
+        header: () => <div className="w-full text-right">Last login</div>,
         cell: ({ row }) => (
-          <span className="text-sm">{formatDate(row.original.lastLoginAt)}</span>
+          <div className="text-right text-sm text-muted-foreground">
+            {formatDate(row.original.lastLoginAt)}
+          </div>
         ),
-        sortingFn: (rowA, rowB, columnId) => {
-          const valueA = rowA.getValue(columnId);
-          const valueB = rowB.getValue(columnId);
-
-          const dateA = valueA ? new Date(valueA).getTime() : 0;
-          const dateB = valueB ? new Date(valueB).getTime() : 0;
-
-          return dateA - dateB;
-        },
-      },
-      {
-        accessorKey: "emailVerifiedAt",
-        id: "verification",
-        header: createSortableHeader("Verification"),
-        cell: ({ row }) =>
-          row.original.emailVerifiedAt ? (
-            <Badge variant="secondary">Yes</Badge>
-          ) : (
-            <Badge variant="outline">No</Badge>
-          ),
-        sortingFn: (rowA, rowB, columnId) => {
-          const valueA = rowA.getValue(columnId) ? 1 : 0;
-          const valueB = rowB.getValue(columnId) ? 1 : 0;
-          return valueA - valueB;
+        meta: {
+          className: "w-40 text-right",
         },
       },
       {
         id: "actions",
-        header: () => (
-          <span className="flex justify-end text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Actions
-          </span>
+        header: "",
+        cell: ({ row }) => (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+                size="icon"
+              >
+                <IconDotsVertical />
+                <span className="sr-only">Open menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-40">
+              <DropdownMenuItem
+                onSelect={(event) => {
+                  event.preventDefault();
+                  if (typeof onSuspend === "function") {
+                    onSuspend(row.original.id);
+                  }
+                }}
+              >
+                Suspend
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={(event) => {
+                  event.preventDefault();
+                  if (typeof onMakeCopy === "function") {
+                    onMakeCopy(row.original.id);
+                  }
+                }}
+              >
+                Make a copy
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                variant="destructive"
+                onSelect={(event) => {
+                  event.preventDefault();
+                  toast.warning("Delete action", {
+                    description: "Connect this option to your delete flow.",
+                  });
+                }}
+              >
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         ),
-        cell: ({ row }) => {
-          const user = row.original;
-
-          return (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 p-0"
-                  aria-label={`Open actions for ${user.email}`}
-                >
-                  <IconDotsVertical className="size-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-44">
-                <DropdownMenuItem onSelect={() => handleEdit(user.id)}>
-                  Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => handleMakeCopy(user.id)}>
-                  Make a copy
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  className="text-destructive focus:text-destructive"
-                  onSelect={() => handleSuspend(user.id)}
-                >
-                  Suspend
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          );
-        },
         enableSorting: false,
-        enableColumnFilter: false,
         meta: {
-          className: "text-right",
+          className: "w-12",
         },
       },
-    ];
-  }, [handleEdit, handleMakeCopy, handleSuspend]);
+    ],
+    [availableRoles, onUpdate, onEdit, onSuspend, onMakeCopy]
+  );
 
   const table = useReactTable({
-    data: users ?? [],
+    data,
     columns,
     state: {
       sorting,
-      columnFilters,
-      globalFilter,
+      columnVisibility,
       rowSelection,
+      globalFilter,
+      pagination,
     },
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    onGlobalFilterChange: setGlobalFilter,
+    getRowId: (row) => `${row.id ?? row.email}`,
+    enableRowSelection: true,
+    globalFilterFn,
     onRowSelectionChange: setRowSelection,
+    onSortingChange: setSorting,
+    onColumnVisibilityChange: setColumnVisibility,
+    onGlobalFilterChange: setGlobalFilter,
+    onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    getRowId: (row) => `${row.id}`,
-    globalFilterFn,
+    getSortedRowModel: getSortedRowModel(),
   });
 
   useEffect(() => {
-    if (typeof onSelectionChange !== "function") {
-      return;
+    if (typeof onSelectionChange === "function") {
+      const selectedRows = table.getSelectedRowModel().rows.map((row) => row.original);
+      onSelectionChange(selectedRows);
     }
+  }, [rowSelection, table, onSelectionChange]);
 
-    const selectedRows = table.getSelectedRowModel().rows;
-    onSelectionChange(selectedRows.map((row) => row.original.id));
-  }, [table, rowSelection, onSelectionChange]);
+  const handleDragEnd = useCallback(
+    (event) => {
+      const { active, over } = event;
+      if (!active || !over || active.id === over.id) {
+        return;
+      }
 
-  const statusColumn = table.getColumn("status");
-  const roleColumn = table.getColumn("roles");
-
-  const statusFilterValue = statusColumn?.getFilterValue();
-  const statusValue = statusFilterValue ? `${statusFilterValue}` : "all";
-
-  const roleFilterValueRaw = roleColumn?.getFilterValue();
-  const roleFilterValue = Array.isArray(roleFilterValueRaw)
-    ? roleFilterValueRaw
-    : roleFilterValueRaw
-      ? [roleFilterValueRaw]
-      : [];
-
-  const selectedRoleLabels = roleFilterValue
-    .map((roleId) => normalizedRoles.find((role) => role.id === roleId)?.name)
-    .filter(Boolean);
-
-  const roleFilterLabel = selectedRoleLabels.length === 0
-    ? "All roles"
-    : selectedRoleLabels.length <= 2
-      ? selectedRoleLabels.join(", ")
-      : `${selectedRoleLabels.length} selected`;
-
-  const filtersApplied = Boolean(globalFilter) || Boolean(statusColumn?.getFilterValue()) || roleFilterValue.length > 0;
+      setData((prev) => {
+        const oldIndex = dataIds.indexOf(active.id);
+        const newIndex = dataIds.indexOf(over.id);
+        if (oldIndex === -1 || newIndex === -1) {
+          return prev;
+        }
+        return arrayMove(prev, oldIndex, newIndex);
+      });
+    },
+    [dataIds]
+  );
 
   const filteredRowCount = table.getFilteredRowModel().rows.length;
   const selectedCount = table.getFilteredSelectedRowModel().rows.length;
-  const totalUsers = users.length;
-
+  const totalUsers = data.length;
   const errorMessage = typeof error === "string" ? error : error?.message;
 
-  const selectedUser = useMemo(
-    () => users.find((user) => user.id === selectedUserId) ?? null,
-    [selectedUserId, users]
-  );
-
   return (
-    <>
-      <Card className="overflow-hidden border">
-        <CardHeader className="flex flex-col gap-4 border-b px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-1">
-            <CardTitle className="text-lg font-semibold leading-tight">
-              User management
-            </CardTitle>
-            <CardDescription>Review and edit account information</CardDescription>
-          </div>
-          <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
-            <Badge variant="outline" className="bg-muted/60 text-xs font-medium">
-              {filteredRowCount} of {totalUsers} users
-            </Badge>
-            {onRefresh ? (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onRefresh}
-                disabled={isLoading}
-              >
-                Refresh
+    <Tabs defaultValue="users" className="w-full flex-col justify-start gap-6">
+      <div className="flex items-center justify-between px-4 lg:px-6">
+        <Label htmlFor="view-selector" className="sr-only">
+          View
+        </Label>
+        <Select defaultValue="users">
+          <SelectTrigger className="flex w-fit @4xl/main:hidden" size="sm" id="view-selector">
+            <SelectValue placeholder="Select a view" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="users">Active users</SelectItem>
+            <SelectItem value="suspended">Suspended</SelectItem>
+            <SelectItem value="invited">Invited</SelectItem>
+          </SelectContent>
+        </Select>
+        <TabsList className="**:data-[slot=badge]:bg-muted-foreground/30 hidden **:data-[slot=badge]:size-5 **:data-[slot=badge]:rounded-full **:data-[slot=badge]:px-1 @4xl/main:flex">
+          <TabsTrigger value="users">Users</TabsTrigger>
+          <TabsTrigger value="activity">
+            Activity <Badge variant="secondary">3</Badge>
+          </TabsTrigger>
+          <TabsTrigger value="reports">Reports</TabsTrigger>
+        </TabsList>
+        <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <IconLayoutColumns />
+                <span className="hidden lg:inline">Customize Columns</span>
+                <span className="lg:hidden">Columns</span>
+                <IconChevronDown />
               </Button>
-            ) : null}
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4 px-6 py-5">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-            <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-end">
-              <div className="w-full sm:max-w-xs">
-                <Label htmlFor="user-search" className="sr-only">
-                  Search users
-                </Label>
-                <div className="relative">
-                  <IconSearch className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2" />
-                  <Input
-                    id="user-search"
-                    placeholder="Search by name or email"
-                    value={globalFilter}
-                    onChange={(event) => setGlobalFilter(event.target.value)}
-                    className="pl-9"
-                  />
-                </div>
-              </div>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-                <div className="sm:w-48">
-                  <Label htmlFor="status-filter" className="sr-only">
-                    Filter by status
-                  </Label>
-                  <Select
-                    value={statusValue}
-                    onValueChange={(value) => {
-                      statusColumn?.setFilterValue(value === "all" ? undefined : value);
-                    }}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              {table
+                .getAllColumns()
+                .filter((column) => typeof column.accessorFn !== "undefined" && column.getCanHide())
+                .map((column) => (
+                  <DropdownMenuCheckboxItem
+                    key={column.id}
+                    className="capitalize"
+                    checked={column.getIsVisible()}
+                    onCheckedChange={(value) => column.toggleVisibility(Boolean(value))}
                   >
-                    <SelectTrigger id="status-filter" className="w-full">
-                      <SelectValue placeholder="All statuses" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All statuses</SelectItem>
-                      {STATUS_OPTIONS.map((status) => (
-                        <SelectItem key={status} value={status}>
-                          {STATUS_LABELS[status]}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="sm:w-48">
-                  <Label htmlFor="role-filter" className="sr-only">
-                    Filter by role
-                  </Label>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        id="role-filter"
-                        variant="outline"
-                        className="w-full justify-between"
-                      >
-                        <span className="truncate">{roleFilterLabel}</span>
-                        <IconChevronDown className="size-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-56">
-                      <DropdownMenuItem
-                        onSelect={(event) => {
-                          event.preventDefault();
-                          roleColumn?.setFilterValue(undefined);
-                        }}
-                      >
-                        Clear selection
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      {normalizedRoles.map((role) => (
-                        <DropdownMenuCheckboxItem
-                          key={role.id}
-                          checked={roleFilterValue.includes(role.id)}
-                          onCheckedChange={(checked) => {
-                            roleColumn?.setFilterValue((value) => {
-                              const next = new Set(
-                                Array.isArray(value) ? value : value ? [value] : []
-                              );
-
-                              if (checked) {
-                                next.add(role.id);
-                              } else {
-                                next.delete(role.id);
-                              }
-
-                              return next.size > 0 ? Array.from(next) : undefined;
-                            });
-                          }}
-                        >
-                          {role.name}
-                        </DropdownMenuCheckboxItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  table.resetColumnFilters();
-                  table.resetGlobalFilter();
-                  setGlobalFilter("");
-                }}
-                disabled={!filtersApplied}
-              >
-                Clear filters
-              </Button>
+                    {column.id}
+                  </DropdownMenuCheckboxItem>
+                ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          {onRefresh ? (
+            <Button variant="outline" size="sm" onClick={onRefresh} disabled={isLoading}>
+              <IconPlus />
+              <span className="hidden lg:inline">Refresh</span>
+              <span className="lg:hidden">Sync</span>
+            </Button>
+          ) : null}
+        </div>
+      </div>
+      <TabsContent value="users" className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="w-full lg:max-w-sm">
+            <Label htmlFor="user-search" className="sr-only">
+              Search users
+            </Label>
+            <div className="relative">
+              <IconSearch className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2" />
+              <Input
+                id="user-search"
+                placeholder="Search by name or email"
+                value={globalFilter}
+                onChange={(event) => setGlobalFilter(event.target.value)}
+                className="pl-9"
+              />
             </div>
           </div>
-
-          {selectedCount > 0 ? (
-            <div className="rounded-md border border-primary/30 bg-primary/10 px-3 py-2 text-sm font-medium text-primary">
-              {selectedCount} of {filteredRowCount} selected
-            </div>
-          ) : null}
-
-          {errorMessage ? (
-            <div className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-              {errorMessage}
-            </div>
-          ) : null}
-
-          <div className="overflow-hidden rounded-lg border">
+          <Badge variant="outline" className="bg-muted/60 text-xs font-medium">
+            {filteredRowCount} of {totalUsers} users
+          </Badge>
+        </div>
+        {errorMessage ? (
+          <div className="text-destructive rounded-md border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm">
+            {errorMessage}
+          </div>
+        ) : null}
+        <div className="overflow-hidden rounded-lg border">
+          <DndContext
+            collisionDetection={closestCenter}
+            modifiers={[restrictToVerticalAxis]}
+            onDragEnd={handleDragEnd}
+            sensors={sensors}
+          >
             <Table>
-              <TableHeader className="bg-muted/60">
+              <TableHeader className="bg-muted sticky top-0 z-10">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
-                      <TableHead
-                        key={header.id}
-                        className={cn(
-                          "align-middle text-xs font-semibold uppercase tracking-wide text-muted-foreground",
-                          header.column.columnDef.meta?.className
-                        )}
-                      >
+                      <TableHead key={header.id} colSpan={header.colSpan} className={header.column.columnDef?.meta?.className}>
                         {header.isPlaceholder
                           ? null
                           : flexRender(header.column.columnDef.header, header.getContext())}
@@ -882,87 +890,114 @@ export function UserTable({
                   </TableRow>
                 ))}
               </TableHeader>
-              <TableBody>
-                {isLoading
-                  ? Array.from({ length: 5 }).map((_, index) => (
-                      <TableRow key={`skeleton-${index}`}>
-                        <TableCell className="w-12">
-                          <Skeleton className="mx-auto h-4 w-4" />
+              <TableBody className="**:data-[slot=table-cell]:first:w-8">
+                {isLoading && table.getRowModel().rows.length === 0 ? (
+                  Array.from({ length: 5 }).map((_, index) => (
+                    <TableRow key={`skeleton-${index}`}>
+                      {table.getVisibleFlatColumns().map((column) => (
+                        <TableCell key={column.id} className={column.columnDef?.meta?.className}>
+                          <Skeleton className="h-4 w-full" />
                         </TableCell>
-                        <TableCell>
-                          <Skeleton className="h-4 w-32" />
-                        </TableCell>
-                        <TableCell>
-                          <Skeleton className="h-4 w-40" />
-                        </TableCell>
-                        <TableCell>
-                          <Skeleton className="h-6 w-20" />
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Skeleton className="h-6 w-16" />
-                            <Skeleton className="h-6 w-16" />
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Skeleton className="h-4 w-24" />
-                        </TableCell>
-                        <TableCell>
-                          <Skeleton className="h-4 w-12" />
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Skeleton className="ml-auto h-8 w-8" />
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  : null}
-
-                {!isLoading && table.getRowModel().rows.length === 0 ? (
+                      ))}
+                    </TableRow>
+                  ))
+                ) : table.getRowModel().rows.length ? (
+                  <SortableContext items={dataIds} strategy={verticalListSortingStrategy}>
+                    {table.getRowModel().rows.map((row) => (
+                      <DraggableRow key={row.id} row={row} />
+                    ))}
+                  </SortableContext>
+                ) : (
                   <TableRow>
-                    <TableCell
-                      colSpan={table.getVisibleLeafColumns().length}
-                      className="h-24 text-center text-sm text-muted-foreground"
-                    >
-                      {filtersApplied
-                        ? "No users match your filters."
-                        : "No users found."}
+                    <TableCell colSpan={columns.length} className="h-24 text-center">
+                      {isLoading ? "Loading users…" : "No results."}
                     </TableCell>
                   </TableRow>
-                ) : null}
-
-                {!isLoading
-                  ? table.getRowModel().rows.map((row) => (
-                      <TableRow
-                        key={row.id}
-                        data-state={row.getIsSelected() && "selected"}
-                        className="hover:bg-muted/50"
-                      >
-                        {row.getVisibleCells().map((cell) => (
-                          <TableCell
-                            key={cell.id}
-                            className={cn(
-                              "align-middle",
-                              cell.column.columnDef.meta?.className
-                            )}
-                          >
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))
-                  : null}
+                )}
               </TableBody>
             </Table>
+          </DndContext>
+        </div>
+        <div className="flex items-center justify-between px-4">
+          <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
+            {selectedCount} of {filteredRowCount} row(s) selected.
           </div>
-        </CardContent>
-      </Card>
-      <UserEditDrawer
-        open={drawerOpen}
-        onOpenChange={closeDrawer}
-        user={selectedUser}
-        onSubmit={onUpdate}
-        availableRoles={availableRoles}
-      />
-    </>
+          <div className="flex w-full items-center gap-8 lg:w-fit">
+            <div className="hidden items-center gap-2 lg:flex">
+              <Label htmlFor="rows-per-page" className="text-sm font-medium">
+                Rows per page
+              </Label>
+              <Select
+                value={`${table.getState().pagination.pageSize}`}
+                onValueChange={(value) => {
+                  table.setPageSize(Number(value));
+                }}
+              >
+                <SelectTrigger size="sm" className="w-20" id="rows-per-page">
+                  <SelectValue placeholder={table.getState().pagination.pageSize} />
+                </SelectTrigger>
+                <SelectContent side="top">
+                  {[10, 20, 30, 40, 50].map((pageSize) => (
+                    <SelectItem key={pageSize} value={`${pageSize}`}>
+                      {pageSize}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex w-fit items-center justify-center text-sm font-medium">
+              Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount() || 1}
+            </div>
+            <div className="ml-auto flex items-center gap-2 lg:ml-0">
+              <Button
+                variant="outline"
+                className="hidden h-8 w-8 p-0 lg:flex"
+                onClick={() => table.setPageIndex(0)}
+                disabled={!table.getCanPreviousPage()}
+              >
+                <span className="sr-only">Go to first page</span>
+                <IconChevronsLeft />
+              </Button>
+              <Button
+                variant="outline"
+                className="size-8"
+                size="icon"
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+              >
+                <span className="sr-only">Go to previous page</span>
+                <IconChevronLeft />
+              </Button>
+              <Button
+                variant="outline"
+                className="size-8"
+                size="icon"
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+              >
+                <span className="sr-only">Go to next page</span>
+                <IconChevronRight />
+              </Button>
+              <Button
+                variant="outline"
+                className="hidden size-8 lg:flex"
+                size="icon"
+                onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+                disabled={!table.getCanNextPage()}
+              >
+                <span className="sr-only">Go to last page</span>
+                <IconChevronsRight />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </TabsContent>
+      <TabsContent value="activity" className="flex flex-col px-4 lg:px-6">
+        <div className="aspect-video w-full flex-1 rounded-lg border border-dashed" />
+      </TabsContent>
+      <TabsContent value="reports" className="flex flex-col px-4 lg:px-6">
+        <div className="aspect-video w-full flex-1 rounded-lg border border-dashed" />
+      </TabsContent>
+    </Tabs>
   );
 }
