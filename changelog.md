@@ -1,3 +1,6 @@
+## 2025-11-05 12:45:00 IST
+- Restricted the home dashboard route behind authentication so unauthenticated visitors are redirected to the login screen.
+
 ## 2025-11-05 12:15:00 IST
 - Updated the client authentication forms to call the `/api/auth/*` endpoints so logins and password flows reach the Express router successfully.
 
