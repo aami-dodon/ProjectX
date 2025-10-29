@@ -25,6 +25,19 @@ const authenticateRequest = async (req, _res, next) => {
       return next(createUnauthorizedError('Authenticated user could not be found'));
     }
 
+    if (user.status === 'SUSPENDED') {
+      logger.warn('Blocked request for suspended account', { userId: user.id });
+      return next(createUnauthorizedError('Account has been suspended'));
+    }
+
+    if (user.status !== 'ACTIVE') {
+      logger.warn('Blocked request for inactive account', {
+        userId: user.id,
+        status: user.status,
+      });
+      return next(createUnauthorizedError('Account is not active'));
+    }
+
     req.user = {
       id: user.id,
       email: user.email,
