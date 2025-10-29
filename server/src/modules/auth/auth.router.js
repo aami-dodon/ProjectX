@@ -56,6 +56,13 @@ router.get('/me', authenticateRequest, getCurrentUser);
  *               fullName:
  *                 type: string
  *                 description: Display name for the account.
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: Primary email address for the account.
+ *               avatarObjectName:
+ *                 type: string
+ *                 description: Object storage key for the uploaded avatar image.
  *     responses:
  *       '200':
  *         description: Updated user profile returned after applying changes.

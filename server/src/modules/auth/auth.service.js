@@ -5,6 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 
 const { env } = require('@/config/env');
 const { createLogger } = require('@/utils/logger');
+const { getFileAccessLink } = require('@/modules/files/file.service');
 const {
   assignRoleToUser,
   consumeEmailVerification,
@@ -51,6 +52,8 @@ const sanitizeUser = (user) => {
     id: user.id,
     email: user.email,
     fullName: user.fullName,
+    avatarObjectName: user.avatarObjectName ?? null,
+    avatarUrl: null,
     tenantId: user.tenantId,
     status: user.status,
     emailVerifiedAt: user.emailVerifiedAt,
@@ -63,7 +66,29 @@ const sanitizeUser = (user) => {
     })),
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
-  };
+};
+};
+
+const buildUserProfile = async (user) => {
+  const sanitized = sanitizeUser(user);
+  if (!sanitized) {
+    return null;
+  }
+
+  if (user.avatarObjectName) {
+    try {
+      const { url } = await getFileAccessLink(user.avatarObjectName, user.id);
+      sanitized.avatarUrl = url;
+    } catch (error) {
+      logger.warn('Failed to resolve avatar URL', {
+        userId: user.id,
+        error: error.message,
+      });
+      sanitized.avatarUrl = null;
+    }
+  }
+
+  return sanitized;
 };
 
 const issueAccessToken = (user) => {
@@ -154,7 +179,7 @@ const registerUser = async ({ email, password, fullName, tenantId }) => {
   });
 
   logger.info('User registered', { userId: user.id, email: normalizedEmail });
-  return sanitizeUser(enrichedUser ?? user);
+  return buildUserProfile(enrichedUser ?? user);
 };
 
 const loginUser = async ({ email, password, metadata = {} }) => {
@@ -215,7 +240,7 @@ const loginUser = async ({ email, password, metadata = {} }) => {
     refreshToken,
     expiresIn: env.AUTH_ACCESS_TOKEN_TTL_SECONDS,
     refreshExpiresAt,
-    user: sanitizeUser({ ...user }),
+    user: await buildUserProfile({ ...user }),
   };
 };
 
@@ -295,7 +320,7 @@ const refreshSession = async ({ refreshToken, metadata = {} }) => {
     refreshToken: rotatedRefreshToken,
     expiresIn: env.AUTH_ACCESS_TOKEN_TTL_SECONDS,
     refreshExpiresAt,
-    user: sanitizeUser(user),
+    user: await buildUserProfile(user),
   };
 };
 
@@ -397,7 +422,7 @@ const verifyEmail = async ({ token }) => {
   });
 
   logger.info('User email verified', { userId: record.userId });
-  return sanitizeUser(user);
+  return buildUserProfile(user);
 };
 
 const getCurrentUserProfile = async ({ userId }) => {
@@ -410,7 +435,7 @@ const getCurrentUserProfile = async ({ userId }) => {
     throw createNotFoundError('Authenticated user could not be found');
   }
 
-  return sanitizeUser(user);
+  return buildUserProfile(user);
 };
 
 const updateUserProfile = async ({ userId, profileUpdates = {} }) => {
@@ -422,30 +447,89 @@ const updateUserProfile = async ({ userId, profileUpdates = {} }) => {
     throw createValidationError('Profile update payload is required');
   }
 
-  const allowedFields = ['fullName'];
+  const allowedFields = ['fullName', 'email', 'avatarObjectName'];
   const updates = {};
+
+  const existing = await findUserById(userId);
+  if (!existing) {
+    throw createNotFoundError('Authenticated user could not be found');
+  }
 
   if (Object.prototype.hasOwnProperty.call(profileUpdates, 'fullName')) {
     const { fullName } = profileUpdates;
     if (fullName !== null && typeof fullName !== 'string') {
-      throw createValidationError('Full name must be a string or null');
+      throw createValidationError('Full name must be a string or null', {
+        field: 'fullName',
+      });
     }
 
     if (typeof fullName === 'string') {
-      updates.fullName = fullName.trim();
+      const trimmed = fullName.trim();
+      updates.fullName = trimmed.length > 0 ? trimmed : null;
     } else {
       updates.fullName = fullName;
+    }
+  }
+
+  if (Object.prototype.hasOwnProperty.call(profileUpdates, 'email')) {
+    const email = profileUpdates.email;
+    if (typeof email !== 'string') {
+      throw createValidationError('Email must be a string', {
+        field: 'email',
+      });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail) {
+      throw createValidationError('Email is required', {
+        field: 'email',
+      });
+    }
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(normalizedEmail)) {
+      throw createValidationError('Enter a valid email address', {
+        field: 'email',
+      });
+    }
+
+    if (normalizedEmail !== existing.email) {
+      const conflictingUser = await findUserByEmail(normalizedEmail);
+      if (conflictingUser && conflictingUser.id !== userId) {
+        throw createValidationError('An account with this email already exists', {
+          field: 'email',
+        });
+      }
+    }
+
+    updates.email = normalizedEmail;
+  }
+
+  if (Object.prototype.hasOwnProperty.call(profileUpdates, 'avatarObjectName')) {
+    const { avatarObjectName } = profileUpdates;
+
+    if (avatarObjectName === null) {
+      updates.avatarObjectName = null;
+    } else if (typeof avatarObjectName === 'string') {
+      const trimmed = avatarObjectName.trim();
+      if (!trimmed) {
+        throw createValidationError('Avatar object name must not be empty', {
+          field: 'avatarObjectName',
+        });
+      }
+
+      await getFileAccessLink(trimmed, userId);
+      updates.avatarObjectName = trimmed;
+    } else {
+      throw createValidationError('Avatar object name must be a string or null', {
+        field: 'avatarObjectName',
+      });
     }
   }
 
   const updateKeys = Object.keys(updates).filter((field) => allowedFields.includes(field));
   if (updateKeys.length === 0) {
     throw createValidationError('No valid profile fields provided for update');
-  }
-
-  const existing = await findUserById(userId);
-  if (!existing) {
-    throw createNotFoundError('Authenticated user could not be found');
   }
 
   const updatedUser = await updateUser(userId, updates);
@@ -458,7 +542,7 @@ const updateUserProfile = async ({ userId, profileUpdates = {} }) => {
 
   logger.info('User profile updated', { userId, fields: updateKeys });
 
-  return sanitizeUser(updatedUser);
+  return buildUserProfile(updatedUser);
 };
 
 module.exports = {

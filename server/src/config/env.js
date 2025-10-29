@@ -40,7 +40,7 @@ const defaults = {
   MINIO_SECRET_KEY: 'minioadmin',
   MINIO_REGION: 'us-east-1',
   MINIO_BUCKET: 'evidence',
-  MINIO_PRESIGNED_URL_EXPIRATION_SECONDS: '900',
+  MINIO_PRESIGNED_URL_EXPIRATION_SECONDS: '3600',
   EMAIL_FROM: 'no-reply@projectx.local',
   EMAIL_SMTP_HOST: 'localhost',
   EMAIL_SMTP_PORT: '1025',

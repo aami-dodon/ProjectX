@@ -4,6 +4,8 @@ const { env } = require('@/config/env');
 const { createUnauthorizedError, createValidationError } = require('@/utils/errors');
 const { getPresignedDownloadUrl, getPresignedUploadUrl } = require('@/integrations/minio');
 
+const DEFAULT_DOWNLOAD_URL_EXPIRATION_SECONDS = env.MINIO_PRESIGNED_URL_EXPIRATION_SECONDS;
+
 const ALLOWED_TYPES = {
   images: ['image/jpeg', 'image/png', 'image/webp'],
   documents: ['application/pdf'],
@@ -95,7 +97,11 @@ const createUploadSlot = async (userId, filename, mimeType) => {
   return { uploadUrl, fileUrl, category, objectName };
 };
 
-const getFileAccessLink = async (objectName, userId) => {
+const getFileAccessLink = async (
+  objectName,
+  userId,
+  expirySeconds = DEFAULT_DOWNLOAD_URL_EXPIRATION_SECONDS,
+) => {
   const userSegment = sanitizeUserSegment(userId);
   const normalizedObjectName = normalizeObjectName(objectName);
 
@@ -107,7 +113,7 @@ const getFileAccessLink = async (objectName, userId) => {
   }
 
   const bucket = env.MINIO_BUCKET;
-  const url = await getPresignedDownloadUrl(bucket, normalizedObjectName);
+  const url = await getPresignedDownloadUrl(bucket, normalizedObjectName, expirySeconds);
 
   return { url };
 };

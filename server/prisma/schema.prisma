@@ -17,6 +17,7 @@ model AuthUser {
   email            String                @unique
   passwordHash     String                @map("password_hash")
   fullName         String?               @map("full_name")
+  avatarObjectName String?               @map("avatar_object_name")
   tenantId         String?               @map("tenant_id")
   status           AuthUserStatus        @default(PENDING_VERIFICATION)
   emailVerifiedAt  DateTime?             @map("email_verified_at")
