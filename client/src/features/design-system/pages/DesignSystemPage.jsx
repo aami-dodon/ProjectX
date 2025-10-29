@@ -9,12 +9,12 @@ import {
   IconTypography,
 } from "@tabler/icons-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
-import { Badge } from "@/shared/components/ui/badge";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/shared/components/ui/breadcrumb";
-import { Button } from "@/shared/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Checkbox } from "@/shared/components/ui/checkbox";
+import { Avatar, AvatarFallback, AvatarImage } from "@/ui";
+import { Badge } from "@/ui";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/ui";
+import { Button } from "@/ui";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/ui";
+import { Checkbox } from "@/ui";
 import {
   Drawer,
   DrawerClose,
@@ -24,7 +24,7 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@/shared/components/ui/drawer";
+} from "@/ui";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -36,25 +36,25 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/shared/components/ui/dropdown-menu";
-import { Field, FieldContent, FieldDescription, FieldLabel } from "@/shared/components/ui/field";
-import { Input } from "@/shared/components/ui/input";
-import { Label } from "@/shared/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
-import { Separator } from "@/shared/components/ui/separator";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/shared/components/ui/sheet";
-import { Skeleton } from "@/shared/components/ui/skeleton";
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
-import { Toggle } from "@/shared/components/ui/toggle";
-import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
+} from "@/ui";
+import { Field, FieldContent, FieldDescription, FieldLabel } from "@/ui";
+import { Input } from "@/ui";
+import { Label } from "@/ui";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui";
+import { Separator } from "@/ui";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/ui";
+import { Skeleton } from "@/ui";
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/ui";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui";
+import { Toggle } from "@/ui";
+import { ToggleGroup, ToggleGroupItem } from "@/ui";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/shared/components/ui/tooltip";
-import { TextEditor } from "@/shared/components/text-editor";
+} from "@/ui";
+import { TextEditor } from "@/components";
 
 const baseColorTokens = [
   "background",

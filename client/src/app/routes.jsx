@@ -1,15 +1,16 @@
 import { createBrowserRouter } from "react-router-dom";
 
-import DefaultLayout from "./layouts/DefaultLayout";
-import SinglePageLayout from "./layouts/SinglePageLayout";
-import { ErrorPage } from "./pages/ErrorPage";
-import { ForbiddenPage } from "./pages/ForbiddenPage";
-import { InternalServerErrorPage } from "./pages/InternalServerErrorPage";
-import { NotFoundPage } from "./pages/NotFoundPage";
-import { RequestTimeoutPage } from "./pages/RequestTimeoutPage";
-import { ServiceUnavailablePage } from "./pages/ServiceUnavailablePage";
-import { UnauthorizedPage } from "./pages/UnauthorizedPage";
-import { HomePage } from "@/features/home/pages/HomePage";
+import { DefaultLayout, SinglePageLayout } from "./layouts";
+import {
+  ErrorPage,
+  ForbiddenPage,
+  InternalServerErrorPage,
+  NotFoundPage,
+  RequestTimeoutPage,
+  ServiceUnavailablePage,
+  UnauthorizedPage,
+} from "./pages";
+import { HomePage } from "@/features/home";
 import { DesignSystemPage } from "@/features/design-system";
 import { HealthPage } from "@/features/health";
 

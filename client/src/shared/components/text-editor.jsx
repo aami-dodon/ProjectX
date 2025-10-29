@@ -30,15 +30,15 @@ import {
   AlignJustify,
 } from "lucide-react";
 
-import { Button } from "@/shared/components/ui/button";
+import { Button } from "@/ui";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/shared/components/ui/dropdown-menu";
-import { Separator } from "@/shared/components/ui/separator";
-import { cn } from "@/shared/lib/utils";
+} from "@/ui";
+import { Separator } from "@/ui";
+import { cn } from "@/lib";
 
 function createDefaultExtensions(placeholder) {
   return [

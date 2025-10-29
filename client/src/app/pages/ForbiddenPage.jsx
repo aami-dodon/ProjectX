@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Headset, ShieldAlert } from "lucide-react";
 
-import { Button } from "@/ui/button";
+import { Button } from "@/ui";
 
 import { StatusPage } from "./StatusPage";
 
