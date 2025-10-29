@@ -400,6 +400,67 @@ const verifyEmail = async ({ token }) => {
   return sanitizeUser(user);
 };
 
+const getCurrentUserProfile = async ({ userId }) => {
+  if (!userId) {
+    throw createValidationError('Authenticated user identifier is required');
+  }
+
+  const user = await findUserById(userId);
+  if (!user) {
+    throw createNotFoundError('Authenticated user could not be found');
+  }
+
+  return sanitizeUser(user);
+};
+
+const updateUserProfile = async ({ userId, profileUpdates = {} }) => {
+  if (!userId) {
+    throw createValidationError('Authenticated user identifier is required');
+  }
+
+  if (!profileUpdates || typeof profileUpdates !== 'object') {
+    throw createValidationError('Profile update payload is required');
+  }
+
+  const allowedFields = ['fullName'];
+  const updates = {};
+
+  if (Object.prototype.hasOwnProperty.call(profileUpdates, 'fullName')) {
+    const { fullName } = profileUpdates;
+    if (fullName !== null && typeof fullName !== 'string') {
+      throw createValidationError('Full name must be a string or null');
+    }
+
+    if (typeof fullName === 'string') {
+      updates.fullName = fullName.trim();
+    } else {
+      updates.fullName = fullName;
+    }
+  }
+
+  const updateKeys = Object.keys(updates).filter((field) => allowedFields.includes(field));
+  if (updateKeys.length === 0) {
+    throw createValidationError('No valid profile fields provided for update');
+  }
+
+  const existing = await findUserById(userId);
+  if (!existing) {
+    throw createNotFoundError('Authenticated user could not be found');
+  }
+
+  const updatedUser = await updateUser(userId, updates);
+
+  await logAuthEvent({
+    userId,
+    eventType: 'auth.user.profile_updated',
+    payload: { fields: updateKeys },
+  });
+
+  logger.info('User profile updated', { userId, fields: updateKeys });
+
+  return sanitizeUser(updatedUser);
+};
+
 module.exports = {
   loginUser,
   logoutUser,
@@ -408,4 +469,6 @@ module.exports = {
   requestPasswordReset,
   resetPassword,
   verifyEmail,
+  getCurrentUserProfile,
+  updateUserProfile,
 };

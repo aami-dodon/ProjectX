@@ -13,6 +13,10 @@ const mockRefreshSession = jest.fn()
 const mockRequestPasswordReset = jest.fn()
 const mockResetPassword = jest.fn()
 const mockVerifyEmail = jest.fn()
+const mockGetCurrentUserProfile = jest.fn()
+const mockUpdateUserProfile = jest.fn()
+
+const mockAuthenticateRequest = jest.fn()
 
 jest.mock('@/integrations/prisma', () => ({
   prisma: {
@@ -28,6 +32,13 @@ jest.mock('@/modules/auth/auth.service', () => ({
   requestPasswordReset: (...args) => mockRequestPasswordReset(...args),
   resetPassword: (...args) => mockResetPassword(...args),
   verifyEmail: (...args) => mockVerifyEmail(...args),
+  getCurrentUserProfile: (...args) => mockGetCurrentUserProfile(...args),
+  updateUserProfile: (...args) => mockUpdateUserProfile(...args),
+}))
+
+jest.mock('@/modules/auth/auth.middleware', () => ({
+  authenticateRequest: (...args) => mockAuthenticateRequest(...args),
+  requireRoles: jest.fn(() => (req, _res, next) => next()),
 }))
 
 jest.mock('@/utils/logger', () => {
@@ -58,6 +69,17 @@ describe('Auth routes', () => {
     mockRequestPasswordReset.mockReset()
     mockResetPassword.mockReset()
     mockVerifyEmail.mockReset()
+    mockGetCurrentUserProfile.mockReset()
+    mockUpdateUserProfile.mockReset()
+    mockAuthenticateRequest.mockReset()
+    mockAuthenticateRequest.mockImplementation((req, _res, next) => {
+      req.user = {
+        id: 'user-123',
+        email: 'user@example.com',
+        roles: ['operator'],
+      }
+      return next()
+    })
   })
 
   describe('POST /api/auth/register', () => {
@@ -363,6 +385,111 @@ describe('Auth routes', () => {
         error: {
           message: 'Verification token is invalid or expired',
           code: 'UNAUTHORIZED',
+          details: null,
+          requestId: null,
+          traceId: null,
+        },
+      })
+    })
+  })
+
+  describe('GET /api/auth/me', () => {
+    it('returns the authenticated user profile', async () => {
+      mockGetCurrentUserProfile.mockResolvedValue({
+        id: 'user-123',
+        email: 'user@example.com',
+        fullName: 'Test User',
+        roles: [],
+      })
+
+      const app = createApp()
+      const response = await request(app)
+        .get('/api/auth/me')
+        .set('Authorization', 'Bearer test-token')
+
+      expect(response.status).toBe(200)
+      expect(response.body).toEqual({
+        user: {
+          id: 'user-123',
+          email: 'user@example.com',
+          fullName: 'Test User',
+          roles: [],
+        },
+      })
+      expect(mockAuthenticateRequest).toHaveBeenCalled()
+      expect(mockGetCurrentUserProfile).toHaveBeenCalledWith({
+        userId: 'user-123',
+      })
+    })
+
+    it('propagates service errors', async () => {
+      mockGetCurrentUserProfile.mockRejectedValue(
+        createNotFoundError('Authenticated user could not be found')
+      )
+
+      const app = createApp()
+      const response = await request(app)
+        .get('/api/auth/me')
+        .set('Authorization', 'Bearer another-token')
+
+      expect(response.status).toBe(404)
+      expect(response.body).toEqual({
+        error: {
+          message: 'Authenticated user could not be found',
+          code: 'NOT_FOUND',
+          details: null,
+          requestId: null,
+          traceId: null,
+        },
+      })
+    })
+  })
+
+  describe('PATCH /api/auth/me', () => {
+    it('updates the user profile and returns sanitized data', async () => {
+      mockUpdateUserProfile.mockResolvedValue({
+        id: 'user-123',
+        email: 'user@example.com',
+        fullName: 'Updated User',
+        roles: [],
+      })
+
+      const app = createApp()
+      const response = await request(app)
+        .patch('/api/auth/me')
+        .set('Authorization', 'Bearer token')
+        .send({ fullName: 'Updated User' })
+
+      expect(response.status).toBe(200)
+      expect(response.body).toEqual({
+        user: {
+          id: 'user-123',
+          email: 'user@example.com',
+          fullName: 'Updated User',
+          roles: [],
+        },
+      })
+      expect(mockUpdateUserProfile).toHaveBeenCalledWith({
+        userId: 'user-123',
+        profileUpdates: { fullName: 'Updated User' },
+      })
+    })
+
+    it('propagates validation errors from the service', async () => {
+      mockUpdateUserProfile.mockRejectedValue(
+        createValidationError('No valid profile fields provided for update')
+      )
+
+      const app = createApp()
+      const response = await request(app)
+        .patch('/api/auth/me')
+        .send({})
+
+      expect(response.status).toBe(400)
+      expect(response.body).toEqual({
+        error: {
+          message: 'No valid profile fields provided for update',
+          code: 'VALIDATION_ERROR',
           details: null,
           requestId: null,
           traceId: null,

@@ -18,6 +18,7 @@
     - [Login (`POST /api/auth/login`)](#login-post-apiauthlogin)
     - [Logout (`POST /api/auth/logout`)](#logout-post-apiauthlogout)
     - [Refresh Tokens (`POST /api/auth/refresh`)](#refresh-tokens-post-apiauthrefresh)
+    - [Profile Retrieval & Updates (`GET /api/auth/me`, `PATCH /api/auth/me`)](#profile-retrieval--updates-get-apiauthme-patch-apiauthme)
     - [Password Reset Emails (`POST /api/auth/forgot-password`, `POST /api/auth/reset-password`)](#password-reset-emails-post-apiauthforgot-password-post-apiauthreset-password)
     - [Enterprise Authentication Methods](#enterprise-authentication-methods)
   - [API Surface \& Contracts](#api-surface--contracts)
@@ -88,6 +89,11 @@ The Auth Service coordinates user lifecycle operations, session control, and sec
 2. Issue a new access token and (optionally) a new refresh token with updated expiry limits.
 3. Reject reused or expired tokens and log invalidation attempts to support threat detection.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L74-L86】【F:docs/02-technical-specifications/06-security-implementation.md†L54-L75】
 
+#### Profile Retrieval & Updates (`GET /api/auth/me`, `PATCH /api/auth/me`)
+1. `GET /api/auth/me` rehydrates the authenticated principal using the JWT middleware context and returns the sanitized `AuthUser` payload shared with login responses.【F:server/src/modules/auth/auth.middleware.js†L10-L44】【F:server/src/modules/auth/auth.service.js†L264-L305】
+2. `PATCH /api/auth/me` permits self-service updates for approved profile attributes (currently display name), trims inputs, persists changes, and records an `auth.user.profile_updated` audit event for traceability.【F:server/src/modules/auth/auth.service.js†L307-L336】【F:server/src/modules/auth/auth.router.js†L13-L61】
+3. Both handlers rely on `authenticateRequest` to enforce bearer token access and reuse the shared `sanitizeUser` shape so downstream consumers receive consistent profile metadata.【F:server/src/modules/auth/auth.service.js†L34-L63】【F:server/src/modules/auth/auth.controller.js†L74-L109】
+
 #### Password Reset Emails (`POST /api/auth/forgot-password`, `POST /api/auth/reset-password`)
 1. Generate a time-bound reset token stored alongside user metadata.
 2. Send password reset instructions via Nodemailer using templated content and secure links.
@@ -108,6 +114,8 @@ The module exposes REST endpoints aligned with the platform’s OpenAPI standard
 | `POST /api/auth/login` | Authenticate user credentials or SSO handoff. | Email + password or provider token, MFA hints. | `200` with access/refresh tokens, writes session row, logs attempt, triggers risk checks and notifications on anomalies.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L74-L86】【F:docs/01-about/04-security-and-data-protection.md†L206-L239】 |
 | `POST /api/auth/logout` | Terminate active session. | Refresh token identifier. | `204`, revokes session records, cascades token invalidation, and records audit entry for traceability.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L74-L86】【F:docs/01-about/04-security-and-data-protection.md†L243-L259】 |
 | `POST /api/auth/refresh` | Rotate access tokens. | Refresh token, device info. | `200` with new tokens, rotation metadata updated, invalid attempts flagged for monitoring.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L74-L86】【F:docs/02-technical-specifications/06-security-implementation.md†L54-L96】 |
+| `GET /api/auth/me` | Retrieve the authenticated user's profile. | Bearer access token. | `200` with sanitized `AuthUser` payload matching login responses, enabling clients to hydrate session state without reauthenticating.【F:server/src/modules/auth/auth.router.js†L13-L61】【F:server/src/modules/auth/auth.service.js†L264-L305】 |
+| `PATCH /api/auth/me` | Update self-service profile attributes. | Bearer access token, optional `fullName`. | `200` with sanitized `AuthUser`, trims/validates inputs, persists allowed fields, and emits `auth.user.profile_updated` audit logs.【F:server/src/modules/auth/auth.service.js†L307-L336】【F:server/src/modules/auth/auth.controller.js†L74-L109】 |
 | `POST /api/auth/forgot-password` / `POST /api/auth/reset-password` | Manage password recovery workflow. | Email for initiation; token + password for completion. | `202` for initiation, `200` for reset, schedule email send, enforce password policies, log completion.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L74-L118】 |
 | `POST /api/auth/mfa/enroll` / `POST /api/auth/mfa/verify` | Manage MFA secrets and verifications. | TOTP seed or WebAuthn challenge data. | `200`, persists MFA factors, flags accounts requiring step-up auth, records governance review items.【F:docs/01-about/04-security-and-data-protection.md†L206-L239】【F:docs/02-technical-specifications/06-security-implementation.md†L54-L96】 |
 | `POST /api/auth/service-tokens` / `DELETE /api/auth/service-tokens/:id` | Issue and revoke service credentials. | Token label, scope, expiry. | `201` with credential metadata or `204` on revoke, updates integration registry, emits webhook for dependent services.【F:docs/01-about/04-security-and-data-protection.md†L219-L226】【F:docs/02-technical-specifications/07-integration-architecture.md†L145-L187】 |

@@ -1,3 +1,5 @@
+## 2025-11-06 14:41:13 IST
+- Added authenticated profile endpoints (`GET/PATCH /api/auth/me`), service helpers, tests, and documentation so operators can self-manage display names while keeping responses aligned with the sanitized auth payload.
 ## 2025-11-06 10:00:00 IST
 - Documented reuse guidelines for the auth, files, and health backend modules so developers can onboard quickly.
 ## 2025-11-05 20:15:00 IST

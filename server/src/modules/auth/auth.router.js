@@ -8,9 +8,66 @@ const {
   register,
   resetPassword,
   verifyEmail,
+  getCurrentUser,
+  updateCurrentUser,
 } = require('./auth.controller');
+const { authenticateRequest } = require('./auth.middleware');
 
 const router = express.Router();
+
+/**
+ * @openapi
+ * /api/auth/me:
+ *   get:
+ *     summary: Retrieve the authenticated user's profile.
+ *     tags:
+ *       - Authentication
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       '200':
+ *         description: Returns the current user's sanitized profile.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   $ref: '#/components/schemas/AuthUser'
+ */
+router.get('/me', authenticateRequest, getCurrentUser);
+
+/**
+ * @openapi
+ * /api/auth/me:
+ *   patch:
+ *     summary: Update profile attributes for the authenticated user.
+ *     tags:
+ *       - Authentication
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               fullName:
+ *                 type: string
+ *                 description: Display name for the account.
+ *     responses:
+ *       '200':
+ *         description: Updated user profile returned after applying changes.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   $ref: '#/components/schemas/AuthUser'
+ */
+router.patch('/me', authenticateRequest, updateCurrentUser);
 
 /**
  * @openapi
