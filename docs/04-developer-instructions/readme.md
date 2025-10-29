@@ -8,22 +8,25 @@
 ## 1. Quickstart Checklist
 
 1. **Install prerequisites** (Node.js 20+, npm 10+, Docker if you want to build the images locally).
-2. **Clone the repository** and copy `.env.example` to `.env`, customising credentials for your local PostgreSQL, MinIO, SMTP, and client/server ports.
+2. **Clone the repository** and copy `.env.example` to `.env`, customising credentials for your local PostgreSQL, MinIO, SMTP, and client/server ports. The single `.env` file is read by both the Express server and the Vite dev server.
 3. **Install dependencies** in each workspace:
    ```bash
-   npm install           # From /workspace/Project-X for shared tooling (if present)
    cd server && npm install
    cd ../client && npm install
    ```
-4. **Generate Prisma client** automatically via `npm install` (runs `prisma generate`).
+4. **Generate the Prisma client** – the server's `postinstall` hook runs `prisma generate` automatically when you install packages.
 5. **Start services** in two terminals:
    ```bash
-   cd server && npm run dev
-   cd client && npm run dev
+   cd server && npm run dev       # Express + nodemon on SERVER_PORT
+   cd client && npm run dev       # Vite on CLIENT_PORT with API proxying
    ```
    The Vite dev server proxies API requests to the Express backend using `VITE_API_URL` from your `.env` file.
-6. **Run checks before committing:** `cd server && npm test`, `cd client && npm run lint`.
-7. **Document changes** in `changelog.md` with an IST timestamp and commit once tests pass.
+6. **Run checks before committing:**
+   ```bash
+   cd server && npm test && npm run lint
+   cd client && npm run lint
+   ```
+7. **Document changes** in `changelog.md` with an IST timestamp and commit once checks pass.
 
 ---
 
@@ -31,27 +34,33 @@
 
 | Path | Description |
 | --- | --- |
-| `client/` | Vite + React application, organised by feature slices under `src/features` with shared primitives in `src/shared`. |
-| `server/` | Express API with Prisma ORM, feature modules under `src/`, OpenAPI tooling in `src/config/swagger.js`, and policies/templates for auth, governance, evidence, and notifications. |
-| `shared/` | Cross-cutting JavaScript utilities; currently home to the centralised error handling helpers consumed by both tiers. |
-| `docs/` | Authoritative documentation hub. Update the relevant collection when you add or modify features. |
+| `client/` | Vite + React 19 SPA. Routing and layouts live under `src/app`, feature modules under `src/features`, and reusable primitives under `src/shared`. |
+| `client/src/shared/lib` | Shared browser utilities including the configured Axios instance (`client.js`), logger helpers, and class name utilities. |
+| `server/` | Express 4 API backed by Prisma. `src/index.js` bootstraps the app via `src/app.js`, wiring middleware, routers, and graceful shutdown. |
+| `server/src/modules/*` | Feature modules (email, health diagnostics, uploads) split into `router`, `controller`, and `service` layers with repositories when needed. |
+| `server/src/integrations` | Prisma client factory, MinIO helpers, and Nodemailer transport configuration. |
+| `server/src/config` | Environment validation (`env.js`), Swagger setup, and shared assets (favicon, stylesheet) for API docs. |
+| `docs/` | Authoritative documentation hub. Update the relevant collection whenever you add or modify features. |
+| `docs/04-developer-instructions/frontend` | Frontend feature playbooks (routing, styling, and shadcn/ui conventions). |
+| `docs/04-developer-instructions/backend` | Backend module playbooks covering Express patterns, Prisma usage, and testing. |
 | `scripts/` | Automation helpers for docs generation and operational chores. |
-| `prompts/`, `reference/` | Design language, UI references, and conversational assets that align UX and AI integrations. |
 | `docker-compose.yml` | Local orchestration entry point for running client and server containers against external PostgreSQL and MinIO services. |
 
-Keep the monorepo JavaScript-only per the root `agents.md` brief. Shared logic goes into `shared/` instead of duplicating utilities in each package.
+Keep the monorepo JavaScript-only per the root `agents.md` brief. Shared frontend logic belongs in `client/src/shared`, and server-wide helpers belong under `server/src/utils`.
 
 ---
 
 ## 3. Environment Configuration
 
 - Duplicate `.env.example` at the repo root and adjust:
-  - `SERVER_PORT`, `CLIENT_PORT`, `VITE_API_URL` for local ports.
+  - `SERVER_PORT`, `CLIENT_PORT`, `VITE_API_URL` for local ports and proxy targets.
   - Database credentials (`DATABASE_URL`) targeting your development PostgreSQL instance.
   - MinIO access keys and bucket metadata (`MINIO_*`).
   - SMTP credentials (`EMAIL_*`) for notification testing.
   - CORS domains (`CORS_ALLOWED_ORIGINS`, `CLIENT_ALLOWED_HOSTS`) so the browser can reach the API.
-- For frontend variables exposed to the browser **you must use the `VITE_` prefix** to satisfy Vite’s environment rules.
+  - Logging and diagnostics toggles such as `LOG_LEVEL`.
+- `server/src/config/env.js` validates all variables with Zod and exits early when required values are missing. Keep `.env.example` in sync with any new flags and provide sensible defaults.
+- The client Vite config (`client/vite.config.js`) loads the same `.env` file, normalises dev server options, and enforces the `VITE_` prefix for browser-exposed settings.
 - Never commit actual secrets—update `.env.example` if new configuration knobs are introduced.
 
 ---
@@ -63,15 +72,18 @@ Keep the monorepo JavaScript-only per the root `agents.md` brief. Shared logic g
 - **Backend:**
   ```bash
   cd server
-  npm run dev        # Starts Express with nodemon on the port configured by SERVER_PORT
-  npm test           # Runs swagger contract checks then Jest + Supertest suites
+  npm run dev         # Starts Express with nodemon on the port configured by SERVER_PORT
+  npm test            # Runs the Jest + Supertest suite (includes Swagger contract checks)
+  npm run lint        # ESLint with the shared Node configuration
+  npm run format:check
   ```
 - **Frontend:**
   ```bash
   cd client
-  npm run dev        # Launches Vite dev server using CLIENT_* env toggles
-  npm run build      # Produces static assets in client/dist
-  npm run lint       # ESLint with the shared React configuration
+  npm run dev         # Launches Vite dev server using CLIENT_* env toggles
+  npm run build       # Produces static assets in client/dist
+  npm run lint        # ESLint with the shared React configuration
+  npm run preview     # Serves the production build locally
   ```
 
 ### Docker workflow
@@ -87,29 +99,30 @@ The compose file builds both services, injects values from `.env`, and exposes t
 ## 5. Coding Standards & Review Expectations
 
 - Stick to JavaScript (no TypeScript) and follow ESLint + Prettier defaults defined in each workspace.
-- Reuse shared Axios clients (`client/src/lib/client.js`) and centralized error handling (`server/src/utils/error-handling.js`).
-- Register new React routes via `client/src/app/routes.jsx`, exporting feature entry points from `client/src/features/<feature>/index.js`.
-- Keep Prisma schema updates in `server/prisma/schema.prisma`, generate migrations with `npx prisma migrate dev --name <change>`.
-- Manage Casbin policies in `server/src/policies/` and email templates under `server/src/templates/email/`.
-- Update OpenAPI metadata alongside any API change (`server/src/config/swagger.js`).
+- Reuse shared Axios clients and helpers from `client/src/shared/lib` (notably `client.js` and `utils.js`) instead of redefining fetch logic inside features.
+- Route new React pages via `client/src/app/routes.jsx`, exporting feature entry points from `client/src/features/<feature>/index.js`. Layout shells reside in `client/src/app/layouts`.
+- Tailwind tokens live in `client/src/index.css`; extend design primitives through the existing `@theme` block and reuse shadcn/ui components under `client/src/shared/components/ui`.
+- On the server, surface errors through `server/src/utils/error-handling.js` and structured logging via `server/src/utils/logger.js`. Keep middleware compatible with the request logger in `server/src/middleware/request-logger.js`.
+- Place new API routers under `server/src/modules/<feature>` following the existing controller/service patterns, and update `server/src/app.js` when wiring them in.
+- Keep Prisma schema updates in `server/prisma/schema.prisma`; generate migrations with `npx prisma migrate dev --name <change>` and run `npm run lint` afterwards.
+- Maintain API documentation via `server/src/config/swagger.js` whenever routes or schemas change.
 - Capture UI updates with screenshots and attach them to PRs when applicable.
 
 ---
 
 ## 6. Testing, QA, and CI Readiness
 
-- Backend CI expects `npm test` to succeed (Swagger contract validation + Jest suite).
-- Frontend linting (`npm run lint`) must pass before you open a pull request.
-- Add targeted tests for new business logic or UI behaviour to prevent regressions.
-- Log and audit significant events per the logging standards (Winston + Morgan) described in `agents.md` and ensure errors funnel through the shared handler.
+- Backend CI expects `npm test` (Jest + Supertest) and `npm run lint` to succeed inside `server/`.
+- Frontend checks rely on `npm run lint`; add targeted testing with React Testing Library or Vitest in the `client/` workspace if you introduce runtime-critical behaviour.
+- Log and audit significant events per the logging standards (Winston + Morgan) described in `agents.md`, and ensure errors funnel through the shared handler.
 
 ---
 
 ## 7. Collaboration Rituals
 
 - Keep `changelog.md` current with IST timestamps for every merged change.
-- Cross-link documentation updates in `docs/` when introducing new systems or altering workflows.
+- Cross-link documentation updates in `docs/` when introducing new systems or altering workflows. Frontend-specific playbooks live in `docs/04-developer-instructions/frontend`, and backend module guidance lives in `docs/04-developer-instructions/backend`.
 - Coordinate breaking changes via the #dev-updates channel and include migration notes in PR descriptions.
-- Reference design guidance in `docs/04-developer-instructions/frontend` when shipping visual changes.
+- Reference design guidance in `docs/04-developer-instructions/frontend/feature.md` when shipping visual changes.
 
 By following this onboarding guide you’ll align with the existing workflows, keep environments reproducible, and ensure smooth collaboration across the Project X team.
