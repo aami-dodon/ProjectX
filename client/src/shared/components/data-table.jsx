@@ -91,6 +91,15 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/shared/components/ui/tabs"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card"
+import { Skeleton } from "@/shared/components/ui/skeleton"
+import { cn } from "@/shared/lib/utils"
 
 export const schema = z.object({
   id: z.number(),
@@ -316,7 +325,7 @@ function DraggableRow({
   );
 }
 
-export function DataTable({
+export function ProposalDataTable({
   data: initialData
 }) {
   const [data, setData] = React.useState(() => initialData)
@@ -740,4 +749,128 @@ function TableCellViewer({
       </DrawerContent>
     </Drawer>
   );
+}
+
+export function DataTable({
+  columns,
+  data = [],
+  title,
+  description,
+  isLoading = false,
+  error,
+  onRefresh,
+  headerActions,
+  toolbar,
+  emptyMessage = "No results found",
+  skeletonRowCount = 5,
+  className,
+  getRowId,
+  stickyHeader = false,
+}) {
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getRowId,
+  })
+
+  const columnCount =
+    table.getVisibleLeafColumns().length || columns?.length || 1
+  const headerHasContent =
+    title || description || onRefresh || headerActions
+  const refreshButton = onRefresh ? (
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={onRefresh}
+      disabled={isLoading}>
+      Refresh
+    </Button>
+  ) : null
+  const errorMessage =
+    typeof error === "string" ? error : error?.message
+
+  return (
+    <Card className={cn("mx-4 shadow-none lg:mx-6", className)}>
+      {headerHasContent ? (
+        <CardHeader className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+          <div className="space-y-1">
+            {title ? <CardTitle>{title}</CardTitle> : null}
+            {description ? <CardDescription>{description}</CardDescription> : null}
+          </div>
+          {headerActions || refreshButton ? (
+            <div className="flex items-center gap-2">
+              {headerActions}
+              {refreshButton}
+            </div>
+          ) : null}
+        </CardHeader>
+      ) : null}
+      <CardContent className="space-y-4">
+        {errorMessage ? (
+          <p className="text-sm text-destructive">{errorMessage}</p>
+        ) : null}
+        {toolbar ? <div>{toolbar}</div> : null}
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader className={cn(stickyHeader && "bg-muted sticky top-0 z-10")}>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    if (header.isPlaceholder) {
+                      return <TableHead key={header.id} colSpan={header.colSpan} />
+                    }
+
+                    return (
+                      <TableHead
+                        key={header.id}
+                        colSpan={header.colSpan}
+                        className={cn(header.column.columnDef.meta?.headerClassName)}>
+                        {flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                      </TableHead>
+                    )
+                  })}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                Array.from({ length: skeletonRowCount }).map((_, index) => (
+                  <TableRow key={`skeleton-${index}`}>
+                    <TableCell colSpan={columnCount}>
+                      <Skeleton className="h-6 w-full" />
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell
+                        key={cell.id}
+                        className={cn(cell.column.columnDef.meta?.cellClassName)}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={columnCount} className="text-center text-sm text-muted-foreground">
+                    {emptyMessage}
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </CardContent>
+    </Card>
+  )
 }
