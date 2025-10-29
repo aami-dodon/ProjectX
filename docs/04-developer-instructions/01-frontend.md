@@ -16,6 +16,15 @@ This guide explains how to build new user-facing capabilities inside the Vite + 
 4. Register your new page or route by extending the `createBrowserRouter` structure in `client/src/app/routes.jsx`. Most features nest inside the default layout alongside the existing home and health routes.
 5. Reuse shared primitives from `client/src/shared`—especially API clients (`client/src/shared/lib/client.js`), layout chrome, logging helpers, and authentication flows—before adding new dependencies.
 
+### Auth and API client behavior
+
+- The shared Axios client automatically attaches the `Authorization: Bearer <accessToken>` header from `localStorage`.
+- On `401 Unauthorized` responses (except for `/api/auth/login|refresh|logout`), it silently attempts a single token refresh via `POST /api/auth/refresh` using the stored `refreshToken`, then retries the original request.
+- On successful refresh, it updates `localStorage` (`accessToken`, `refreshToken`, and `user` when present) and dispatches a `px:user-updated` event on `window` so listeners can react.
+- If refresh fails or no `refreshToken` is available, it clears local auth state (`accessToken`, `refreshToken`, `user`) and leaves the original `401` to bubble up. Route guards will redirect unauthenticated sessions back to the login page.
+
+This behavior keeps protected screens responsive during normal access token expiry without interrupting users or dropping in-flight actions.
+
 ## 2. Feature Folder Anatomy
 
 Every folder under `client/src/features` represents a self-contained feature slice. Use the existing modules as references:

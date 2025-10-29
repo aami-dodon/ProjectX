@@ -1,8 +1,13 @@
 ## 2025-11-07 13:17:41 IST
 - Unified the shared data table row drawer with consistent view/edit tabs and updated the home outline and user management tables to consume the new UI.
+## 2025-11-07 13:15:00 IST
+- Documented reuse guidelines for the admin backend module and added the missing module README.
 
 ## 2025-11-07 12:30:00 IST
 - Redirected post-logout navigation to the public home route so users return to the pre-login experience after signing out.
+
+## 2025-10-30 03:19:08 IST
+- Improved authentication UX: the frontend now auto-refreshes expired access tokens on 401s, retries the original request, and only redirects to login if refresh fails. This removes spurious errors on admin pages after periods of inactivity.
 
 ## 2025-10-30 02:03:39 IST
 - Restored the post-login redirect by syncing auth status updates with the custom `px:user-updated` event so successful sign-ins reach `/home` without refreshing.
