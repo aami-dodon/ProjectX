@@ -491,3 +491,5 @@
 - Corrected `server/src/modules/health/controllers/health.controller.js` to import from `server/src/utils/error-handling` instead of a non-existent shared path, aligning with centralized error handling.
 ## 2025-10-28 11:36:30 IST
 - Styled Swagger UI by serving `server/src/config/swagger.css` at `/api/docs/swagger.css` and linking it via `customCssUrl` so `/api/docs` uses the selected theme.
+## 2025-10-29 06:01:40 IST
+- Fixed the rich text editor crash by migrating to the `lowlight@3` API: create an instance via `createLowlight(common)` and pass it to TipTap’s `CodeBlockLowlight` extension to restore code block rendering.

@@ -13,7 +13,7 @@ import BulletList from "@tiptap/extension-bullet-list";
 import OrderedList from "@tiptap/extension-ordered-list";
 import Blockquote from "@tiptap/extension-blockquote";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
-import { lowlight } from "lowlight";
+import { createLowlight, common } from "lowlight";
 import {
   Bold,
   Italic,
@@ -99,6 +99,8 @@ const StyledBlockquote = Blockquote.configure({
       "border-l-4 border-muted-foreground dark:border-muted-foreground pl-4 italic text-muted-foreground dark:text-muted-foreground",
   },
 });
+
+const lowlight = createLowlight(common);
 
 const StyledCodeBlock = CodeBlockLowlight.configure({
   lowlight,
