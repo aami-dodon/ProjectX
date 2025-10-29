@@ -1,17 +1,19 @@
 import { Navigate, createBrowserRouter } from "react-router-dom";
 
 import DefaultLayout from "./layouts/DefaultLayout";
-import { HomePage } from "@/features/home/pages/HomePage";
+import { HomePage } from "@/features/home";
 import { DesignSystemPage } from "@/features/design-system";
 import { HealthPage } from "@/features/health";
 import { AccountSettingsPage } from "@/features/account";
 import { UserManagementPage } from "@/features/admin";
 
-import { authRoutes } from "@/features/auth";
-import { AuthLayout } from "@/features/auth/components/AuthLayout";
-import { useAuthStatus } from "@/features/auth/hooks/use-auth-status";
-import { useHasRole } from "@/features/auth/hooks/use-has-role";
-import { LoginPage } from "@/features/auth/pages/LoginPage";
+import {
+  AuthLayout,
+  LoginPage,
+  authRoutes,
+  useAuthStatus,
+  useHasRole,
+} from "@/features/auth";
 import {
   ErrorPage,
   ForbiddenPage,
