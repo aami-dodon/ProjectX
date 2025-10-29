@@ -26,7 +26,7 @@ This guide documents how to extend the Express + Prisma server that powers Proje
 
 ## 2. Module Anatomy
 
-Every feature under `server/src/modules` follows the same layering pattern. Use existing modules such as `health` and `email` as blueprints.
+Every feature under `server/src/modules` follows the same layering pattern. Use existing modules such as `health` and `auth` as blueprints.
 
 - **`*.router.js`** – declares the Express routes and attaches middleware such as validators or authentication guards.
 - **`*.controller.js`** – orchestrates request/response logic, delegating to services and translating domain errors into HTTP responses.
@@ -36,11 +36,11 @@ Every feature under `server/src/modules` follows the same layering pattern. Use 
 When you create a new module:
 
 1. Scaffold the files above under `server/src/modules/<feature>/`.
-2. Register the router inside `server/src/app.js` so the routes are reachable under the `/api` namespace. Follow the existing `health`, `email`, and `upload` imports when wiring your router.
+2. Register the router inside `server/src/app.js` so the routes are reachable under the `/api` namespace. Follow the existing `health` and `auth` imports when wiring your router.
 
 ## 3. Request Lifecycle & Middleware
 
-- Perform lightweight validation as close to the router as possible. Simple checks can live in the controller (see the upload controller for an example); complex workflows should add dedicated middleware inside the module.
+- Perform lightweight validation as close to the router as possible. Simple checks can live in the controller; complex workflows should add dedicated middleware inside the module.
 - Wrap asynchronous controllers in `try/catch` blocks and forward unexpected errors with `next(error)` so the global handler in `server/src/middleware/errorHandler.js` can format the response.
 - Preserve observability by passing each request through the logger middleware defined in `server/src/middleware/request-logger.js`. Avoid early `res.end` calls that would bypass logging and metrics.
 - Surface domain-specific errors with `ApplicationError` instances from `server/src/utils/errors.js`. Set `statusCode`, `code`, and `details` to keep responses uniform.
@@ -53,7 +53,7 @@ When you create a new module:
   npx prisma migrate dev --name <change-name>
   ```
   Commit the generated migration files alongside schema updates.
-- Use the MinIO helper in `server/src/integrations/minio.js` for object storage interactions. Apply the existing validation patterns in `upload` module routers to enforce MIME type and size limits.
+- Use the MinIO helper in `server/src/integrations/minio.js` for object storage interactions. Define clear MIME type and size validation when exposing new upload-style routes.
 - Send transactional email through the transport exported from `server/src/integrations/mailer.js`. Compose templates in the relevant module service so they stay close to the triggering workflow.
 
 ## 5. Configuration & Environment
@@ -67,7 +67,7 @@ When you create a new module:
 
 - Co-locate Jest unit tests under `__tests__` directories adjacent to the code they exercise (e.g. `server/src/modules/<feature>/__tests__`) when you need module-level coverage.
 - Use Supertest to cover HTTP contracts. Mount routers against the Express app from `server/src/app.js` to ensure middleware and error handling behaviour remains intact.
-- Keep end-to-end route suites in `server/tests` (mirroring the existing health/email/upload specs) so the Jest `testPathPattern=tests` configuration picks them up automatically.
+- Keep end-to-end route suites in `server/tests` (mirroring the existing health and auth specs) so the Jest `testPathPattern=tests` configuration picks them up automatically.
 - Stub third-party integrations (SMTP, MinIO) with Jest mocks. If a scenario requires multiple modules, extract shared fixtures into `server/tests/support` (create the folder when needed) so suites stay DRY.
 
 ## 7. Deployment Considerations
