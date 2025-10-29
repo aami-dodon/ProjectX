@@ -5,6 +5,12 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { CardDescription } from "@/shared/components/ui/card";
 import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/shared/components/ui/dropdown-menu";
+import {
   Drawer,
   DrawerClose,
   DrawerContent,
@@ -17,6 +23,7 @@ import { Label } from "@/shared/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { DataTable } from "@/shared/components/data-table";
 import { cn } from "@/shared/lib/utils";
+import { IconChevronDown, IconLayoutColumns } from "@tabler/icons-react";
 
 const STATUS_LABELS = {
   ACTIVE: "Active",
@@ -259,15 +266,67 @@ export function UserTable({ users = [], isLoading = false, error, onRefresh, onU
   return (
     <>
       <DataTable
-        title="User management"
-        description="Review and edit account information"
         columns={columns}
         data={users}
         isLoading={isLoading}
         error={error}
-        onRefresh={onRefresh}
         emptyMessage="No users found"
         getRowId={(row) => row.id}
+        className="px-4 lg:px-6"
+        stickyHeader
+        renderHeader={({ table }) => ({
+          leading: (
+            <div className="space-y-1">
+              <h2 className="text-lg font-semibold leading-tight">User management</h2>
+              <p className="text-sm text-muted-foreground">
+                Review and edit account information
+              </p>
+            </div>
+          ),
+          trailing: (
+            <div className="flex items-center gap-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <IconLayoutColumns />
+                    <span className="hidden lg:inline">Customize Columns</span>
+                    <span className="lg:hidden">Columns</span>
+                    <IconChevronDown />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  {table
+                    .getAllColumns()
+                    .filter(
+                      (column) =>
+                        typeof column.accessorFn !== "undefined" &&
+                        column.getCanHide()
+                    )
+                    .map((column) => (
+                      <DropdownMenuCheckboxItem
+                        key={column.id}
+                        className="capitalize"
+                        checked={column.getIsVisible()}
+                        onCheckedChange={(value) =>
+                          column.toggleVisibility(!!value)
+                        }>
+                        {column.id}
+                      </DropdownMenuCheckboxItem>
+                    ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              {onRefresh ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onRefresh}
+                  disabled={isLoading}>
+                  Refresh
+                </Button>
+              ) : null}
+            </div>
+          ),
+        })}
       />
       <UserEditDrawer
         open={drawerOpen}
