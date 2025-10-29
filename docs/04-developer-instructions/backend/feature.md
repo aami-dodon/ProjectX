@@ -64,9 +64,10 @@ When you create a new module:
 
 ## 6. Testing Strategy
 
-- Co-locate Jest tests under `__tests__` directories adjacent to the code they exercise, e.g. `server/src/modules/<feature>/__tests__`.
+- Co-locate Jest unit tests under `__tests__` directories adjacent to the code they exercise (e.g. `server/src/modules/<feature>/__tests__`) when you need module-level coverage.
 - Use Supertest to cover HTTP contracts. Mount routers against the Express app from `server/src/app.js` to ensure middleware and error handling behaviour remains intact.
-- Stub third-party integrations (SMTP, MinIO) with Jest mocks. If a scenario requires multiple modules, extract shared fixtures into `server/src/__tests__/support` (create the folder when needed) so suites stay DRY.
+- Keep end-to-end route suites in `server/tests` (mirroring the existing health/email/upload specs) so the Jest `testPathPattern=tests` configuration picks them up automatically.
+- Stub third-party integrations (SMTP, MinIO) with Jest mocks. If a scenario requires multiple modules, extract shared fixtures into `server/tests/support` (create the folder when needed) so suites stay DRY.
 
 ## 7. Deployment Considerations
 

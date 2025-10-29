@@ -11,10 +11,10 @@ This guide explains how to build new user-facing capabilities inside the Vite + 
    npm run dev
    ```
    Vite reads optional environment toggles such as `CLIENT_PORT`, `CLIENT_ALLOWED_HOSTS`, and `CLIENT_USE_SECURE_HMR` from your shell when it assembles the dev server configuration (`vite.config.js`).
-2. Supply frontend environment variables through a `.env` file or your shell. All values that must reach the browser **have to be prefixed with `VITE_`**, e.g. `VITE_API_BASE_URL`, to satisfy the Vite exposure rules described in the root `agents.md` brief.
+2. Supply frontend environment variables through a `.env` file or your shell. All values that must reach the browser **have to be prefixed with `VITE_`**, e.g. `VITE_API_URL`, to satisfy the Vite exposure rules described in the root `agents.md` brief. Logging verbosity comes from `VITE_LOG_LEVEL` and defaults to `debug` during development.
 3. Implement your UI inside a feature module under `client/src/features`. Export the entry points (pages, hooks, route objects) from the feature’s `index.js` so they can be pulled into the application router (`client/src/app/routes.jsx`).
 4. Register your new page or route by extending the `createBrowserRouter` structure in `client/src/app/routes.jsx`. Most features nest inside the default layout alongside the existing home and health routes.
-5. Reuse shared primitives from `client/src/shared`—especially API clients, layout chrome, and authentication flows—before adding new dependencies.
+5. Reuse shared primitives from `client/src/shared`—especially API clients (`client/src/shared/lib/client.js`), layout chrome, logging helpers, and authentication flows—before adding new dependencies.
 
 ## 2. Feature Folder Anatomy
 
@@ -49,3 +49,9 @@ The design system components are sourced from shadcn/ui and live under `client/s
 To add another shadcn component, run `npx shadcn add <component>` inside `client/`. The generator respects the aliases above, so the new file will drop into `src/shared/components/ui`. After generation, review the markup and wiring so it aligns with feature-level conventions (props, naming, test IDs) before consuming it in your feature.
 
 Because Tailwind runs through the official `@tailwindcss/vite` plugin (`vite.config.js`), any classes used in features or shared components are automatically discovered—no manual safelist configuration is necessary. Keep all component styles expressed as Tailwind utilities to benefit from this tooling pipeline.
+
+## 5. Testing New Features
+
+- Run `npm run test` to execute the Vitest suite configured with jsdom and Testing Library (see `client/tests/setup.js`).
+- Co-locate component and hook specs near the code they exercise or under `client/tests` for cross-feature helpers.
+- Prefer the shared logger (`client/src/shared/lib/logger.js`) in tests as well so log assertions align with production behaviour.
