@@ -1,1 +1,1 @@
-export { SectionCards } from "@/components"
+export { SectionCards } from "@/shared/components/section-cards";

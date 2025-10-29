@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Clock, LifeBuoy, SignalHigh } from "lucide-react";
 
-import { Button } from "@/ui";
+import { Button } from "@/ui/button";
 
 import { StatusPage } from "./StatusPage";
 
