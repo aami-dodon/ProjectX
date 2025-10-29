@@ -4,7 +4,6 @@ import { Cpu, HardDrive, MemoryStick, RefreshCcw } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
-import { ModeToggle } from "@/components/mode-toggle";
 
 import { EmailTestCard } from "../components/EmailTestCard";
 import { HealthStatusCard } from "../components/HealthStatusCard";
@@ -257,7 +256,6 @@ export function HealthPage() {
               <RefreshCcw className="size-4" />
               Refresh
             </Button>
-            <ModeToggle />
           </div>
         </div>
         {data?.timestamp ? (
