@@ -1,3 +1,6 @@
+## 2025-10-30 04:31:36 IST
+- Blocked suspended or inactive accounts from authenticating API requests and added middleware coverage for the guard.
+
 ## 2025-11-07 18:45:00 IST
 - Removed tenant support across authentication flows, admin tooling, and demo utilities, including a schema migration and UI updates.
 
