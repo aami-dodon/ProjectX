@@ -148,7 +148,7 @@ client/src/features/auth/
 
 ### Reusable Components & UI Flows
 
-- **Shared Components:** `client/src/shared/components/login-form.jsx`, `client/src/shared/components/register-form.jsx`, `client/src/shared/components/forgot-password-form.jsx`, `client/src/shared/components/reset-password-form.jsx`, and `client/src/shared/components/verify-password-form.jsx` provide the UI shells for each auth flow while reusing primitives from `client/src/shared/components/ui/`.
+- **Auth Components:** `client/src/features/auth/components/login-form.jsx`, `client/src/features/auth/components/register-form.jsx`, `client/src/features/auth/components/forgot-password-form.jsx`, `client/src/features/auth/components/reset-password-form.jsx`, and `client/src/features/auth/components/verify-password-form.jsx` provide the UI shells for each auth flow while reusing primitives from `client/src/shared/components/ui/`.
 
 - **Authentication Screens:** Login, registration, password reset, verification, and MFA placeholder pages mirror backend `/api/auth` endpoints with client-side validation and contextual messaging for account states.【F:docs/02-technical-specifications/03-frontend-architecture.md†L50-L139】
 
