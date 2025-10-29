@@ -5,6 +5,7 @@ import { apiClient } from "@/shared/lib/client";
 export function useAdminUsers({ search, status } = {}) {
   const [users, setUsers] = useState([]);
   const [metrics, setMetrics] = useState(null);
+  const [roles, setRoles] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -32,11 +33,13 @@ export function useAdminUsers({ search, status } = {}) {
         });
         setUsers(data?.users ?? []);
         setMetrics(data?.metrics ?? null);
+        setRoles(data?.roles ?? []);
       } catch (err) {
         const message = err?.message ?? "Unable to load users";
         setError({ message });
         setUsers([]);
         setMetrics(null);
+        setRoles([]);
       } finally {
         setIsLoading(false);
       }
@@ -77,6 +80,7 @@ export function useAdminUsers({ search, status } = {}) {
   return {
     users,
     metrics,
+    roles,
     isLoading,
     error,
     refresh,

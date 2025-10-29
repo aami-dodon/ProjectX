@@ -1,3 +1,6 @@
+## 2025-10-30 03:34:54 IST
+- Enabled multi-role assignment in the admin user management suite, including API support, a role picker in the drawer, and refreshed documentation.
+
 ## 2025-11-07 13:17:41 IST
 - Unified the shared data table row drawer with consistent view/edit tabs and updated the home outline and user management tables to consume the new UI.
 ## 2025-11-07 13:15:00 IST

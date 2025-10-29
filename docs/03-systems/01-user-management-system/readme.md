@@ -131,6 +131,7 @@ The module exposes REST endpoints aligned with the platform’s OpenAPI standard
 ### Administrative Controls
 Platform administrators operate dedicated tooling that interacts with the auth module to assign and delegate roles, manage authentication providers, and remediate risk.【F:docs/01-about/04-security-and-data-protection.md†L200-L259】 Key back-office automations include:
 
+- Assigning and revoking multiple RBAC roles per user through the admin console, with every change reflected in audit logs and dashboard metrics.
 - Revoking user access, expiring active sessions, and orchestrating user lifecycle events with immutable logging for audits.【F:docs/01-about/04-security-and-data-protection.md†L230-L249】
 - Configuring SSO connections, enforcing MFA policies, and managing passwordless enrollment options.【F:docs/01-about/04-security-and-data-protection.md†L206-L249】
 - Executing break-glass procedures that grant temporary elevated access with real-time alerts and mandatory post-event reviews.【F:docs/01-about/04-security-and-data-protection.md†L253-L259】
@@ -164,7 +165,7 @@ client/src/features/auth/
 
 - **Security UX:** UI flows integrate security feedback (password strength meter, device trust prompts, session timeout modals) to align user experience with backend governance controls.【F:docs/02-technical-specifications/03-frontend-architecture.md†L143-L160】
 
-- **Admin Adjacent Screens:** Auth screens link to RBAC and admin consoles for privilege reviews, reusing guard components defined in the RBAC feature set to keep enforcement consistent in client routing.【F:docs/03-systems/02-rbac-system/readme.md†L60-L88】【F:docs/02-technical-specifications/03-frontend-architecture.md†L52-L140】
+- **Admin Adjacent Screens:** Auth screens link to RBAC and admin consoles for privilege reviews, reusing guard components defined in the RBAC feature set to keep enforcement consistent in client routing. The admin user management grid exposes a role assignment drawer where administrators can toggle multiple roles per user before saving changes.【F:docs/03-systems/02-rbac-system/readme.md†L60-L88】【F:docs/02-technical-specifications/03-frontend-architecture.md†L52-L140】
 
 - **Localization & Accessibility:** Forms load copy from JSON locale bundles and adhere to WCAG keyboard/focus contracts mandated by the frontend architecture, ensuring login experiences remain localized and accessible.【F:docs/02-technical-specifications/03-frontend-architecture.md†L143-L176】
 

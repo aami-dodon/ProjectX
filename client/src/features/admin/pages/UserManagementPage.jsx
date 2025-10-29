@@ -6,7 +6,7 @@ import { UserTable } from "../components/UserTable";
 import { useAdminUsers } from "../hooks/use-admin-users";
 
 export function UserManagementPage() {
-  const { users, metrics, isLoading, error, refresh, updateUser } = useAdminUsers();
+  const { users, metrics, roles, isLoading, error, refresh, updateUser } = useAdminUsers();
 
   const statusDistribution = useMemo(() => metrics?.statusDistribution ?? [], [metrics?.statusDistribution]);
   const monthlyRegistrations = useMemo(
@@ -28,6 +28,7 @@ export function UserManagementPage() {
           </div>
           <UserTable
             users={users}
+            availableRoles={roles}
             isLoading={isLoading}
             error={error}
             onRefresh={refresh}
