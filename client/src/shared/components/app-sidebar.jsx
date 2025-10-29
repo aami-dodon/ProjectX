@@ -18,7 +18,10 @@ import {
   IconUsers,
 } from "@tabler/icons-react"
 
-import { NavDocuments, NavMain, NavSecondary, NavUser } from "@/components"
+import { NavDocuments } from "@/shared/components/nav-documents"
+import { NavMain } from "@/shared/components/nav-main"
+import { NavSecondary } from "@/shared/components/nav-secondary"
+import { NavUser } from "@/shared/components/nav-user"
 import {
   Sidebar,
   SidebarContent,
@@ -27,7 +30,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/ui"
+} from "@/shared/components/ui/sidebar"
 
 const data = {
   user: {
@@ -35,214 +38,146 @@ const data = {
     email: "m@example.com",
     avatar: "/avatars/shadcn.jpg",
   },
-  teams: [
-    {
-      name: "Design Engineering",
-      logo: IconPalette,
-    },
-    {
-      name: "Sales & Marketing",
-      logo: IconReport,
-    },
-    {
-      name: "Customer Success",
-      logo: IconHelp,
-    },
-  ],
   navMain: [
     {
-      title: "Overview",
-      url: "/",
+      title: "Dashboard",
+      url: "#",
       icon: IconDashboard,
+    },
+    {
+      title: "Lifecycle",
+      url: "#",
+      icon: IconListDetails,
+    },
+    {
+      title: "Analytics",
+      url: "#",
+      icon: IconChartBar,
+    },
+    {
+      title: "Projects",
+      url: "#",
+      icon: IconFolder,
+    },
+    {
+      title: "Team",
+      url: "#",
+      icon: IconUsers,
+    },
+  ],
+  navClouds: [
+    {
+      title: "Capture",
+      icon: IconCamera,
       isActive: true,
+      url: "#",
       items: [
         {
-          title: "Reports",
-          url: "/reports",
+          title: "Active Proposals",
+          url: "#",
         },
         {
-          title: "Analytics",
-          url: "/analytics",
-        },
-        {
-          title: "Server uptime",
-          url: "/server-uptime",
-        },
-        {
-          title: "Employees",
-          url: "/employees",
+          title: "Archived",
+          url: "#",
         },
       ],
     },
     {
-      title: "AI Agents",
-      url: "/ai-agents",
+      title: "Proposal",
+      icon: IconFileDescription,
+      url: "#",
+      items: [
+        {
+          title: "Active Proposals",
+          url: "#",
+        },
+        {
+          title: "Archived",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Prompts",
       icon: IconFileAi,
+      url: "#",
       items: [
         {
-          title: "Duster",
-          url: "/ai-agents/duster",
+          title: "Active Proposals",
+          url: "#",
         },
         {
-          title: "Social",
-          url: "/ai-agents/social",
-        },
-        {
-          title: "Lawyer",
-          url: "/ai-agents/lawyer",
-        },
-      ],
-    },
-    {
-      title: "Products",
-      url: "/products",
-      icon: IconDatabase,
-      items: [
-        {
-          title: "GPT-4 Turbo",
-          url: "/products/gpt-4-turbo",
-        },
-        {
-          title: "GPT-4o",
-          url: "/products/gpt-4o",
-        },
-        {
-          title: "GPT 3.5",
-          url: "/products/gpt-3.5",
+          title: "Archived",
+          url: "#",
         },
       ],
     },
   ],
   navSecondary: [
     {
-      title: "Investor updates",
-      url: "/investor-updates",
-      icon: IconInnerShadowTop,
-    },
-    {
-      title: "Team invites",
-      url: "/team-invites",
-      icon: IconUsers,
-    },
-    {
-      title: "Documentation",
-      url: "/documentation",
-      icon: IconFileDescription,
-    },
-    {
-      title: "Settings",
-      url: "/settings",
-      icon: IconSettings,
-    },
-  ],
-  projects: [
-    {
-      name: "Design System",
+      title: "Design System",
       url: "/design-system",
       icon: IconPalette,
     },
     {
-      name: "Sales",
-      url: "/sales",
-      icon: IconReport,
+      title: "Settings",
+      url: "#",
+      icon: IconSettings,
     },
     {
-      name: "Customer Success",
-      url: "/customer-success",
+      title: "Get Help",
+      url: "#",
       icon: IconHelp,
+    },
+    {
+      title: "Search",
+      url: "#",
+      icon: IconSearch,
     },
   ],
   documents: [
     {
-      name: "Project brief",
+      name: "Data Library",
       url: "#",
-      icon: IconFileDescription,
+      icon: IconDatabase,
     },
     {
-      name: "Design spec",
-      url: "#",
-      icon: IconFileWord,
-    },
-    {
-      name: "Wireframes",
-      url: "#",
-      icon: IconFolder,
-    },
-    {
-      name: "Presentations",
-      url: "#",
-      icon: IconChartBar,
-    },
-    {
-      name: "Investors",
-      url: "#",
-      icon: IconUsers,
-    },
-    {
-      name: "Sales",
+      name: "Reports",
       url: "#",
       icon: IconReport,
     },
-  ],
-  // These are used in the component but not present in the data set.
-  // We'll add them here so we don't have to rename the component.
-  // They are not displayed in the UI, but they are used in the code.
-  availableDocuments: [
-    { name: "Proposal", icon: IconFileDescription },
-    { name: "Resume", icon: IconFileWord },
-    { name: "Invoice", icon: IconReport },
-  ],
-  installedApps: [
     {
-      name: "Vision",
-      description: "AI-powered document processing",
-      icon: IconCamera,
-    },
-    {
-      name: "CodeGen",
-      description: "Automated code generation",
-      icon: IconFileAi,
-    },
-    {
-      name: "Analytics",
-      description: "Sales and marketing analytics",
-      icon: IconChartBar,
+      name: "Word Assistant",
+      url: "#",
+      icon: IconFileWord,
     },
   ],
 }
 
 export function AppSidebar({
-  collapsed,
-  variant,
+  ...props
 }) {
   return (
-    <Sidebar collapsed={collapsed} variant={variant}>
+    <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
-        <NavUser user={data.user} teams={data.teams} collapsed={collapsed} />
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
+              <a href="#">
+                <IconInnerShadowTop className="!size-5" />
+                <span className="text-base font-semibold">Acme Inc.</span>
+              </a>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
         <NavDocuments items={data.documents} />
-        <NavSecondary items={data.navSecondary} collapsed={collapsed} />
+        <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <a href="/">Visit website</a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <a href="/settings">Settings</a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <a href="/help">Help center</a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <NavUser user={data.user} />
       </SidebarFooter>
     </Sidebar>
   );

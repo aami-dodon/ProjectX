@@ -1,20 +1,20 @@
-import { cn } from "@/lib"
+import { cn } from "@/shared/lib/utils"
 import { Link } from "react-router-dom"
-import { Button } from "@/ui"
+import { Button } from "@/shared/components/ui/button"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/ui"
+} from "@/shared/components/ui/card"
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
-} from "@/ui"
-import { Input } from "@/ui"
+} from "@/shared/components/ui/field"
+import { Input } from "@/shared/components/ui/input"
 
 export function RegisterForm({
   className,

@@ -4,8 +4,8 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/ui";
-import { Separator } from "@/ui";
+} from "@/shared/components/ui/card";
+import { Separator } from "@/shared/components/ui/separator";
 import { StatusBadge } from "./StatusBadge";
 
 export function HealthStatusCard({

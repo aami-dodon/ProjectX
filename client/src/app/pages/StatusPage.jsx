@@ -1,6 +1,6 @@
 import { Children } from "react";
-import { Badge } from "@/ui";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/ui";
+import { Badge } from "@/ui/badge";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/ui/card";
 
 function StatusPage({
   icon: Icon,

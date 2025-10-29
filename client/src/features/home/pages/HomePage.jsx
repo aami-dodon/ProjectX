@@ -1,4 +1,6 @@
-import { ChartAreaInteractive, DataTable, SectionCards } from "@/features/home/components";
+import { ChartAreaInteractive } from "@/features/home/components/ChartAreaInteractive";
+import { DataTable } from "@/features/home/components/DataTable";
+import { SectionCards } from "@/features/home/components/SectionCards";
 import data from "./data.json";
 
 export function HomePage() {

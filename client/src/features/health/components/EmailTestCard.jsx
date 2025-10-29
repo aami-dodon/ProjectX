@@ -1,10 +1,10 @@
 import { useCallback, useState } from "react";
 
-import { apiClient } from "@/lib";
-import { Button } from "@/ui";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/ui";
-import { Input } from "@/ui";
-import { Label } from "@/ui";
+import { apiClient } from "@/lib/client";
+import { Button } from "@/shared/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Input } from "@/shared/components/ui/input";
+import { Label } from "@/shared/components/ui/label";
 
 export function EmailTestCard() {
   const [email, setEmail] = useState("");

@@ -1,4 +1,4 @@
-import { VerifyPasswordForm } from "@/components";
+import { VerifyPasswordForm } from "@/components/verify-password-form"
 
 export function VerifyPasswordPage() {
   return (
@@ -7,5 +7,5 @@ export function VerifyPasswordPage() {
         <VerifyPasswordForm />
       </div>
     </div>
-  );
+  )
 }

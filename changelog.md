@@ -1,6 +1,3 @@
-## 2025-10-29 05:31:06 IST
-- Streamlined client imports by introducing index files for shared UI/components and updating aliases.
-
 ## 2025-11-05 05:15:00 IST
 - Added a rich text editor section to the design system page showcasing the shared TextEditor component with live preview and HTML output.
 

@@ -1,5 +1,7 @@
-import { Separator, SidebarTrigger } from "@/ui"
-import { ModeToggle } from "@/components"
+import { Button } from "@/shared/components/ui/button"
+import { Separator } from "@/shared/components/ui/separator"
+import { SidebarTrigger } from "@/shared/components/ui/sidebar"
+import { ModeToggle } from "@/components/mode-toggle"   // 👈 import the toggle
 
 export function SiteHeader() {
   return (
@@ -12,7 +14,7 @@ export function SiteHeader() {
 
         {/* Right section */}
         <div className="ml-auto flex items-center gap-2">
-          <ModeToggle />
+          <ModeToggle />  {/* 🌗 Replaces GitHub link */}
         </div>
       </div>
     </header>

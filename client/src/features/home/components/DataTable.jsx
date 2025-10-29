@@ -1,1 +1,1 @@
-export { DataTable } from "@/components"
+export { DataTable } from "@/shared/components/data-table";

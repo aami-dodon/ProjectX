@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { IconArrowLeft, IconHome } from "@tabler/icons-react";
 
-import { Button } from "@/ui";
+import { Button } from "@/shared/components/ui/button";
 
 export default function SinglePageLayout() {
   const navigate = useNavigate();
