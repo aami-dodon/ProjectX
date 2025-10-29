@@ -14,6 +14,7 @@ import { DesignSystemPage } from "@/features/design-system";
 import { HealthPage } from "@/features/health";
 
 import { authRoutes } from "@/features/auth";
+import { ProtectedRoute } from "@/features/auth/components/protected-route";
 
 const statusRoutes = [
   {
@@ -46,7 +47,11 @@ const statusRoutes = [
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <DefaultLayout />,
+    element: (
+      <ProtectedRoute>
+        <DefaultLayout />
+      </ProtectedRoute>
+    ),
     errorElement: <ErrorPage />,
     children: [
       { index: true, element: <HomePage /> },
