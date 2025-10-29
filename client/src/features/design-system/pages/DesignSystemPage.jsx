@@ -124,6 +124,290 @@ const badgeVariants = [
   { variant: "destructive", label: "Destructive" },
 ];
 
+const typographyScale = [
+  {
+    id: "display",
+    title: "Display",
+    description: "High-impact hero treatments and KPI callouts.",
+    items: [
+      {
+        id: "display-2xl",
+        name: "Display 2XL",
+        usage: "Primary hero headings and executive summaries.",
+        sample: "AI Governance Overview",
+        tokens: {
+          font: "--font-sans",
+          size: "--text-6xl",
+          lineHeight: "--text-6xl--line-height",
+          weight: "--font-weight-semibold",
+          tracking: "--tracking-tight",
+        },
+      },
+      {
+        id: "display-xl",
+        name: "Display XL",
+        usage: "Spotlight modules and dashboard hero copy.",
+        sample: "Risk posture trending positive",
+        tokens: {
+          font: "--font-sans",
+          size: "--text-5xl",
+          lineHeight: "--text-5xl--line-height",
+          weight: "--font-weight-semibold",
+          tracking: "--tracking-tight",
+        },
+      },
+      {
+        id: "display-lg",
+        name: "Display LG",
+        usage: "Section intros, summary cards, and marketing banners.",
+        sample: "Enterprise controls coverage",
+        tokens: {
+          font: "--font-sans",
+          size: "--text-4xl",
+          lineHeight: "--text-4xl--line-height",
+          weight: "--font-weight-semibold",
+          tracking: "--tracking-tight",
+        },
+      },
+    ],
+  },
+  {
+    id: "headlines",
+    title: "Headlines",
+    description: "Core page headings and major section titles.",
+    items: [
+      {
+        id: "headline-xl",
+        name: "Headline XL",
+        usage: "Top-level page headings inside feature layouts.",
+        sample: "Control evidence summary",
+        tokens: {
+          font: "--font-sans",
+          size: "--text-3xl",
+          lineHeight: "--text-3xl--line-height",
+          weight: "--font-weight-semibold",
+          tracking: "--tracking-tight",
+        },
+      },
+      {
+        id: "headline-lg",
+        name: "Headline LG",
+        usage: "Card headers and major subsection titles.",
+        sample: "Assessment readiness checklist",
+        tokens: {
+          font: "--font-sans",
+          size: "--text-2xl",
+          lineHeight: "--text-2xl--line-height",
+          weight: "--font-weight-semibold",
+          tracking: "--tracking-tight",
+        },
+      },
+      {
+        id: "headline-md",
+        name: "Headline MD",
+        usage: "Widget headings and data table intros.",
+        sample: "Workflow automation queue",
+        tokens: {
+          font: "--font-sans",
+          size: "--text-xl",
+          lineHeight: "--text-xl--line-height",
+          weight: "--font-weight-semibold",
+          tracking: "--tracking-normal",
+        },
+      },
+    ],
+  },
+  {
+    id: "body",
+    title: "Body Copy",
+    description: "Paragraphs, summaries, and supporting narratives.",
+    items: [
+      {
+        id: "body-lg",
+        name: "Body LG",
+        usage: "Descriptive paragraphs and multi-sentence summaries.",
+        sample:
+          "Use this size for page descriptions and onboarding copy across compliance workflows.",
+        tokens: {
+          font: "--font-sans",
+          size: "--text-lg",
+          leading: "--leading-relaxed",
+          weight: "--font-weight-normal",
+          tracking: "--tracking-normal",
+        },
+      },
+      {
+        id: "body-base",
+        name: "Body Base",
+        usage: "Default form copy, data explanations, and modal text.",
+        sample:
+          "This base size handles most body text, checklists, and inline explanations in the app.",
+        tokens: {
+          font: "--font-sans",
+          size: "--text-base",
+          leading: "--leading-relaxed",
+          weight: "--font-weight-normal",
+          tracking: "--tracking-normal",
+        },
+      },
+      {
+        id: "body-sm",
+        name: "Body SM",
+        usage: "Helper text and secondary descriptions.",
+        sample:
+          "Compact helper text for field descriptions, table subtitles, and metadata blurbs.",
+        tokens: {
+          font: "--font-sans",
+          size: "--text-sm",
+          leading: "--leading-snug",
+          weight: "--font-weight-normal",
+          tracking: "--tracking-normal",
+        },
+      },
+    ],
+  },
+  {
+    id: "supporting",
+    title: "Supporting Text",
+    description: "Labels, captions, and monospace treatments.",
+    items: [
+      {
+        id: "supporting-label",
+        name: "Label",
+        usage: "Overlines, filter labels, and data viz annotations.",
+        sample: "STATUS UPDATE",
+        tokens: {
+          font: "--font-sans",
+          size: "--text-xs",
+          leading: "--leading-tight",
+          weight: "--font-weight-medium",
+          tracking: "--tracking-widest",
+          transform: "uppercase",
+        },
+      },
+      {
+        id: "supporting-caption",
+        name: "Caption",
+        usage: "Caption copy and muted metadata.",
+        sample: "Additional context for data tables or component footers.",
+        tokens: {
+          font: "--font-sans",
+          size: "--text-xs",
+          leading: "--leading-snug",
+          weight: "--font-weight-normal",
+          tracking: "--tracking-normal",
+        },
+      },
+      {
+        id: "supporting-mono",
+        name: "Numeric / Mono",
+        usage: "Identifiers, code snippets, and tightly aligned numerics.",
+        sample: "0x3A CONTROL-42",
+        tokens: {
+          font: "--font-mono",
+          size: "--text-sm",
+          leading: "--leading-tight",
+          weight: "--font-weight-medium",
+          tracking: "--tracking-normal",
+        },
+      },
+    ],
+  },
+];
+
+const typographyMeta = [
+  {
+    id: "font-sans",
+    title: "Sans stack",
+    description: "Primary UI font stack applied globally via var(--font-sans).",
+    sample: "Aa Governance",
+    tokens: ["--font-sans"],
+    sampleTokens: {
+      font: "--font-sans",
+      size: "--text-lg",
+      leading: "--leading-tight",
+      weight: "--font-weight-semibold",
+    },
+  },
+  {
+    id: "font-mono",
+    title: "Mono stack",
+    description: "Used for IDs, data, and inline code moments.",
+    sample: "0x41 2025",
+    tokens: ["--font-mono"],
+    sampleTokens: {
+      font: "--font-mono",
+      size: "--text-base",
+      leading: "--leading-normal",
+      weight: "--font-weight-medium",
+    },
+  },
+  {
+    id: "tracking",
+    title: "Letter spacing",
+    description: "Apply tracking tokens to balance dense dashboards with readable labels.",
+    sample: "TRACKING TOKENS",
+    tokens: ["--tracking-tight", "--tracking-normal", "--tracking-wide", "--tracking-wider", "--tracking-widest"],
+    sampleTokens: {
+      font: "--font-sans",
+      size: "--text-xs",
+      leading: "--leading-tight",
+      weight: "--font-weight-semibold",
+      tracking: "--tracking-widest",
+      transform: "uppercase",
+    },
+  },
+  {
+    id: "line-height",
+    title: "Line heights",
+    description: "Shared rhythm tokens for paragraphs and helper copy.",
+    sample: "Line height cadence keeps paragraphs comfortable for longer AI governance explanations.",
+    tokens: ["--leading-tight", "--leading-snug", "--leading-normal", "--leading-relaxed"],
+    sampleTokens: {
+      font: "--font-sans",
+      size: "--text-sm",
+      leading: "--leading-normal",
+      weight: "--font-weight-normal",
+    },
+  },
+];
+
+const tokenPropertyLabels = {
+  font: "font-family",
+  size: "font-size",
+  lineHeight: "line-height",
+  leading: "line-height",
+  weight: "font-weight",
+  tracking: "letter-spacing",
+};
+
+function createTypographyStyle(tokens = {}) {
+  const style = {};
+
+  if (tokens.font) {
+    style.fontFamily = `var(${tokens.font})`;
+  }
+  if (tokens.size) {
+    style.fontSize = `var(${tokens.size})`;
+  }
+  if (tokens.leading) {
+    style.lineHeight = `var(${tokens.leading})`;
+  } else if (tokens.lineHeight) {
+    style.lineHeight = `var(${tokens.lineHeight})`;
+  }
+  if (tokens.weight) {
+    style.fontWeight = `var(${tokens.weight})`;
+  }
+  if (tokens.tracking) {
+    style.letterSpacing = `var(${tokens.tracking})`;
+  }
+  if (tokens.transform) {
+    style.textTransform = tokens.transform;
+  }
+
+  return style;
+}
+
 function Section({ icon: Icon, title, description, children, id }) {
   return (
     <section id={id} className="flex flex-col gap-4">
@@ -166,47 +450,70 @@ function ColorGrid({ tokens }) {
 
 function TypographySamples() {
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-4xl font-bold tracking-tight">Heading 1 - Extrabold 32px</h1>
-        <p className="text-sm text-muted-foreground">Use for page titles and hero copy.</p>
-      </div>
-      <div className="flex flex-col gap-2">
-        <h2 className="text-3xl font-semibold tracking-tight">Heading 2 - Semibold 28px</h2>
-        <p className="text-sm text-muted-foreground">Use for section headings and card titles.</p>
-      </div>
-      <div className="flex flex-col gap-2">
-        <h3 className="text-2xl font-semibold tracking-tight">Heading 3 - Semibold 24px</h3>
-        <p className="text-sm text-muted-foreground">Use for major subsections or spotlight copy.</p>
-      </div>
-      <div className="flex flex-col gap-2">
-        <h4 className="text-xl font-semibold tracking-tight">Heading 4 - Semibold 20px</h4>
-        <p className="text-sm text-muted-foreground">Use for widget titles and emphasis text.</p>
-      </div>
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="flex flex-col gap-2">
-          <p className="text-base leading-7">
-            Body Large - 16px. Ideal for general copy, descriptions, and comfortable reading blocks across the interface.
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Body Small - 14px. Use for metadata, helper text, captions, and dense interface content.
-          </p>
-          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Overline - 12px uppercase tracking</p>
+    <div className="flex flex-col gap-8">
+      <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
+        <div className="flex flex-col gap-6">
+          {typographyScale.map((group) => (
+            <div key={group.id} className="flex flex-col gap-3">
+              <div className="flex flex-col gap-1">
+                <h3 className="text-lg font-semibold">{group.title}</h3>
+                <p className="text-sm text-muted-foreground">{group.description}</p>
+              </div>
+              <div className="grid gap-3">
+                {group.items.map((item) => (
+                  <div key={item.id} className="flex flex-col gap-3 rounded-lg border bg-background p-4">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-sm font-semibold text-muted-foreground">{item.name}</span>
+                      <span className="text-xs text-muted-foreground">{item.usage}</span>
+                    </div>
+                    <div className="text-balance text-foreground" style={createTypographyStyle(item.tokens)}>
+                      {item.sample}
+                    </div>
+                    <div className="flex flex-wrap gap-2 text-[11px] text-muted-foreground">
+                      {Object.entries(item.tokens)
+                        .filter(([, token]) => typeof token === "string" && token.startsWith("--"))
+                        .map(([key, token]) => (
+                          <code key={`${item.id}-${key}`} className="rounded border bg-muted/30 px-2 py-1 font-mono">
+                            {`${tokenPropertyLabels[key]}: var(${token})`}
+                          </code>
+                        ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
-        <div className="flex flex-col gap-3 rounded-lg border bg-muted/30 p-4">
-          <div className="flex items-baseline justify-between">
-            <span className="text-sm font-semibold text-muted-foreground">Font Family</span>
-            <span className="text-sm">Inter, system-ui</span>
+        <aside className="flex flex-col gap-4 rounded-lg border bg-muted/20 p-4">
+          <div className="flex flex-col gap-2">
+            <h4 className="text-sm font-semibold">index.css typography tokens</h4>
+            <p className="text-xs text-muted-foreground">
+              Base styles expose Tailwind's CSS custom properties so type scales stay consistent across features.
+            </p>
           </div>
-          <div className="flex items-baseline justify-between">
-            <span className="text-sm font-semibold text-muted-foreground">Line Height</span>
-            <span className="text-sm">1.5 (body), 1.2 (headings)</span>
+          <div className="flex flex-col gap-3">
+            {typographyMeta.map((meta) => (
+              <div key={meta.id} className="flex flex-col gap-2 rounded-md border bg-background p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    {meta.title}
+                  </span>
+                  <span className="rounded bg-muted/40 px-2 py-1 text-xs font-medium text-foreground" style={createTypographyStyle(meta.sampleTokens)}>
+                    {meta.sample}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground">{meta.description}</p>
+                <div className="flex flex-wrap gap-2 text-[11px] text-muted-foreground">
+                  {meta.tokens.map((token) => (
+                    <code key={token} className="rounded border bg-muted/30 px-2 py-1 font-mono">
+                      {`var(${token})`}
+                    </code>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
-          <div className="flex items-baseline justify-between">
-            <span className="text-sm font-semibold text-muted-foreground">Letter Spacing</span>
-            <span className="text-sm">Tightened for headings, relaxed for labels.</span>
-          </div>
-        </div>
+        </aside>
       </div>
     </div>
   );

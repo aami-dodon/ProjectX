@@ -1,3 +1,6 @@
+## 2025-11-05 06:50:24 IST
+- Refreshed the design system typography section to read index.css CSS custom properties for headings, body copy, and token references.
+
 ## 2025-11-05 05:45:00 IST
 - Added shared ESLint and Prettier workflows for the client and server, including CI checks to block merges on lint or formatting errors.
 ## 2025-10-29 05:31:06 IST
