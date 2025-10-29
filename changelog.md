@@ -1,3 +1,6 @@
+## 2025-11-05 14:45:00 IST
+- Reworked the client router so unauthenticated visitors land on the login layout at `/` while authenticated users keep the dashboard at the root and receive 404s for unknown routes.
+
 ## 2025-11-05 13:30:00 IST
 - Redirected the auth shell's base and unknown routes to the login screen so pre-login navigation bypasses layout-level 404s and relies on the global error pages.
 

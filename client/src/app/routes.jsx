@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { Navigate, createBrowserRouter } from "react-router-dom";
 
 import DefaultLayout from "./layouts/DefaultLayout";
 import SinglePageLayout from "./layouts/SinglePageLayout";
@@ -14,7 +14,33 @@ import { DesignSystemPage } from "@/features/design-system";
 import { HealthPage } from "@/features/health";
 
 import { authRoutes } from "@/features/auth";
-import { ProtectedRoute } from "@/features/auth/components/protected-route";
+import { AuthLayout } from "@/features/auth/components/AuthLayout";
+import { useAuthStatus } from "@/features/auth/hooks/use-auth-status";
+import { LoginPage } from "@/features/auth/pages/LoginPage";
+
+function RootLayout() {
+  const isAuthenticated = useAuthStatus();
+
+  if (!isAuthenticated) {
+    return (
+      <AuthLayout>
+        <LoginPage />
+      </AuthLayout>
+    );
+  }
+
+  return <DefaultLayout />;
+}
+
+function UnknownRouteHandler() {
+  const isAuthenticated = useAuthStatus();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <NotFoundPage />;
+}
 
 const statusRoutes = [
   {
@@ -47,11 +73,7 @@ const statusRoutes = [
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: (
-      <ProtectedRoute>
-        <DefaultLayout />
-      </ProtectedRoute>
-    ),
+    element: <RootLayout />,
     errorElement: <ErrorPage />,
     children: [
       { index: true, element: <HomePage /> },
@@ -73,7 +95,7 @@ export const router = createBrowserRouter([
   authRoutes,
   {
     path: "*",
-    element: <NotFoundPage />,
+    element: <UnknownRouteHandler />,
     errorElement: <ErrorPage />,
   },
 ]);

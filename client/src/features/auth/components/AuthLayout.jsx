@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom"
 import { ModeToggle } from "@/components/mode-toggle"
 
-export function AuthLayout() {
+export function AuthLayout({ children }) {
   return (
     <div className="flex h-dvh flex-col lg:flex-row overflow-hidden">
       {/* Left side panel (hidden on mobile) */}
@@ -33,7 +33,7 @@ export function AuthLayout() {
 
         <main className="flex flex-1 min-h-0 flex-col items-center justify-center px-6 lg:px-10">
           <div className="w-full max-w-md">
-            <Outlet />
+            {children ?? <Outlet />}
           </div>
         </main>
       </div>
