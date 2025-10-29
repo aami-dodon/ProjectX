@@ -1,3 +1,9 @@
+## 2025-11-07 16:30:00 IST
+- Pointed the demo user loader at a reusable CSV dataset and enforced a 100-user minimum for consistent seeding.
+
+## 2025-11-07 14:45:00 IST
+- Added a reusable `scripts/manage-demo-users.sh` helper to seed or purge tagged auth demo users for quick testing resets.
+
 ## 2025-11-07 13:15:00 IST
 - Documented reuse guidelines for the admin backend module and added the missing module README.
 
