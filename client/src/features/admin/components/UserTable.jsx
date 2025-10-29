@@ -3,7 +3,7 @@ import { toast } from "sonner";
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { CardDescription } from "@/shared/components/ui/card";
 import {
   Drawer,
   DrawerClose,
@@ -15,8 +15,7 @@ import {
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
-import { Skeleton } from "@/shared/components/ui/skeleton";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
+import { DataTable } from "@/shared/components/data-table";
 import { cn } from "@/shared/lib/utils";
 
 const STATUS_LABELS = {
@@ -164,7 +163,7 @@ function UserEditDrawer({ open, onOpenChange, user, onSubmit }) {
   );
 }
 
-export function UserTable({ users, isLoading = false, error, onRefresh, onUpdate }) {
+export function UserTable({ users = [], isLoading = false, error, onRefresh, onUpdate }) {
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -172,6 +171,75 @@ export function UserTable({ users, isLoading = false, error, onRefresh, onUpdate
     setSelectedUserId(userId);
     setDrawerOpen(true);
   }, []);
+
+  const columns = useMemo(
+    () => [
+      {
+        accessorKey: "fullName",
+        header: "Name",
+        cell: ({ row }) => <div className="font-medium">{row.original.fullName ?? "—"}</div>,
+      },
+      {
+        accessorKey: "email",
+        header: "Email",
+        cell: ({ row }) => <span className="font-mono text-sm">{row.original.email}</span>,
+      },
+      {
+        accessorKey: "status",
+        header: "Status",
+        cell: ({ row }) => (
+          <Badge
+            variant="outline"
+            className={cn("capitalize", STATUS_BADGE_STYLES[row.original.status] ?? "")}
+          >
+            {STATUS_LABELS[row.original.status] ?? row.original.status}
+          </Badge>
+        ),
+      },
+      {
+        id: "roles",
+        header: "Roles",
+        cell: ({ row }) => (
+          <p className="max-w-[220px] truncate text-sm text-muted-foreground">
+            {(row.original.roles ?? []).map((role) => role.name).join(", ") || "—"}
+          </p>
+        ),
+      },
+      {
+        accessorKey: "lastLoginAt",
+        header: "Last login",
+        cell: ({ row }) => <span className="text-sm">{formatDate(row.original.lastLoginAt)}</span>,
+      },
+      {
+        id: "verified",
+        header: "Verified",
+        cell: ({ row }) =>
+          row.original.emailVerifiedAt ? (
+            <Badge variant="secondary">Yes</Badge>
+          ) : (
+            <Badge variant="outline">No</Badge>
+          ),
+      },
+      {
+        id: "actions",
+        header: () => null,
+        enableSorting: false,
+        enableHiding: false,
+        meta: {
+          headerClassName: "w-0",
+          cellClassName: "text-right",
+        },
+        cell: ({ row }) => (
+          <div className="flex justify-end">
+            <Button size="sm" variant="ghost" onClick={() => handleEdit(row.original.id)}>
+              Edit
+            </Button>
+          </div>
+        ),
+      },
+    ],
+    [handleEdit]
+  );
 
   const closeDrawer = useCallback(
     (open) => {
@@ -189,92 +257,24 @@ export function UserTable({ users, isLoading = false, error, onRefresh, onUpdate
   ]);
 
   return (
-    <Card className="mx-4 shadow-none lg:mx-6">
-      <CardHeader className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <CardTitle>User management</CardTitle>
-          <CardDescription>Review and edit account information</CardDescription>
-        </div>
-        <Button variant="outline" size="sm" onClick={onRefresh} disabled={isLoading}>
-          Refresh
-        </Button>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {error ? <p className="text-sm text-destructive">{error.message}</p> : null}
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Roles</TableHead>
-                <TableHead>Last login</TableHead>
-                <TableHead>Verified</TableHead>
-                <TableHead className="w-0" />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                Array.from({ length: 5 }).map((_, index) => (
-                  <TableRow key={`skeleton-${index}`}>
-                    <TableCell colSpan={7}>
-                      <Skeleton className="h-6 w-full" />
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : users.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center text-sm text-muted-foreground">
-                    No users found
-                  </TableCell>
-                </TableRow>
-              ) : (
-                users.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell>
-                      <div className="font-medium">{user.fullName ?? "—"}</div>
-                    </TableCell>
-                    <TableCell className="font-mono text-sm">{user.email}</TableCell>
-                    <TableCell>
-                      <Badge
-                        variant="outline"
-                        className={cn("capitalize", STATUS_BADGE_STYLES[user.status] ?? "")}
-                      >
-                        {STATUS_LABELS[user.status] ?? user.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="max-w-[220px]">
-                      <p className="truncate text-sm text-muted-foreground">
-                        {(user.roles ?? []).map((role) => role.name).join(", ") || "—"}
-                      </p>
-                    </TableCell>
-                    <TableCell className="text-sm">{formatDate(user.lastLoginAt)}</TableCell>
-                    <TableCell>
-                      {user.emailVerifiedAt ? (
-                        <Badge variant="secondary">Yes</Badge>
-                      ) : (
-                        <Badge variant="outline">No</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button size="sm" variant="ghost" onClick={() => handleEdit(user.id)}>
-                        Edit
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
-      </CardContent>
+    <>
+      <DataTable
+        title="User management"
+        description="Review and edit account information"
+        columns={columns}
+        data={users}
+        isLoading={isLoading}
+        error={error}
+        onRefresh={onRefresh}
+        emptyMessage="No users found"
+        getRowId={(row) => row.id}
+      />
       <UserEditDrawer
         open={drawerOpen}
         onOpenChange={closeDrawer}
         user={selectedUser}
         onSubmit={onUpdate}
       />
-    </Card>
+    </>
   );
 }
