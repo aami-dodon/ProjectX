@@ -1,20 +1,20 @@
-import { cn } from "@/shared/lib/utils"
+import { cn } from "@/lib"
 import { Link } from "react-router-dom"
-import { Button } from "@/shared/components/ui/button"
+import { Button } from "@/ui"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/shared/components/ui/card"
+} from "@/ui"
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
-} from "@/shared/components/ui/field"
-import { Input } from "@/shared/components/ui/input"
+} from "@/ui"
+import { Input } from "@/ui"
 
 export function VerifyPasswordForm({
   className,

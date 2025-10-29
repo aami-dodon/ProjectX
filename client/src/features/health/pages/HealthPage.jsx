@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 import { Cpu, HardDrive, MemoryStick, RefreshCcw } from "lucide-react";
 
-import { Button } from "@/shared/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Skeleton } from "@/shared/components/ui/skeleton";
+import { Button } from "@/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/ui";
+import { Skeleton } from "@/ui";
 
 import { EmailTestCard } from "../components/EmailTestCard";
 import { HealthStatusCard } from "../components/HealthStatusCard";

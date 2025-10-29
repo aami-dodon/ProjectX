@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 import { AlertTriangle, Home, RotateCcw } from "lucide-react";
 
-import { Button } from "@/ui/button";
+import { Button } from "@/ui";
 
 import { StatusPage } from "./StatusPage";
 
