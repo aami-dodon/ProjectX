@@ -21,9 +21,6 @@ import {
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 
-const CARD_BASE_STYLES =
-  "relative overflow-hidden border border-border/60 bg-gradient-to-br from-background/95 via-background to-muted/30 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg";
-
 const STATUS_COLOR_MAP = {
   ACTIVE: "var(--color-chart-4)",
   PENDING_VERIFICATION: "var(--color-chart-3)",
@@ -216,8 +213,7 @@ export function UserCharts({ statusDistribution = [], monthlyRegistrations = [],
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-      <Card className={CARD_BASE_STYLES}>
-        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary/70 via-primary to-primary/70" aria-hidden />
+      <Card className="@container/card">
         <CardHeader className="space-y-2 pb-0">
           <CardDescription className="text-xs font-medium uppercase tracking-wide text-muted-foreground/80">
             Status distribution
@@ -233,7 +229,7 @@ export function UserCharts({ statusDistribution = [], monthlyRegistrations = [],
           ) : (
             <ChartContainer
               config={statusConfig}
-              className="aspect-square h-[240px] w-full rounded-xl bg-gradient-to-br from-background/95 via-background to-muted/30 p-4 sm:h-[280px]"
+              className="aspect-square h-[240px] w-full sm:h-[280px]"
             >
               <PieChart>
                 <ChartTooltip cursor={false} content={pieTooltip} />
@@ -275,8 +271,7 @@ export function UserCharts({ statusDistribution = [], monthlyRegistrations = [],
           )}
         </CardContent>
       </Card>
-      <Card className={`${CARD_BASE_STYLES} @container/card`}>
-        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary/70 via-primary to-primary/70" aria-hidden />
+      <Card className="@container/card">
         <CardHeader className="space-y-2 pb-0">
           <CardDescription className="text-xs font-medium uppercase tracking-wide text-muted-foreground/80">
             New registrations
@@ -326,7 +321,7 @@ export function UserCharts({ statusDistribution = [], monthlyRegistrations = [],
           ) : (
             <ChartContainer
               config={registrationChartConfig}
-              className="aspect-auto h-[250px] w-full rounded-xl bg-gradient-to-br from-background/95 via-background to-muted/30 p-4 @[540px]/card:h-[280px] @[768px]/card:h-[320px]"
+              className="aspect-auto h-[250px] w-full @[540px]/card:h-[280px] @[768px]/card:h-[320px]"
             >
               <AreaChart data={filteredRegistrations}>
                 <defs>

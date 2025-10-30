@@ -27,8 +27,7 @@ const FALLBACK_TOTALS = {
 
 function StatCard({ label, value, description, isLoading }) {
   return (
-    <Card className="relative overflow-hidden border border-border/60 bg-gradient-to-br from-background/95 via-background to-muted/30 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg">
-      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary/70 via-primary to-primary/70" aria-hidden />
+    <Card className="@container/card">
       <CardHeader className="space-y-2 pb-4">
         <CardDescription className="text-xs font-medium uppercase tracking-wide text-muted-foreground/80">
           {label}
