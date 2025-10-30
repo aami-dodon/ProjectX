@@ -354,6 +354,12 @@ const updateUserAccount = async ({ userId, updates = {}, actorId }) => {
       normalizedRoleIds.length !== currentRoleIds.size ||
       normalizedRoleIds.some((roleId) => !currentRoleIds.has(roleId));
 
+    if (rolesChanged && actorId && actorId === existingUser.id) {
+      throw createValidationError('Administrators cannot modify their own roles', {
+        field: 'roleIds',
+      });
+    }
+
     if (rolesChanged) {
       if (normalizedRoleIds.length > 0) {
         const matchedRoles = await findRolesByIds(normalizedRoleIds);
