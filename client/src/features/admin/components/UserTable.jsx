@@ -2,6 +2,7 @@ import * as React from "react"
 import { useSortable } from "@dnd-kit/sortable"
 import {
   IconChevronDown,
+  IconCircleCheckFilled,
   IconDotsVertical,
   IconGripVertical,
   IconLayoutColumns,
@@ -243,7 +244,7 @@ function TableCellViewer({ item, availableRoles, onUpdate }) {
         </Button>
       }
       title={({ item: current }) => current?.fullName || current?.email || "User"}
-      description={null}
+      description="Showing user activity for the last 6 months"
       direction="right"
       mobileDirection="bottom"
       renderView={({ item: current }) => {
@@ -251,11 +252,55 @@ function TableCellViewer({ item, availableRoles, onUpdate }) {
         const initials = getInitials(current?.fullName || current?.email)
 
         return (
-          <div className="flex justify-center py-4">
-            <Avatar className="size-24 border border-border">
-              <AvatarImage src={current?.avatar} alt={`${displayName} avatar`} />
-              <AvatarFallback className="text-xl font-semibold">{initials}</AvatarFallback>
-            </Avatar>
+          <div className="flex flex-col gap-6 text-sm">
+            <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+              <Avatar className="size-16 border border-border">
+                <AvatarImage src={current?.avatar} alt={`${displayName} avatar`} />
+                <AvatarFallback className="text-lg font-semibold">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+              <div className="space-y-1">
+                <p className="text-base font-semibold leading-tight">{displayName}</p>
+                {current?.email ? (
+                  <p className="text-muted-foreground text-xs">{current.email}</p>
+                ) : null}
+              </div>
+            </div>
+            <Separator />
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-1">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Status</p>
+                <Badge
+                  variant="outline"
+                  className={
+                    STATUS_BADGE_STYLES[current?.status] || "text-muted-foreground px-1.5"
+                  }>
+                  {STATUS_LABELS[current?.status] ?? current?.status ?? "—"}
+                </Badge>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Verified</p>
+                <p className="flex items-center gap-2 font-medium">
+                  {current?.emailVerifiedAt ? (
+                    <>
+                      <IconCircleCheckFilled className="text-emerald-500 size-4" />
+                      Verified
+                    </>
+                  ) : (
+                    <span className="text-muted-foreground">Not verified</span>
+                  )}
+                </p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Last login</p>
+                <p className="font-medium">{formatDate(current?.lastLoginAt)}</p>
+              </div>
+              <div className="space-y-1 md:col-span-2">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Roles</p>
+                <RoleBadge roles={current?.roles ?? []} />
+              </div>
+            </div>
           </div>
         )
       }}
