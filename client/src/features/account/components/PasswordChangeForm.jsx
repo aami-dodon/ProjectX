@@ -9,6 +9,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
@@ -106,7 +107,11 @@ export function PasswordChangeForm({ className, ...props }) {
   );
 
   return (
-    <div className={cn("flex h-full flex-col gap-6", className)} {...props}>
+    <form
+      className={cn("flex h-full flex-col gap-6", className)}
+      onSubmit={handleSubmit}
+      {...props}
+    >
       <Card className="flex h-full flex-col">
         <CardHeader>
           <CardTitle>Reset password</CardTitle>
@@ -115,63 +120,61 @@ export function PasswordChangeForm({ className, ...props }) {
           </CardDescription>
         </CardHeader>
         <CardContent className="flex-1">
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            <FieldGroup>
-              <Field>
-                <FieldLabel htmlFor="current-password">Current password</FieldLabel>
-                <Input
-                  id="current-password"
-                  name="currentPassword"
-                  type="password"
-                  autoComplete="current-password"
-                  value={formState.currentPassword}
-                  onChange={handleFieldChange}
-                  required
-                  disabled={submitting}
-                />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="new-password">New password</FieldLabel>
-                <Input
-                  id="new-password"
-                  name="newPassword"
-                  type="password"
-                  autoComplete="new-password"
-                  minLength={12}
-                  value={formState.newPassword}
-                  onChange={handleFieldChange}
-                  required
-                  disabled={submitting}
-                />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="confirm-password">Confirm new password</FieldLabel>
-                <Input
-                  id="confirm-password"
-                  name="confirmPassword"
-                  type="password"
-                  autoComplete="new-password"
-                  minLength={12}
-                  value={formState.confirmPassword}
-                  onChange={handleFieldChange}
-                  required
-                  disabled={submitting}
-                />
-              </Field>
-              {errorMessage ? (
-                <FieldDescription className="text-sm text-destructive">
-                  {errorMessage}
-                </FieldDescription>
-              ) : null}
-              <Field>
-                <Button type="submit" className="w-full" disabled={submitting}>
-                  {submitting ? "Updating password…" : "Update password"}
-                </Button>
-              </Field>
-            </FieldGroup>
-          </form>
+          <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor="current-password">Current password</FieldLabel>
+              <Input
+                id="current-password"
+                name="currentPassword"
+                type="password"
+                autoComplete="current-password"
+                value={formState.currentPassword}
+                onChange={handleFieldChange}
+                required
+                disabled={submitting}
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="new-password">New password</FieldLabel>
+              <Input
+                id="new-password"
+                name="newPassword"
+                type="password"
+                autoComplete="new-password"
+                minLength={12}
+                value={formState.newPassword}
+                onChange={handleFieldChange}
+                required
+                disabled={submitting}
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="confirm-password">Confirm new password</FieldLabel>
+              <Input
+                id="confirm-password"
+                name="confirmPassword"
+                type="password"
+                autoComplete="new-password"
+                minLength={12}
+                value={formState.confirmPassword}
+                onChange={handleFieldChange}
+                required
+                disabled={submitting}
+              />
+            </Field>
+            {errorMessage ? (
+              <FieldDescription className="text-sm text-destructive">
+                {errorMessage}
+              </FieldDescription>
+            ) : null}
+          </FieldGroup>
         </CardContent>
+        <CardFooter className="flex justify-end">
+          <Button type="submit" disabled={submitting}>
+            {submitting ? "Updating password…" : "Update password"}
+          </Button>
+        </CardFooter>
       </Card>
-    </div>
+    </form>
   );
 }
