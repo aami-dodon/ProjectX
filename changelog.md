@@ -1,3 +1,6 @@
+## 2025-11-08 11:30:00 IST
+- Restyled the admin user charts with gradient cards and responsive layouts to align with the refreshed statistics visuals.
+
 ## 2025-11-08 09:05:00 IST
 - Enabled admins to update user email addresses and mark them as verified with refreshed drawer UI, API validation, and tests.
 

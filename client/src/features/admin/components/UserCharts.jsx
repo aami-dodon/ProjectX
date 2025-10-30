@@ -212,17 +212,23 @@ export function UserCharts({ statusDistribution = [], monthlyRegistrations = [],
   );
 
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
-      <Card className="shadow-none">
-        <CardHeader>
-          <CardTitle>Status distribution</CardTitle>
-          <CardDescription>Breakdown of users by their current state</CardDescription>
+    <div className="grid grid-cols-1 gap-4 px-4 lg:grid-cols-2 lg:px-6">
+      <Card className="relative overflow-hidden border border-border/60 bg-gradient-to-br from-background/95 via-background to-muted/30 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg">
+        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary/70 via-primary to-primary/70" aria-hidden />
+        <CardHeader className="space-y-2 pb-0">
+          <CardDescription className="text-xs font-medium uppercase tracking-wide text-muted-foreground/80">
+            Status distribution
+          </CardDescription>
+          <CardTitle className="text-2xl font-semibold tracking-tight">Current user states</CardTitle>
+          <CardDescription className="text-sm text-muted-foreground">
+            Breakdown of users by their current state
+          </CardDescription>
         </CardHeader>
-        <CardContent className="flex h-[280px] items-center justify-center">
+        <CardContent className="flex h-[320px] flex-col items-center justify-center px-2 pb-6 pt-4 sm:h-[360px] sm:px-6">
           {isLoading ? (
             <Skeleton className="h-48 w-full" />
           ) : (
-            <ChartContainer config={statusConfig} className="h-[240px] w-full">
+            <ChartContainer config={statusConfig} className="h-[240px] w-full sm:h-[280px]">
               <PieChart>
                 <ChartTooltip cursor={false} content={pieTooltip} />
                 <Pie
@@ -263,11 +269,15 @@ export function UserCharts({ statusDistribution = [], monthlyRegistrations = [],
           )}
         </CardContent>
       </Card>
-      <Card className="@container/card">
-        <CardHeader>
-          <CardTitle>New registrations</CardTitle>
-          <CardDescription>
-            <span className="hidden @[540px]/card:block">Registrations for the last 3 months</span>
+      <Card className="relative overflow-hidden border border-border/60 bg-gradient-to-br from-background/95 via-background to-muted/30 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg @container/card">
+        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary/70 via-primary to-primary/70" aria-hidden />
+        <CardHeader className="space-y-2 pb-0">
+          <CardDescription className="text-xs font-medium uppercase tracking-wide text-muted-foreground/80">
+            New registrations
+          </CardDescription>
+          <CardTitle className="text-2xl font-semibold tracking-tight">Growth overview</CardTitle>
+          <CardDescription className="text-sm text-muted-foreground">
+            <span className="hidden @[540px]/card:inline">Registrations for the last 3 months</span>
             <span className="@[540px]/card:hidden">Last 3 months</span>
           </CardDescription>
           <CardAction>
@@ -276,7 +286,7 @@ export function UserCharts({ statusDistribution = [], monthlyRegistrations = [],
               value={timeRange}
               onValueChange={handleTimeRangeChange}
               variant="outline"
-              className="hidden *:data-[slot=toggle-group-item]:!px-4 @[767px]/card:flex"
+              className="hidden gap-2 *:data-[slot=toggle-group-item]:!px-4 @[767px]/card:flex"
             >
               <ToggleGroupItem value="90d">Last 3 months</ToggleGroupItem>
               <ToggleGroupItem value="30d">Last 30 days</ToggleGroupItem>
@@ -304,11 +314,14 @@ export function UserCharts({ statusDistribution = [], monthlyRegistrations = [],
             </Select>
           </CardAction>
         </CardHeader>
-        <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+        <CardContent className="px-2 pb-6 pt-4 sm:px-6 sm:pt-6">
           {isLoading ? (
             <Skeleton className="h-[250px] w-full" />
           ) : (
-            <ChartContainer config={registrationChartConfig} className="aspect-auto h-[250px] w-full">
+            <ChartContainer
+              config={registrationChartConfig}
+              className="aspect-auto h-[250px] w-full @[540px]/card:h-[280px] @[768px]/card:h-[320px]"
+            >
               <AreaChart data={filteredRegistrations}>
                 <defs>
                   <linearGradient id="fillRegistrations" x1="0" y1="0" x2="0" y2="1">
