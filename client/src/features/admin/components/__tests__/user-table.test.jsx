@@ -48,6 +48,10 @@ describe('TableCellViewer', () => {
           roles: [],
           avatarUrl: 'https://files.example.com/alice.png',
           emailVerifiedAt: '2024-05-01T00:00:00.000Z',
+          lastLoginAt: '2024-05-02T00:00:00.000Z',
+          createdAt: '2024-01-01T08:30:00.000Z',
+          updatedAt: '2024-05-03T13:15:00.000Z',
+          mfaEnabled: true,
         }}
         availableRoles={[]}
         onUpdate={vi.fn()}
@@ -67,6 +71,20 @@ describe('TableCellViewer', () => {
 
     expect(within(view).getByText('alice@example.com')).toBeInTheDocument()
     expect(within(view).getByText(/Verified on/i)).toBeInTheDocument()
+    expect(within(view).getByText('Created')).toBeInTheDocument()
+    expect(
+      within(view).getByText(new Date('2024-01-01T08:30:00.000Z').toLocaleString())
+    ).toBeInTheDocument()
+    expect(within(view).getByText('Last updated')).toBeInTheDocument()
+    expect(
+      within(view).getByText(new Date('2024-05-03T13:15:00.000Z').toLocaleString())
+    ).toBeInTheDocument()
+    expect(within(view).getByText('Last login')).toBeInTheDocument()
+    expect(
+      within(view).getByText(new Date('2024-05-02T00:00:00.000Z').toLocaleString())
+    ).toBeInTheDocument()
+    expect(within(view).getByText('MFA')).toBeInTheDocument()
+    expect(within(view).getByText('Enabled')).toBeInTheDocument()
   })
 
   it('falls back when avatarUrl is missing', () => {
@@ -78,6 +96,10 @@ describe('TableCellViewer', () => {
           email: 'bob@example.com',
           status: 'INVITED',
           roles: [],
+          createdAt: null,
+          updatedAt: undefined,
+          lastLoginAt: null,
+          mfaEnabled: null,
         }}
         availableRoles={[]}
         onUpdate={vi.fn()}
@@ -95,6 +117,13 @@ describe('TableCellViewer', () => {
     expect(within(header).getByRole('button', { name: /verify email/i })).toBeInTheDocument()
 
     expect(within(view).getByText('Not verified')).toBeInTheDocument()
+    expect(within(view).getByText('Created')).toBeInTheDocument()
+    expect(within(view).getByText('Last updated')).toBeInTheDocument()
+    expect(within(view).getByText('Last login')).toBeInTheDocument()
+    const fallbacks = within(view).getAllByText('—')
+    expect(fallbacks.length).toBeGreaterThanOrEqual(3)
+    expect(within(view).getByText('MFA')).toBeInTheDocument()
+    expect(fallbacks.length).toBeGreaterThan(0)
   })
 })
 

@@ -79,6 +79,9 @@ export const schema = z.object({
     )
     .optional(),
   lastLoginAt: z.string().nullable().optional(),
+  createdAt: z.string().nullable().optional(),
+  updatedAt: z.string().nullable().optional(),
+  mfaEnabled: z.boolean().nullable().optional(),
   emailVerifiedAt: z.string().nullable().optional(),
 })
 
@@ -339,6 +342,12 @@ export function TableCellViewer({ item, availableRoles, onUpdate }) {
       mobileDirection="bottom"
       renderView={({ item: current }) => {
         const isVerified = Boolean(current?.emailVerifiedAt)
+        const mfaStatus =
+          current?.mfaEnabled === true
+            ? "Enabled"
+            : current?.mfaEnabled === false
+              ? "Disabled"
+              : "—"
 
         return (
           <div className="flex flex-col gap-6 text-sm">
@@ -365,26 +374,42 @@ export function TableCellViewer({ item, availableRoles, onUpdate }) {
               </div>
             </div>
             <Separator />
-            <div className="grid gap-4 md:grid-cols-2">
+            <dl className="grid gap-4 md:grid-cols-2">
               <div className="space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Status</p>
-                <Badge
-                  variant="outline"
-                  className={
-                    STATUS_BADGE_STYLES[current?.status] ?? "text-muted-foreground px-1.5"
-                  }>
-                  {STATUS_LABELS[current?.status] ?? current?.status ?? "—"}
-                </Badge>
+                <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Status</dt>
+                <dd>
+                  <Badge
+                    variant="outline"
+                    className={
+                      STATUS_BADGE_STYLES[current?.status] ?? "text-muted-foreground px-1.5"
+                    }>
+                    {STATUS_LABELS[current?.status] ?? current?.status ?? "—"}
+                  </Badge>
+                </dd>
               </div>
               <div className="space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Last login</p>
-                <p className="font-medium">{formatDate(current?.lastLoginAt)}</p>
+                <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Created</dt>
+                <dd className="font-medium">{formatDate(current?.createdAt)}</dd>
+              </div>
+              <div className="space-y-1">
+                <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Last updated</dt>
+                <dd className="font-medium">{formatDate(current?.updatedAt)}</dd>
+              </div>
+              <div className="space-y-1">
+                <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Last login</dt>
+                <dd className="font-medium">{formatDate(current?.lastLoginAt)}</dd>
+              </div>
+              <div className="space-y-1">
+                <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">MFA</dt>
+                <dd className="font-medium">{mfaStatus}</dd>
               </div>
               <div className="space-y-1 md:col-span-2">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Roles</p>
-                <RoleBadge roles={current?.roles ?? []} />
+                <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Roles</dt>
+                <dd>
+                  <RoleBadge roles={current?.roles ?? []} />
+                </dd>
               </div>
-            </div>
+            </dl>
           </div>
         )
       }}
