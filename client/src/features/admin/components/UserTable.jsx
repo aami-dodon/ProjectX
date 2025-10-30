@@ -561,6 +561,28 @@ export function UserTable({
     [onUpdate]
   )
 
+  const handleActivateUser = React.useCallback(
+    (user) => {
+      if (!user?.id || typeof onUpdate !== "function") {
+        return
+      }
+
+      const label = user.fullName || user.email || "user"
+      const result = Promise.resolve(
+        onUpdate(user.id, {
+          status: "ACTIVE",
+        })
+      )
+
+      toast.promise(result, {
+        loading: `Activating ${label}`,
+        success: `${label} activated`,
+        error: `Unable to activate ${label}`,
+      })
+    },
+    [onUpdate]
+  )
+
   React.useEffect(() => {
     setData(users ?? [])
   }, [users])
@@ -743,11 +765,16 @@ export function UserTable({
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  variant="destructive"
+                  variant={user.status === "ACTIVE" ? "destructive" : undefined}
                   onSelect={() => {
-                    handleSuspendUser(user)
+                    if (user.status === "ACTIVE") {
+                      handleSuspendUser(user)
+                      return
+                    }
+
+                    handleActivateUser(user)
                   }}>
-                  Suspend
+                  {user.status === "ACTIVE" ? "Suspend" : "Activate"}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -763,6 +790,7 @@ export function UserTable({
       handleDrawerOpenChange,
       handleEditUser,
       handleSuspendUser,
+      handleActivateUser,
     ]
   )
 
