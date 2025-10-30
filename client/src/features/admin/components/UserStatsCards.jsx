@@ -38,7 +38,6 @@ export function UserStatsCards({ totals, isLoading = false }) {
       <StatCard
         label="Pending verification"
         value={stats.pending}
-        description="Awaiting email confirmation"
         isLoading={isLoading}
       />
       <StatCard label="Invited" value={stats.invited} isLoading={isLoading} />
@@ -46,7 +45,6 @@ export function UserStatsCards({ totals, isLoading = false }) {
       <StatCard
         label="Verified"
         value={stats.verified}
-        description="Accounts with verified email"
         isLoading={isLoading}
       />
     </div>
