@@ -33,38 +33,40 @@ export function UserTableHeader({
   selectId = "view-selector",
 }) {
   return (
-    <CardHeader className="flex flex-col gap-6 border-b border-border pb-6">
-      <div className="space-y-1">
-        <CardTitle className="text-2xl font-semibold tracking-tight">User directory</CardTitle>
-        <CardDescription>
-          Manage accounts, adjust roles, and review verification status across the organisation.
-        </CardDescription>
-      </div>
-      <div className="flex flex-col gap-3 @4xl/main:flex-row @4xl/main:items-center @4xl/main:justify-between">
-        <div className="flex flex-col gap-2 @4xl/main:hidden">
-          <Label htmlFor={selectId} className="sr-only">
-            View
-          </Label>
-          <Select value={activeView} onValueChange={onViewChange}>
-            <SelectTrigger className="w-full" id={selectId} size="sm">
-              <SelectValue placeholder="Select a view" />
-            </SelectTrigger>
-            <SelectContent>
-              {viewOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+    <CardHeader className="border-b border-border pb-6">
+      <div className="flex flex-col gap-6 @4xl/main:flex-row @4xl/main:items-center @4xl/main:justify-between">
+        <div className="space-y-1">
+          <CardTitle className="text-2xl font-semibold tracking-tight">User directory</CardTitle>
+          <CardDescription>
+            Manage accounts, adjust roles, and review verification status across the organisation.
+          </CardDescription>
         </div>
-        <TabsList className="hidden **:data-[slot=badge]:bg-muted-foreground/30 **:data-[slot=badge]:size-5 **:data-[slot=badge]:rounded-full **:data-[slot=badge]:px-1 self-start @4xl/main:flex">
-          {viewOptions.map((option) => (
-            <TabsTrigger key={option.value} value={option.value}>
-              {option.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        <div className="flex w-full flex-col gap-3 @4xl/main:w-auto">
+          <div className="flex flex-col gap-2 @4xl/main:hidden">
+            <Label htmlFor={selectId} className="sr-only">
+              View
+            </Label>
+            <Select value={activeView} onValueChange={onViewChange}>
+              <SelectTrigger className="w-full" id={selectId} size="sm">
+                <SelectValue placeholder="Select a view" />
+              </SelectTrigger>
+              <SelectContent>
+                {viewOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <TabsList className="hidden **:data-[slot=badge]:bg-muted-foreground/30 **:data-[slot=badge]:size-5 **:data-[slot=badge]:rounded-full **:data-[slot=badge]:px-1 justify-end gap-2 @4xl/main:flex">
+            {viewOptions.map((option) => (
+              <TabsTrigger key={option.value} value={option.value}>
+                {option.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
       </div>
     </CardHeader>
   )
