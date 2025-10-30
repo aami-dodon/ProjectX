@@ -1,3 +1,6 @@
+## 2025-11-10 12:45:00 IST
+- Aligned Tailwind's status utility colors with the design tokens in `client/src/index.css` so info, success, warning, and danger accents match the app palette.
+
 ## 2025-11-10 10:05:00 IST
 - Replaced the account page's forgot password card with an in-app password reset form that validates the current secret, updates it via the API, and signs the user out so they log in with the new credentials.
 ## 2025-11-09 09:15:00 IST
