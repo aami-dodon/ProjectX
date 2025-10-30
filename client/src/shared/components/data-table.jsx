@@ -17,10 +17,13 @@ import {
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import {
+  IconChevronDown,
   IconChevronLeft,
   IconChevronRight,
+  IconChevronUp,
   IconChevronsLeft,
   IconChevronsRight,
+  IconSelector,
 } from "@tabler/icons-react"
 import {
   flexRender,
@@ -337,14 +340,44 @@ export function DataTable({
                 return <TableHead key={header.id} colSpan={header.colSpan} />
               }
 
+              const canSort = header.column.getCanSort()
+              const sortDirection = header.column.getIsSorted()
+              const alignment = header.column.columnDef.meta?.headerAlign
+              const sortIcon =
+                sortDirection === "asc"
+                  ? <IconChevronUp className="size-4" aria-hidden="true" />
+                  : sortDirection === "desc"
+                  ? <IconChevronDown className="size-4" aria-hidden="true" />
+                  : <IconSelector className="size-4" aria-hidden="true" />
+
+              const headerContent = flexRender(
+                header.column.columnDef.header,
+                header.getContext()
+              )
+
               return (
                 <TableHead
                   key={header.id}
                   colSpan={header.colSpan}
                   className={cn(header.column.columnDef.meta?.headerClassName)}>
-                  {flexRender(
-                    header.column.columnDef.header,
-                    header.getContext()
+                  {canSort ? (
+                    <button
+                      type="button"
+                      onClick={header.column.getToggleSortingHandler()}
+                      className={cn(
+                        "flex w-full items-center gap-1 text-sm font-medium",
+                        alignment === "right"
+                          ? "justify-end text-right"
+                          : alignment === "center"
+                          ? "justify-center text-center"
+                          : "justify-start text-left"
+                      )}
+                    >
+                      <span className="flex-1">{headerContent}</span>
+                      <span className="text-muted-foreground">{sortIcon}</span>
+                    </button>
+                  ) : (
+                    headerContent
                   )}
                 </TableHead>
               )

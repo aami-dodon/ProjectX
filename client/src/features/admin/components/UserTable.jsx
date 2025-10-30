@@ -3,10 +3,11 @@ import { useSortable } from "@dnd-kit/sortable"
 import {
   IconChevronDown,
   IconCircleCheckFilled,
+  IconCircleXFilled,
   IconDotsVertical,
   IconGripVertical,
   IconLayoutColumns,
-  IconPlus,
+  IconRefresh,
 } from "@tabler/icons-react"
 import { toast } from "sonner"
 import { z } from "zod"
@@ -496,6 +497,7 @@ export function UserTable({
   isLoading = false,
   error,
   onUpdate,
+  onRefresh,
 }) {
   const [activeView, setActiveView] = React.useState("outline")
   const [data, setData] = React.useState(() => users ?? [])
@@ -599,6 +601,9 @@ export function UserTable({
       {
         accessorKey: "fullName",
         header: "User",
+        meta: {
+          columnLabel: "User",
+        },
         filterFn: (row, columnId, filterValue) => {
           if (!filterValue) {
             return true
@@ -625,6 +630,9 @@ export function UserTable({
       {
         accessorKey: "email",
         header: "Email",
+        meta: {
+          columnLabel: "Email",
+        },
         cell: ({ row }) => (
           <div className="text-sm">
             {row.original.email ? (
@@ -638,6 +646,9 @@ export function UserTable({
       {
         accessorKey: "status",
         header: "Status",
+        meta: {
+          columnLabel: "Status",
+        },
         filterFn: (row, columnId, filterValue) => {
           if (!filterValue) {
             return true
@@ -656,6 +667,9 @@ export function UserTable({
       {
         accessorKey: "roles",
         header: "Roles",
+        meta: {
+          columnLabel: "Roles",
+        },
         filterFn: (row, columnId, filterValue) => {
           if (!filterValue) {
             return true
@@ -668,15 +682,39 @@ export function UserTable({
       },
       {
         accessorKey: "lastLoginAt",
-        header: () => <div className="w-full text-right">Last login</div>,
-        cell: ({ row }) => <div className="text-right text-sm">{formatDate(row.original.lastLoginAt)}</div>,
+        header: "Last login",
+        meta: {
+          columnLabel: "Last login",
+          headerClassName: "text-right",
+          headerAlign: "right",
+          cellClassName: "text-right",
+        },
+        cell: ({ row }) => (
+          <div className="text-right text-sm">{formatDate(row.original.lastLoginAt)}</div>
+        ),
       },
       {
         accessorKey: "emailVerifiedAt",
-        header: () => <div className="w-full text-right">Verified</div>,
+        header: "Verified",
+        meta: {
+          columnLabel: "Verified",
+          headerClassName: "text-right",
+          headerAlign: "right",
+          cellClassName: "text-right",
+        },
         cell: ({ row }) => (
-          <div className="text-right text-sm">
-            {row.original.emailVerifiedAt ? "Yes" : "No"}
+          <div className="flex justify-end">
+            {row.original.emailVerifiedAt ? (
+              <span className="inline-flex items-center text-emerald-500">
+                <IconCircleCheckFilled className="size-4" aria-hidden="true" />
+                <span className="sr-only">Verified</span>
+              </span>
+            ) : (
+              <span className="inline-flex items-center text-muted-foreground">
+                <IconCircleXFilled className="size-4" aria-hidden="true" />
+                <span className="sr-only">Not verified</span>
+              </span>
+            )}
           </div>
         ),
       },
@@ -847,26 +885,41 @@ export function UserTable({
                       .filter(
                         (column) => typeof column.accessorFn !== "undefined" && column.getCanHide()
                       )
-                      .map((column) => (
-                        <DropdownMenuCheckboxItem
-                          key={column.id}
-                          className="capitalize"
-                          checked={column.getIsVisible()}
-                          onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                        >
-                          {column.id}
-                        </DropdownMenuCheckboxItem>
-                      ))}
+                      .map((column) => {
+                        const label =
+                          column.columnDef?.meta?.columnLabel ??
+                          (typeof column.columnDef?.header === "string"
+                            ? column.columnDef.header
+                            : column.id)
+
+                        return (
+                          <DropdownMenuCheckboxItem
+                            key={column.id}
+                            checked={column.getIsVisible()}
+                            onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                          >
+                            {label}
+                          </DropdownMenuCheckboxItem>
+                        )
+                      })}
                   </DropdownMenuContent>
                 </DropdownMenu>
-                <Button variant="outline" size="sm">
-                  <IconPlus />
-                  <span className="hidden lg:inline">Add Section</span>
-                </Button>
+                {typeof onRefresh === "function" ? (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={onRefresh}
+                    disabled={isLoading}
+                    aria-label="Refresh table"
+                  >
+                    <IconRefresh className="size-4" />
+                  </Button>
+                ) : null}
               </div>
             ),
           })}
           emptyMessage="No users found."
+          onRefresh={onRefresh}
         />
       </TabsContent>
       <TabsContent value="past-performance" className="flex flex-col px-4 lg:px-6">
