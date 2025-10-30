@@ -843,7 +843,7 @@ export function UserTable({
       <Tabs value={activeView} onValueChange={setActiveView} className="flex h-full flex-col">
         <CardHeader className="flex flex-col gap-6 border-b border-border pb-6">
           <div className="space-y-1">
-            <CardTitle className="text-xl">User directory</CardTitle>
+            <CardTitle className="text-2xl font-semibold tracking-tight">User directory</CardTitle>
             <CardDescription>
               Manage accounts, adjust roles, and review verification status across the organisation.
             </CardDescription>
