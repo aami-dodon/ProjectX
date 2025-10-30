@@ -1,6 +1,12 @@
-const { getAdminUsers } = require('../admin.service');
-const { listUsers, listRoles } = require('../admin.repository');
+const { getAdminUsers, updateUserAccount } = require('../admin.service');
+const {
+  listUsers,
+  listRoles,
+  updateUserById,
+  findUserById,
+} = require('../admin.repository');
 const { getFileAccessLink } = require('@/modules/files/file.service');
+const { logAuthEvent } = require('@/modules/auth/auth.repository');
 
 jest.mock('../admin.repository', () => ({
   listUsers: jest.fn(),
@@ -12,6 +18,10 @@ jest.mock('../admin.repository', () => ({
 
 jest.mock('@/modules/files/file.service', () => ({
   getFileAccessLink: jest.fn(),
+}));
+
+jest.mock('@/modules/auth/auth.repository', () => ({
+  logAuthEvent: jest.fn(),
 }));
 
 const buildUser = (overrides = {}) => ({
@@ -90,6 +100,81 @@ describe('admin.service - getAdminUsers', () => {
 
     expect(getFileAccessLink).toHaveBeenCalledWith('avatars/user-1.png', 'user-1');
     expect(result.users[0].avatarUrl).toBeNull();
+  });
+});
+
+describe('admin.service - updateUserAccount', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('normalizes email updates and resets verification', async () => {
+    const existing = buildUser();
+    findUserById.mockResolvedValue(existing);
+    const updated = buildUser({ email: 'new@example.com', emailVerifiedAt: null });
+    updateUserById.mockResolvedValue(updated);
+
+    const result = await updateUserAccount({
+      userId: 'user-1',
+      updates: { email: 'NEW@Example.com ' },
+      actorId: 'admin-42',
+    });
+
+    expect(updateUserById).toHaveBeenCalledWith('user-1', {
+      email: 'new@example.com',
+      emailVerifiedAt: null,
+    });
+    expect(result).toMatchObject({
+      id: 'user-1',
+      email: 'new@example.com',
+      emailVerifiedAt: null,
+    });
+    expect(logAuthEvent).toHaveBeenCalledWith({
+      userId: 'user-1',
+      eventType: 'admin.user.updated',
+      payload: {
+        actorId: 'admin-42',
+        fields: ['email', 'emailVerifiedAt'],
+      },
+    });
+  });
+
+  it('marks a user email as verified', async () => {
+    const existing = buildUser();
+    findUserById.mockResolvedValue(existing);
+    const verifiedAt = new Date('2024-06-01T12:00:00Z');
+    updateUserById.mockResolvedValue(
+      buildUser({ emailVerifiedAt: verifiedAt })
+    );
+
+    const result = await updateUserAccount({
+      userId: 'user-1',
+      updates: { verifyEmail: true },
+      actorId: 'admin-99',
+    });
+
+    expect(updateUserById).toHaveBeenCalledWith('user-1', {
+      emailVerifiedAt: expect.any(Date),
+    });
+    expect(result.emailVerifiedAt).toEqual(verifiedAt);
+    expect(logAuthEvent).toHaveBeenCalledWith({
+      userId: 'user-1',
+      eventType: 'admin.user.updated',
+      payload: {
+        actorId: 'admin-99',
+        fields: ['emailVerifiedAt'],
+      },
+    });
+  });
+
+  it('throws a validation error when email is invalid', async () => {
+    await expect(
+      updateUserAccount({ userId: 'user-1', updates: { email: 'invalid-email' } })
+    ).rejects.toMatchObject({
+      code: 'VALIDATION_ERROR',
+      details: { field: 'email' },
+    });
+    expect(updateUserById).not.toHaveBeenCalled();
   });
 });
 

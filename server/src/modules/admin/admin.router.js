@@ -40,10 +40,10 @@ router.get('/users', listUsers);
  * @openapi
  * /api/admin/users/{userId}:
  *   patch:
- *     summary: Update a user's profile, status, or role assignments.
- *     description: Applies profile, status, or role changes to the requested account. Only the admin role
+ *     summary: Update a user's profile, email, verification state, or role assignments.
+ *     description: Applies profile, status, email, or role changes to the requested account. Only the admin role
  *       is permitted to perform this action. Provide `roleIds` as an array of role identifiers to
- *       replace the user's assignments.
+ *       replace the user's assignments. Set `verifyEmail` to true to mark the address as verified.
  *     tags:
  *       - Admin
  *     parameters:

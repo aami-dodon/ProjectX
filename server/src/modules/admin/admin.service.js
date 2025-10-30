@@ -2,6 +2,7 @@ const {
   createNotFoundError,
   createValidationError,
 } = require('@/utils/errors');
+const { z } = require('zod');
 const { createLogger } = require('@/utils/logger');
 const { getFileAccessLink } = require('@/modules/files/file.service');
 const { logAuthEvent } = require('@/modules/auth/auth.repository');
@@ -215,6 +216,12 @@ const getAdminUsers = async ({ search, status } = {}) => {
   };
 };
 
+const addField = (fields, value) => {
+  if (!fields.includes(value)) {
+    fields.push(value);
+  }
+};
+
 const updateUserAccount = async ({ userId, updates = {}, actorId }) => {
   if (!userId || typeof userId !== 'string') {
     throw createValidationError('A valid user id is required for updates', {
@@ -230,6 +237,20 @@ const updateUserAccount = async ({ userId, updates = {}, actorId }) => {
 
   const payload = {};
   const fields = [];
+  let cachedUser = null;
+
+  const ensureExistingUser = async () => {
+    if (cachedUser) {
+      return cachedUser;
+    }
+
+    cachedUser = await findUserById(userId);
+    if (!cachedUser) {
+      throw createNotFoundError('Requested user could not be found');
+    }
+
+    return cachedUser;
+  };
 
   if (Object.prototype.hasOwnProperty.call(updates, 'fullName')) {
     const { fullName } = updates;
@@ -243,7 +264,7 @@ const updateUserAccount = async ({ userId, updates = {}, actorId }) => {
       });
     }
 
-    fields.push('fullName');
+    addField(fields, 'fullName');
   }
 
   if (Object.prototype.hasOwnProperty.call(updates, 'status')) {
@@ -254,7 +275,40 @@ const updateUserAccount = async ({ userId, updates = {}, actorId }) => {
       });
     }
     payload.status = normalizedStatus;
-    fields.push('status');
+    addField(fields, 'status');
+  }
+
+  if (Object.prototype.hasOwnProperty.call(updates, 'email')) {
+    const emailSchema = z
+      .string({ required_error: 'Email is required' })
+      .trim()
+      .min(1, 'Email is required')
+      .email('Email must be valid');
+
+    let normalizedEmail;
+    try {
+      normalizedEmail = emailSchema.parse(updates.email).toLowerCase();
+    } catch (error) {
+      throw createValidationError('A valid email address is required', {
+        field: 'email',
+      });
+    }
+
+    payload.email = normalizedEmail;
+    payload.emailVerifiedAt = null;
+    addField(fields, 'email');
+    addField(fields, 'emailVerifiedAt');
+  }
+
+  if (Object.prototype.hasOwnProperty.call(updates, 'verifyEmail')) {
+    if (updates.verifyEmail !== true && updates.verifyEmail !== false) {
+      throw createValidationError('verifyEmail must be a boolean', {
+        field: 'verifyEmail',
+      });
+    }
+
+    payload.emailVerifiedAt = updates.verifyEmail === true ? new Date() : null;
+    addField(fields, 'emailVerifiedAt');
   }
 
   let roleAssignmentsUpdate = null;
@@ -280,10 +334,7 @@ const updateUserAccount = async ({ userId, updates = {}, actorId }) => {
       new Set(updates.roleIds.map((roleId) => roleId.trim()))
     );
 
-    const existingUser = await findUserById(userId);
-    if (!existingUser) {
-      throw createNotFoundError('Requested user could not be found');
-    }
+    const existingUser = await ensureExistingUser();
 
     const currentRoleIds = new Set(
       (existingUser.roleAssignments ?? []).map((assignment) => assignment.roleId)
@@ -315,7 +366,7 @@ const updateUserAccount = async ({ userId, updates = {}, actorId }) => {
         ...(createAssignments.length > 0 ? { create: createAssignments } : {}),
       };
 
-      fields.push('roles');
+      addField(fields, 'roles');
     }
   }
 
@@ -335,6 +386,11 @@ const updateUserAccount = async ({ userId, updates = {}, actorId }) => {
   } catch (error) {
     if (error.code === 'P2025') {
       throw createNotFoundError('Requested user could not be found');
+    }
+    if (error.code === 'P2002' && error.meta?.target?.includes('email')) {
+      throw createValidationError('Email address is already in use', {
+        field: 'email',
+      });
     }
     throw error;
   }

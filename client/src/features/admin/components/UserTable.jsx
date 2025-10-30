@@ -177,17 +177,44 @@ export function TableCellViewer({ item, availableRoles, onUpdate }) {
   )
   const [formState, setFormState] = React.useState({
     fullName: parsedUser.fullName ?? "",
+    email: parsedUser.email ?? "",
     status: parsedUser.status ?? "ACTIVE",
     roleIds: (parsedUser.roles ?? []).map((role) => `${role.id}`),
   })
+  const [isVerifying, setIsVerifying] = React.useState(false)
 
   React.useEffect(() => {
     setFormState({
       fullName: parsedUser.fullName ?? "",
+      email: parsedUser.email ?? "",
       status: parsedUser.status ?? "ACTIVE",
       roleIds: (parsedUser.roles ?? []).map((role) => `${role.id}`),
     })
-  }, [parsedUser.fullName, parsedUser.status, parsedUser.roles])
+    setIsVerifying(false)
+  }, [parsedUser.fullName, parsedUser.email, parsedUser.status, parsedUser.roles, parsedUser.id])
+
+  const handleVerifyEmail = React.useCallback(
+    (user = parsedUser) => {
+      if (!user?.id || typeof onUpdate !== "function") {
+        return
+      }
+
+      const label = user.fullName || user.email || "user"
+      setIsVerifying(true)
+      const result = Promise.resolve(onUpdate(user.id, { verifyEmail: true }))
+
+      toast.promise(result, {
+        loading: `Verifying ${label}`,
+        success: "Email marked as verified",
+        error: "Unable to verify email",
+      })
+
+      result.finally(() => {
+        setIsVerifying(false)
+      })
+    },
+    [onUpdate, parsedUser]
+  )
 
   const handleRoleToggle = React.useCallback((roleId, checked) => {
     setFormState((previous) => {
@@ -208,6 +235,7 @@ export function TableCellViewer({ item, availableRoles, onUpdate }) {
 
       const payload = {
         fullName: formState.fullName,
+        email: formState.email,
         status: formState.status,
         roleIds: formState.roleIds,
       }
@@ -220,11 +248,11 @@ export function TableCellViewer({ item, availableRoles, onUpdate }) {
 
       toast.promise(result, {
         loading: `Saving ${label}`,
-        success: "Done",
-        error: "Error",
+        success: "Changes saved",
+        error: "Unable to save changes",
       })
     },
-    [formState.fullName, formState.status, formState.roleIds, onUpdate, parsedUser]
+    [formState.fullName, formState.email, formState.status, formState.roleIds, onUpdate, parsedUser]
   )
 
   const normalizedRoles = React.useMemo(
@@ -244,6 +272,21 @@ export function TableCellViewer({ item, availableRoles, onUpdate }) {
             <span className="text-muted-foreground block text-xs">{parsedUser.email}</span>
           ) : null}
         </Button>
+      }
+      headerActions={({ item }) =>
+        item?.email && !item.emailVerifiedAt
+          ? (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => handleVerifyEmail(item)}
+                disabled={isVerifying}>
+                <IconCircleCheckFilled className="mr-2 size-4" />
+                Verify email
+              </Button>
+            )
+          : null
       }
       headerClassName="gap-4 border-b px-4 py-4 text-left"
       renderHeader={({ item: current, headerActions }) => {
@@ -295,9 +338,44 @@ export function TableCellViewer({ item, availableRoles, onUpdate }) {
       direction="right"
       mobileDirection="bottom"
       renderView={({ item: current }) => {
+        const isVerified = Boolean(current?.emailVerifiedAt)
+
         return (
           <div className="flex flex-col gap-6 text-sm">
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Email</p>
+                <p className="font-medium break-words">{current?.email ?? "—"}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Verification</p>
+                {isVerified ? (
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 font-medium text-emerald-600 dark:text-emerald-300">
+                      <IconCircleCheckFilled className="text-emerald-500 size-4" />
+                      Verified
+                    </div>
+                    <p className="text-muted-foreground text-xs">
+                      Verified on {formatDate(current?.emailVerifiedAt)}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground font-medium">Not verified</p>
+                )}
+              </div>
+            </div>
+            <Separator />
             <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-1">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Status</p>
+                <Badge
+                  variant="outline"
+                  className={
+                    STATUS_BADGE_STYLES[current?.status] ?? "text-muted-foreground px-1.5"
+                  }>
+                  {STATUS_LABELS[current?.status] ?? current?.status ?? "—"}
+                </Badge>
+              </div>
               <div className="space-y-1">
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Last login</p>
                 <p className="font-medium">{formatDate(current?.lastLoginAt)}</p>
@@ -311,22 +389,43 @@ export function TableCellViewer({ item, availableRoles, onUpdate }) {
         )
       }}
       renderEdit={() => (
-        <form id={formId} onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-3">
-            <Label htmlFor={`${formId}-full-name`}>Full name</Label>
-            <Input
-              id={`${formId}-full-name`}
-              value={formState.fullName}
-              onChange={(event) =>
-                setFormState((previous) => ({
-                  ...previous,
-                  fullName: event.target.value,
-                }))
-              }
-              placeholder="Enter full name"
-            />
-          </div>
+        <form id={formId} onSubmit={handleSubmit} className="flex flex-col gap-6">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-3 sm:col-span-2">
+              <Label htmlFor={`${formId}-full-name`}>Full name</Label>
+              <Input
+                id={`${formId}-full-name`}
+                value={formState.fullName}
+                onChange={(event) =>
+                  setFormState((previous) => ({
+                    ...previous,
+                    fullName: event.target.value,
+                  }))
+                }
+                placeholder="Enter full name"
+              />
+            </div>
+            <div className="flex flex-col gap-3">
+              <Label htmlFor={`${formId}-email`}>Email</Label>
+              <div className="flex flex-col gap-2">
+                <Input
+                  id={`${formId}-email`}
+                  type="email"
+                  value={formState.email}
+                  onChange={(event) =>
+                    setFormState((previous) => ({
+                      ...previous,
+                      email: event.target.value,
+                    }))
+                  }
+                  placeholder="name@example.com"
+                  autoComplete="off"
+                />
+                <p className="text-muted-foreground text-xs">
+                  Updating the email resets verification until it is marked as verified.
+                </p>
+              </div>
+            </div>
             <div className="flex flex-col gap-3">
               <Label htmlFor={`${formId}-status`}>Status</Label>
               <Select
@@ -349,11 +448,8 @@ export function TableCellViewer({ item, availableRoles, onUpdate }) {
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex flex-col gap-3">
-              <Label>Email</Label>
-              <Input value={parsedUser.email ?? "—"} disabled />
-            </div>
           </div>
+          <Separator />
           <div className="flex flex-col gap-3">
             <Label>Roles</Label>
             <div className="space-y-2 rounded-md border p-3">

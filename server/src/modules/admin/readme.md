@@ -33,8 +33,8 @@ const { router: adminRouter } = require('@/modules/admin');
    from the service when another module needs the combined listings and metrics
    payload used by the dashboard.
 3. **Applying privileged updates** – reuse `updateUserAccount({ userId, updates, actorId })`
-   when you need to synchronise status or profile adjustments from workflows
-   outside the default router handlers.
+   when you need to synchronise status, email, verification, or profile
+   adjustments from workflows outside the default router handlers.
 
 ## Integration requirements
 
