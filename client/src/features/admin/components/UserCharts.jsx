@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Area, AreaChart, CartesianGrid, Pie, PieChart, XAxis, Cell } from "recharts";
+import { Area, AreaChart, CartesianGrid, Pie, PieChart, XAxis, Cell, Label } from "recharts";
 
 import { useIsMobile } from "@/shared/hooks/use-mobile";
 import {
@@ -90,6 +90,15 @@ export function UserCharts({ statusDistribution = [], monthlyRegistrations = [],
 
         return acc;
       }, {}),
+    [normalizedStatusDistribution]
+  );
+
+  const totalStatusCount = useMemo(
+    () =>
+      normalizedStatusDistribution.reduce(
+        (accumulator, entry) => accumulator + (Number(entry.value) || 0),
+        0
+      ),
     [normalizedStatusDistribution]
   );
 
@@ -215,11 +224,39 @@ export function UserCharts({ statusDistribution = [], monthlyRegistrations = [],
           ) : (
             <ChartContainer config={statusConfig} className="h-[240px] w-full">
               <PieChart>
-                <ChartTooltip content={pieTooltip} />
-                <Pie data={statusDistribution} dataKey="value" nameKey="label" innerRadius={60} outerRadius={100} paddingAngle={4}>
-                  {statusDistribution.map((entry, index) => (
-                    <Cell key={`${entry.status}-${index}`} fill={STATUS_COLOR_MAP[entry.status] ?? "var(--color-muted)"} />
+                <ChartTooltip cursor={false} content={pieTooltip} />
+                <Pie
+                  data={normalizedStatusDistribution}
+                  dataKey="value"
+                  nameKey="label"
+                  innerRadius={60}
+                  outerRadius={100}
+                  paddingAngle={4}
+                  strokeWidth={4}
+                >
+                  {normalizedStatusDistribution.map((entry, index) => (
+                    <Cell key={entry.chartKey || `status-${index}`} fill={entry.color} />
                   ))}
+                  <Label
+                    content={({ viewBox }) => {
+                      if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                        const { cx, cy } = viewBox;
+
+                        return (
+                          <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle">
+                            <tspan className="fill-foreground text-3xl font-semibold">
+                              {totalStatusCount.toLocaleString()}
+                            </tspan>
+                            <tspan x={cx} y={(cy || 0) + 20} className="fill-muted-foreground text-sm">
+                              Users
+                            </tspan>
+                          </text>
+                        );
+                      }
+
+                      return null;
+                    }}
+                  />
                 </Pie>
               </PieChart>
             </ChartContainer>
