@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import {
+  IconBellRinging,
   IconColorSwatch,
   IconComponents,
   IconLayoutBoardSplit,
@@ -8,6 +9,7 @@ import {
   IconPencil,
   IconTypography,
 } from "@tabler/icons-react";
+import { toast } from "sonner";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { Badge } from "@/shared/components/ui/badge";
@@ -830,6 +832,90 @@ function InteractiveShowcase() {
   );
 }
 
+function ToastShowcase() {
+  const handlePromiseToast = () => {
+    const promise = new Promise((resolve) => {
+      setTimeout(resolve, 1400);
+    });
+
+    toast.promise(
+      promise,
+      {
+        loading: "Syncing evidence…",
+        success: "Evidence synced",
+        error: "Sync failed",
+      },
+      {
+        description: "Updates roll into the control summary automatically.",
+      }
+    );
+  };
+
+  const toastConfigs = [
+    {
+      id: "success",
+      label: "Success toast",
+      action: () =>
+        toast.success("Framework saved", {
+          description: "Control mappings were updated successfully.",
+        }),
+    },
+    {
+      id: "info",
+      label: "Info toast",
+      variant: "secondary",
+      action: () =>
+        toast.info("Heads up", {
+          description: "Quarterly evidence collection opens Monday.",
+        }),
+    },
+    {
+      id: "warning",
+      label: "Warning toast",
+      variant: "outline",
+      action: () =>
+        toast.warning("Renewal due soon", {
+          description: "Vendor questionnaire responses are late by 2 days.",
+        }),
+    },
+    {
+      id: "error",
+      label: "Error toast",
+      variant: "destructive",
+      action: () =>
+        toast.error("Sync failed", {
+          description: "The evidence source rejected the latest upload.",
+        }),
+    },
+  ];
+
+  return (
+    <div className="flex flex-col gap-4">
+      <p className="text-sm text-muted-foreground">
+        Toast notifications surface confirmations, warnings, and async status updates using the global Sonner provider.
+      </p>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {toastConfigs.map((config) => (
+          <Button
+            key={config.id}
+            variant={config.variant}
+            className="justify-start"
+            onClick={config.action}
+          >
+            {config.label}
+          </Button>
+        ))}
+        <Button variant="ghost" className="justify-start" onClick={handlePromiseToast}>
+          Promise toast
+        </Button>
+      </div>
+      <p className="text-xs text-muted-foreground">
+        Use promise toasts to communicate longer running operations—loading, success, and error states stay in sync automatically.
+      </p>
+    </div>
+  );
+}
+
 function ContentShowcase() {
   const tableData = useMemo(
     () => [
@@ -1027,6 +1113,15 @@ export function DesignSystemPage() {
           description="Toggle family, dropdown menus, tooltips, and sheets."
         >
           <InteractiveShowcase />
+        </Section>
+
+        <Section
+          id="notifications"
+          icon={IconBellRinging}
+          title="Notifications"
+          description="Toast notifications for user feedback across flows."
+        >
+          <ToastShowcase />
         </Section>
 
         <Section
