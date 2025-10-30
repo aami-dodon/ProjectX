@@ -1,3 +1,6 @@
+## 2025-11-10 16:45:00 IST
+- Standardised the admin user table toolbar control sizes so the search, filter dropdowns, and action buttons align evenly on desktop.
+
 ## 2025-11-10 15:30:00 IST
 - Retuned chart color tokens in `client/src/index.css` so data visualisations align with the app's primary palette.
 
