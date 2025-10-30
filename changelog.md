@@ -1,3 +1,6 @@
+## 2025-10-30 14:01:33 IST
+- Rebuilt the sidebar navigation structure with new grouped menus and submenus so admins and members see the appropriate sections in the app shell.
+
 ## 2025-11-10 22:15:00 IST
 - Made the application sidebar submenus collapsible with shadcn-style triggers so nested navigation groups can be expanded or hidden as needed.
 ## 2025-11-11 12:05:00 IST
