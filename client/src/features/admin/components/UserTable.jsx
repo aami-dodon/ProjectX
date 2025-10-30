@@ -52,6 +52,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/shared/components/ui/tabs"
+import { useCurrentUser } from "@/features/auth"
 
 const STATUS_LABELS = {
   ACTIVE: "Active",
@@ -190,6 +191,14 @@ export function TableCellViewer({
   defaultTab,
 }) {
   const parsedUser = React.useMemo(() => schema.parse(item), [item])
+  const currentUser = useCurrentUser()
+  const isEditingSelf = React.useMemo(() => {
+    if (!parsedUser?.id || !currentUser?.id) {
+      return false
+    }
+
+    return `${parsedUser.id}` === `${currentUser.id}`
+  }, [currentUser?.id, parsedUser?.id])
   const formId = React.useMemo(
     () => (parsedUser?.id ? `user-${parsedUser.id}-edit` : "user-edit"),
     [parsedUser?.id]
@@ -235,18 +244,25 @@ export function TableCellViewer({
     [onUpdate, parsedUser]
   )
 
-  const handleRoleToggle = React.useCallback((roleId, checked) => {
-    setFormState((previous) => {
-      const nextRoleIds = checked
-        ? Array.from(new Set([...previous.roleIds, roleId]))
-        : previous.roleIds.filter((value) => value !== roleId)
-
-      return {
-        ...previous,
-        roleIds: nextRoleIds,
+  const handleRoleToggle = React.useCallback(
+    (roleId, checked) => {
+      if (isEditingSelf) {
+        return
       }
-    })
-  }, [])
+
+      setFormState((previous) => {
+        const nextRoleIds = checked
+          ? Array.from(new Set([...previous.roleIds, roleId]))
+          : previous.roleIds.filter((value) => value !== roleId)
+
+        return {
+          ...previous,
+          roleIds: nextRoleIds,
+        }
+      })
+    },
+    [isEditingSelf]
+  )
 
   const handleSubmit = React.useCallback(
     (event) => {
@@ -458,6 +474,11 @@ export function TableCellViewer({
           <div className="flex flex-col gap-3">
             <Label>Roles</Label>
             <div className="space-y-2 rounded-md border p-3">
+              {isEditingSelf ? (
+                <p className="text-muted-foreground text-xs">
+                  You cannot modify your own roles. Ask another admin to apply changes.
+                </p>
+              ) : null}
               {normalizedRoles.length ? (
                 normalizedRoles.map((role) => {
                   const checked = formState.roleIds.includes(role.id)
@@ -468,6 +489,7 @@ export function TableCellViewer({
                         id={`${formId}-role-${role.id}`}
                         checked={checked}
                         onCheckedChange={(value) => handleRoleToggle(role.id, value === true)}
+                        disabled={isEditingSelf}
                       />
                       <span className="flex flex-1 flex-col">
                         <span className="font-medium leading-none">{role.name}</span>
