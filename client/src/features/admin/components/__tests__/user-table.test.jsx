@@ -1,11 +1,18 @@
 import * as React from 'react'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('@/shared/components/data-table', () => ({
   DataTable: () => null,
-  DataTableRowDrawer: ({ renderView, item }) => (
-    <div data-testid="drawer-view">{renderView({ item, close: vi.fn(), setTab: vi.fn() })}</div>
+  DataTableRowDrawer: ({ renderView, renderHeader, item }) => (
+    <div>
+      <div data-testid="drawer-header">
+        {renderHeader ? renderHeader({ item, close: vi.fn(), setTab: vi.fn() }) : null}
+      </div>
+      <div data-testid="drawer-view">
+        {renderView ? renderView({ item, close: vi.fn(), setTab: vi.fn() }) : null}
+      </div>
+    </div>
   ),
 }))
 
@@ -22,7 +29,7 @@ vi.mock('@/shared/components/ui/avatar', () => ({
 import { TableCellViewer } from '../UserTable'
 
 describe('TableCellViewer', () => {
-  it('renders the avatar image using avatarUrl', () => {
+  it('renders drawer header with avatar, email, and status details', () => {
     render(
       <TableCellViewer
         item={{
@@ -32,15 +39,26 @@ describe('TableCellViewer', () => {
           status: 'ACTIVE',
           roles: [],
           avatarUrl: 'https://files.example.com/alice.png',
+          emailVerifiedAt: '2024-05-01T00:00:00.000Z',
         }}
         availableRoles={[]}
         onUpdate={vi.fn()}
       />
     )
 
-    const avatarImage = screen.getByTestId('avatar-image')
+    const header = screen.getByTestId('drawer-header')
+    const view = screen.getByTestId('drawer-view')
+
+    const avatarImage = within(header).getByTestId('avatar-image')
     expect(avatarImage).toHaveAttribute('src', 'https://files.example.com/alice.png')
     expect(avatarImage).toHaveAttribute('alt', 'Alice Example avatar')
+    expect(within(header).getByText('alice@example.com')).toBeInTheDocument()
+    expect(within(header).getByText('Active')).toBeInTheDocument()
+    expect(within(header).getByText('Verified')).toBeInTheDocument()
+
+    expect(within(view).queryByTestId('avatar-image')).not.toBeInTheDocument()
+    expect(within(view).queryByText('alice@example.com')).not.toBeInTheDocument()
+    expect(within(view).queryByText('Active')).not.toBeInTheDocument()
   })
 
   it('falls back when avatarUrl is missing', () => {
@@ -58,10 +76,16 @@ describe('TableCellViewer', () => {
       />
     )
 
-    const avatarImage = screen.getByTestId('avatar-image')
+    const header = screen.getByTestId('drawer-header')
+    const view = screen.getByTestId('drawer-view')
+
+    const avatarImage = within(header).getByTestId('avatar-image')
     expect(avatarImage).toHaveAttribute('alt', 'Bob Example avatar')
     expect(avatarImage).not.toHaveAttribute('src')
-    expect(screen.getByText('BE')).toBeInTheDocument()
+    expect(within(header).getByText('BE')).toBeInTheDocument()
+    expect(within(header).getByText('Not verified')).toBeInTheDocument()
+
+    expect(within(view).queryByTestId('avatar-image')).not.toBeInTheDocument()
   })
 })
 

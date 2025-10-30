@@ -601,6 +601,7 @@ function renderSlot(slot, args) {
 export function DataTableRowDrawer({
   trigger,
   item,
+  renderHeader,
   title,
   description,
   headerActions,
@@ -703,6 +704,22 @@ export function DataTableRowDrawer({
     [item, close]
   )
 
+  const headerActionsContent = React.useMemo(
+    () => (headerActions ? renderSlot(headerActions, args) : null),
+    [headerActions, args]
+  )
+
+  const headerContent = React.useMemo(
+    () =>
+      renderHeader
+        ? renderSlot(renderHeader, {
+            ...args,
+            headerActions: headerActionsContent,
+          })
+        : null,
+    [args, headerActionsContent, renderHeader]
+  )
+
   if (!renderView && !renderEdit) {
     return trigger ?? null
   }
@@ -716,15 +733,19 @@ export function DataTableRowDrawer({
       {trigger ? <DrawerTrigger asChild>{trigger}</DrawerTrigger> : null}
       <DrawerContent className={cn("flex h-full max-h-[80vh] flex-col sm:max-w-xl", contentClassName)}>
         <DrawerHeader className={cn("gap-1 border-b px-4 py-4 text-left", headerClassName)}>
-          {title ? <DrawerTitle>{renderSlot(title, args)}</DrawerTitle> : null}
-          {description ? (
-            <DrawerDescription>{renderSlot(description, args)}</DrawerDescription>
-          ) : null}
-          {headerActions ? (
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              {renderSlot(headerActions, args)}
-            </div>
-          ) : null}
+          {headerContent ?? (
+            <>
+              {title ? <DrawerTitle>{renderSlot(title, args)}</DrawerTitle> : null}
+              {description ? (
+                <DrawerDescription>{renderSlot(description, args)}</DrawerDescription>
+              ) : null}
+              {headerActionsContent ? (
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  {headerActionsContent}
+                </div>
+              ) : null}
+            </>
+          )}
         </DrawerHeader>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex h-full flex-1 flex-col">
           {tabs.length > 1 ? (

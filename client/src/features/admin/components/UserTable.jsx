@@ -245,35 +245,20 @@ export function TableCellViewer({ item, availableRoles, onUpdate }) {
           ) : null}
         </Button>
       }
-      title={({ item: current }) => current?.fullName || current?.email || "User"}
-      description="Showing user activity for the last 6 months"
-      direction="right"
-      mobileDirection="bottom"
-      renderView={({ item: current }) => {
+      headerClassName="gap-4 border-b px-4 py-4 text-left"
+      renderHeader={({ item: current, headerActions }) => {
         const displayName = current?.fullName || current?.email || "User"
         const initials = getInitials(current?.fullName || current?.email)
         const avatarSrc = current?.avatarUrl ?? current?.avatar ?? undefined
 
         return (
-          <div className="flex flex-col gap-6 text-sm">
-            <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-              <Avatar className="size-16 border border-border">
-                <AvatarImage src={avatarSrc} alt={`${displayName} avatar`} />
-                <AvatarFallback className="text-lg font-semibold">
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
-              <div className="space-y-1">
-                <p className="text-base font-semibold leading-tight">{displayName}</p>
-                {current?.email ? (
-                  <p className="text-muted-foreground text-xs">{current.email}</p>
-                ) : null}
-              </div>
-            </div>
-            <Separator />
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Status</p>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+              <div className="flex flex-col items-center gap-2 sm:items-start">
+                <Avatar className="border-border size-16 border">
+                  <AvatarImage src={avatarSrc} alt={`${displayName} avatar`} />
+                  <AvatarFallback className="text-lg font-semibold">{initials}</AvatarFallback>
+                </Avatar>
                 <Badge
                   variant="outline"
                   className={
@@ -282,19 +267,37 @@ export function TableCellViewer({ item, availableRoles, onUpdate }) {
                   {STATUS_LABELS[current?.status] ?? current?.status ?? "—"}
                 </Badge>
               </div>
-              <div className="space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Verified</p>
-                <p className="flex items-center gap-2 font-medium">
-                  {current?.emailVerifiedAt ? (
-                    <>
-                      <IconCircleCheckFilled className="text-emerald-500 size-4" />
-                      Verified
-                    </>
-                  ) : (
-                    <span className="text-muted-foreground">Not verified</span>
-                  )}
-                </p>
+              <div className="space-y-2">
+                <div className="space-y-1">
+                  <p className="text-base font-semibold leading-tight">{displayName}</p>
+                  {current?.email ? (
+                    <p className="text-muted-foreground text-sm">{current.email}</p>
+                  ) : null}
+                </div>
+                {current?.emailVerifiedAt ? (
+                  <div className="flex items-center gap-2 text-sm font-medium text-emerald-600 dark:text-emerald-300">
+                    <IconCircleCheckFilled className="text-emerald-500 size-4" />
+                    Verified
+                  </div>
+                ) : (
+                  <div className="text-muted-foreground text-sm font-medium">Not verified</div>
+                )}
               </div>
+            </div>
+            {headerActions ? (
+              <div className="flex flex-wrap items-center gap-2 self-start sm:self-center">
+                {headerActions}
+              </div>
+            ) : null}
+          </div>
+        )
+      }}
+      direction="right"
+      mobileDirection="bottom"
+      renderView={({ item: current }) => {
+        return (
+          <div className="flex flex-col gap-6 text-sm">
+            <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-1">
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Last login</p>
                 <p className="font-medium">{formatDate(current?.lastLoginAt)}</p>
