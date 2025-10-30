@@ -106,15 +106,15 @@ export function PasswordChangeForm({ className, ...props }) {
   );
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card>
+    <div className={cn("flex h-full flex-col gap-6", className)} {...props}>
+      <Card className="flex h-full flex-col">
         <CardHeader>
           <CardTitle>Reset password</CardTitle>
           <CardDescription>
             Update your password to secure your account. You&apos;ll need to sign in again once the change completes.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex-1">
           <form className="space-y-4" onSubmit={handleSubmit}>
             <FieldGroup>
               <Field>

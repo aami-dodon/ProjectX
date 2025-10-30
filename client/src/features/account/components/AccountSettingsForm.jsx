@@ -317,15 +317,19 @@ export function AccountSettingsForm({ className, ...props }) {
   }, [currentUser?.email, currentUser?.fullName, formState.fullName]);
 
   return (
-    <form onSubmit={handleSubmit} className={cn("space-y-6", className)} {...props}>
-      <Card>
+    <form
+      onSubmit={handleSubmit}
+      className={cn("space-y-6", className)}
+      {...props}
+    >
+      <Card className="flex h-full flex-col">
         <CardHeader>
           <CardTitle>Account settings</CardTitle>
           <CardDescription>
             Update your personal details and how you appear across Project X.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="flex-1 space-y-6">
           <FieldGroup>
             <Field>
               <FieldLabel htmlFor="fullName">Full name</FieldLabel>
