@@ -274,11 +274,11 @@ export function DataTable({
     typeof renderToolbar === "function"
       ? renderToolbar({ table, isLoading })
       : toolbar
-      ? <div className="px-4 lg:px-6">{toolbar}</div>
+      ? <div>{toolbar}</div>
       : null
 
   const errorNode = errorMessage ? (
-    <div className="px-4 text-sm text-destructive lg:px-6">{errorMessage}</div>
+    <div className="text-sm text-destructive">{errorMessage}</div>
   ) : null
 
   const renderCells = React.useCallback(
@@ -442,11 +442,7 @@ function normalizeHeader(content) {
   }
 
   if (Array.isArray(content)) {
-    return (
-      <div className="px-4 lg:px-6">
-        {content}
-      </div>
-    )
+    return <div>{content}</div>
   }
 
   if (typeof content === "object") {
@@ -465,7 +461,7 @@ function normalizeHeader(content) {
     return (
       <div
         className={cn(
-          "flex flex-col gap-2 px-4 lg:px-6 lg:flex-row lg:items-center lg:justify-between",
+          "flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between",
           headerClassName
         )}>
         {leading ? (

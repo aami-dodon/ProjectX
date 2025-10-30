@@ -641,3 +641,7 @@
 - Fixed Rich Text Editor preview styling by adding `@tailwindcss/typography` and enabling `prose` classes so headings (H1–H3), ordered/bulleted lists, blockquotes, and code blocks render correctly in the Design System page.
 ## 2025-10-30 09:52:51 IST
 - Matched heights for admin user table toolbar controls by forcing `h-8` with `py-0` on the search input and both filter selects, and centering the filter group row so the search, dropdowns, and buttons align perfectly.
+## 2025-10-30 09:58:42 IST
+- Reduced toolbar width and fixed alignment on the admin user table by switching “Customize Columns” and “Clear filters” to icon-only buttons and resizing the refresh button to `icon-sm` so all controls share the same height.
+## 2025-10-30 10:04:42 IST
+- Aligned the admin user table toolbar width with the table by removing duplicated horizontal padding from the toolbar and shared data table header/toolbar wrappers.

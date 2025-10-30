@@ -88,7 +88,7 @@ export function UserTableToolbar({
   isLoading,
 }) {
   return (
-    <div className="flex flex-col gap-2 px-4 lg:px-6 lg:flex-row lg:items-center lg:justify-between">
+    <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
       <div className="flex-1">
         <div className="flex w-full flex-col gap-3 lg:flex-row lg:items-center">
           <Input
@@ -134,13 +134,15 @@ export function UserTableToolbar({
             <Button
               type="button"
               variant="ghost"
-              size="sm"
-              className="w-full gap-2 sm:w-auto"
+              size="icon-sm"
+              className="w-auto"
               disabled={!hasActiveFilters}
               onClick={onClearFilters}
+              aria-label="Clear filters"
+              title="Clear filters"
             >
               <IconFilterX className="size-4" aria-hidden="true" />
-              <span>Clear filters</span>
+              <span className="sr-only">Clear filters</span>
             </Button>
           </div>
         </div>
@@ -148,11 +150,13 @@ export function UserTableToolbar({
       <div className="flex flex-wrap items-center justify-end gap-2">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-2">
+            <Button
+              variant="outline"
+              size="icon-sm"
+              aria-label="Customize columns"
+              title="Customize columns">
               <IconLayoutColumns />
-              <span className="hidden lg:inline">Customize Columns</span>
-              <span className="lg:hidden">Columns</span>
-              <IconChevronDown />
+              <span className="sr-only">Customize Columns</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
@@ -181,7 +185,7 @@ export function UserTableToolbar({
         {onRefresh ? (
           <Button
             variant="ghost"
-            size="icon"
+            size="icon-sm"
             onClick={onRefresh}
             disabled={isLoading}
             aria-label="Refresh table"
