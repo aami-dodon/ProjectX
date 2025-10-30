@@ -4,6 +4,7 @@ const {
   listRoles,
   updateUserById,
   findUserById,
+  findRolesByIds,
   countUsers,
 } = require('../admin.repository');
 const { getFileAccessLink } = require('@/modules/files/file.service');
