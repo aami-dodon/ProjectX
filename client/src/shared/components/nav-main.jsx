@@ -97,13 +97,7 @@ function NavMainCollapsibleItem({
   )
 
   const isActive = resolveIsActive(item) || hasActiveChild
-  const [open, setOpen] = React.useState(isActive)
-
-  React.useEffect(() => {
-    if (isActive) {
-      setOpen(true)
-    }
-  }, [isActive])
+  const [open, setOpen] = React.useState(false)
 
   return (
     <Collapsible

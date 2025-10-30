@@ -25,10 +25,7 @@ export function NavAdministration({
   section,
 }) {
   const location = useLocation()
-
-  if (!section?.items?.length) {
-    return null
-  }
+  const items = React.useMemo(() => section?.items ?? [], [section?.items])
 
   const resolveIsActive = React.useCallback((url) => {
     if (!isInternalUrl(url)) {
@@ -39,17 +36,15 @@ export function NavAdministration({
   }, [location.pathname])
 
   const hasActiveItem = React.useMemo(
-    () => section.items.some((item) => resolveIsActive(item.url)),
-    [section.items, resolveIsActive]
+    () => items.some((item) => resolveIsActive(item.url)),
+    [items, resolveIsActive]
   )
 
-  const [open, setOpen] = React.useState(hasActiveItem)
+  const [open, setOpen] = React.useState(false)
 
-  React.useEffect(() => {
-    if (hasActiveItem) {
-      setOpen(true)
-    }
-  }, [hasActiveItem])
+  if (!items.length) {
+    return null
+  }
 
   return (
     <SidebarGroup>
@@ -71,7 +66,7 @@ export function NavAdministration({
               </CollapsibleTrigger>
               <CollapsibleContent>
                 <SidebarMenuSub className="mt-1">
-                  {section.items.map((item) => (
+                  {items.map((item) => (
                     <SidebarMenuSubItem key={item.title}>
                       {isInternalUrl(item.url) ? (
                         <SidebarMenuSubButton asChild isActive={resolveIsActive(item.url)}>
