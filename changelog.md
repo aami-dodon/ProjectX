@@ -1,3 +1,6 @@
+## 2025-11-10 20:30:00 IST
+- Updated the toast notifications to pull their background, border, and accent colours from `client/src/index.css` so success, info, warning, and error messages respect the active theme.
+
 ## 2025-11-10 16:45:00 IST
 - Standardised the admin user table toolbar control sizes so the search, filter dropdowns, and action buttons align evenly on desktop.
 
