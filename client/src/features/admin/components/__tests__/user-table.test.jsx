@@ -4,16 +4,24 @@ import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('@/shared/components/data-table', () => ({
   DataTable: () => null,
-  DataTableRowDrawer: ({ renderView, renderHeader, item }) => (
-    <div>
-      <div data-testid="drawer-header">
-        {renderHeader ? renderHeader({ item, close: vi.fn(), setTab: vi.fn() }) : null}
+  DataTableRowDrawer: ({ renderView, renderHeader, headerActions, item }) => {
+    const close = vi.fn()
+    const setTab = vi.fn()
+    const actions = headerActions ? headerActions({ item, close, setTab }) : null
+
+    return (
+      <div>
+        <div data-testid="drawer-header">
+          {renderHeader
+            ? renderHeader({ item, close, setTab, headerActions: actions })
+            : null}
+        </div>
+        <div data-testid="drawer-view">
+          {renderView ? renderView({ item, close, setTab }) : null}
+        </div>
       </div>
-      <div data-testid="drawer-view">
-        {renderView ? renderView({ item, close: vi.fn(), setTab: vi.fn() }) : null}
-      </div>
-    </div>
-  ),
+    )
+  },
 }))
 
 vi.mock('@/shared/components/ui/avatar', () => ({
@@ -55,10 +63,10 @@ describe('TableCellViewer', () => {
     expect(within(header).getByText('alice@example.com')).toBeInTheDocument()
     expect(within(header).getByText('Active')).toBeInTheDocument()
     expect(within(header).getByText('Verified')).toBeInTheDocument()
+    expect(within(header).queryByRole('button', { name: /verify email/i })).not.toBeInTheDocument()
 
-    expect(within(view).queryByTestId('avatar-image')).not.toBeInTheDocument()
-    expect(within(view).queryByText('alice@example.com')).not.toBeInTheDocument()
-    expect(within(view).queryByText('Active')).not.toBeInTheDocument()
+    expect(within(view).getByText('alice@example.com')).toBeInTheDocument()
+    expect(within(view).getByText(/Verified on/i)).toBeInTheDocument()
   })
 
   it('falls back when avatarUrl is missing', () => {
@@ -84,8 +92,9 @@ describe('TableCellViewer', () => {
     expect(avatarImage).not.toHaveAttribute('src')
     expect(within(header).getByText('BE')).toBeInTheDocument()
     expect(within(header).getByText('Not verified')).toBeInTheDocument()
+    expect(within(header).getByRole('button', { name: /verify email/i })).toBeInTheDocument()
 
-    expect(within(view).queryByTestId('avatar-image')).not.toBeInTheDocument()
+    expect(within(view).getByText('Not verified')).toBeInTheDocument()
   })
 })
 

@@ -1,3 +1,6 @@
+## 2025-11-08 09:05:00 IST
+- Enabled admins to update user email addresses and mark them as verified with refreshed drawer UI, API validation, and tests.
+
 ## 2025-10-30 06:06:33 IST
 - Enriched admin user listings with presigned avatar URLs and updated the management drawer to render the images with new tests.
 
