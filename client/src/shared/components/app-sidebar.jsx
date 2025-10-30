@@ -33,6 +33,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/shared/components/ui/sidebar"
+import { ScrollArea } from "@/shared/components/ui/scroll-area"
 
 const sharedDocuments = [
   {
@@ -255,11 +256,15 @@ export function AppSidebar({
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent>
-        <NavMain items={navigation.navMain} />
-        {navigation.navAdmin ? <NavAdministration section={navigation.navAdmin} /> : null}
-        <NavDocuments items={navigation.documents} />
-        <NavSecondary items={navigation.navSecondary} className="mt-auto" />
+      <SidebarContent className="gap-0 overflow-hidden p-0">
+        <ScrollArea className="h-full px-2" viewportClassName="pb-6">
+          <div className="flex h-full flex-col gap-2">
+            <NavMain items={navigation.navMain} />
+            {navigation.navAdmin ? <NavAdministration section={navigation.navAdmin} /> : null}
+            <NavDocuments items={navigation.documents} />
+            <NavSecondary items={navigation.navSecondary} className="mt-auto" />
+          </div>
+        </ScrollArea>
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={user} />
