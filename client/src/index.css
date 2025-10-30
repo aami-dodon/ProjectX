@@ -137,25 +137,28 @@
 
 .toaster[data-sonner-toaster] {
   --border-radius: var(--radius);
-  --normal-bg: var(--secondary);
-  --normal-border: var(--secondary);
-  --normal-text: var(--secondary-foreground);
-  --success-bg: var(--primary);
-  --success-border: var(--primary);
-  --success-text: var(--primary-foreground);
-  --info-bg: var(--accent);
-  --info-border: var(--accent);
-  --info-text: var(--accent-foreground);
-  --warning-bg: var(--muted);
-  --warning-border: var(--muted);
-  --warning-text: var(--muted-foreground);
-  --error-bg: var(--destructive);
-  --error-border: var(--destructive);
-  --error-text: var(--primary-foreground);
+  --normal-bg: var(--card);
+  --normal-border: var(--border);
+  --normal-text: var(--card-foreground);
+  --success-bg: var(--success);
+  --success-border: color-mix(in oklch, var(--success) 60%, var(--card));
+  --success-text: var(--success-foreground);
+  --info-bg: var(--info);
+  --info-border: color-mix(in oklch, var(--info) 60%, var(--card));
+  --info-text: var(--info-foreground);
+  --warning-bg: var(--warning);
+  --warning-border: color-mix(in oklch, var(--warning) 60%, var(--card));
+  --warning-text: var(--warning-foreground);
+  --danger-bg: var(--danger);
+  --danger-border: color-mix(in oklch, var(--danger) 60%, var(--card));
+  --danger-text: var(--danger-foreground);
+  --destructive-bg: var(--destructive);
+  --destructive-border: color-mix(in oklch, var(--destructive) 60%, var(--card));
+  --destructive-text: var(--danger-foreground);
 }
 
 .toaster .toaster-toast {
-  border-radius: var(--radius);
+  border-radius: var(--border-radius);
   background: var(--normal-bg);
   color: var(--normal-text);
   border: 1px solid var(--normal-border);
@@ -181,9 +184,15 @@
 }
 
 .toaster .toaster-toast[data-sonner-toast-type="error"] {
-  background: var(--error-bg);
-  border-color: var(--error-border);
-  color: var(--error-text);
+  background: var(--danger-bg);
+  border-color: var(--danger-border);
+  color: var(--danger-text);
+}
+
+.toaster .toaster-toast[data-sonner-toast-type="destructive"] {
+  background: var(--destructive-bg);
+  border-color: var(--destructive-border);
+  color: var(--destructive-text);
 }
 
 .toaster .toaster-description {
@@ -191,19 +200,21 @@
 }
 
 .toaster .toaster-action {
-  background: var(--primary);
-  color: var(--primary-foreground);
+  background: var(--card);
+  color: var(--card-foreground);
+  border: 1px solid var(--border);
 }
 
 .toaster .toaster-cancel {
-  background: var(--muted);
-  color: var(--muted-foreground);
+  background: var(--card);
+  color: var(--card-foreground);
+  border: 1px solid var(--border);
 }
 
 .toaster .toaster-close {
   background: transparent;
   border-color: currentColor;
-  color: var(--normal-text);
+  color: inherit;
 }
 
 @layer base {
