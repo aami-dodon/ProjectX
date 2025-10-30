@@ -1,3 +1,7 @@
+## 2025-11-12 12:30:00 IST
+- Removed the Search, Help Centre, Appearance, and Account Settings links from the sidebar so only the primary navigation surfac
+  es to users.
+
 ## 2025-11-12 10:00:00 IST
 - Styled success toast notifications to use primary text on muted backgrounds so they align with the semantic design tokens.
 

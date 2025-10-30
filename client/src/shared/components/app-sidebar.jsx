@@ -8,12 +8,9 @@ import {
   IconFileDescription,
   IconFolder,
   IconHeartbeat,
-  IconHelp,
   IconInnerShadowTop,
   IconListDetails,
-  IconPalette,
   IconReport,
-  IconSearch,
   IconSettings,
   IconUsers,
 } from "@tabler/icons-react"
@@ -124,55 +121,13 @@ const defaultSidebarData = {
       ],
     },
   ],
-  navSecondary: [
-    {
-      title: "Search",
-      url: "#",
-      icon: IconSearch,
-    },
-    {
-      title: "Help Centre",
-      url: "#",
-      icon: IconHelp,
-    },
-    {
-      title: "Appearance",
-      url: "/design-system",
-      icon: IconPalette,
-    },
-    {
-      title: "Account Settings",
-      url: "/account",
-      icon: IconSettings,
-    },
-  ],
+  navSecondary: [],
   documents: sharedDocuments,
 }
 
 const adminSidebarData = {
   ...defaultSidebarData,
-  navSecondary: [
-    {
-      title: "Search",
-      url: "#",
-      icon: IconSearch,
-    },
-    {
-      title: "Help Centre",
-      url: "#",
-      icon: IconHelp,
-    },
-    {
-      title: "Appearance",
-      url: "/design-system",
-      icon: IconPalette,
-    },
-    {
-      title: "Account Settings",
-      url: "/account",
-      icon: IconSettings,
-    },
-  ],
+  navSecondary: [],
   documents: sharedDocuments,
   navAdmin: {
     title: "Administration",
