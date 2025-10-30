@@ -4,6 +4,7 @@ const {
   listRoles,
   updateUserById,
   findUserById,
+  findRolesByIds,
 } = require('../admin.repository');
 const { getFileAccessLink } = require('@/modules/files/file.service');
 const { logAuthEvent } = require('@/modules/auth/auth.repository');
@@ -205,6 +206,26 @@ describe('admin.service - updateUserAccount', () => {
       details: { field: 'email' },
     });
     expect(updateUserById).not.toHaveBeenCalled();
+  });
+
+  it('prevents administrators from modifying their own roles', async () => {
+    const existing = buildUser({ id: 'admin-1' });
+    findUserById.mockResolvedValue(existing);
+
+    await expect(
+      updateUserAccount({
+        userId: 'admin-1',
+        updates: { roleIds: [] },
+        actorId: 'admin-1',
+      })
+    ).rejects.toMatchObject({
+      code: 'VALIDATION_ERROR',
+      details: { field: 'roleIds' },
+    });
+
+    expect(updateUserById).not.toHaveBeenCalled();
+    expect(logAuthEvent).not.toHaveBeenCalled();
+    expect(findRolesByIds).not.toHaveBeenCalled();
   });
 });
 
