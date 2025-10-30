@@ -27,15 +27,22 @@ export const STATUS_LABELS = {
   SUSPENDED: "Suspended",
 }
 
+const STATUS_TONE_STYLES = {
+  info:
+    "border-info/30 bg-info/15 text-info px-1.5 dark:border-info/20 dark:bg-info/20 dark:text-info",
+  success:
+    "border-success/30 bg-success/15 text-success px-1.5 dark:border-success/20 dark:bg-success/20 dark:text-success",
+  warning:
+    "border-warning/30 bg-warning/15 text-warning px-1.5 dark:border-warning/20 dark:bg-warning/20 dark:text-warning",
+  danger:
+    "border-danger/30 bg-danger/15 text-danger px-1.5 dark:border-danger/20 dark:bg-danger/20 dark:text-danger",
+}
+
 export const STATUS_BADGE_STYLES = {
-  ACTIVE:
-    "bg-emerald-100 text-emerald-700 border-emerald-200 px-1.5 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/20",
-  PENDING_VERIFICATION:
-    "bg-amber-100 text-amber-700 border-amber-200 px-1.5 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-500/20",
-  INVITED:
-    "bg-blue-100 text-blue-700 border-blue-200 px-1.5 dark:bg-blue-500/10 dark:text-blue-300 dark:border-blue-500/20",
-  SUSPENDED:
-    "bg-rose-100 text-rose-700 border-rose-200 px-1.5 dark:bg-rose-500/10 dark:text-rose-300 dark:border-rose-500/20",
+  ACTIVE: STATUS_TONE_STYLES.success,
+  PENDING_VERIFICATION: STATUS_TONE_STYLES.warning,
+  INVITED: STATUS_TONE_STYLES.info,
+  SUSPENDED: STATUS_TONE_STYLES.danger,
 }
 
 export const schema = z.object({
@@ -328,8 +335,8 @@ export const UserTableDrawer = React.memo(function UserTableDrawer({
                   ) : null}
                 </div>
                 {current?.emailVerifiedAt ? (
-                  <div className="flex items-center gap-2 text-sm font-medium text-emerald-600 dark:text-emerald-300">
-                    <IconCircleCheckFilled className="text-emerald-500 size-4" />
+                  <div className="flex items-center gap-2 text-sm font-medium text-success">
+                    <IconCircleCheckFilled className="text-success size-4" />
                     Verified
                   </div>
                 ) : (
