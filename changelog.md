@@ -1,3 +1,9 @@
+## 2025-11-08 13:15:00 IST
+- Removed the status detail row from the admin user drawer to keep the panel focused on activity metadata.
+
+## 2025-11-08 12:45:00 IST
+- Removed the email and verification summary from the admin user drawer to declutter the details panel.
+
 ## 2025-11-08 11:30:00 IST
 - Restyled the admin user charts with gradient cards and responsive layouts to align with the refreshed statistics visuals.
 
