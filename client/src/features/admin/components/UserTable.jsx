@@ -303,8 +303,8 @@ export function UserTable({
         cell: ({ row }) => (
           <div className="flex justify-end">
             {row.original.emailVerifiedAt ? (
-              <span className="inline-flex items-center text-emerald-500">
-                <IconCircleCheckFilled className="size-4" aria-hidden="true" />
+              <span className="inline-flex items-center text-success">
+                <IconCircleCheckFilled className="text-success size-4" aria-hidden="true" />
                 <span className="sr-only">Verified</span>
               </span>
             ) : (
