@@ -738,6 +738,9 @@ export function DataTableRowDrawer({
     [item, close]
   )
 
+  const isSideDrawer =
+    resolvedDirection === "left" || resolvedDirection === "right"
+
   const headerActionsContent = React.useMemo(
     () => (headerActions ? renderSlot(headerActions, args) : null),
     [headerActions, args]
@@ -765,7 +768,12 @@ export function DataTableRowDrawer({
       direction={resolvedDirection}
       {...drawerProps}>
       {trigger ? <DrawerTrigger asChild>{trigger}</DrawerTrigger> : null}
-      <DrawerContent className={cn("flex h-full max-h-[80vh] flex-col sm:max-w-xl", contentClassName)}>
+      <DrawerContent
+        className={cn(
+          "flex h-full max-h-[80vh] min-h-0 flex-col sm:max-w-xl",
+          isSideDrawer && "sm:h-screen sm:max-h-screen",
+          contentClassName
+        )}>
         <DrawerHeader className={cn("gap-1 border-b px-4 py-4 text-left", headerClassName)}>
           {headerContent ?? (
             <>
@@ -781,7 +789,10 @@ export function DataTableRowDrawer({
             </>
           )}
         </DrawerHeader>
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex h-full flex-1 flex-col">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="flex h-full min-h-0 flex-1 flex-col">
           {tabs.length > 1 ? (
             <div className={cn("border-b px-4 pb-3 pt-3", tabsWrapperClassName)}>
               <TabsList
@@ -811,9 +822,9 @@ export function DataTableRowDrawer({
               <TabsContent
                 key={tab.value}
                 value={tab.value}
-                className="flex flex-1 flex-col">
+                className="flex flex-1 min-h-0 flex-col">
                 <ScrollArea
-                  className="flex-1"
+                  className="flex-1 min-h-0"
                   viewportClassName={cn(
                     "px-4 pb-6 text-sm",
                     isView ? viewContentClassName : editContentClassName
