@@ -16,6 +16,13 @@ import {
   DataTable as SharedDataTable,
   DataTableRowDrawer,
 } from "@/shared/components/data-table"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card"
 import { Badge } from "@/shared/components/ui/badge"
 import { Button } from "@/shared/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar"
@@ -62,6 +69,9 @@ const STATUS_BADGE_STYLES = {
   SUSPENDED:
     "bg-rose-100 text-rose-700 border-rose-200 px-1.5 dark:bg-rose-500/10 dark:text-rose-300 dark:border-rose-500/20",
 }
+
+const CARD_BASE_STYLES =
+  "relative overflow-hidden border border-border/60 bg-gradient-to-br from-background/95 via-background to-muted/30 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg"
 
 export const schema = z.object({
   id: z.union([z.string(), z.number()]),
@@ -823,158 +833,177 @@ export function UserTable({
   )
 
   return (
-    <Tabs value={activeView} onValueChange={setActiveView} className="w-full flex-col justify-start gap-6">
-      <div className="flex items-center justify-between px-4 lg:px-6">
-        <Label htmlFor="view-selector" className="sr-only">
-          View
-        </Label>
-        <Select value={activeView} onValueChange={setActiveView}>
-          <SelectTrigger className="flex w-fit @4xl/main:hidden" size="sm" id="view-selector">
-            <SelectValue placeholder="Select a view" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="outline">Users</SelectItem>
-            <SelectItem value="past-performance">Audit</SelectItem>
-            <SelectItem value="key-personnel">Reports</SelectItem>
-          </SelectContent>
-        </Select>
-        <TabsList className="**:data-[slot=badge]:bg-muted-foreground/30 hidden **:data-[slot=badge]:size-5 **:data-[slot=badge]:rounded-full **:data-[slot=badge]:px-1 @4xl/main:flex">
-          <TabsTrigger value="outline">Users</TabsTrigger>
-          <TabsTrigger value="past-performance">Audit</TabsTrigger>
-          <TabsTrigger value="key-personnel">Reports</TabsTrigger>
-        </TabsList>
-      </div>
-      <TabsContent value="outline" className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
-        <SharedDataTable
-          columns={columns}
-          data={data}
-          className="flex flex-col gap-4"
-          enableRowReorder
-          enableRowSelection
-          enablePagination
-          onDataChange={setData}
-          stickyHeader
-          isLoading={tableIsLoading}
-          error={error}
-          renderHeader={({ table }) => ({
-            leading: (
-              <div className="flex w-full flex-col gap-2 lg:flex-row lg:items-center">
-                <Input
-                  placeholder="Search by name or email"
-                  className="w-full lg:w-64"
-                  value={searchTerm}
-                  onChange={(event) => {
-                    const value = event.target.value
-                    setSearchTerm(value)
-                    table.getColumn("fullName")?.setFilterValue(value || undefined)
-                  }}
-                />
-                <div className="flex flex-1 flex-col gap-2 sm:flex-row">
-                  <Select
-                    value={statusFilter}
-                    onValueChange={(value) => {
-                      setStatusFilter(value)
-                      table
-                        .getColumn("status")
-                        ?.setFilterValue(value === "all" ? undefined : value)
-                    }}
-                  >
-                    <SelectTrigger className="w-full sm:w-44">
-                      <SelectValue placeholder="Filter by status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All statuses</SelectItem>
-                      {Object.entries(STATUS_LABELS).map(([value, label]) => (
-                        <SelectItem key={value} value={value}>
-                          {label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Select
-                    value={roleFilter}
-                    onValueChange={(value) => {
-                      setRoleFilter(value)
-                      table
-                        .getColumn("roles")
-                        ?.setFilterValue(value === "all" ? undefined : value)
-                    }}
-                  >
-                    <SelectTrigger className="w-full sm:w-44">
-                      <SelectValue placeholder="Filter by role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All roles</SelectItem>
-                      {roleOptions.map((role) => (
-                        <SelectItem key={role.id} value={role.id}>
-                          {role.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            ),
-            trailing: (
-              <div className="flex items-center gap-2">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      <IconLayoutColumns />
-                      <span className="hidden lg:inline">Customize Columns</span>
-                      <span className="lg:hidden">Columns</span>
-                      <IconChevronDown />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
-                    {table
-                      .getAllColumns()
-                      .filter(
-                        (column) => typeof column.accessorFn !== "undefined" && column.getCanHide()
-                      )
-                      .map((column) => {
-                        const label =
-                          column.columnDef?.meta?.columnLabel ??
-                          (typeof column.columnDef?.header === "string"
-                            ? column.columnDef.header
-                            : column.id)
+    <Card className={`${CARD_BASE_STYLES} flex h-full flex-col`}>
+      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary/70 via-primary to-primary/70" aria-hidden />
+      <Tabs value={activeView} onValueChange={setActiveView} className="flex h-full flex-col">
+        <CardHeader className="flex flex-col gap-6 border-b border-border/60 pb-6">
+          <div className="space-y-1">
+            <CardTitle className="text-xl">User directory</CardTitle>
+            <CardDescription>
+              Manage accounts, adjust roles, and review verification status across the organisation.
+            </CardDescription>
+          </div>
+          <div className="flex flex-col gap-3 @4xl/main:flex-row @4xl/main:items-center @4xl/main:justify-between">
+            <div className="flex flex-col gap-2 @4xl/main:hidden">
+              <Label htmlFor="view-selector" className="sr-only">
+                View
+              </Label>
+              <Select value={activeView} onValueChange={setActiveView}>
+                <SelectTrigger className="w-full" id="view-selector" size="sm">
+                  <SelectValue placeholder="Select a view" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="outline">Users</SelectItem>
+                  <SelectItem value="past-performance">Audit</SelectItem>
+                  <SelectItem value="key-personnel">Reports</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <TabsList className="hidden **:data-[slot=badge]:bg-muted-foreground/30 **:data-[slot=badge]:size-5 **:data-[slot=badge]:rounded-full **:data-[slot=badge]:px-1 self-start @4xl/main:flex">
+              <TabsTrigger value="outline">Users</TabsTrigger>
+              <TabsTrigger value="past-performance">Audit</TabsTrigger>
+              <TabsTrigger value="key-personnel">Reports</TabsTrigger>
+            </TabsList>
+          </div>
+        </CardHeader>
+        <CardContent className="flex flex-1 flex-col gap-6 p-4 sm:p-6">
+          <TabsContent value="outline" className="mt-0 flex flex-col gap-4">
+            <SharedDataTable
+              columns={columns}
+              data={data}
+              className="flex flex-col gap-4"
+              enableRowReorder
+              enableRowSelection
+              enablePagination
+              onDataChange={setData}
+              stickyHeader
+              isLoading={tableIsLoading}
+              error={error}
+              renderHeader={({ table }) => ({
+                leading: (
+                  <div className="flex w-full flex-col gap-3 lg:flex-row lg:items-center">
+                    <Input
+                      placeholder="Search by name or email"
+                      className="w-full lg:w-72"
+                      value={searchTerm}
+                      onChange={(event) => {
+                        const value = event.target.value
+                        setSearchTerm(value)
+                        table.getColumn("fullName")?.setFilterValue(value || undefined)
+                      }}
+                    />
+                    <div className="flex flex-1 flex-col gap-2 sm:flex-row">
+                      <Select
+                        value={statusFilter}
+                        onValueChange={(value) => {
+                          setStatusFilter(value)
+                          table
+                            .getColumn("status")
+                            ?.setFilterValue(value === "all" ? undefined : value)
+                        }}
+                      >
+                        <SelectTrigger className="w-full sm:w-48">
+                          <SelectValue placeholder="Filter by status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All statuses</SelectItem>
+                          {Object.entries(STATUS_LABELS).map(([value, label]) => (
+                            <SelectItem key={value} value={value}>
+                              {label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Select
+                        value={roleFilter}
+                        onValueChange={(value) => {
+                          setRoleFilter(value)
+                          table
+                            .getColumn("roles")
+                            ?.setFilterValue(value === "all" ? undefined : value)
+                        }}
+                      >
+                        <SelectTrigger className="w-full sm:w-48">
+                          <SelectValue placeholder="Filter by role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All roles</SelectItem>
+                          {roleOptions.map((role) => (
+                            <SelectItem key={role.id} value={role.id}>
+                              {role.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                ),
+                trailing: (
+                  <div className="flex items-center gap-2">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm" className="gap-2">
+                          <IconLayoutColumns />
+                          <span className="hidden lg:inline">Customize Columns</span>
+                          <span className="lg:hidden">Columns</span>
+                          <IconChevronDown />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-56">
+                        {table
+                          .getAllColumns()
+                          .filter(
+                            (column) => typeof column.accessorFn !== "undefined" && column.getCanHide()
+                          )
+                          .map((column) => {
+                            const label =
+                              column.columnDef?.meta?.columnLabel ??
+                              (typeof column.columnDef?.header === "string"
+                                ? column.columnDef.header
+                                : column.id)
 
-                        return (
-                          <DropdownMenuCheckboxItem
-                            key={column.id}
-                            checked={column.getIsVisible()}
-                            onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                          >
-                            {label}
-                          </DropdownMenuCheckboxItem>
-                        )
-                      })}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                {typeof onRefresh === "function" ? (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleRefresh}
-                    disabled={tableIsLoading}
-                    aria-label="Refresh table"
-                  >
-                    <IconRefresh className="size-4" />
-                  </Button>
-                ) : null}
-              </div>
-            ),
-          })}
-          emptyMessage="No users found."
-          onRefresh={handleRefresh}
-        />
-      </TabsContent>
-      <TabsContent value="past-performance" className="flex flex-col px-4 lg:px-6">
-        <div className="aspect-video w-full flex-1 rounded-lg border border-dashed"></div>
-      </TabsContent>
-      <TabsContent value="key-personnel" className="flex flex-col px-4 lg:px-6">
-        <div className="aspect-video w-full flex-1 rounded-lg border border-dashed"></div>
-      </TabsContent>
-    </Tabs>
+                            return (
+                              <DropdownMenuCheckboxItem
+                                key={column.id}
+                                checked={column.getIsVisible()}
+                                onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                              >
+                                {label}
+                              </DropdownMenuCheckboxItem>
+                            )
+                          })}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    {typeof onRefresh === "function" ? (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleRefresh}
+                        disabled={tableIsLoading}
+                        aria-label="Refresh table"
+                      >
+                        <IconRefresh className="size-4" />
+                      </Button>
+                    ) : null}
+                  </div>
+                ),
+              })}
+              emptyMessage="No users found."
+              onRefresh={handleRefresh}
+            />
+          </TabsContent>
+          <TabsContent value="past-performance" className="mt-0 flex flex-col">
+            <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-border/60 bg-muted/30 p-6 text-sm text-muted-foreground">
+              Audit insights are coming soon.
+            </div>
+          </TabsContent>
+          <TabsContent value="key-personnel" className="mt-0 flex flex-col">
+            <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-border/60 bg-muted/30 p-6 text-sm text-muted-foreground">
+              Reports and exports will be available in a future update.
+            </div>
+          </TabsContent>
+        </CardContent>
+      </Tabs>
+    </Card>
   )
 }
