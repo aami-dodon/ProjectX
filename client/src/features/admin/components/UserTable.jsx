@@ -7,9 +7,7 @@ import {
   IconGripVertical,
   IconLayoutColumns,
   IconPlus,
-  IconTrendingUp,
 } from "@tabler/icons-react"
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
 import { toast } from "sonner"
 import { z } from "zod"
 
@@ -17,10 +15,9 @@ import {
   DataTable as SharedDataTable,
   DataTableRowDrawer,
 } from "@/shared/components/data-table"
-import { useIsMobile } from "@/shared/hooks/use-mobile"
 import { Badge } from "@/shared/components/ui/badge"
 import { Button } from "@/shared/components/ui/button"
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/shared/components/ui/chart"
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar"
 import { Checkbox } from "@/shared/components/ui/checkbox"
 import {
   DropdownMenu,
@@ -96,6 +93,30 @@ function formatDate(value) {
   }
 }
 
+function getInitials(value) {
+  if (!value) {
+    return "PX"
+  }
+
+  const trimmed = `${value}`.trim()
+  if (!trimmed) {
+    return "PX"
+  }
+
+  const parts = trimmed.split(/\s+/).filter(Boolean)
+
+  if (parts.length === 1) {
+    return parts[0].slice(0, 2).toUpperCase()
+  }
+
+  const initials = parts
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("")
+
+  return initials || "PX"
+}
+
 function DragHandle({ id }) {
   const { attributes, listeners } = useSortable({
     id,
@@ -146,29 +167,8 @@ function RoleBadge({ roles = [] }) {
   )
 }
 
-const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
-]
-
-const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "var(--primary)",
-  },
-  mobile: {
-    label: "Mobile",
-    color: "var(--primary)",
-  },
-}
-
 function TableCellViewer({ item, availableRoles, onUpdate }) {
   const parsedUser = React.useMemo(() => schema.parse(item), [item])
-  const isMobile = useIsMobile()
   const formId = React.useMemo(
     () => (parsedUser?.id ? `user-${parsedUser.id}-edit` : "user-edit"),
     [parsedUser?.id]
@@ -247,95 +247,63 @@ function TableCellViewer({ item, availableRoles, onUpdate }) {
       description="Showing user activity for the last 6 months"
       direction="right"
       mobileDirection="bottom"
-      renderView={({ item: current }) => (
-        <div className="flex flex-col gap-6 text-sm">
-          {!isMobile ? (
-            <>
-              <ChartContainer config={chartConfig}>
-                <AreaChart
-                  accessibilityLayer
-                  data={chartData}
-                  margin={{
-                    left: 0,
-                    right: 10,
-                  }}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="month"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    tickFormatter={(value) => value.slice(0, 3)}
-                    hide
-                  />
-                  <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
-                  <Area
-                    dataKey="mobile"
-                    type="natural"
-                    fill="var(--color-mobile)"
-                    fillOpacity={0.6}
-                    stroke="var(--color-mobile)"
-                    stackId="a"
-                  />
-                  <Area
-                    dataKey="desktop"
-                    type="natural"
-                    fill="var(--color-desktop)"
-                    fillOpacity={0.4}
-                    stroke="var(--color-desktop)"
-                    stackId="a"
-                  />
-                </AreaChart>
-              </ChartContainer>
-              <Separator />
-              <div className="grid gap-2">
-                <div className="flex items-center gap-2 text-sm font-medium leading-none">
-                  Trending up by 5.2% this month
-                  <IconTrendingUp className="size-4" />
-                </div>
-                <p className="text-muted-foreground">
-                  Showing sign-in activity for the last 6 months. Use this information to understand engagement trends for this
-                  user.
+      renderView={({ item: current }) => {
+        const displayName = current?.fullName || current?.email || "User"
+        const initials = getInitials(current?.fullName || current?.email)
+
+        return (
+          <div className="flex flex-col gap-6 text-sm">
+            <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+              <Avatar className="size-16 border border-border">
+                <AvatarImage src={current?.avatar} alt={`${displayName} avatar`} />
+                <AvatarFallback className="text-lg font-semibold">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+              <div className="space-y-1">
+                <p className="text-base font-semibold leading-tight">{displayName}</p>
+                {current?.email ? (
+                  <p className="text-muted-foreground text-xs">{current.email}</p>
+                ) : null}
+              </div>
+            </div>
+            <Separator />
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-1">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Status</p>
+                <Badge
+                  variant="outline"
+                  className={
+                    STATUS_BADGE_STYLES[current?.status] || "text-muted-foreground px-1.5"
+                  }>
+                  {STATUS_LABELS[current?.status] ?? current?.status ?? "—"}
+                </Badge>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Verified</p>
+                <p className="flex items-center gap-2 font-medium">
+                  {current?.emailVerifiedAt ? (
+                    <>
+                      <IconCircleCheckFilled className="text-emerald-500 size-4" />
+                      Verified
+                    </>
+                  ) : (
+                    <span className="text-muted-foreground">Not verified</span>
+                  )}
                 </p>
               </div>
-              <Separator />
-            </>
-          ) : null}
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-1">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Status</p>
-              <Badge
-                variant="outline"
-                className={
-                  STATUS_BADGE_STYLES[current?.status] || "text-muted-foreground px-1.5"
-                }>
-                {STATUS_LABELS[current?.status] ?? current?.status ?? "—"}
-              </Badge>
-            </div>
-            <div className="space-y-1">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Verified</p>
-              <p className="flex items-center gap-2 font-medium">
-                {current?.emailVerifiedAt ? (
-                  <>
-                    <IconCircleCheckFilled className="text-emerald-500 size-4" />
-                    Verified
-                  </>
-                ) : (
-                  <span className="text-muted-foreground">Not verified</span>
-                )}
-              </p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Last login</p>
-              <p className="font-medium">{formatDate(current?.lastLoginAt)}</p>
-            </div>
-            <div className="space-y-1 md:col-span-2">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Roles</p>
-              <RoleBadge roles={current?.roles ?? []} />
+              <div className="space-y-1">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Last login</p>
+                <p className="font-medium">{formatDate(current?.lastLoginAt)}</p>
+              </div>
+              <div className="space-y-1 md:col-span-2">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Roles</p>
+                <RoleBadge roles={current?.roles ?? []} />
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }}
       renderEdit={() => (
         <form id={formId} onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-3">
