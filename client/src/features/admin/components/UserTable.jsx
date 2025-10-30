@@ -341,7 +341,6 @@ export function TableCellViewer({ item, availableRoles, onUpdate }) {
       direction="right"
       mobileDirection="bottom"
       renderView={({ item: current }) => {
-        const isVerified = Boolean(current?.emailVerifiedAt)
         const mfaStatus =
           current?.mfaEnabled === true
             ? "Enabled"
@@ -351,42 +350,7 @@ export function TableCellViewer({ item, availableRoles, onUpdate }) {
 
         return (
           <div className="flex flex-col gap-6 text-sm">
-            <div className="space-y-4">
-              <div className="space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Email</p>
-                <p className="font-medium break-words">{current?.email ?? "—"}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Verification</p>
-                {isVerified ? (
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2 font-medium text-emerald-600 dark:text-emerald-300">
-                      <IconCircleCheckFilled className="text-emerald-500 size-4" />
-                      Verified
-                    </div>
-                    <p className="text-muted-foreground text-xs">
-                      Verified on {formatDate(current?.emailVerifiedAt)}
-                    </p>
-                  </div>
-                ) : (
-                  <p className="text-muted-foreground font-medium">Not verified</p>
-                )}
-              </div>
-            </div>
-            <Separator />
             <dl className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-1">
-                <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Status</dt>
-                <dd>
-                  <Badge
-                    variant="outline"
-                    className={
-                      STATUS_BADGE_STYLES[current?.status] ?? "text-muted-foreground px-1.5"
-                    }>
-                    {STATUS_LABELS[current?.status] ?? current?.status ?? "—"}
-                  </Badge>
-                </dd>
-              </div>
               <div className="space-y-1">
                 <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Created</dt>
                 <dd className="font-medium">{formatDate(current?.createdAt)}</dd>
