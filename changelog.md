@@ -1,3 +1,6 @@
+## 2025-11-10 15:30:00 IST
+- Retuned chart color tokens in `client/src/index.css` so data visualisations align with the app's primary palette.
+
 ## 2025-11-10 12:45:00 IST
 - Aligned Tailwind's status utility colors with the design tokens in `client/src/index.css` so info, success, warning, and danger accents match the app palette.
 
