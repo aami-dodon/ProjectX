@@ -639,3 +639,5 @@
 - Fixed the rich text editor crash by migrating to the `lowlight@3` API: create an instance via `createLowlight(common)` and pass it to TipTap’s `CodeBlockLowlight` extension to restore code block rendering.
 ## 2025-10-29 06:37:00 IST
 - Fixed Rich Text Editor preview styling by adding `@tailwindcss/typography` and enabling `prose` classes so headings (H1–H3), ordered/bulleted lists, blockquotes, and code blocks render correctly in the Design System page.
+## 2025-10-30 09:52:51 IST
+- Matched heights for admin user table toolbar controls by forcing `h-8` with `py-0` on the search input and both filter selects, and centering the filter group row so the search, dropdowns, and buttons align perfectly.

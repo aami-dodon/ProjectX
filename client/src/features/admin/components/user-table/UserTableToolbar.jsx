@@ -94,16 +94,16 @@ export function UserTableToolbar({
           <Input
             placeholder="Search by name or email"
             size="sm"
-            className="h-8 w-full lg:w-72"
+            className="h-8 py-0 w-full lg:w-72"
             value={searchTerm}
             onChange={(event) => onSearchChange?.(event.target.value)}
           />
-          <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center">
+          <div className="flex flex-1 flex-col gap-2 items-center sm:flex-row sm:items-center">
             <Select
               value={statusFilter}
               onValueChange={onStatusFilterChange}
             >
-              <SelectTrigger size="sm" className="h-8 w-full sm:w-48">
+              <SelectTrigger size="sm" className="h-8 py-0 w-full sm:w-48">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent>
@@ -119,7 +119,7 @@ export function UserTableToolbar({
               value={roleFilter}
               onValueChange={onRoleFilterChange}
             >
-              <SelectTrigger size="sm" className="h-8 w-full sm:w-48">
+              <SelectTrigger size="sm" className="h-8 py-0 w-full sm:w-48">
                 <SelectValue placeholder="Filter by role" />
               </SelectTrigger>
               <SelectContent>
