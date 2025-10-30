@@ -1,3 +1,6 @@
+## 2025-10-30 05:43:57 IST
+- Refined the admin status distribution donut chart to normalize data colors and surface the total user count inline.
+
 ## 2025-10-29 23:52:42 IST
 - Matched the admin user management table UI to the shared outline data table, reusing the drawer and layout for consistency.
 
