@@ -71,9 +71,6 @@ const STATUS_BADGE_STYLES = {
     "bg-rose-100 text-rose-700 border-rose-200 px-1.5 dark:bg-rose-500/10 dark:text-rose-300 dark:border-rose-500/20",
 }
 
-const CARD_BASE_STYLES =
-  "relative overflow-hidden border border-border/60 bg-gradient-to-br from-background/95 via-background to-muted/30 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg"
-
 export const schema = z.object({
   id: z.union([z.string(), z.number()]),
   fullName: z.string().nullable().optional(),
@@ -842,10 +839,9 @@ export function UserTable({
   )
 
   return (
-    <Card className={`${CARD_BASE_STYLES} flex h-full flex-col`}>
-      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary/70 via-primary to-primary/70" aria-hidden />
+    <Card className="flex h-full flex-col">
       <Tabs value={activeView} onValueChange={setActiveView} className="flex h-full flex-col">
-        <CardHeader className="flex flex-col gap-6 border-b border-border/60 pb-6">
+        <CardHeader className="flex flex-col gap-6 border-b border-border pb-6">
           <div className="space-y-1">
             <CardTitle className="text-xl">User directory</CardTitle>
             <CardDescription>
