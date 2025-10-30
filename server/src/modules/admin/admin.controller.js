@@ -5,6 +5,8 @@ const listUsers = async (req, res, next) => {
     const data = await getAdminUsers({
       search: req.query?.search,
       status: req.query?.status,
+      limit: req.query?.limit,
+      offset: req.query?.offset,
     });
 
     return res.json(data);

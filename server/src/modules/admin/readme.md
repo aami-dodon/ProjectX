@@ -29,9 +29,9 @@ const { router: adminRouter } = require('@/modules/admin');
 1. **Mounting admin routes** – register `adminRouter` under an `/api/admin`
    scope inside `server/src/app.js` (already configured) or another Express
    composition to expose the management endpoints.
-2. **Fetching administrative user data** – call `getAdminUsers({ search, status })`
-   from the service when another module needs the combined listings and metrics
-   payload used by the dashboard.
+2. **Fetching administrative user data** – call `getAdminUsers({ search, status, limit, offset })`
+   from the service when another module needs the combined listings, pagination
+   metadata, and metrics payload used by the dashboard.
 3. **Applying privileged updates** – reuse `updateUserAccount({ userId, updates, actorId })`
    when you need to synchronise status, email, verification, or profile
    adjustments from workflows outside the default router handlers.

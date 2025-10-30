@@ -8,11 +8,13 @@ const USER_INCLUDE = {
   },
 };
 
-const listUsers = async ({ where = {} } = {}) =>
+const listUsers = async ({ where = {}, limit, offset } = {}) =>
   prisma.authUser.findMany({
     where,
     include: USER_INCLUDE,
     orderBy: { createdAt: 'desc' },
+    ...(typeof limit === 'number' ? { take: limit } : {}),
+    ...(typeof offset === 'number' ? { skip: offset } : {}),
   });
 
 const countUsers = ({ where = {} } = {}) => prisma.authUser.count({ where });

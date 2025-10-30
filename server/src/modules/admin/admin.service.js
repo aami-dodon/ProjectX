@@ -12,6 +12,7 @@ const {
   findUserById,
   listRoles,
   findRolesByIds,
+  countUsers,
 } = require('./admin.repository');
 
 const logger = createLogger('admin-service');
@@ -22,6 +23,8 @@ const VALID_STATUSES = new Set([
   'SUSPENDED',
   'INVITED',
 ]);
+
+const STATUS_KEYS = ['ACTIVE', 'PENDING_VERIFICATION', 'SUSPENDED', 'INVITED'];
 
 const normalizeStatus = (status) => {
   if (!status || typeof status !== 'string') {
@@ -100,36 +103,48 @@ const buildWhereClause = ({ search, status }) => {
   return where;
 };
 
-const buildStatusMetrics = (users) => {
-  const counts = {
+const buildStatusMetrics = (users, overrides = {}) => {
+  const derivedCounts = {
     ACTIVE: 0,
     PENDING_VERIFICATION: 0,
     SUSPENDED: 0,
     INVITED: 0,
   };
 
-  let verified = 0;
+  let derivedVerified = 0;
 
   users.forEach((user) => {
-    if (counts[user.status] !== undefined) {
-      counts[user.status] += 1;
+    if (derivedCounts[user.status] !== undefined) {
+      derivedCounts[user.status] += 1;
     }
 
     if (user.emailVerifiedAt) {
-      verified += 1;
+      derivedVerified += 1;
     }
   });
 
+  const totalsOverride = overrides?.totals ?? {};
+
+  const finalCounts = {
+    ACTIVE: totalsOverride.active ?? derivedCounts.ACTIVE,
+    PENDING_VERIFICATION:
+      totalsOverride.pending ?? derivedCounts.PENDING_VERIFICATION,
+    SUSPENDED: totalsOverride.suspended ?? derivedCounts.SUSPENDED,
+    INVITED: totalsOverride.invited ?? derivedCounts.INVITED,
+  };
+
+  const totals = {
+    all: totalsOverride.all ?? users.length,
+    active: finalCounts.ACTIVE,
+    pending: finalCounts.PENDING_VERIFICATION,
+    suspended: finalCounts.SUSPENDED,
+    invited: finalCounts.INVITED,
+    verified: totalsOverride.verified ?? derivedVerified,
+  };
+
   return {
-    totals: {
-      all: users.length,
-      active: counts.ACTIVE,
-      pending: counts.PENDING_VERIFICATION,
-      suspended: counts.SUSPENDED,
-      invited: counts.INVITED,
-      verified,
-    },
-    statusDistribution: Object.entries(counts).map(([status, value]) => ({
+    totals,
+    statusDistribution: Object.entries(finalCounts).map(([status, value]) => ({
       status,
       value,
       label: status
@@ -186,13 +201,88 @@ const buildRegistrationTrend = (users) => {
   return buckets;
 };
 
-const getAdminUsers = async ({ search, status } = {}) => {
-  const where = buildWhereClause({ search, status });
+const MAX_LIMIT = 100;
+const DEFAULT_LIMIT = 25;
 
-  const [users, roles] = await Promise.all([
-    listUsers({ where }),
+const normalizePagination = ({ limit, offset } = {}) => {
+  let resolvedLimit = DEFAULT_LIMIT;
+  if (limit !== undefined) {
+    const parsed = Number(limit);
+    if (!Number.isInteger(parsed) || parsed <= 0) {
+      throw createValidationError('limit must be a positive integer', {
+        field: 'limit',
+      });
+    }
+    resolvedLimit = Math.min(parsed, MAX_LIMIT);
+  }
+
+  let resolvedOffset = 0;
+  if (offset !== undefined) {
+    const parsed = Number(offset);
+    if (!Number.isInteger(parsed) || parsed < 0) {
+      throw createValidationError('offset must be a non-negative integer', {
+        field: 'offset',
+      });
+    }
+    resolvedOffset = parsed;
+  }
+
+  return { limit: resolvedLimit, offset: resolvedOffset };
+};
+
+const getAdminUsers = async ({ search, status, limit, offset } = {}) => {
+  const where = buildWhereClause({ search, status });
+  const pagination = normalizePagination({ limit, offset });
+
+  const [users, roles, totalMatching] = await Promise.all([
+    listUsers({ where, limit: pagination.limit, offset: pagination.offset }),
     listRoles(),
+    countUsers({ where }),
   ]);
+
+  const { status: statusFilter, ...filtersWithoutStatus } = where;
+
+  let statusTotals = STATUS_KEYS.reduce(
+    (acc, key) => ({ ...acc, [key]: 0 }),
+    {}
+  );
+
+  let verifiedCount = 0;
+
+  if (statusFilter) {
+    statusTotals = { ...statusTotals, [statusFilter]: totalMatching };
+    verifiedCount = await countUsers({
+      where: {
+        ...where,
+        emailVerifiedAt: { not: null },
+      },
+    });
+  } else {
+    const statusCounts = await Promise.all(
+      STATUS_KEYS.map((statusKey) =>
+        countUsers({
+          where: {
+            ...filtersWithoutStatus,
+            status: statusKey,
+          },
+        })
+      )
+    );
+    statusTotals = STATUS_KEYS.reduce(
+      (acc, statusKey, index) => ({
+        ...acc,
+        [statusKey]: statusCounts[index] ?? 0,
+      }),
+      statusTotals
+    );
+
+    verifiedCount = await countUsers({
+      where: {
+        ...filtersWithoutStatus,
+        emailVerifiedAt: { not: null },
+      },
+    });
+  }
 
   const enrichedUsers = await Promise.all(
     users.map(async (user) => ({
@@ -201,7 +291,16 @@ const getAdminUsers = async ({ search, status } = {}) => {
     }))
   );
 
-  const { totals, statusDistribution } = buildStatusMetrics(enrichedUsers);
+  const { totals, statusDistribution } = buildStatusMetrics(enrichedUsers, {
+    totals: {
+      all: totalMatching,
+      active: statusTotals.ACTIVE,
+      pending: statusTotals.PENDING_VERIFICATION,
+      suspended: statusTotals.SUSPENDED,
+      invited: statusTotals.INVITED,
+      verified: verifiedCount,
+    },
+  });
   const monthlyRegistrations = buildRegistrationTrend(enrichedUsers);
 
   return {
@@ -212,6 +311,11 @@ const getAdminUsers = async ({ search, status } = {}) => {
       statusDistribution,
       monthlyRegistrations,
       lastRefreshedAt: new Date(),
+    },
+    pagination: {
+      total: totalMatching,
+      limit: pagination.limit,
+      offset: pagination.offset,
     },
   };
 };
@@ -238,7 +342,6 @@ const updateUserAccount = async ({ userId, updates = {}, actorId }) => {
   const payload = {};
   const fields = [];
   let cachedUser = null;
-  let shouldAutoVerifyEmail = false;
 
   const ensureExistingUser = async () => {
     if (cachedUser) {
@@ -278,9 +381,6 @@ const updateUserAccount = async ({ userId, updates = {}, actorId }) => {
     payload.status = normalizedStatus;
     addField(fields, 'status');
 
-    if (normalizedStatus === 'ACTIVE') {
-      shouldAutoVerifyEmail = true;
-    }
   }
 
   if (Object.prototype.hasOwnProperty.call(updates, 'email')) {
@@ -313,11 +413,6 @@ const updateUserAccount = async ({ userId, updates = {}, actorId }) => {
     }
 
     payload.emailVerifiedAt = updates.verifyEmail === true ? new Date() : null;
-    addField(fields, 'emailVerifiedAt');
-  }
-
-  if (shouldAutoVerifyEmail) {
-    payload.emailVerifiedAt = new Date();
     addField(fields, 'emailVerifiedAt');
   }
 
@@ -412,14 +507,23 @@ const updateUserAccount = async ({ userId, updates = {}, actorId }) => {
   }
 
   if (actorId) {
-    await logAuthEvent({
-      userId,
-      eventType: 'admin.user.updated',
-      payload: {
+    try {
+      await logAuthEvent({
+        userId,
+        eventType: 'admin.user.updated',
+        payload: {
+          actorId,
+          fields,
+        },
+      });
+    } catch (error) {
+      logger.warn('Failed to record admin audit log for user update', {
+        userId,
         actorId,
         fields,
-      },
-    });
+        error: error.message,
+      });
+    }
   }
 
   logger.info('Admin updated user', { userId, actorId, fields });
