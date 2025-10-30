@@ -66,6 +66,8 @@ export const schema = z.object({
   id: z.union([z.string(), z.number()]),
   fullName: z.string().nullable().optional(),
   email: z.string().nullable().optional(),
+  avatarObjectName: z.string().nullable().optional(),
+  avatarUrl: z.string().nullable().optional(),
   status: z.string().nullable().optional(),
   roles: z
     .array(
@@ -167,7 +169,7 @@ function RoleBadge({ roles = [] }) {
   )
 }
 
-function TableCellViewer({ item, availableRoles, onUpdate }) {
+export function TableCellViewer({ item, availableRoles, onUpdate }) {
   const parsedUser = React.useMemo(() => schema.parse(item), [item])
   const formId = React.useMemo(
     () => (parsedUser?.id ? `user-${parsedUser.id}-edit` : "user-edit"),
@@ -250,12 +252,13 @@ function TableCellViewer({ item, availableRoles, onUpdate }) {
       renderView={({ item: current }) => {
         const displayName = current?.fullName || current?.email || "User"
         const initials = getInitials(current?.fullName || current?.email)
+        const avatarSrc = current?.avatarUrl ?? current?.avatar ?? undefined
 
         return (
           <div className="flex flex-col gap-6 text-sm">
             <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
               <Avatar className="size-16 border border-border">
-                <AvatarImage src={current?.avatar} alt={`${displayName} avatar`} />
+                <AvatarImage src={avatarSrc} alt={`${displayName} avatar`} />
                 <AvatarFallback className="text-lg font-semibold">
                   {initials}
                 </AvatarFallback>

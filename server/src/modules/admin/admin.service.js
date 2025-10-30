@@ -3,6 +3,7 @@ const {
   createValidationError,
 } = require('@/utils/errors');
 const { createLogger } = require('@/utils/logger');
+const { getFileAccessLink } = require('@/modules/files/file.service');
 const { logAuthEvent } = require('@/modules/auth/auth.repository');
 const {
   listUsers,
@@ -30,11 +31,29 @@ const normalizeStatus = (status) => {
   return VALID_STATUSES.has(normalized) ? normalized : null;
 };
 
+const resolveAvatarUrl = async (user) => {
+  if (!user || !user.avatarObjectName) {
+    return null;
+  }
+
+  try {
+    const { url } = await getFileAccessLink(user.avatarObjectName, user.id);
+    return url;
+  } catch (error) {
+    logger.warn('Failed to resolve avatar URL for admin listing', {
+      userId: user?.id,
+      error: error.message,
+    });
+    return null;
+  }
+};
+
 const serializeUser = (user) => ({
   id: user.id,
   email: user.email,
   fullName: user.fullName,
   avatarObjectName: user.avatarObjectName ?? null,
+  avatarUrl: user.avatarUrl ?? null,
   status: user.status,
   emailVerifiedAt: user.emailVerifiedAt,
   lastLoginAt: user.lastLoginAt,
@@ -174,11 +193,18 @@ const getAdminUsers = async ({ search, status } = {}) => {
     listRoles(),
   ]);
 
-  const { totals, statusDistribution } = buildStatusMetrics(users);
-  const monthlyRegistrations = buildRegistrationTrend(users);
+  const enrichedUsers = await Promise.all(
+    users.map(async (user) => ({
+      ...user,
+      avatarUrl: await resolveAvatarUrl(user),
+    }))
+  );
+
+  const { totals, statusDistribution } = buildStatusMetrics(enrichedUsers);
+  const monthlyRegistrations = buildRegistrationTrend(enrichedUsers);
 
   return {
-    users: users.map(serializeUser),
+    users: enrichedUsers.map(serializeUser),
     roles: roles.map(serializeRole),
     metrics: {
       totals,
