@@ -63,6 +63,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/shared/components/ui/drawer"
+import { ScrollArea } from "@/shared/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs"
 import { Separator } from "@/shared/components/ui/separator"
 import { useIsMobile } from "@/shared/hooks/use-mobile"
@@ -811,13 +812,14 @@ export function DataTableRowDrawer({
                 key={tab.value}
                 value={tab.value}
                 className="flex flex-1 flex-col">
-                <div
-                  className={cn(
-                    "flex-1 overflow-y-auto px-4 pb-6 text-sm",
+                <ScrollArea
+                  className="flex-1"
+                  viewportClassName={cn(
+                    "px-4 pb-6 text-sm",
                     isView ? viewContentClassName : editContentClassName
                   )}>
                   {content}
-                </div>
+                </ScrollArea>
                 {footer ? (
                   <DrawerFooter
                     className={cn(
