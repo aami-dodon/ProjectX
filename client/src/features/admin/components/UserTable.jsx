@@ -608,18 +608,12 @@ export function UserTable({
             <SelectItem value="outline">Users</SelectItem>
             <SelectItem value="past-performance">Audit</SelectItem>
             <SelectItem value="key-personnel">Reports</SelectItem>
-            <SelectItem value="focus-documents">Focus Documents</SelectItem>
           </SelectContent>
         </Select>
         <TabsList className="**:data-[slot=badge]:bg-muted-foreground/30 hidden **:data-[slot=badge]:size-5 **:data-[slot=badge]:rounded-full **:data-[slot=badge]:px-1 @4xl/main:flex">
           <TabsTrigger value="outline">Users</TabsTrigger>
-          <TabsTrigger value="past-performance">
-            Audit <Badge variant="secondary">3</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="key-personnel">
-            Reports <Badge variant="secondary">2</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="focus-documents">Focus Documents</TabsTrigger>
+          <TabsTrigger value="past-performance">Audit</TabsTrigger>
+          <TabsTrigger value="key-personnel">Reports</TabsTrigger>
         </TabsList>
       </div>
       <TabsContent value="outline" className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
@@ -678,9 +672,6 @@ export function UserTable({
         <div className="aspect-video w-full flex-1 rounded-lg border border-dashed"></div>
       </TabsContent>
       <TabsContent value="key-personnel" className="flex flex-col px-4 lg:px-6">
-        <div className="aspect-video w-full flex-1 rounded-lg border border-dashed"></div>
-      </TabsContent>
-      <TabsContent value="focus-documents" className="flex flex-col px-4 lg:px-6">
         <div className="aspect-video w-full flex-1 rounded-lg border border-dashed"></div>
       </TabsContent>
     </Tabs>
