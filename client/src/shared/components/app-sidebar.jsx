@@ -24,6 +24,7 @@ import { useCurrentUser } from "@/features/auth"
 import { NavDocuments } from "@/shared/components/nav-documents"
 import { NavMain } from "@/shared/components/nav-main"
 import { NavSecondary } from "@/shared/components/nav-secondary"
+import { NavAdministration } from "@/shared/components/nav-administration"
 import { NavUser } from "@/shared/components/nav-user"
 import {
   Sidebar,
@@ -155,23 +156,7 @@ const defaultSidebarData = {
 }
 
 const adminSidebarData = {
-  navMain: [
-    {
-      title: "Home",
-      url: "/home",
-      icon: IconDashboard,
-    },
-    {
-      title: "User Management",
-      url: "/admin/users",
-      icon: IconUsers,
-    },
-    {
-      title: "Health",
-      url: "/health",
-      icon: IconHeartbeat,
-    },
-  ],
+  ...defaultSidebarData,
   navSecondary: [
     {
       title: "Design System",
@@ -190,6 +175,27 @@ const adminSidebarData = {
     },
   ],
   documents: sharedDocuments,
+  navAdmin: {
+    title: "Administration",
+    icon: IconSettings,
+    items: [
+      {
+        title: "User Management",
+        url: "/admin/users",
+        icon: IconUsers,
+      },
+      {
+        title: "Health",
+        url: "/health",
+        icon: IconHeartbeat,
+      },
+      {
+        title: "Theme",
+        url: "/design-system",
+        icon: IconPalette,
+      },
+    ],
+  },
 }
 
 const fallbackUser = {
@@ -229,7 +235,13 @@ export function AppSidebar({
     }
   }, [currentUser])
 
-  const navigation = isAdmin ? adminSidebarData : defaultSidebarData
+  const navigation = React.useMemo(() => {
+    if (!isAdmin) {
+      return defaultSidebarData
+    }
+
+    return adminSidebarData
+  }, [isAdmin])
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
@@ -247,6 +259,7 @@ export function AppSidebar({
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={navigation.navMain} />
+        {navigation.navAdmin ? <NavAdministration section={navigation.navAdmin} /> : null}
         <NavDocuments items={navigation.documents} />
         <NavSecondary items={navigation.navSecondary} className="mt-auto" />
       </SidebarContent>
