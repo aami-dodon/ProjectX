@@ -238,6 +238,7 @@ const updateUserAccount = async ({ userId, updates = {}, actorId }) => {
   const payload = {};
   const fields = [];
   let cachedUser = null;
+  let shouldAutoVerifyEmail = false;
 
   const ensureExistingUser = async () => {
     if (cachedUser) {
@@ -276,6 +277,10 @@ const updateUserAccount = async ({ userId, updates = {}, actorId }) => {
     }
     payload.status = normalizedStatus;
     addField(fields, 'status');
+
+    if (normalizedStatus === 'ACTIVE') {
+      shouldAutoVerifyEmail = true;
+    }
   }
 
   if (Object.prototype.hasOwnProperty.call(updates, 'email')) {
@@ -308,6 +313,11 @@ const updateUserAccount = async ({ userId, updates = {}, actorId }) => {
     }
 
     payload.emailVerifiedAt = updates.verifyEmail === true ? new Date() : null;
+    addField(fields, 'emailVerifiedAt');
+  }
+
+  if (shouldAutoVerifyEmail) {
+    payload.emailVerifiedAt = new Date();
     addField(fields, 'emailVerifiedAt');
   }
 

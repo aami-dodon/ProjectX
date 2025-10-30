@@ -1,3 +1,6 @@
+## 2025-11-08 13:45:00 IST
+- Automatically verify user email addresses when admins activate an account so status changes keep verification aligned.
+
 ## 2025-11-08 13:15:00 IST
 - Removed the status detail row from the admin user drawer to keep the panel focused on activity metadata.
 
