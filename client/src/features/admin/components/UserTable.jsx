@@ -271,9 +271,6 @@ export function TableCellViewer({ item, availableRoles, onUpdate }) {
           <span className="block font-medium leading-tight">
             {parsedUser.fullName || parsedUser.email || "—"}
           </span>
-          {parsedUser.email ? (
-            <span className="text-muted-foreground block text-xs">{parsedUser.email}</span>
-          ) : null}
         </Button>
       }
       headerActions={({ item }) =>
@@ -492,6 +489,9 @@ export function UserTable({
 }) {
   const [activeView, setActiveView] = React.useState("outline")
   const [data, setData] = React.useState(() => users ?? [])
+  const [searchTerm, setSearchTerm] = React.useState("")
+  const [statusFilter, setStatusFilter] = React.useState("all")
+  const [roleFilter, setRoleFilter] = React.useState("all")
 
   React.useEffect(() => {
     setData(users ?? [])
@@ -533,14 +533,45 @@ export function UserTable({
       {
         accessorKey: "fullName",
         header: "User",
+        filterFn: (row, columnId, filterValue) => {
+          if (!filterValue) {
+            return true
+          }
+
+          const searchValue = `${filterValue}`.toLowerCase()
+          const fullName = `${row.original.fullName ?? ""}`.toLowerCase()
+          const email = `${row.original.email ?? ""}`.toLowerCase()
+
+          return `${fullName} ${email}`.includes(searchValue)
+        },
         cell: ({ row }) => (
           <TableCellViewer item={row.original} availableRoles={availableRoles} onUpdate={onUpdate} />
         ),
         enableHiding: false,
       },
       {
+        accessorKey: "email",
+        header: "Email",
+        cell: ({ row }) => (
+          <div className="text-sm">
+            {row.original.email ? (
+              <span className="text-muted-foreground">{row.original.email}</span>
+            ) : (
+              "—"
+            )}
+          </div>
+        ),
+      },
+      {
         accessorKey: "status",
         header: "Status",
+        filterFn: (row, columnId, filterValue) => {
+          if (!filterValue) {
+            return true
+          }
+
+          return `${row.getValue(columnId) ?? ""}` === filterValue
+        },
         cell: ({ row }) => (
           <Badge
             variant="outline"
@@ -552,6 +583,14 @@ export function UserTable({
       {
         accessorKey: "roles",
         header: "Roles",
+        filterFn: (row, columnId, filterValue) => {
+          if (!filterValue) {
+            return true
+          }
+
+          const roles = row.original.roles ?? []
+          return roles.some((role) => `${role.id}` === filterValue || role.name === filterValue)
+        },
         cell: ({ row }) => <RoleBadge roles={row.original.roles ?? []} />,
       },
       {
@@ -594,6 +633,15 @@ export function UserTable({
     [availableRoles, onUpdate]
   )
 
+  const roleOptions = React.useMemo(
+    () =>
+      (availableRoles ?? []).map((role) => ({
+        id: `${role.id}`,
+        name: role.name,
+      })),
+    [availableRoles]
+  )
+
   return (
     <Tabs value={activeView} onValueChange={setActiveView} className="w-full flex-col justify-start gap-6">
       <div className="flex items-center justify-between px-4 lg:px-6">
@@ -629,6 +677,64 @@ export function UserTable({
           isLoading={isLoading}
           error={error}
           renderHeader={({ table }) => ({
+            leading: (
+              <div className="flex w-full flex-col gap-2 lg:flex-row lg:items-center">
+                <Input
+                  placeholder="Search by name or email"
+                  className="w-full lg:w-64"
+                  value={searchTerm}
+                  onChange={(event) => {
+                    const value = event.target.value
+                    setSearchTerm(value)
+                    table.getColumn("fullName")?.setFilterValue(value || undefined)
+                  }}
+                />
+                <div className="flex flex-1 flex-col gap-2 sm:flex-row">
+                  <Select
+                    value={statusFilter}
+                    onValueChange={(value) => {
+                      setStatusFilter(value)
+                      table
+                        .getColumn("status")
+                        ?.setFilterValue(value === "all" ? undefined : value)
+                    }}
+                  >
+                    <SelectTrigger className="w-full sm:w-44">
+                      <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All statuses</SelectItem>
+                      {Object.entries(STATUS_LABELS).map(([value, label]) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select
+                    value={roleFilter}
+                    onValueChange={(value) => {
+                      setRoleFilter(value)
+                      table
+                        .getColumn("roles")
+                        ?.setFilterValue(value === "all" ? undefined : value)
+                    }}
+                  >
+                    <SelectTrigger className="w-full sm:w-44">
+                      <SelectValue placeholder="Filter by role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All roles</SelectItem>
+                      {roleOptions.map((role) => (
+                        <SelectItem key={role.id} value={role.id}>
+                          {role.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            ),
             trailing: (
               <div className="flex items-center gap-2">
                 <DropdownMenu>
