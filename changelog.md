@@ -1,3 +1,6 @@
+## 2025-11-12 10:00:00 IST
+- Styled success toast notifications to use primary text on muted backgrounds so they align with the semantic design tokens.
+
 ## 2025-10-30 14:01:33 IST
 - Rebuilt the sidebar navigation structure with new grouped menus and submenus so admins and members see the appropriate sections in the app shell.
 
