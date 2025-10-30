@@ -1,13 +1,11 @@
 import * as React from "react"
 import { Link } from "react-router-dom"
 import {
-  IconCamera,
   IconChartBar,
   IconDashboard,
   IconDatabase,
   IconFileAi,
   IconFileDescription,
-  IconFileWord,
   IconFolder,
   IconHeartbeat,
   IconHelp,
@@ -38,118 +36,113 @@ import {
 
 const sharedDocuments = [
   {
-    name: "Data Library",
+    name: "Incident Playbooks",
+    url: "#",
+    icon: IconFileDescription,
+  },
+  {
+    name: "AI Guidance",
+    url: "#",
+    icon: IconFileAi,
+  },
+  {
+    name: "Data Sources",
     url: "#",
     icon: IconDatabase,
-  },
-  {
-    name: "Reports",
-    url: "#",
-    icon: IconReport,
-  },
-  {
-    name: "Word Assistant",
-    url: "#",
-    icon: IconFileWord,
   },
 ]
 
 const defaultSidebarData = {
   navMain: [
     {
-      title: "Dashboard",
-      url: "#",
+      title: "Overview",
+      url: "/home",
       icon: IconDashboard,
     },
     {
-      title: "Lifecycle",
-      url: "#",
+      title: "Operations",
       icon: IconListDetails,
-    },
-    {
-      title: "Analytics",
-      url: "#",
-      icon: IconChartBar,
-    },
-    {
-      title: "Projects",
-      url: "#",
-      icon: IconFolder,
-    },
-    {
-      title: "Team",
-      url: "#",
-      icon: IconUsers,
-    },
-  ],
-  navClouds: [
-    {
-      title: "Capture",
-      icon: IconCamera,
-      isActive: true,
-      url: "#",
       items: [
         {
-          title: "Active Proposals",
-          url: "#",
+          title: "Health Checks",
+          url: "/health",
+          icon: IconHeartbeat,
         },
         {
-          title: "Archived",
+          title: "Status Pages",
           url: "#",
+          icon: IconReport,
+        },
+        {
+          title: "Workflows",
+          url: "#",
+          icon: IconListDetails,
         },
       ],
     },
     {
-      title: "Proposal",
-      icon: IconFileDescription,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Prompts",
+      title: "Intelligence",
       icon: IconFileAi,
-      url: "#",
       items: [
         {
-          title: "Active Proposals",
+          title: "Insights Hub",
           url: "#",
+          icon: IconChartBar,
         },
         {
-          title: "Archived",
+          title: "Knowledge Base",
           url: "#",
+          icon: IconDatabase,
+        },
+        {
+          title: "Prompt Library",
+          url: "#",
+          icon: IconFileAi,
+        },
+      ],
+    },
+    {
+      title: "Collaboration",
+      icon: IconUsers,
+      items: [
+        {
+          title: "Teams",
+          url: "#",
+          icon: IconUsers,
+        },
+        {
+          title: "Projects",
+          url: "#",
+          icon: IconFolder,
+        },
+        {
+          title: "Approvals",
+          url: "#",
+          icon: IconFileDescription,
         },
       ],
     },
   ],
   navSecondary: [
     {
-      title: "Design System",
-      url: "/design-system",
-      icon: IconPalette,
-    },
-    {
-      title: "Settings",
+      title: "Search",
       url: "#",
-      icon: IconSettings,
+      icon: IconSearch,
     },
     {
-      title: "Get Help",
+      title: "Help Centre",
       url: "#",
       icon: IconHelp,
     },
     {
-      title: "Search",
-      url: "#",
-      icon: IconSearch,
+      title: "Appearance",
+      url: "/design-system",
+      icon: IconPalette,
+    },
+    {
+      title: "Account Settings",
+      url: "/account",
+      icon: IconSettings,
     },
   ],
   documents: sharedDocuments,
@@ -159,7 +152,17 @@ const adminSidebarData = {
   ...defaultSidebarData,
   navSecondary: [
     {
-      title: "Design System",
+      title: "Search",
+      url: "#",
+      icon: IconSearch,
+    },
+    {
+      title: "Help Centre",
+      url: "#",
+      icon: IconHelp,
+    },
+    {
+      title: "Appearance",
       url: "/design-system",
       icon: IconPalette,
     },
@@ -167,11 +170,6 @@ const adminSidebarData = {
       title: "Account Settings",
       url: "/account",
       icon: IconSettings,
-    },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: IconHelp,
     },
   ],
   documents: sharedDocuments,
@@ -185,14 +183,14 @@ const adminSidebarData = {
         icon: IconUsers,
       },
       {
-        title: "Health",
-        url: "/health",
-        icon: IconHeartbeat,
+        title: "Workspace Controls",
+        url: "#",
+        icon: IconSettings,
       },
       {
-        title: "Theme",
-        url: "/design-system",
-        icon: IconPalette,
+        title: "Compliance",
+        url: "#",
+        icon: IconReport,
       },
     ],
   },
