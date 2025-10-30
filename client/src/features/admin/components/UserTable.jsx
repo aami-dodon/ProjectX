@@ -182,14 +182,15 @@ function RoleBadge({ roles = [] }) {
   )
 }
 
-export function TableCellViewer({
-  item,
-  availableRoles,
-  onUpdate,
-  open,
-  onOpenChange,
-  defaultTab,
-}) {
+export const TableCellViewer = React.memo(
+  function TableCellViewer({
+    item,
+    availableRoles,
+    onUpdate,
+    openUserId,
+    activeDrawerTab,
+    onDrawerOpenChange,
+  }) {
   const parsedUser = React.useMemo(() => schema.parse(item), [item])
   const currentUser = useCurrentUser()
   const isEditingSelf = React.useMemo(() => {
@@ -295,6 +296,33 @@ export function TableCellViewer({
     [availableRoles]
   )
 
+  const normalizedUserId = React.useMemo(
+    () => (parsedUser?.id == null ? null : `${parsedUser.id}`),
+    [parsedUser?.id]
+  )
+  const isOpen = React.useMemo(() => {
+    if (normalizedUserId === null || openUserId == null) {
+      return false
+    }
+
+    return `${openUserId}` === normalizedUserId
+  }, [normalizedUserId, openUserId])
+  const defaultTab = isOpen ? activeDrawerTab : "view"
+  const handleOpenChange = React.useCallback(
+    (nextOpen) => {
+      if (!normalizedUserId) {
+        return
+      }
+
+      if (typeof onDrawerOpenChange !== "function") {
+        return
+      }
+
+      onDrawerOpenChange(parsedUser.id, nextOpen)
+    },
+    [normalizedUserId, onDrawerOpenChange, parsedUser.id]
+  )
+
   return (
     <DataTableRowDrawer
       item={parsedUser}
@@ -305,8 +333,8 @@ export function TableCellViewer({
           </span>
         </Button>
       }
-      open={open}
-      onOpenChange={onOpenChange}
+      open={isOpen}
+      onOpenChange={handleOpenChange}
       defaultTab={defaultTab}
       headerActions={({ item }) =>
         item?.email && !item.emailVerifiedAt
@@ -379,9 +407,18 @@ export function TableCellViewer({
             : current?.mfaEnabled === false
               ? "Disabled"
               : "—"
+        const verificationMessage = current?.emailVerifiedAt
+          ? `Verified on ${formatDate(current.emailVerifiedAt)}`
+          : "Not verified"
 
         return (
           <div className="flex flex-col gap-6 text-sm">
+            <div className="space-y-1">
+              {current?.email ? (
+                <p className="font-medium break-words">{current.email}</p>
+              ) : null}
+              <p className="text-muted-foreground text-sm">{verificationMessage}</p>
+            </div>
             <dl className="grid gap-4 md:grid-cols-2">
               <div className="space-y-1">
                 <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Created</dt>
@@ -519,7 +556,47 @@ export function TableCellViewer({
       )}
     />
   )
-}
+  },
+  (previousProps, nextProps) => {
+    if (previousProps.item !== nextProps.item) {
+      return false
+    }
+
+    if (previousProps.availableRoles !== nextProps.availableRoles) {
+      return false
+    }
+
+    if (previousProps.onUpdate !== nextProps.onUpdate) {
+      return false
+    }
+
+    if (previousProps.onDrawerOpenChange !== nextProps.onDrawerOpenChange) {
+      return false
+    }
+
+    const previousItemId = previousProps.item?.id
+    const nextItemId = nextProps.item?.id
+
+    const previousIsOpen =
+      previousProps.openUserId != null &&
+      previousItemId != null &&
+      `${previousProps.openUserId}` === `${previousItemId}`
+    const nextIsOpen =
+      nextProps.openUserId != null && nextItemId != null && `${nextProps.openUserId}` === `${nextItemId}`
+
+    if (previousIsOpen !== nextIsOpen) {
+      return false
+    }
+
+    if (nextIsOpen && previousProps.activeDrawerTab !== nextProps.activeDrawerTab) {
+      return false
+    }
+
+    return true
+  }
+)
+
+TableCellViewer.displayName = "TableCellViewer"
 
 export function UserTable({
   users = [],
@@ -563,23 +640,20 @@ export function UserTable({
     setDrawerState({ userId, tab })
   }, [])
 
-  const handleDrawerOpenChange = React.useCallback(
-    (userId) => (nextOpen) => {
-      setDrawerState((previous) => {
-        if (nextOpen) {
-          const nextTab = previous.userId === userId ? previous.tab : "view"
-          return { userId, tab: nextTab }
-        }
+  const handleDrawerOpenChange = React.useCallback((userId, nextOpen) => {
+    setDrawerState((previous) => {
+      if (nextOpen) {
+        const nextTab = previous.userId === userId ? previous.tab : "view"
+        return { userId, tab: nextTab }
+      }
 
-        if (previous.userId === userId) {
-          return { userId: null, tab: "view" }
-        }
+      if (previous.userId === userId) {
+        return { userId: null, tab: "view" }
+      }
 
-        return previous
-      })
-    },
-    []
-  )
+      return previous
+    })
+  }, [])
 
   const handleEditUser = React.useCallback(
     (userId) => {
@@ -691,9 +765,9 @@ export function UserTable({
             item={row.original}
             availableRoles={availableRoles}
             onUpdate={onUpdate}
-            open={drawerState.userId === row.original.id}
-            onOpenChange={handleDrawerOpenChange(row.original.id)}
-            defaultTab={drawerState.userId === row.original.id ? drawerState.tab : "view"}
+            openUserId={drawerState.userId}
+            activeDrawerTab={drawerState.tab}
+            onDrawerOpenChange={handleDrawerOpenChange}
           />
         ),
         enableHiding: false,

@@ -55,6 +55,9 @@ describe('TableCellViewer', () => {
         }}
         availableRoles={[]}
         onUpdate={vi.fn()}
+        openUserId={null}
+        activeDrawerTab="view"
+        onDrawerOpenChange={vi.fn()}
       />
     )
 
@@ -103,6 +106,9 @@ describe('TableCellViewer', () => {
         }}
         availableRoles={[]}
         onUpdate={vi.fn()}
+        openUserId={null}
+        activeDrawerTab="view"
+        onDrawerOpenChange={vi.fn()}
       />
     )
 
