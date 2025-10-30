@@ -246,44 +246,49 @@ export function TableCellViewer({ item, availableRoles, onUpdate }) {
         </Button>
       }
       headerClassName="gap-4 border-b px-4 py-4 text-left"
-      renderHeader={({ item: current }) => {
+      renderHeader={({ item: current, headerActions }) => {
         const displayName = current?.fullName || current?.email || "User"
         const initials = getInitials(current?.fullName || current?.email)
         const avatarSrc = current?.avatarUrl ?? current?.avatar ?? undefined
 
         return (
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-start gap-3 sm:items-center">
-              <Avatar className="border-border size-16 border">
-                <AvatarImage src={avatarSrc} alt={`${displayName} avatar`} />
-                <AvatarFallback className="text-lg font-semibold">{initials}</AvatarFallback>
-              </Avatar>
-              <div className="space-y-1">
-                <p className="text-base font-semibold leading-tight">{displayName}</p>
-                {current?.email ? (
-                  <p className="text-muted-foreground text-sm">{current.email}</p>
-                ) : null}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+              <div className="flex flex-col items-center gap-2 sm:items-start">
+                <Avatar className="border-border size-16 border">
+                  <AvatarImage src={avatarSrc} alt={`${displayName} avatar`} />
+                  <AvatarFallback className="text-lg font-semibold">{initials}</AvatarFallback>
+                </Avatar>
+                <Badge
+                  variant="outline"
+                  className={
+                    STATUS_BADGE_STYLES[current?.status] || "text-muted-foreground px-1.5"
+                  }>
+                  {STATUS_LABELS[current?.status] ?? current?.status ?? "—"}
+                </Badge>
               </div>
-            </div>
-            <div className="flex flex-col gap-2 sm:items-end sm:text-right">
-              <Badge
-                variant="outline"
-                className={
-                  STATUS_BADGE_STYLES[current?.status] || "text-muted-foreground px-1.5"
-                }>
-                {STATUS_LABELS[current?.status] ?? current?.status ?? "—"}
-              </Badge>
-              <div className="flex items-center gap-2 text-sm font-medium sm:justify-end">
+              <div className="space-y-2">
+                <div className="space-y-1">
+                  <p className="text-base font-semibold leading-tight">{displayName}</p>
+                  {current?.email ? (
+                    <p className="text-muted-foreground text-sm">{current.email}</p>
+                  ) : null}
+                </div>
                 {current?.emailVerifiedAt ? (
-                  <>
+                  <div className="flex items-center gap-2 text-sm font-medium text-emerald-600 dark:text-emerald-300">
                     <IconCircleCheckFilled className="text-emerald-500 size-4" />
                     Verified
-                  </>
+                  </div>
                 ) : (
-                  <span className="text-muted-foreground">Not verified</span>
+                  <div className="text-muted-foreground text-sm font-medium">Not verified</div>
                 )}
               </div>
             </div>
+            {headerActions ? (
+              <div className="flex flex-wrap items-center gap-2 self-start sm:self-center">
+                {headerActions}
+              </div>
+            ) : null}
           </div>
         )
       }}
