@@ -8,6 +8,7 @@ import {
   IconGripVertical,
   IconLayoutColumns,
   IconRefresh,
+  IconFilterX,
 } from "@tabler/icons-react"
 import { toast } from "sonner"
 import { z } from "zod"
@@ -832,6 +833,14 @@ export function UserTable({
     [availableRoles]
   )
 
+  const hasActiveFilters = React.useMemo(
+    () =>
+      (searchTerm?.trim() ?? "") !== "" ||
+      statusFilter !== "all" ||
+      roleFilter !== "all",
+    [searchTerm, statusFilter, roleFilter]
+  )
+
   return (
     <Card className={`${CARD_BASE_STYLES} flex h-full flex-col`}>
       <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary/70 via-primary to-primary/70" aria-hidden />
@@ -935,6 +944,24 @@ export function UserTable({
                           ))}
                         </SelectContent>
                       </Select>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="w-full gap-2 sm:w-auto"
+                        disabled={!hasActiveFilters}
+                        onClick={() => {
+                          setSearchTerm("")
+                          setStatusFilter("all")
+                          setRoleFilter("all")
+                          table.getColumn("fullName")?.setFilterValue(undefined)
+                          table.getColumn("status")?.setFilterValue(undefined)
+                          table.getColumn("roles")?.setFilterValue(undefined)
+                        }}
+                      >
+                        <IconFilterX className="size-4" aria-hidden="true" />
+                        <span>Clear filters</span>
+                      </Button>
                     </div>
                   </div>
                 ),
