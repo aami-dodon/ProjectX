@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { apiClient } from "@/shared/lib/client";
 
+const API_PAGE_SIZE = 100;
+
 export function useAdminUsers({ search, status } = {}) {
   const [users, setUsers] = useState([]);
   const [metrics, setMetrics] = useState(null);
@@ -28,10 +30,39 @@ export function useAdminUsers({ search, status } = {}) {
       setError(null);
 
       try {
+        const baseParams = { ...query, limit: API_PAGE_SIZE, offset: 0 };
         const { data } = await apiClient.get("/api/admin/users", {
-          params: query,
+          params: baseParams,
         });
-        setUsers(data?.users ?? []);
+
+        const initialUsers = Array.isArray(data?.users) ? data.users : [];
+        const aggregatedUsers = [...initialUsers];
+        const pagination = data?.pagination ?? {};
+        const total = Number.isInteger(pagination.total)
+          ? pagination.total
+          : aggregatedUsers.length;
+        const pageSize = Number.isInteger(pagination.limit) && pagination.limit > 0
+          ? pagination.limit
+          : API_PAGE_SIZE;
+        let nextOffset =
+          (Number.isInteger(pagination.offset) ? pagination.offset : 0) +
+          aggregatedUsers.length;
+
+        while (aggregatedUsers.length < total) {
+          const { data: nextPage } = await apiClient.get("/api/admin/users", {
+            params: { ...query, limit: pageSize, offset: nextOffset },
+          });
+
+          const nextUsers = Array.isArray(nextPage?.users) ? nextPage.users : [];
+          if (!nextUsers.length) {
+            break;
+          }
+
+          aggregatedUsers.push(...nextUsers);
+          nextOffset += nextUsers.length;
+        }
+
+        setUsers(aggregatedUsers);
         setMetrics(data?.metrics ?? null);
         setRoles(data?.roles ?? []);
       } catch (err) {
