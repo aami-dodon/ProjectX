@@ -505,6 +505,25 @@ export function UserTable({
   const [statusFilter, setStatusFilter] = React.useState("all")
   const [roleFilter, setRoleFilter] = React.useState("all")
   const [drawerState, setDrawerState] = React.useState({ userId: null, tab: "view" })
+  const [isRefreshing, setIsRefreshing] = React.useState(false)
+
+  const tableIsLoading = isLoading || isRefreshing
+
+  const handleRefresh = React.useCallback(async () => {
+    if (typeof onRefresh !== "function") {
+      return
+    }
+
+    try {
+      setIsRefreshing(true)
+      await onRefresh()
+    } catch (error) {
+      const message = error?.message ?? "Unable to refresh users"
+      toast.error(message)
+    } finally {
+      setIsRefreshing(false)
+    }
+  }, [onRefresh])
 
   const openDrawer = React.useCallback((userId, tab = "view") => {
     if (userId === null || typeof userId === "undefined") {
@@ -835,7 +854,7 @@ export function UserTable({
           enablePagination
           onDataChange={setData}
           stickyHeader
-          isLoading={isLoading}
+          isLoading={tableIsLoading}
           error={error}
           renderHeader={({ table }) => ({
             leading: (
@@ -936,8 +955,8 @@ export function UserTable({
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={onRefresh}
-                    disabled={isLoading}
+                    onClick={handleRefresh}
+                    disabled={tableIsLoading}
                     aria-label="Refresh table"
                   >
                     <IconRefresh className="size-4" />
@@ -947,7 +966,7 @@ export function UserTable({
             ),
           })}
           emptyMessage="No users found."
-          onRefresh={onRefresh}
+          onRefresh={handleRefresh}
         />
       </TabsContent>
       <TabsContent value="past-performance" className="flex flex-col px-4 lg:px-6">

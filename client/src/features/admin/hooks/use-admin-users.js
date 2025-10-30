@@ -51,7 +51,7 @@ export function useAdminUsers({ search, status } = {}) {
     fetchUsers({ withLoading: true });
   }, [fetchUsers]);
 
-  const refresh = useCallback(() => fetchUsers({ withLoading: true }), [fetchUsers]);
+  const refresh = useCallback((options) => fetchUsers(options), [fetchUsers]);
 
   const updateUser = useCallback(
     async (userId, updates) => {

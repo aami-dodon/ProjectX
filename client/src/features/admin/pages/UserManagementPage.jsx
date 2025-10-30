@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 
 import { UserCharts } from "../components/UserCharts";
 import { UserStatsCards } from "../components/UserStatsCards";
@@ -7,6 +7,7 @@ import { useAdminUsers } from "../hooks/use-admin-users";
 
 export function UserManagementPage() {
   const { users, metrics, roles, isLoading, error, refresh, updateUser } = useAdminUsers();
+  const refreshTable = useCallback(() => refresh({ withLoading: false }), [refresh]);
 
   const statusDistribution = useMemo(() => metrics?.statusDistribution ?? [], [metrics?.statusDistribution]);
   const monthlyRegistrations = useMemo(
@@ -31,7 +32,7 @@ export function UserManagementPage() {
             availableRoles={roles}
             isLoading={isLoading}
             error={error}
-            onRefresh={refresh}
+            onRefresh={refreshTable}
             onUpdate={updateUser}
           />
         </div>
