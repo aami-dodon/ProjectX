@@ -172,7 +172,14 @@ function RoleBadge({ roles = [] }) {
   )
 }
 
-export function TableCellViewer({ item, availableRoles, onUpdate }) {
+export function TableCellViewer({
+  item,
+  availableRoles,
+  onUpdate,
+  open,
+  onOpenChange,
+  defaultTab,
+}) {
   const parsedUser = React.useMemo(() => schema.parse(item), [item])
   const formId = React.useMemo(
     () => (parsedUser?.id ? `user-${parsedUser.id}-edit` : "user-edit"),
@@ -273,6 +280,9 @@ export function TableCellViewer({ item, availableRoles, onUpdate }) {
           </span>
         </Button>
       }
+      open={open}
+      onOpenChange={onOpenChange}
+      defaultTab={defaultTab}
       headerActions={({ item }) =>
         item?.email && !item.emailVerifiedAt
           ? (
@@ -492,6 +502,62 @@ export function UserTable({
   const [searchTerm, setSearchTerm] = React.useState("")
   const [statusFilter, setStatusFilter] = React.useState("all")
   const [roleFilter, setRoleFilter] = React.useState("all")
+  const [drawerState, setDrawerState] = React.useState({ userId: null, tab: "view" })
+
+  const openDrawer = React.useCallback((userId, tab = "view") => {
+    if (userId === null || typeof userId === "undefined") {
+      return
+    }
+
+    setDrawerState({ userId, tab })
+  }, [])
+
+  const handleDrawerOpenChange = React.useCallback(
+    (userId) => (nextOpen) => {
+      setDrawerState((previous) => {
+        if (nextOpen) {
+          const nextTab = previous.userId === userId ? previous.tab : "view"
+          return { userId, tab: nextTab }
+        }
+
+        if (previous.userId === userId) {
+          return { userId: null, tab: "view" }
+        }
+
+        return previous
+      })
+    },
+    []
+  )
+
+  const handleEditUser = React.useCallback(
+    (userId) => {
+      openDrawer(userId, "edit")
+    },
+    [openDrawer]
+  )
+
+  const handleSuspendUser = React.useCallback(
+    (user) => {
+      if (!user?.id || typeof onUpdate !== "function") {
+        return
+      }
+
+      const label = user.fullName || user.email || "user"
+      const result = Promise.resolve(
+        onUpdate(user.id, {
+          status: "SUSPENDED",
+        })
+      )
+
+      toast.promise(result, {
+        loading: `Suspending ${label}`,
+        success: `${label} suspended`,
+        error: `Unable to suspend ${label}`,
+      })
+    },
+    [onUpdate]
+  )
 
   React.useEffect(() => {
     setData(users ?? [])
@@ -545,7 +611,14 @@ export function UserTable({
           return `${fullName} ${email}`.includes(searchValue)
         },
         cell: ({ row }) => (
-          <TableCellViewer item={row.original} availableRoles={availableRoles} onUpdate={onUpdate} />
+          <TableCellViewer
+            item={row.original}
+            availableRoles={availableRoles}
+            onUpdate={onUpdate}
+            open={drawerState.userId === row.original.id}
+            onOpenChange={handleDrawerOpenChange(row.original.id)}
+            defaultTab={drawerState.userId === row.original.id ? drawerState.tab : "view"}
+          />
         ),
         enableHiding: false,
       },
@@ -609,28 +682,50 @@ export function UserTable({
       },
       {
         id: "actions",
-        cell: () => (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
-                size="icon">
-                <IconDotsVertical />
-                <span className="sr-only">Open menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-32">
-              <DropdownMenuItem>View profile</DropdownMenuItem>
-              <DropdownMenuItem>Make a copy</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ),
+        cell: ({ row }) => {
+          const user = row.original
+
+          return (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+                  size="icon">
+                  <IconDotsVertical />
+                  <span className="sr-only">Open menu</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-32">
+                <DropdownMenuItem
+                  onSelect={() => {
+                    handleEditUser(user.id)
+                  }}>
+                  Edit profile
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  variant="destructive"
+                  onSelect={() => {
+                    handleSuspendUser(user)
+                  }}>
+                  Suspend
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )
+        },
       },
     ],
-    [availableRoles, onUpdate]
+    [
+      availableRoles,
+      onUpdate,
+      drawerState.userId,
+      drawerState.tab,
+      handleDrawerOpenChange,
+      handleEditUser,
+      handleSuspendUser,
+    ]
   )
 
   const roleOptions = React.useMemo(
