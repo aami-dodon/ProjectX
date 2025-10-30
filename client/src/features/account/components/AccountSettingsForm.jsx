@@ -19,6 +19,7 @@ import {
 } from "@/shared/components/ui/card";
 import {
   Field,
+  FieldContent,
   FieldDescription,
   FieldGroup,
   FieldLabel,
@@ -365,9 +366,9 @@ export function AccountSettingsForm({ className, ...props }) {
             </Field>
           </FieldGroup>
           <FieldGroup>
-            <Field className="sm:flex-row sm:items-center">
+            <Field>
               <FieldLabel>Avatar</FieldLabel>
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+              <FieldContent className="gap-4 sm:flex-row sm:items-start sm:gap-6">
                 <Avatar className="h-16 w-16">
                   <AvatarImage src={avatarSource} alt="Account avatar" />
                   <AvatarFallback>{initials}</AvatarFallback>
@@ -390,7 +391,7 @@ export function AccountSettingsForm({ className, ...props }) {
                     </FieldDescription>
                   )}
                 </div>
-              </div>
+              </FieldContent>
             </Field>
           </FieldGroup>
         </CardContent>

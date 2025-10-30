@@ -8,6 +8,7 @@ const {
   verifyEmail,
   getCurrentUserProfile,
   updateUserProfile,
+  changePassword,
 } = require('./auth.service');
 const { createLogger } = require('@/utils/logger');
 
@@ -81,6 +82,20 @@ const resetPasswordHandler = async (req, res, next) => {
   }
 };
 
+const changePasswordHandler = async (req, res, next) => {
+  try {
+    const result = await changePassword({
+      userId: req.user?.id,
+      currentPassword: req.body?.currentPassword,
+      newPassword: req.body?.newPassword,
+    });
+    return res.json(result);
+  } catch (error) {
+    logger.warn('Authenticated password change failed', { error: error.message });
+    return next(error);
+  }
+};
+
 const verifyEmailHandler = async (req, res, next) => {
   try {
     const user = await verifyEmail(req.body ?? {});
@@ -123,6 +138,7 @@ module.exports = {
   refresh,
   register,
   resetPassword: resetPasswordHandler,
+  changePassword: changePasswordHandler,
   verifyEmail: verifyEmailHandler,
   getCurrentUser,
   updateCurrentUser,

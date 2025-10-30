@@ -395,6 +395,58 @@ const resetPassword = async ({ token, password }) => {
   return { status: 'updated' };
 };
 
+const changePassword = async ({ userId, currentPassword, newPassword }) => {
+  if (!userId) {
+    throw createUnauthorizedError('Authentication required');
+  }
+
+  const normalizedCurrent = typeof currentPassword === 'string' ? currentPassword : '';
+  const normalizedNext = typeof newPassword === 'string' ? newPassword : '';
+
+  if (!normalizedCurrent) {
+    throw createValidationError('Current password is required');
+  }
+
+  if (normalizedNext.length < 12) {
+    throw createValidationError('New password must contain at least 12 characters');
+  }
+
+  const user = await findUserById(userId);
+  if (!user) {
+    throw createNotFoundError('Account not found');
+  }
+
+  const currentHash = user.passwordHash ?? '';
+  const isCurrentValid = await bcrypt.compare(normalizedCurrent, currentHash);
+  if (!isCurrentValid) {
+    throw createUnauthorizedError('Current password is incorrect');
+  }
+
+  const isReusedPassword = await bcrypt.compare(normalizedNext, currentHash);
+  if (isReusedPassword) {
+    throw createValidationError('Choose a password that differs from your current one');
+  }
+
+  const nextHash = await bcrypt.hash(normalizedNext, env.AUTH_PASSWORD_SALT_ROUNDS);
+
+  await updateUser(user.id, {
+    passwordHash: nextHash,
+    status: 'ACTIVE',
+  });
+
+  await revokeAllSessionsForUser(user.id);
+
+  await logAuthEvent({
+    userId: user.id,
+    eventType: 'auth.password.changed',
+    payload: {},
+  });
+
+  logger.info('Password changed for authenticated user', { userId: user.id });
+
+  return { status: 'updated' };
+};
+
 const verifyEmail = async ({ token }) => {
   if (!token) {
     throw createValidationError('Verification token is required');
@@ -548,6 +600,7 @@ module.exports = {
   refreshSession,
   registerUser,
   requestPasswordReset,
+  changePassword,
   resetPassword,
   verifyEmail,
   getCurrentUserProfile,

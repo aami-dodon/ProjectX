@@ -1,3 +1,7 @@
+## 2025-11-10 10:05:00 IST
+- Replaced the account page's forgot password card with an in-app password reset form that validates the current secret, updates it via the API, and signs the user out so they log in with the new credentials.
+## 2025-11-09 09:15:00 IST
+- Restructured the account settings page with a wider account details column, a companion password reset form, and left-aligned avatar controls for consistency.
 ## 2025-10-30 08:30:14 IST
 - Prevented administrators from modifying their own role assignments and surfaced guidance in the admin user drawer.
 ## 2025-10-30 08:27:42 IST

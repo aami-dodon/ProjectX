@@ -10,6 +10,7 @@ const {
   verifyEmail,
   getCurrentUser,
   updateCurrentUser,
+  changePassword,
 } = require('./auth.controller');
 const { authenticateRequest } = require('./auth.middleware');
 
@@ -75,6 +76,46 @@ router.get('/me', authenticateRequest, getCurrentUser);
  *                   $ref: '#/components/schemas/AuthUser'
  */
 router.patch('/me', authenticateRequest, updateCurrentUser);
+
+/**
+ * @openapi
+ * /api/auth/change-password:
+ *   post:
+ *     summary: Update the authenticated user's password.
+ *     tags:
+ *       - Authentication
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - currentPassword
+ *               - newPassword
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *                 description: Existing password for the account.
+ *               newPassword:
+ *                 type: string
+ *                 minLength: 12
+ *                 description: Replacement password with a minimum length of 12 characters.
+ *     responses:
+ *       '200':
+ *         description: Password updated successfully. All sessions are revoked.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: updated
+ */
+router.post('/change-password', authenticateRequest, changePassword);
 
 /**
  * @openapi
