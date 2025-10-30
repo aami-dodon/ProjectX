@@ -140,34 +140,43 @@
   --normal-bg: var(--card);
   --normal-border: var(--border);
   --normal-text: var(--card-foreground);
-  --success-bg: var(--success);
-  --success-border: color-mix(in oklch, var(--success) 60%, var(--card));
-  --success-text: var(--success-foreground);
-  --info-bg: var(--info);
-  --info-border: color-mix(in oklch, var(--info) 60%, var(--card));
-  --info-text: var(--info-foreground);
-  --warning-bg: var(--warning);
-  --warning-border: color-mix(in oklch, var(--warning) 60%, var(--card));
-  --warning-text: var(--warning-foreground);
-  --danger-bg: var(--danger);
-  --danger-border: color-mix(in oklch, var(--danger) 60%, var(--card));
-  --danger-text: var(--danger-foreground);
-  --destructive-bg: var(--destructive);
-  --destructive-border: color-mix(in oklch, var(--destructive) 60%, var(--card));
-  --destructive-text: var(--danger-foreground);
+  --normal-accent: transparent;
+  --success-bg: var(--card);
+  --success-border: color-mix(in oklch, var(--success) 35%, var(--border));
+  --success-text: var(--card-foreground);
+  --success-accent: var(--success);
+  --info-bg: var(--card);
+  --info-border: color-mix(in oklch, var(--info) 35%, var(--border));
+  --info-text: var(--card-foreground);
+  --info-accent: var(--info);
+  --warning-bg: var(--card);
+  --warning-border: color-mix(in oklch, var(--warning) 35%, var(--border));
+  --warning-text: var(--card-foreground);
+  --warning-accent: var(--warning);
+  --danger-bg: var(--card);
+  --danger-border: color-mix(in oklch, var(--danger) 35%, var(--border));
+  --danger-text: var(--card-foreground);
+  --danger-accent: var(--danger);
+  --destructive-bg: var(--card);
+  --destructive-border: color-mix(in oklch, var(--destructive) 35%, var(--border));
+  --destructive-text: var(--card-foreground);
+  --destructive-accent: var(--destructive);
 }
 
 .toaster .toaster-toast {
+  --toast-accent: var(--normal-accent);
   border-radius: var(--border-radius);
   background: var(--normal-bg);
   color: var(--normal-text);
   border: 1px solid var(--normal-border);
+  box-shadow: inset 4px 0 0 var(--toast-accent);
 }
 
 .toaster .toaster-toast[data-sonner-toast-type="success"] {
   background: var(--success-bg);
   border-color: var(--success-border);
   color: var(--success-text);
+  --toast-accent: var(--success-accent);
 }
 
 .toaster .toaster-toast[data-sonner-toast-type="info"],
@@ -175,24 +184,28 @@
   background: var(--info-bg);
   border-color: var(--info-border);
   color: var(--info-text);
+  --toast-accent: var(--info-accent);
 }
 
 .toaster .toaster-toast[data-sonner-toast-type="warning"] {
   background: var(--warning-bg);
   border-color: var(--warning-border);
   color: var(--warning-text);
+  --toast-accent: var(--warning-accent);
 }
 
 .toaster .toaster-toast[data-sonner-toast-type="error"] {
   background: var(--danger-bg);
   border-color: var(--danger-border);
   color: var(--danger-text);
+  --toast-accent: var(--danger-accent);
 }
 
 .toaster .toaster-toast[data-sonner-toast-type="destructive"] {
   background: var(--destructive-bg);
   border-color: var(--destructive-border);
   color: var(--destructive-text);
+  --toast-accent: var(--destructive-accent);
 }
 
 .toaster .toaster-description {
