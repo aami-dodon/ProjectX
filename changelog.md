@@ -1,3 +1,6 @@
+## 2025-10-30 06:06:33 IST
+- Enriched admin user listings with presigned avatar URLs and updated the management drawer to render the images with new tests.
+
 ## 2025-10-30 05:43:57 IST
 - Refined the admin status distribution donut chart to normalize data colors and surface the total user count inline.
 
