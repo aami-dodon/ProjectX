@@ -1,3 +1,6 @@
+## 2025-11-11 09:15:00 IST
+- Reworked toast notification theming so success, info, warning, and error states pull their background, border, and text colours directly from the primary design tokens in `client/src/index.css`, ensuring they follow light and dark mode palettes.
+
 ## 2025-11-10 20:30:00 IST
 - Updated the toast notifications to pull their background, border, and accent colours from `client/src/index.css` so success, info, warning, and error messages respect the active theme.
 
