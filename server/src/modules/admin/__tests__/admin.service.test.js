@@ -167,6 +167,36 @@ describe('admin.service - updateUserAccount', () => {
     });
   });
 
+  it('automatically verifies email when activating a user', async () => {
+    const verifiedAt = new Date('2024-07-01T08:00:00Z');
+    updateUserById.mockResolvedValue(
+      buildUser({ status: 'ACTIVE', emailVerifiedAt: verifiedAt })
+    );
+
+    const result = await updateUserAccount({
+      userId: 'user-1',
+      updates: { status: 'active' },
+      actorId: 'admin-50',
+    });
+
+    expect(updateUserById).toHaveBeenCalledWith('user-1', {
+      status: 'ACTIVE',
+      emailVerifiedAt: expect.any(Date),
+    });
+    expect(result).toMatchObject({
+      status: 'ACTIVE',
+      emailVerifiedAt: verifiedAt,
+    });
+    expect(logAuthEvent).toHaveBeenCalledWith({
+      userId: 'user-1',
+      eventType: 'admin.user.updated',
+      payload: {
+        actorId: 'admin-50',
+        fields: ['status', 'emailVerifiedAt'],
+      },
+    });
+  });
+
   it('throws a validation error when email is invalid', async () => {
     await expect(
       updateUserAccount({ userId: 'user-1', updates: { email: 'invalid-email' } })

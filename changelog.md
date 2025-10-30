@@ -1,3 +1,5 @@
+## 2025-11-08 13:45:00 IST
+- Automatically verify user email addresses when admins activate an account so status changes keep verification aligned.
 ## 2025-11-08 16:00:00 IST
 - Added an activate action to the admin user table menu so suspended or pending accounts can be restored in place.
 
