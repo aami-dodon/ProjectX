@@ -1,5 +1,8 @@
 ## 2025-11-10 22:15:00 IST
 - Made the application sidebar submenus collapsible with shadcn-style triggers so nested navigation groups can be expanded or hidden as needed.
+## 2025-11-11 12:05:00 IST
+- Added a toast notification showcase to the design system page so teams can preview success, info, warning, error, and promise interactions in one place.
+
 ## 2025-11-11 09:15:00 IST
 - Reworked toast notification theming so success, info, warning, and error states pull their background, border, and text colours directly from the primary design tokens in `client/src/index.css`, ensuring they follow light and dark mode palettes.
 
