@@ -359,14 +359,9 @@ export function TableCellViewer({ item, availableRoles, onUpdate }) {
               <div className="space-y-1">
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Verification</p>
                 {isVerified ? (
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2 font-medium text-emerald-600 dark:text-emerald-300">
-                      <IconCircleCheckFilled className="text-emerald-500 size-4" />
-                      Verified
-                    </div>
-                    <p className="text-muted-foreground text-xs">
-                      Verified on {formatDate(current?.emailVerifiedAt)}
-                    </p>
+                  <div className="flex items-center gap-2 text-sm font-medium text-emerald-600 dark:text-emerald-300">
+                    <IconCircleCheckFilled className="text-emerald-500 size-4" />
+                    <span>Verified on {formatDate(current?.emailVerifiedAt)}</span>
                   </div>
                 ) : (
                   <p className="text-muted-foreground font-medium">Not verified</p>
