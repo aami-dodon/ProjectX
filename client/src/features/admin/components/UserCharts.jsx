@@ -213,7 +213,7 @@ export function UserCharts({ statusDistribution = [], monthlyRegistrations = [],
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-      <Card className="@container/card">
+      <Card className="@container/card flex flex-col">
         <CardHeader className="space-y-2 pb-0">
           <CardDescription className="text-xs font-medium uppercase tracking-wide text-muted-foreground/80">
             Status distribution
@@ -223,13 +223,13 @@ export function UserCharts({ statusDistribution = [], monthlyRegistrations = [],
             Breakdown of users by their current state
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex h-[320px] flex-col items-center justify-center px-2 pb-6 pt-4 sm:h-[360px] sm:px-6">
+        <CardContent className="flex flex-1 flex-col px-2 pb-6 pt-4 sm:px-6 sm:pt-6">
           {isLoading ? (
-            <Skeleton className="h-48 w-full" />
+            <Skeleton className="h-full min-h-[240px] w-full rounded-xl" />
           ) : (
             <ChartContainer
               config={statusConfig}
-              className="aspect-square h-[240px] w-full sm:h-[280px]"
+              className="mx-auto aspect-square h-full max-h-[280px] w-full sm:max-h-[320px]"
             >
               <PieChart>
                 <ChartTooltip cursor={false} content={pieTooltip} />
@@ -271,7 +271,7 @@ export function UserCharts({ statusDistribution = [], monthlyRegistrations = [],
           )}
         </CardContent>
       </Card>
-      <Card className="@container/card">
+      <Card className="@container/card flex flex-col">
         <CardHeader className="space-y-2 pb-0">
           <CardDescription className="text-xs font-medium uppercase tracking-wide text-muted-foreground/80">
             New registrations
@@ -281,7 +281,7 @@ export function UserCharts({ statusDistribution = [], monthlyRegistrations = [],
             <span className="hidden @[540px]/card:inline">Registrations for the last 3 months</span>
             <span className="@[540px]/card:hidden">Last 3 months</span>
           </CardDescription>
-          <CardAction>
+          <CardAction className="flex items-center justify-end gap-2">
             <ToggleGroup
               type="single"
               value={timeRange}
@@ -315,13 +315,13 @@ export function UserCharts({ statusDistribution = [], monthlyRegistrations = [],
             </Select>
           </CardAction>
         </CardHeader>
-        <CardContent className="px-2 pb-6 pt-4 sm:px-6 sm:pt-6">
+        <CardContent className="flex flex-1 flex-col px-2 pb-6 pt-4 sm:px-6 sm:pt-6">
           {isLoading ? (
-            <Skeleton className="h-[250px] w-full" />
+            <Skeleton className="h-full min-h-[250px] w-full rounded-xl" />
           ) : (
             <ChartContainer
               config={registrationChartConfig}
-              className="aspect-auto h-[250px] w-full @[540px]/card:h-[280px] @[768px]/card:h-[320px]"
+              className="aspect-auto h-full min-h-[250px] w-full @[540px]/card:min-h-[280px] @[768px]/card:min-h-[320px]"
             >
               <AreaChart data={filteredRegistrations}>
                 <defs>
