@@ -141,10 +141,10 @@
   --normal-border: var(--border);
   --normal-text: var(--card-foreground);
   --normal-accent: transparent;
-  --success-bg: var(--card);
-  --success-border: color-mix(in oklch, var(--success) 35%, var(--border));
-  --success-text: var(--card-foreground);
-  --success-accent: var(--success);
+  --success-bg: var(--muted);
+  --success-border: color-mix(in oklch, var(--primary) 35%, var(--border));
+  --success-text: var(--primary);
+  --success-accent: var(--primary);
   --info-bg: var(--card);
   --info-border: color-mix(in oklch, var(--info) 35%, var(--border));
   --info-text: var(--card-foreground);
