@@ -22,10 +22,10 @@ import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-grou
 import { Skeleton } from "@/shared/components/ui/skeleton";
 
 const STATUS_COLOR_MAP = {
-  ACTIVE: "var(--color-chart-1)",
-  PENDING_VERIFICATION: "var(--color-chart-2)",
-  SUSPENDED: "var(--color-chart-3)",
-  INVITED: "var(--color-chart-4)",
+  ACTIVE: "var(--color-chart-4)",
+  PENDING_VERIFICATION: "var(--color-chart-3)",
+  SUSPENDED: "var(--color-chart-2)",
+  INVITED: "var(--color-chart-1)",
 };
 
 const CHART_COLORS = [
