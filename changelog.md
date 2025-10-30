@@ -1,5 +1,7 @@
 ## 2025-10-30 06:53:41 IST
 - Removed the duplicate verification status line in the admin user drawer so only the timestamp appears under the section.
+## 2025-11-08 11:30:00 IST
+- Restyled the admin user charts with gradient cards and responsive layouts to align with the refreshed statistics visuals.
 
 ## 2025-11-08 09:05:00 IST
 - Enabled admins to update user email addresses and mark them as verified with refreshed drawer UI, API validation, and tests.
