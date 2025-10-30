@@ -1,3 +1,6 @@
+## 2025-11-08 16:00:00 IST
+- Added an activate action to the admin user table menu so suspended or pending accounts can be restored in place.
+
 ## 2025-11-08 13:15:00 IST
 - Removed the status detail row from the admin user drawer to keep the panel focused on activity metadata.
 
