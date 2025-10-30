@@ -1,5 +1,7 @@
 ## 2025-10-30 08:30:14 IST
 - Prevented administrators from modifying their own role assignments and surfaced guidance in the admin user drawer.
+## 2025-10-30 08:27:42 IST
+- Fixed the admin user charts so the donut and trend cards align with each other and their header controls.
 
 ## 2025-10-30 07:48:58 IST
 - Added a ScrollArea wrapper to admin drawers so long user details and forms scroll smoothly across browsers.
