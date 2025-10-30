@@ -1,3 +1,6 @@
+## 2025-11-10 22:15:00 IST
+- Made the application sidebar submenus collapsible with shadcn-style triggers so nested navigation groups can be expanded or hidden as needed.
+
 ## 2025-11-10 20:30:00 IST
 - Updated the toast notifications to pull their background, border, and accent colours from `client/src/index.css` so success, info, warning, and error messages respect the active theme.
 
