@@ -137,29 +137,57 @@
 
 .toaster[data-sonner-toaster] {
   --border-radius: var(--radius);
-  --normal-bg: var(--popover);
-  --normal-border: var(--border);
-  --normal-text: var(--popover-foreground);
-  --success-bg: color-mix(in oklch, var(--success) 18%, var(--background) 82%);
-  --success-border: color-mix(in oklch, var(--success) 36%, var(--border) 64%);
-  --success-text: var(--success-foreground);
-  --info-bg: color-mix(in oklch, var(--info) 18%, var(--background) 82%);
-  --info-border: color-mix(in oklch, var(--info) 36%, var(--border) 64%);
-  --info-text: var(--info-foreground);
-  --warning-bg: color-mix(in oklch, var(--warning) 18%, var(--background) 82%);
-  --warning-border: color-mix(in oklch, var(--warning) 36%, var(--border) 64%);
-  --warning-text: var(--warning-foreground);
-  --error-bg: color-mix(in oklch, var(--danger) 18%, var(--background) 82%);
-  --error-border: color-mix(in oklch, var(--danger) 36%, var(--border) 64%);
-  --error-text: var(--danger-foreground);
+  --normal-bg: var(--secondary);
+  --normal-border: var(--secondary);
+  --normal-text: var(--secondary-foreground);
+  --success-bg: var(--primary);
+  --success-border: var(--primary);
+  --success-text: var(--primary-foreground);
+  --info-bg: var(--accent);
+  --info-border: var(--accent);
+  --info-text: var(--accent-foreground);
+  --warning-bg: var(--muted);
+  --warning-border: var(--muted);
+  --warning-text: var(--muted-foreground);
+  --error-bg: var(--destructive);
+  --error-border: var(--destructive);
+  --error-text: var(--primary-foreground);
 }
 
 .toaster .toaster-toast {
   border-radius: var(--radius);
+  background: var(--normal-bg);
+  color: var(--normal-text);
+  border: 1px solid var(--normal-border);
+}
+
+.toaster .toaster-toast[data-sonner-toast-type="success"] {
+  background: var(--success-bg);
+  border-color: var(--success-border);
+  color: var(--success-text);
+}
+
+.toaster .toaster-toast[data-sonner-toast-type="info"],
+.toaster .toaster-toast[data-sonner-toast-type="loading"] {
+  background: var(--info-bg);
+  border-color: var(--info-border);
+  color: var(--info-text);
+}
+
+.toaster .toaster-toast[data-sonner-toast-type="warning"] {
+  background: var(--warning-bg);
+  border-color: var(--warning-border);
+  color: var(--warning-text);
+}
+
+.toaster .toaster-toast[data-sonner-toast-type="error"] {
+  background: var(--error-bg);
+  border-color: var(--error-border);
+  color: var(--error-text);
 }
 
 .toaster .toaster-description {
-  color: var(--muted-foreground);
+  color: currentColor;
 }
 
 .toaster .toaster-action {
@@ -168,14 +196,14 @@
 }
 
 .toaster .toaster-cancel {
-  background: color-mix(in oklch, var(--muted) 80%, var(--background) 20%);
+  background: var(--muted);
   color: var(--muted-foreground);
 }
 
 .toaster .toaster-close {
-  background: var(--normal-bg);
-  border-color: var(--normal-border);
-  color: var(--muted-foreground);
+  background: transparent;
+  border-color: currentColor;
+  color: var(--normal-text);
 }
 
 @layer base {
