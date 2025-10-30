@@ -215,7 +215,7 @@ export function UserCharts({ statusDistribution = [], monthlyRegistrations = [],
   );
 
   return (
-    <div className="grid grid-cols-1 gap-4 px-4 lg:grid-cols-2 lg:px-6">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
       <Card className={CARD_BASE_STYLES}>
         <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary/70 via-primary to-primary/70" aria-hidden />
         <CardHeader className="space-y-2 pb-0">

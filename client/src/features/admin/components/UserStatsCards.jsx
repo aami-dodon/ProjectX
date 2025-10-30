@@ -52,7 +52,7 @@ export function UserStatsCards({ totals, isLoading = false }) {
   const stats = totals ?? FALLBACK_TOTALS;
 
   return (
-    <div className="grid grid-cols-1 gap-4 px-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 lg:px-6">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
       {STAT_CONFIG.map(({ key, label, description }) => (
         <StatCard
           key={key}
