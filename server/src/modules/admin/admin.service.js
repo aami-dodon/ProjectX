@@ -122,17 +122,30 @@ const buildStatusMetrics = (users) => {
 
 const buildRegistrationTrend = (users) => {
   const now = new Date();
-  const buckets = [];
+  now.setHours(0, 0, 0, 0);
 
-  for (let i = 5; i >= 0; i -= 1) {
-    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-    buckets.push({
+  const DAYS_TO_TRACK = 90;
+  const buckets = [];
+  const bucketMap = new Map();
+
+  for (let i = DAYS_TO_TRACK - 1; i >= 0; i -= 1) {
+    const date = new Date(now);
+    date.setDate(now.getDate() - i);
+
+    const key = date.toISOString().slice(0, 10);
+    const entry = {
       key,
-      label: date.toLocaleString('default', { month: 'short' }),
+      date: key,
+      label: date.toLocaleDateString('default', {
+        month: 'short',
+        day: 'numeric',
+      }),
       year: date.getFullYear(),
       value: 0,
-    });
+    };
+
+    buckets.push(entry);
+    bucketMap.set(key, entry);
   }
 
   users.forEach((user) => {
@@ -141,8 +154,10 @@ const buildRegistrationTrend = (users) => {
     }
 
     const userDate = new Date(user.createdAt);
-    const key = `${userDate.getFullYear()}-${String(userDate.getMonth() + 1).padStart(2, '0')}`;
-    const bucket = buckets.find((entry) => entry.key === key);
+    userDate.setHours(0, 0, 0, 0);
+
+    const key = userDate.toISOString().slice(0, 10);
+    const bucket = bucketMap.get(key);
     if (bucket) {
       bucket.value += 1;
     }
