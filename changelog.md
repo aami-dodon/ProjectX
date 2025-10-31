@@ -1,6 +1,3 @@
-## 2025-11-13 09:15:00 IST
-- Automated the favicon build step so the SVG logo colour is re-generated from `client/src/index.css` during `npm run build`, ensuring theme updates propagate to the icon without manual edits.
-
 ## 2025-10-31 07:20:48 IST
 - Expanded the favicon lettermark to improve legibility and introduced a shared `--logo-color` token in `client/src/index.css` so future palette updates automatically carry over to the icon.
 
