@@ -1,3 +1,6 @@
+## 2025-10-31 06:41:02 IST
+- Replaced the favicon with an inline letter X SVG that inherits the primary theme colour so it stays in sync with the design tokens.
+
 ## 2025-11-12 12:30:00 IST
 - Removed the Search, Help Centre, Appearance, and Account Settings links from the sidebar so only the primary navigation surfac
   es to users.
