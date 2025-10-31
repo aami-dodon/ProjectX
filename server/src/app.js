@@ -1,19 +1,26 @@
-require('module-alias/register');
-
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
 const path = require('path');
-const { requestLogger } = require('@/middleware/request-logger');
-const { errorHandler } = require('@/middleware/error-handler');
+
+// Config & utils
 const { env } = require('@/config/env');
 const { createLogger } = require('@/utils/logger');
 const { setupSwaggerDocs } = require('@/config/swagger');
 
+// Middleware
+const { requestLogger } = require('@/middleware/request-logger');
+const { errorHandler } = require('@/middleware/errorHandler');
+
+// Routers
+const { router: healthRouter } = require('@/modules/health');
+const { router: adminRouter } = require('@/modules/admin');
+const authRouter = require('@/modules/auth/auth.router');
+const { router: filesRouter } = require('@/modules/files');
+const { router: auditRouter } = require('@/modules/audit');
+
 const logger = createLogger('app');
-const healthRouter = require('@/modules/health/health.router');
-const emailRouter = require('@/modules/email/email.router');
-const uploadRouter = require('@/modules/upload/upload.router');
+
 const createApp = () => {
   const app = express();
 
@@ -42,8 +49,10 @@ const createApp = () => {
   const apiPrefix = '/api';
 
   app.use(`${apiPrefix}/health`, healthRouter);
-  app.use(`${apiPrefix}/email`, emailRouter);
-  app.use(`${apiPrefix}/upload`, uploadRouter);
+  app.use(`${apiPrefix}/admin`, adminRouter);
+  app.use(`${apiPrefix}/auth`, authRouter);
+  app.use(`${apiPrefix}/files`, filesRouter);
+  app.use(`${apiPrefix}/audit`, auditRouter);
 
   app.use((req, res) => {
     res.status(404).json({
@@ -66,6 +75,4 @@ const createApp = () => {
   return app;
 };
 
-module.exports = {
-  createApp,
-};
+module.exports = { createApp };

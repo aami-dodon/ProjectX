@@ -5,9 +5,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 
-import { EmailTestCard } from "../components/EmailTestCard";
 import { HealthStatusCard } from "../components/HealthStatusCard";
-import { MinioUploadTester } from "../components/MinioUploadTester";
 import { StatusBadge } from "../components/StatusBadge";
 import { useClientRuntimeMetrics } from "../hooks/useClientRuntimeMetrics";
 import { useHealthStatus } from "../hooks/useHealthStatus";
@@ -241,153 +239,151 @@ export function HealthPage() {
   );
 
   return (
-    <div className="flex flex-1 flex-col gap-6">
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex flex-col gap-1">
-            <h1 className="text-2xl font-semibold">System Health</h1>
-            <p className="text-sm text-muted-foreground">
-              Real-time diagnostics for the API and supporting infrastructure.
+    <div className="flex flex-1 flex-col">
+      <div className="@container/main mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 px-4 py-6 lg:px-6">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-col gap-1">
+              <h1 className="text-2xl font-semibold">System Health</h1>
+              <p className="text-sm text-muted-foreground">
+                Real-time diagnostics for the API and supporting infrastructure.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <StatusBadge status={summary.status} />
+              <Button onClick={refresh} size="sm" variant="outline" className="flex items-center gap-2">
+                <RefreshCcw className="size-4" />
+                Refresh
+              </Button>
+            </div>
+          </div>
+          {data?.timestamp ? (
+            <p className="text-xs text-muted-foreground">
+              Last checked at {new Date(data.timestamp).toLocaleString()}
+              {refreshInterval
+                ? ` (auto-refreshing every ${Math.round(refreshInterval / 1000)} seconds)`
+                : ""}
             </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <StatusBadge status={summary.status} />
-            <Button onClick={refresh} size="sm" variant="outline" className="flex items-center gap-2">
-              <RefreshCcw className="size-4" />
-              Refresh
-            </Button>
-          </div>
+          ) : null}
         </div>
-        {data?.timestamp ? (
-          <p className="text-xs text-muted-foreground">
-            Last checked at {new Date(data.timestamp).toLocaleString()}
-            {refreshInterval
-              ? ` (auto-refreshing every ${Math.round(refreshInterval / 1000)} seconds)`
-              : ''}
-          </p>
+
+        {isLoading ? (
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <Skeleton key={index} className="h-40 rounded-xl" />
+            ))}
+          </div>
         ) : null}
-      </div>
 
-      {isLoading ? (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {Array.from({ length: 3 }).map((_, index) => (
-            <Skeleton key={index} className="h-40 rounded-xl" />
-          ))}
-        </div>
-      ) : null}
+        {error ? (
+          <Card className="border-destructive/60 bg-destructive/10">
+            <CardHeader>
+              <CardTitle className="text-destructive">Unable to load health status</CardTitle>
+              <CardDescription>{error.message}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button onClick={refresh} variant="destructive">
+                Retry
+              </Button>
+            </CardContent>
+          </Card>
+        ) : null}
 
-      {error ? (
-        <Card className="border-destructive/60 bg-destructive/10">
-          <CardHeader>
-            <CardTitle className="text-destructive">Unable to load health status</CardTitle>
-            <CardDescription>{error.message}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={refresh} variant="destructive">
-              Retry
-            </Button>
-          </CardContent>
-        </Card>
-      ) : null}
-
-      {!isLoading && !error && data?.data ? (
-        <>
-          {backendMetricItems.length ? (
-            <div className="flex flex-col gap-3">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="flex flex-col">
-                  <h2 className="text-lg font-semibold">Backend metrics</h2>
-                  <p className="text-xs text-muted-foreground">Captured from the API infrastructure.</p>
+        {!isLoading && !error && data?.data ? (
+          <>
+            {backendMetricItems.length ? (
+              <div className="flex flex-col gap-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex flex-col">
+                    <h2 className="text-lg font-semibold">Backend metrics</h2>
+                    <p className="text-xs text-muted-foreground">Captured from the API infrastructure.</p>
+                  </div>
+                  {data?.timestamp ? (
+                    <span className="text-xs text-muted-foreground">
+                      Server sample: {new Date(data.timestamp).toLocaleTimeString()}
+                    </span>
+                  ) : null}
                 </div>
-                {data?.timestamp ? (
-                  <span className="text-xs text-muted-foreground">
-                    Server sample: {new Date(data.timestamp).toLocaleTimeString()}
-                  </span>
-                ) : null}
+                {renderMetricCards(backendMetricItems)}
               </div>
-              {renderMetricCards(backendMetricItems)}
-            </div>
-          ) : null}
+            ) : null}
 
-          {frontendMetricItems.length ? (
-            <div className="flex flex-col gap-3">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="flex flex-col">
-                  <h2 className="text-lg font-semibold">Frontend metrics</h2>
-                  <p className="text-xs text-muted-foreground">Local browser runtime indicators.</p>
+            {frontendMetricItems.length ? (
+              <div className="flex flex-col gap-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex flex-col">
+                    <h2 className="text-lg font-semibold">Frontend metrics</h2>
+                    <p className="text-xs text-muted-foreground">Local browser runtime indicators.</p>
+                  </div>
+                  {clientMetrics?.timestamp ? (
+                    <span className="text-xs text-muted-foreground">
+                      Browser sample: {new Date(clientMetrics.timestamp).toLocaleTimeString()}
+                    </span>
+                  ) : null}
                 </div>
-                {clientMetrics?.timestamp ? (
-                  <span className="text-xs text-muted-foreground">
-                    Browser sample: {new Date(clientMetrics.timestamp).toLocaleTimeString()}
-                  </span>
-                ) : null}
+                {renderMetricCards(frontendMetricItems)}
               </div>
-              {renderMetricCards(frontendMetricItems)}
+            ) : null}
+
+            <div className="grid gap-6 lg:grid-cols-2">
+              <HealthStatusCard
+                title="System Diagnostics"
+                status={data.data.system?.status}
+                description="Server uptime and runtime environment checks."
+                items={[
+                  {
+                    label: "Process Uptime",
+                    value: formatDuration(data.data.system?.uptimeSeconds ?? 0),
+                    helpText: "Time since the Node.js process was started.",
+                  },
+                  {
+                    label: "Started At",
+                    value: data.data.system?.startedAt
+                      ? new Date(data.data.system.startedAt).toLocaleString()
+                      : "Unknown",
+                    helpText: "Timestamp for the last server restart.",
+                  },
+                  {
+                    label: "Node.js Version",
+                    value: data.data.system?.nodeVersion ?? "Unknown",
+                  },
+                ]}
+                footer={
+                  data.data.system?.environment
+                    ? `Environment: ${data.data.system.environment}`
+                    : null
+                }
+              />
+              <HealthStatusCard
+                title="API Connectivity"
+                status={data.data.api?.status}
+                description="Database round trip and service availability checks."
+                items={[
+                  {
+                    label: "Database Status",
+                    value: <StatusBadge status={data.data.api?.database?.status} />,
+                    helpText: `Latency: ${data.data.api?.database?.latencyMs ?? "--"} ms`,
+                  },
+                  {
+                    label: "Last Checked",
+                    value: data.data.api?.checkedAt
+                      ? new Date(data.data.api.checkedAt).toLocaleString()
+                      : "Unknown",
+                  },
+                  {
+                    label: "Error Details",
+                    value: data.data.api?.database?.error
+                      ? data.data.api.database.error
+                      : "None",
+                  },
+                ]}
+                footer={`Database Provider: ${data.data.api?.database?.provider ?? "PostgreSQL"}`}
+              />
             </div>
-          ) : null}
-
-          <div className="grid gap-6 lg:grid-cols-2">
-            <HealthStatusCard
-              title="System Diagnostics"
-              status={data.data.system?.status}
-              description="Server uptime and runtime environment checks."
-              items={[
-                {
-                  label: "Process Uptime",
-                  value: formatDuration(data.data.system?.uptimeSeconds ?? 0),
-                  helpText: "Time since the Node.js process was started.",
-                },
-                {
-                  label: "Started At",
-                  value: data.data.system?.startedAt
-                    ? new Date(data.data.system.startedAt).toLocaleString()
-                    : "Unknown",
-                  helpText: "Timestamp for the last server restart.",
-                },
-                {
-                  label: "Node.js Version",
-                  value: data.data.system?.nodeVersion ?? "Unknown",
-                },
-              ]}
-              footer={
-                data.data.system?.environment
-                  ? `Environment: ${data.data.system.environment}`
-                  : null
-              }
-            />
-            <HealthStatusCard
-              title="API Connectivity"
-              status={data.data.api?.status}
-              description="Database round trip and service availability checks."
-              items={[
-                {
-                  label: "Database Status",
-                  value: <StatusBadge status={data.data.api?.database?.status} />,
-                  helpText: `Latency: ${data.data.api?.database?.latencyMs ?? "--"} ms`,
-                },
-                {
-                  label: "Last Checked",
-                  value: data.data.api?.checkedAt
-                    ? new Date(data.data.api.checkedAt).toLocaleString()
-                    : "Unknown",
-                },
-                {
-                  label: "Error Details",
-                  value: data.data.api?.database?.error
-                    ? data.data.api.database.error
-                    : "None",
-                },
-              ]}
-              footer={`Database Provider: ${data.data.api?.database?.provider ?? "PostgreSQL"}`}
-            />
-          </div>
-      </>
-    ) : null}
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <MinioUploadTester />
-        <EmailTestCard />
+          </>
+        ) : null}
       </div>
     </div>
   );
 }
+

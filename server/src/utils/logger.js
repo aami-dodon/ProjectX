@@ -5,6 +5,7 @@ const DailyRotateFile = require('winston-daily-rotate-file');
 
 const LOG_DIR = path.join(__dirname, '..', '..', 'logs');
 
+// Ensure logs directory exists
 if (!fs.existsSync(LOG_DIR)) {
   fs.mkdirSync(LOG_DIR, { recursive: true });
 }
@@ -17,6 +18,7 @@ const resolveLogLevel = () => {
   return process.env.NODE_ENV === 'development' ? 'debug' : 'info';
 };
 
+// Base JSON format (for production/file logs)
 const baseFormat = format.combine(
   format.timestamp(),
   format.errors({ stack: true }),
@@ -66,25 +68,50 @@ const baseFormat = format.combine(
   })
 );
 
-const transportsList = [
-  new transports.Console({ handleExceptions: true }),
-  new DailyRotateFile({
-    dirname: LOG_DIR,
-    filename: 'project-x-%DATE%.log',
-    datePattern: 'YYYY-MM-DD',
-    maxFiles: '30d',
-    maxSize: '20m',
-    handleExceptions: true,
-  }),
-];
+// Dynamic transports (based on NODE_ENV)
+let transportsList = [];
 
-if (process.env.NODE_ENV === 'test') {
-  transportsList.forEach((transportInstance) => {
-    // Silence log output during automated tests
-    transportInstance.silent = true;
-  });
+if (process.env.NODE_ENV === 'development') {
+  // 🟢 Development: Colorized human-readable console output
+  transportsList.push(
+    new transports.Console({
+      handleExceptions: true,
+      format: format.combine(
+        format.colorize({ all: true }),
+        format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+        format.printf(({ timestamp, level, message, stack }) => {
+          return stack
+            ? `${timestamp} ${level}: ${message}\n${stack}`
+            : `${timestamp} ${level}: ${message}`;
+        })
+      ),
+    })
+  );
+} else {
+  // 🟤 Production: Structured JSON for ingestion + rotating file
+  transportsList.push(
+    new transports.Console({
+      handleExceptions: true,
+      format: format.combine(format.timestamp(), format.json()),
+    }),
+    new DailyRotateFile({
+      dirname: LOG_DIR,
+      filename: 'project-x-%DATE%.log',
+      datePattern: 'YYYY-MM-DD',
+      maxFiles: '30d',
+      maxSize: '20m',
+      handleExceptions: true,
+      format: baseFormat,
+    })
+  );
 }
 
+// Silence logs during tests
+if (process.env.NODE_ENV === 'test') {
+  transportsList.forEach((t) => (t.silent = true));
+}
+
+// Create Winston logger
 const baseLoggerInstance = createWinstonLogger({
   level: resolveLogLevel(),
   format: baseFormat,
@@ -93,10 +120,9 @@ const baseLoggerInstance = createWinstonLogger({
   exitOnError: false,
 });
 
+// Normalizes log arguments (message + meta)
 const normalizeLogArguments = (args) => {
-  if (args.length === 0) {
-    return { message: '', meta: {} };
-  }
+  if (args.length === 0) return { message: '', meta: {} };
 
   const [first, second, ...rest] = args;
   let message;
@@ -104,9 +130,7 @@ const normalizeLogArguments = (args) => {
 
   if (typeof first === 'string') {
     message = first;
-    if (second && typeof second === 'object') {
-      meta = { ...second };
-    }
+    if (second && typeof second === 'object') meta = { ...second };
   } else if (first && typeof first === 'object') {
     meta = { ...first };
     if (typeof second === 'string') {
@@ -136,6 +160,7 @@ const normalizeLogArguments = (args) => {
   return { message, meta };
 };
 
+// Wrap Winston logger with simplified interface
 const wrapLogger = (loggerInstance) => {
   const logWithLevel = (level, parameters) => {
     const { message, meta } = normalizeLogArguments(parameters);
@@ -162,11 +187,9 @@ const wrapLogger = (loggerInstance) => {
 };
 
 const baseLogger = wrapLogger(baseLoggerInstance);
-
 const createLogger = (moduleName) => baseLogger.child({ module: moduleName });
 
 module.exports = {
   baseLogger,
   createLogger,
 };
-

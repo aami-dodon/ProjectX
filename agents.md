@@ -54,10 +54,10 @@
 - Capture significant UI changes with screenshots and attach them to PRs when applicable.
 
 ## Backend Standards (`server/`)
-- Express is initialised in `server/src/app.js`. Register new modules beneath `/api` and keep them behind dedicated routers. Honour the existing 404 handler and global error middleware from `server/src/middleware/error-handler.js`.
+- Express is initialised in `server/src/app.js`. Register new modules beneath `/api` and keep them behind dedicated routers. Honour the existing 404 handler and global error middleware from `server/src/middleware/errorHandler.js`.
 - Module aliasing via `module-alias` resolves `@/` to `server/src`. Use it consistently for intra-server imports.
 - Follow the module layering pattern (`router` → `controller` → `service` → `repository`) under `server/src/modules/<feature>`. Keep Prisma-specific logic inside repositories and business rules inside services.
-- Centralised error utilities live in `server/src/utils/error-handling.js`. Always throw/forward `ApplicationError` instances (via helpers like `createValidationError`) so responses stay uniform.
+- Centralised error utilities live in `server/src/utils/errors.js`. Always throw/forward `ApplicationError` instances (via helpers like `createValidationError`) so responses stay uniform.
 - Logging is provided by `server/src/utils/logger.js` (Winston + daily rotate). Produce structured logs and prefer contextual children from `createLogger('<module>')`. HTTP access logs flow through `server/src/middleware/request-logger.js`; keep new middleware compatible with this pipeline.
 - Configuration is parsed and validated in `server/src/config/env.js` using Zod. Add new settings to the schema with defaults and ensure failures remain fatal outside of tests.
 - Prisma is the sole database interface (`server/src/integrations/prisma.js`). Add repositories under feature modules (see `server/src/modules/health/repositories/health.repository.js`) and keep long-running logic inside services.

@@ -1,26 +1,25 @@
 import * as React from "react"
+import { Link } from "react-router-dom"
 import {
-  IconCamera,
   IconChartBar,
   IconDashboard,
   IconDatabase,
   IconFileAi,
   IconFileDescription,
-  IconFileWord,
   IconFolder,
-  IconHelp,
+  IconHeartbeat,
   IconInnerShadowTop,
   IconListDetails,
-  IconPalette,
   IconReport,
-  IconSearch,
   IconSettings,
   IconUsers,
 } from "@tabler/icons-react"
 
+import { useCurrentUser } from "@/features/auth"
 import { NavDocuments } from "@/shared/components/nav-documents"
 import { NavMain } from "@/shared/components/nav-main"
 import { NavSecondary } from "@/shared/components/nav-secondary"
+import { NavAdministration } from "@/shared/components/nav-administration"
 import { NavUser } from "@/shared/components/nav-user"
 import {
   Sidebar,
@@ -31,153 +30,199 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/shared/components/ui/sidebar"
+import { ScrollArea } from "@/shared/components/ui/scroll-area"
 
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
+const sharedDocuments = [
+  {
+    name: "Incident Playbooks",
+    url: "#",
+    icon: IconFileDescription,
   },
+  {
+    name: "AI Guidance",
+    url: "#",
+    icon: IconFileAi,
+  },
+  {
+    name: "Data Sources",
+    url: "#",
+    icon: IconDatabase,
+  },
+]
+
+const defaultSidebarData = {
   navMain: [
     {
-      title: "Dashboard",
-      url: "#",
+      title: "Overview",
+      url: "/home",
       icon: IconDashboard,
     },
     {
-      title: "Lifecycle",
-      url: "#",
+      title: "Operations",
       icon: IconListDetails,
-    },
-    {
-      title: "Analytics",
-      url: "#",
-      icon: IconChartBar,
-    },
-    {
-      title: "Projects",
-      url: "#",
-      icon: IconFolder,
-    },
-    {
-      title: "Team",
-      url: "#",
-      icon: IconUsers,
-    },
-  ],
-  navClouds: [
-    {
-      title: "Capture",
-      icon: IconCamera,
-      isActive: true,
-      url: "#",
       items: [
         {
-          title: "Active Proposals",
-          url: "#",
+          title: "Health Checks",
+          url: "/health",
+          icon: IconHeartbeat,
         },
         {
-          title: "Archived",
+          title: "Status Pages",
           url: "#",
+          icon: IconReport,
+        },
+        {
+          title: "Workflows",
+          url: "#",
+          icon: IconListDetails,
         },
       ],
     },
     {
-      title: "Proposal",
-      icon: IconFileDescription,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Prompts",
+      title: "Intelligence",
       icon: IconFileAi,
-      url: "#",
       items: [
         {
-          title: "Active Proposals",
+          title: "Insights Hub",
           url: "#",
+          icon: IconChartBar,
         },
         {
-          title: "Archived",
+          title: "Knowledge Base",
           url: "#",
+          icon: IconDatabase,
+        },
+        {
+          title: "Prompt Library",
+          url: "#",
+          icon: IconFileAi,
+        },
+      ],
+    },
+    {
+      title: "Collaboration",
+      icon: IconUsers,
+      items: [
+        {
+          title: "Teams",
+          url: "#",
+          icon: IconUsers,
+        },
+        {
+          title: "Projects",
+          url: "#",
+          icon: IconFolder,
+        },
+        {
+          title: "Approvals",
+          url: "#",
+          icon: IconFileDescription,
         },
       ],
     },
   ],
-  navSecondary: [
-    {
-      title: "Design System",
-      url: "/design-system",
-      icon: IconPalette,
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: IconSettings,
-    },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: IconHelp,
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: IconSearch,
-    },
-  ],
-  documents: [
-    {
-      name: "Data Library",
-      url: "#",
-      icon: IconDatabase,
-    },
-    {
-      name: "Reports",
-      url: "#",
-      icon: IconReport,
-    },
-    {
-      name: "Word Assistant",
-      url: "#",
-      icon: IconFileWord,
-    },
-  ],
+  navSecondary: [],
+  documents: sharedDocuments,
+}
+
+const adminSidebarData = {
+  ...defaultSidebarData,
+  navSecondary: [],
+  documents: sharedDocuments,
+  navAdmin: {
+    title: "Administration",
+    icon: IconSettings,
+    items: [
+      {
+        title: "User Management",
+        url: "/admin/users",
+        icon: IconUsers,
+      },
+      {
+        title: "Workspace Controls",
+        url: "#",
+        icon: IconSettings,
+      },
+      {
+        title: "Compliance",
+        url: "#",
+        icon: IconReport,
+      },
+    ],
+  },
+}
+
+const fallbackUser = {
+  name: "Acme User",
+  email: "user@example.com",
+  avatar: "/avatars/shadcn.jpg",
 }
 
 export function AppSidebar({
   ...props
 }) {
+  const currentUser = useCurrentUser()
+
+  const isAdmin = React.useMemo(
+    () => (currentUser?.roles ?? []).some((role) => role.name?.toLowerCase() === "admin"),
+    [currentUser?.roles]
+  )
+
+  const user = React.useMemo(() => {
+    if (!currentUser) {
+      return fallbackUser
+    }
+
+    const displayName = currentUser.fullName?.trim()
+      ? currentUser.fullName.trim()
+      : currentUser.email ?? fallbackUser.name
+
+    const avatar =
+      typeof currentUser.avatarUrl === "string" && currentUser.avatarUrl
+        ? currentUser.avatarUrl
+        : fallbackUser.avatar
+
+    return {
+      name: displayName,
+      email: currentUser.email ?? fallbackUser.email,
+      avatar,
+    }
+  }, [currentUser])
+
+  const navigation = React.useMemo(() => {
+    if (!isAdmin) {
+      return defaultSidebarData
+    }
+
+    return adminSidebarData
+  }, [isAdmin])
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
-              <a href="#">
+              <Link to="/home">
                 <IconInnerShadowTop className="!size-5" />
                 <span className="text-base font-semibold">Acme Inc.</span>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+      <SidebarContent className="gap-0 overflow-hidden p-0">
+        <ScrollArea className="h-full px-2" viewportClassName="pb-6">
+          <div className="flex h-full flex-col gap-2">
+            <NavMain items={navigation.navMain} />
+            {navigation.navAdmin ? <NavAdministration section={navigation.navAdmin} /> : null}
+            <NavDocuments items={navigation.documents} />
+            <NavSecondary items={navigation.navSecondary} className="mt-auto" />
+          </div>
+        </ScrollArea>
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={user} />
       </SidebarFooter>
     </Sidebar>
   );

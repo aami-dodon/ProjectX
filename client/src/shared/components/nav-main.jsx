@@ -1,17 +1,41 @@
-import { IconCirclePlusFilled, IconMail } from "@tabler/icons-react";
+import * as React from "react";
+import { IconChevronRight, IconCirclePlusFilled, IconMail } from "@tabler/icons-react";
+import { NavLink, useLocation } from "react-router-dom";
 
 import { Button } from "@/shared/components/ui/button"
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/shared/components/ui/collapsible"
 import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from "@/shared/components/ui/sidebar"
 
 export function NavMain({
   items
 }) {
+  const location = useLocation()
+
+  const resolveIsActive = React.useCallback((item) => {
+    if (!item?.url || typeof item.url !== "string") {
+      return false
+    }
+
+    if (typeof item.match === "function") {
+      return Boolean(item.match(location))
+    }
+
+    return location.pathname.startsWith(item.url)
+  }, [location])
+
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
@@ -35,14 +59,86 @@ export function NavMain({
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton tooltip={item.title}>
-                {item.icon && <item.icon />}
-                <span>{item.title}</span>
-              </SidebarMenuButton>
+              {Array.isArray(item.items) && item.items.length ? (
+                <NavMainCollapsibleItem
+                  item={item}
+                  resolveIsActive={resolveIsActive}
+                />
+              ) : item.url && item.url.startsWith("/") ? (
+                <SidebarMenuButton asChild tooltip={item.title} isActive={resolveIsActive(item)}>
+                  <NavLink to={item.url} className="flex w-full items-center gap-2">
+                    {item.icon && <item.icon />}
+                    <span>{item.title}</span>
+                  </NavLink>
+                </SidebarMenuButton>
+              ) : (
+                <SidebarMenuButton tooltip={item.title}>
+                  {item.icon && <item.icon />}
+                  <span>{item.title}</span>
+                </SidebarMenuButton>
+              )}
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
+  );
+}
+
+const isInternalUrl = (url) => typeof url === "string" && url.startsWith("/")
+
+function NavMainCollapsibleItem({
+  item,
+  resolveIsActive,
+}) {
+  const hasActiveChild = React.useMemo(
+    () => item.items.some((child) => resolveIsActive(child)),
+    [item.items, resolveIsActive]
+  )
+
+  const isActive = resolveIsActive(item) || hasActiveChild
+  const [open, setOpen] = React.useState(false)
+
+  return (
+    <Collapsible
+      open={open}
+      onOpenChange={setOpen}
+      className="group/collapsible"
+    >
+      <CollapsibleTrigger asChild>
+        <SidebarMenuButton
+          tooltip={item.title}
+          isActive={isActive}
+          className="w-full"
+        >
+          {item.icon && <item.icon />}
+          <span>{item.title}</span>
+          <IconChevronRight className="ml-auto size-4 transition-transform group-data-[state=open]/collapsible:rotate-90" />
+        </SidebarMenuButton>
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <SidebarMenuSub className="mt-1">
+          {item.items.map((child) => (
+            <SidebarMenuSubItem key={child.title}>
+              {isInternalUrl(child.url) ? (
+                <SidebarMenuSubButton asChild isActive={resolveIsActive(child)}>
+                  <NavLink to={child.url} className="flex w-full items-center gap-2">
+                    {child.icon ? <child.icon /> : null}
+                    <span>{child.title}</span>
+                  </NavLink>
+                </SidebarMenuSubButton>
+              ) : (
+                <SidebarMenuSubButton asChild>
+                  <a href={child.url} className="flex w-full items-center gap-2">
+                    {child.icon ? <child.icon /> : null}
+                    <span>{child.title}</span>
+                  </a>
+                </SidebarMenuSubButton>
+              )}
+            </SidebarMenuSubItem>
+          ))}
+        </SidebarMenuSub>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }

@@ -1,0 +1,63 @@
+const express = require('express');
+
+const { authenticateRequest, requireRoles } = require('@/modules/auth/auth.middleware');
+const { attachAuditContext } = require('@/middleware/audit-context');
+const { listUsers, updateUser } = require('./admin.controller');
+
+const router = express.Router();
+
+router.use(authenticateRequest, attachAuditContext);
+router.use(requireRoles('admin'));
+
+/**
+ * @openapi
+ * /api/admin/users:
+ *   get:
+ *     summary: Retrieve platform users for administrative management.
+ *     description: |-
+ *       Lists users with their current status and role assignments alongside the catalogue of
+ *       assignable roles. Requires the authenticated caller to hold the `admin` role.
+ *     tags:
+ *       - Admin
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Optional free text filter that matches against email or full name.
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [PENDING_VERIFICATION, ACTIVE, SUSPENDED, INVITED]
+ *         description: Optional status filter that narrows the list to users with the provided state.
+ *     responses:
+ *       '200':
+ *         description: Collection of users, available roles, and dashboard metrics.
+ */
+router.get('/users', listUsers);
+
+/**
+ * @openapi
+ * /api/admin/users/{userId}:
+ *   patch:
+ *     summary: Update a user's profile, email, verification state, or role assignments.
+ *     description: Applies profile, status, email, or role changes to the requested account. Only the admin role
+ *       is permitted to perform this action. Provide `roleIds` as an array of role identifiers to
+ *       replace the user's assignments. Set `verifyEmail` to true to mark the address as verified.
+ *     tags:
+ *       - Admin
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Identifier of the user to update.
+ *     responses:
+ *       '200':
+ *         description: Updated user record.
+ */
+router.patch('/users/:userId', updateUser);
+
+module.exports = router;

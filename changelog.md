@@ -1,3 +1,175 @@
+## 2025-11-14 08:30:00 IST
+- Added a centralized audit trail with Prisma middleware, contextual request metadata, and an admin audit viewer so every data mutation is transparently logged.
+
+## 2025-11-13 09:15:00 IST
+- Automated the favicon build step so the SVG logo colour is re-generated from `client/src/index.css` during `npm run build`, ensuring theme updates propagate to the icon without manual edits.
+## 2025-11-12 14:55:00 IST
+- Synced the favicon with the active theme by regenerating it from the resolved CSS logo colour so browser tabs update alongside light and dark mode.
+
+## 2025-10-31 07:20:48 IST
+- Expanded the favicon lettermark to improve legibility and introduced a shared `--logo-color` token in `client/src/index.css` so future palette updates automatically carry over to the icon.
+
+## 2025-10-31 06:41:02 IST
+- Replaced the favicon with an inline letter X SVG that inherits the primary theme colour so it stays in sync with the design tokens.
+
+## 2025-11-12 12:30:00 IST
+- Removed the Search, Help Centre, Appearance, and Account Settings links from the sidebar so only the primary navigation surfac
+  es to users.
+
+## 2025-11-12 10:00:00 IST
+- Styled success toast notifications to use primary text on muted backgrounds so they align with the semantic design tokens.
+
+## 2025-10-30 14:01:33 IST
+- Rebuilt the sidebar navigation structure with new grouped menus and submenus so admins and members see the appropriate sections in the app shell.
+
+## 2025-11-10 22:15:00 IST
+- Made the application sidebar submenus collapsible with shadcn-style triggers so nested navigation groups can be expanded or hidden as needed.
+## 2025-11-11 12:05:00 IST
+- Added a toast notification showcase to the design system page so teams can preview success, info, warning, error, and promise interactions in one place.
+
+## 2025-11-11 09:15:00 IST
+- Reworked toast notification theming so success, info, warning, and error states pull their background, border, and text colours directly from the primary design tokens in `client/src/index.css`, ensuring they follow light and dark mode palettes.
+
+## 2025-11-10 20:30:00 IST
+- Updated the toast notifications to pull their background, border, and accent colours from `client/src/index.css` so success, info, warning, and error messages respect the active theme.
+
+## 2025-11-10 16:45:00 IST
+- Standardised the admin user table toolbar control sizes so the search, filter dropdowns, and action buttons align evenly on desktop.
+
+## 2025-11-10 18:45:00 IST
+- Updated the admin user management hook to aggregate all paginated API results so the table once again lists every account after the backend pagination change.
+
+## 2025-11-10 15:30:00 IST
+- Retuned chart color tokens in `client/src/index.css` so data visualisations align with the app's primary palette.
+
+## 2025-11-10 12:45:00 IST
+- Aligned Tailwind's status utility colors with the design tokens in `client/src/index.css` so info, success, warning, and danger accents match the app palette.
+
+## 2025-11-10 10:05:00 IST
+- Replaced the account page's forgot password card with an in-app password reset form that validates the current secret, updates it via the API, and signs the user out so they log in with the new credentials.
+## 2025-11-09 09:15:00 IST
+- Restructured the account settings page with a wider account details column, a companion password reset form, and left-aligned avatar controls for consistency.
+## 2025-10-30 08:30:14 IST
+- Prevented administrators from modifying their own role assignments and surfaced guidance in the admin user drawer.
+## 2025-10-30 08:27:42 IST
+- Fixed the admin user charts so the donut and trend cards align with each other and their header controls.
+
+## 2025-10-30 07:48:58 IST
+- Added a ScrollArea wrapper to admin drawers so long user details and forms scroll smoothly across browsers.
+
+## 2025-11-08 13:45:00 IST
+- Automatically verify user email addresses when admins activate an account so status changes keep verification aligned.
+## 2025-11-08 16:00:00 IST
+- Added an activate action to the admin user table menu so suspended or pending accounts can be restored in place.
+
+## 2025-11-08 13:15:00 IST
+- Removed the status detail row from the admin user drawer to keep the panel focused on activity metadata.
+
+## 2025-11-08 12:45:00 IST
+- Removed the email and verification summary from the admin user drawer to declutter the details panel.
+
+## 2025-11-08 11:30:00 IST
+- Restyled the admin user charts with gradient cards and responsive layouts to align with the refreshed statistics visuals.
+
+## 2025-11-08 09:05:00 IST
+- Enabled admins to update user email addresses and mark them as verified with refreshed drawer UI, API validation, and tests.
+
+## 2025-10-30 06:06:33 IST
+- Enriched admin user listings with presigned avatar URLs and updated the management drawer to render the images with new tests.
+
+## 2025-10-30 05:43:57 IST
+- Refined the admin status distribution donut chart to normalize data colors and surface the total user count inline.
+
+## 2025-10-29 23:52:42 IST
+- Matched the admin user management table UI to the shared outline data table, reusing the drawer and layout for consistency.
+
+## 2025-10-30 04:31:36 IST
+- Blocked suspended or inactive accounts from authenticating API requests and added middleware coverage for the guard.
+
+## 2025-11-07 18:45:00 IST
+- Removed tenant support across authentication flows, admin tooling, and demo utilities, including a schema migration and UI updates.
+
+## 2025-10-30 03:47:19 IST
+- Rebuilt the admin user management table with a dedicated layout, filters, and drawer so it no longer depends on the shared data-table component.
+
+## 2025-10-30 03:34:54 IST
+- Enabled multi-role assignment in the admin user management suite, including API support, a role picker in the drawer, and refreshed documentation.
+
+## 2025-11-07 13:17:41 IST
+- Unified the shared data table row drawer with consistent view/edit tabs and updated the home outline and user management tables to consume the new UI.
+## 2025-11-07 16:30:00 IST
+- Pointed the demo user loader at a reusable CSV dataset and enforced a 100-user minimum for consistent seeding.
+
+## 2025-11-07 14:45:00 IST
+- Added a reusable `scripts/manage-demo-users.sh` helper to seed or purge tagged auth demo users for quick testing resets.
+
+## 2025-11-07 13:15:00 IST
+- Documented reuse guidelines for the admin backend module and added the missing module README.
+
+## 2025-11-07 12:30:00 IST
+- Redirected post-logout navigation to the public home route so users return to the pre-login experience after signing out.
+
+## 2025-10-30 03:19:08 IST
+- Improved authentication UX: the frontend now auto-refreshes expired access tokens on 401s, retries the original request, and only redirects to login if refresh fails. This removes spurious errors on admin pages after periods of inactivity.
+
+## 2025-10-30 02:03:39 IST
+- Restored the post-login redirect by syncing auth status updates with the custom `px:user-updated` event so successful sign-ins reach `/home` without refreshing.
+## 2025-10-30 01:52:01 IST
+- Introduced an admin-only user management suite with new API endpoints, dashboard cards/charts/table editing, and dedicated navigation links to health and design system views.
+## 2025-11-06 19:05:00 IST
+- Standardised presigned download links to reuse the configured MinIO expiry (one hour by default) and documented the behaviour.
+## 2025-11-06 18:20:00 IST
+- Wired the account settings page to the authenticated profile APIs, uploading avatars through MinIO and persisting email/name updates on the server with refreshed sidebar avatars.
+## 2025-11-06 15:55:00 IST
+- Added an account settings page with profile editing and avatar uploads, linked from the sidebar Account menu for quick self-service updates.
+## 2025-11-06 15:55:00 IST
+- Added an account settings page with profile editing and avatar uploads, linked from the sidebar Account menu for quick self-service updates.
+## 2025-11-06 16:00:00 IST
+- Moved the logout action from the dashboard header into the sidebar profile menu so sign-out sits alongside account controls.
+
+## 2025-11-06 14:41:13 IST
+- Added authenticated profile endpoints (`GET/PATCH /api/auth/me`), service helpers, tests, and documentation so operators can self-manage display names while keeping responses aligned with the sanitized auth payload.
+## 2025-11-06 10:00:00 IST
+- Documented reuse guidelines for the auth, files, and health backend modules so developers can onboard quickly.
+## 2025-11-05 20:15:00 IST
+- Updated routing so the login experience lives at `/`, `/home` becomes the authenticated landing page, and post-login visitors are redirected away from auth screens and onto guarded dashboards.
+
+## 2025-11-05 19:30:00 IST
+- Refactored the MinIO integration into a presigned-URL storage service with authenticated file routes and private bucket access controls.
+
+## 2025-11-05 18:45:00 IST
+- Removed the MinIO upload diagnostic route and health dashboard tester so the stack no longer exposes the `/api/upload/test` endpoint.
+
+## 2025-11-05 17:30:00 IST
+- Retired the standalone email module and test diagnostics so all SMTP traffic flows through the mailer integration and the health dashboard no longer links to the removed endpoint.
+
+## 2025-11-05 16:45:00 IST
+- Centralised backend email sending through the mailer integration and updated the email service to use the shared helper.
+
+## 2025-11-05 15:30:00 IST
+- Added a logout control to the dashboard header so signed-in users can clear their session and return to the login screen.
+
+## 2025-11-05 14:45:00 IST
+- Reworked the client router so unauthenticated visitors land on the login layout at `/` while authenticated users keep the dashboard at the root and receive 404s for unknown routes.
+
+## 2025-11-05 13:30:00 IST
+- Redirected the auth shell's base and unknown routes to the login screen so pre-login navigation bypasses layout-level 404s and relies on the global error pages.
+
+## 2025-11-05 12:45:00 IST
+- Restricted the home dashboard route behind authentication so unauthenticated visitors are redirected to the login screen.
+
+## 2025-11-05 12:15:00 IST
+- Updated the client authentication forms to call the `/api/auth/*` endpoints so logins and password flows reach the Express router successfully.
+
+## 2025-11-05 11:30:00 IST
+- Ensured the production server container runs `prisma migrate deploy` before booting so required tables are created automatically.
+
+## 2025-11-05 10:15:00 IST
+- Added the initial Prisma migration to create auth and health tables so the API can provision its database schema reliably.
+
+## 2025-11-05 09:45:00 IST
+- Implemented the full user management system across the API and React client, including JWT authentication, session rotation, password reset flows, verification emails, and refreshed auth layouts with actionable feedback and toasts.
+
 ## 2025-11-05 08:30:00 IST
 - Added server test coverage for the email and upload diagnostics to verify happy paths, validation failures, and integration errors.
 
@@ -492,13 +664,19 @@
 - Added dedicated routes and pages for 401, 403, 408, 500, and 503 error states so other features can link to purpose-built guidance and recovery actions.
 
 ## 2025-10-28 07:52:03 IST
-- Relocated the centralized error handling utilities to `server/src/utils/error-handling.js` and updated all server imports and documentation references accordingly.
+- Relocated the centralized error handling utilities to `server/src/utils/errors.js` and updated all server imports and documentation references accordingly.
 ## 2025-10-28 08:08:15 IST
 - Fixed a startup-breaking syntax error by closing the missing quote in `server/src/modules/email/email.router.js` for the centralized error handling import.
-- Corrected `server/src/modules/health/controllers/health.controller.js` to import from `server/src/utils/error-handling` instead of a non-existent shared path, aligning with centralized error handling.
+- Corrected `server/src/modules/health/controllers/health.controller.js` to import from `server/src/utils/errors` instead of a non-existent shared path, aligning with centralized error handling.
 ## 2025-10-28 11:36:30 IST
 - Styled Swagger UI by serving `server/src/config/swagger.css` at `/api/docs/swagger.css` and linking it via `customCssUrl` so `/api/docs` uses the selected theme.
 ## 2025-10-29 06:01:40 IST
 - Fixed the rich text editor crash by migrating to the `lowlight@3` API: create an instance via `createLowlight(common)` and pass it to TipTap’s `CodeBlockLowlight` extension to restore code block rendering.
 ## 2025-10-29 06:37:00 IST
 - Fixed Rich Text Editor preview styling by adding `@tailwindcss/typography` and enabling `prose` classes so headings (H1–H3), ordered/bulleted lists, blockquotes, and code blocks render correctly in the Design System page.
+## 2025-10-30 09:52:51 IST
+- Matched heights for admin user table toolbar controls by forcing `h-8` with `py-0` on the search input and both filter selects, and centering the filter group row so the search, dropdowns, and buttons align perfectly.
+## 2025-10-30 09:58:42 IST
+- Reduced toolbar width and fixed alignment on the admin user table by switching “Customize Columns” and “Clear filters” to icon-only buttons and resizing the refresh button to `icon-sm` so all controls share the same height.
+## 2025-10-30 10:04:42 IST
+- Aligned the admin user table toolbar width with the table by removing duplicated horizontal padding from the toolbar and shared data table header/toolbar wrappers.

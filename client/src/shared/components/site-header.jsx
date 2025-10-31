@@ -1,4 +1,3 @@
-import { Button } from "@/shared/components/ui/button"
 import { Separator } from "@/shared/components/ui/separator"
 import { SidebarTrigger } from "@/shared/components/ui/sidebar"
 import { ModeToggle } from "@/components/mode-toggle"   // 👈 import the toggle

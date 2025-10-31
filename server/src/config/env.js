@@ -1,27 +1,24 @@
+// src/config/env.js
 const { config: loadEnvConfig } = require('dotenv');
 const { z } = require('zod');
+const { createLogger } = require('@/utils/logger');
 
+// ✅ Load .env before anything else
 loadEnvConfig();
 
 const DEFAULT_NODE_ENV = 'development';
-const resolveDefaultLogLevel = (nodeEnv) => (nodeEnv === 'development' ? 'debug' : 'info');
+const resolveDefaultLogLevel = (nodeEnv) =>
+  nodeEnv === 'development' ? 'debug' : 'info';
 
-if (!process.env.NODE_ENV || process.env.NODE_ENV.trim().length === 0) {
-  process.env.NODE_ENV = DEFAULT_NODE_ENV;
-} else {
-  process.env.NODE_ENV = process.env.NODE_ENV.trim();
-}
-
-if (!process.env.LOG_LEVEL || process.env.LOG_LEVEL.trim().length === 0) {
-  process.env.LOG_LEVEL = resolveDefaultLogLevel(process.env.NODE_ENV);
-} else {
-  process.env.LOG_LEVEL = process.env.LOG_LEVEL.trim().toLowerCase();
-}
-
-const { createLogger } = require('@/utils/logger');
+// ✅ Normalize NODE_ENV and LOG_LEVEL
+process.env.NODE_ENV = (process.env.NODE_ENV || DEFAULT_NODE_ENV).trim();
+process.env.LOG_LEVEL = (process.env.LOG_LEVEL || resolveDefaultLogLevel(process.env.NODE_ENV))
+  .trim()
+  .toLowerCase();
 
 const logger = createLogger('env');
 
+// ✅ Helper for comma-separated values
 const splitCommaSeparated = (value) =>
   value
     .split(',')
@@ -30,6 +27,7 @@ const splitCommaSeparated = (value) =>
 
 const LOG_LEVEL_VALUES = ['error', 'warn', 'info', 'http', 'verbose', 'debug', 'silly'];
 
+// ✅ Default values (safe for local dev only)
 const defaults = {
   NODE_ENV: DEFAULT_NODE_ENV,
   SERVER_PORT: '5000',
@@ -42,82 +40,91 @@ const defaults = {
   MINIO_SECRET_KEY: 'minioadmin',
   MINIO_REGION: 'us-east-1',
   MINIO_BUCKET: 'evidence',
-  MINIO_PRESIGNED_URL_EXPIRATION_SECONDS: '900',
+  MINIO_PRESIGNED_URL_EXPIRATION_SECONDS: '3600',
   EMAIL_FROM: 'no-reply@projectx.local',
   EMAIL_SMTP_HOST: 'localhost',
   EMAIL_SMTP_PORT: '1025',
   EMAIL_SMTP_SECURE: 'false',
   EMAIL_SMTP_USER: 'smtp-user',
   EMAIL_SMTP_PASS: 'smtp-pass',
+  AUTH_ACCESS_TOKEN_SECRET: 'dev-access-token-secret-change-me',
+  AUTH_REFRESH_TOKEN_SECRET: 'dev-refresh-token-secret-change-me',
+  AUTH_ACCESS_TOKEN_TTL_SECONDS: '900',
+  AUTH_REFRESH_TOKEN_TTL_SECONDS: '604800',
+  AUTH_PASSWORD_RESET_TOKEN_TTL_MINUTES: '30',
+  AUTH_EMAIL_VERIFICATION_TOKEN_TTL_MINUTES: '1440',
+  AUTH_PASSWORD_SALT_ROUNDS: '12',
+  APP_BASE_URL: 'http://localhost:5173',
   CLIENT_PORT: '5173',
   CLIENT_ALLOWED_HOSTS: 'localhost',
   VITE_API_URL: 'http://localhost:5000/api',
   LOG_LEVEL: process.env.LOG_LEVEL,
 };
 
+const optionalFromString = (schema) =>
+  z.preprocess((value) => {
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+      return trimmed === '' ? undefined : trimmed;
+    }
+
+    return value;
+  }, schema.optional());
+
+// ✅ Zod validation schema
 const EnvSchema = z.object({
-  NODE_ENV: z.string().min(1, { message: 'NODE_ENV must be defined' }),
-  SERVER_PORT: z
-    .coerce.number({ invalid_type_error: 'SERVER_PORT must be a valid number' })
-    .int()
-    .positive({ message: 'SERVER_PORT must be a positive integer' }),
-  CORS_ALLOWED_ORIGINS: z
+  NODE_ENV: z.string().min(1),
+  SERVER_PORT: z.coerce.number().int().positive(),
+  CORS_ALLOWED_ORIGINS: z.string().min(1).transform(splitCommaSeparated),
+  DATABASE_URL: z
     .string()
-    .min(1, { message: 'CORS_ALLOWED_ORIGINS must be defined' })
-    .transform(splitCommaSeparated),
-  DATABASE_URL: z.string().url({ message: 'DATABASE_URL must be a valid URL' }),
-  MINIO_ENDPOINT: z.string().min(1, { message: 'MINIO_ENDPOINT must be defined' }),
-  MINIO_PORT: z
-    .coerce.number({ invalid_type_error: 'MINIO_PORT must be a valid number' })
-    .int()
-    .positive({ message: 'MINIO_PORT must be a positive integer' }),
-  MINIO_USE_SSL: z.enum(['true', 'false']).transform((value) => value === 'true'),
-  MINIO_ACCESS_KEY: z.string().min(1, { message: 'MINIO_ACCESS_KEY must be defined' }),
-  MINIO_SECRET_KEY: z.string().min(1, { message: 'MINIO_SECRET_KEY must be defined' }),
-  MINIO_REGION: z.string().min(1, { message: 'MINIO_REGION must be defined' }),
-  MINIO_BUCKET: z.string().min(1, { message: 'MINIO_BUCKET must be defined' }),
-  MINIO_PRESIGNED_URL_EXPIRATION_SECONDS: z
-    .coerce.number({ invalid_type_error: 'MINIO_PRESIGNED_URL_EXPIRATION_SECONDS must be a valid number' })
-    .int()
-    .positive({ message: 'MINIO_PRESIGNED_URL_EXPIRATION_SECONDS must be a positive integer' }),
-  EMAIL_FROM: z.string().min(1, { message: 'EMAIL_FROM must be defined' }),
-  EMAIL_SMTP_HOST: z.string().min(1, { message: 'EMAIL_SMTP_HOST must be defined' }),
-  EMAIL_SMTP_PORT: z
-    .coerce.number({ invalid_type_error: 'EMAIL_SMTP_PORT must be a valid number' })
-    .int()
-    .positive({ message: 'EMAIL_SMTP_PORT must be a positive integer' }),
-  EMAIL_SMTP_SECURE: z.enum(['true', 'false']).transform((value) => value === 'true'),
-  EMAIL_SMTP_USER: z.string().min(1, { message: 'EMAIL_SMTP_USER must be defined' }),
-  EMAIL_SMTP_PASS: z.string().min(1, { message: 'EMAIL_SMTP_PASS must be defined' }),
-  CLIENT_PORT: z
-    .coerce.number({ invalid_type_error: 'CLIENT_PORT must be a valid number' })
-    .int()
-    .positive({ message: 'CLIENT_PORT must be a positive integer' }),
-  CLIENT_ALLOWED_HOSTS: z
-    .string()
-    .min(1, { message: 'CLIENT_ALLOWED_HOSTS must be defined' })
-    .transform(splitCommaSeparated),
-  VITE_API_URL: z.string().url({ message: 'VITE_API_URL must be a valid URL' }),
-  LOG_LEVEL: z.enum(LOG_LEVEL_VALUES, {
-    message: `LOG_LEVEL must be one of: ${LOG_LEVEL_VALUES.join(', ')}`,
-  }),
+    .url({ message: 'DATABASE_URL must be a valid URL (e.g. postgresql://user:pass@host:port/db)' }),
+  MINIO_ENDPOINT: z.string().min(1),
+  MINIO_PORT: z.coerce.number().int().positive(),
+  MINIO_USE_SSL: z.enum(['true', 'false']).transform((v) => v === 'true'),
+  MINIO_ACCESS_KEY: z.string().min(1),
+  MINIO_SECRET_KEY: z.string().min(1),
+  MINIO_REGION: z.string().min(1),
+  MINIO_BUCKET: z.string().min(1),
+  MINIO_PRESIGNED_URL_EXPIRATION_SECONDS: z.coerce.number().int().positive(),
+  EMAIL_FROM: z.string().min(1),
+  EMAIL_SMTP_HOST: z.string().min(1),
+  EMAIL_SMTP_PORT: z.coerce.number().int().positive(),
+  EMAIL_SMTP_SECURE: z.enum(['true', 'false']).transform((v) => v === 'true'),
+  EMAIL_SMTP_USER: z.string().min(1),
+  EMAIL_SMTP_PASS: z.string().min(1),
+  AUTH_ACCESS_TOKEN_SECRET: z.string().min(32),
+  AUTH_REFRESH_TOKEN_SECRET: z.string().min(32),
+  AUTH_ACCESS_TOKEN_TTL_SECONDS: z.coerce.number().int().positive(),
+  AUTH_REFRESH_TOKEN_TTL_SECONDS: z.coerce.number().int().positive(),
+  AUTH_PASSWORD_RESET_TOKEN_TTL_MINUTES: z.coerce.number().int().positive(),
+  AUTH_EMAIL_VERIFICATION_TOKEN_TTL_MINUTES: z.coerce.number().int().positive(),
+  AUTH_PASSWORD_SALT_ROUNDS: z.coerce.number().int().min(10),
+  APP_BASE_URL: z.string().url(),
+  CLIENT_PORT: z.coerce.number().int().positive(),
+  CLIENT_ALLOWED_HOSTS: z.string().min(1).transform(splitCommaSeparated),
+  VITE_API_URL: z.string().url(),
+  LOG_LEVEL: z.enum(LOG_LEVEL_VALUES),
+  AUTH_DEFAULT_ADMIN_EMAIL: optionalFromString(z.string().email()),
+  AUTH_DEFAULT_ADMIN_PASSWORD: optionalFromString(z.string().min(12)),
+  AUTH_DEFAULT_ADMIN_NAME: optionalFromString(z.string().min(1)),
 });
 
+// ✅ Validate and export environment
 const parseEnvironment = () => {
   const envSource = { ...defaults, ...process.env };
   const result = EnvSchema.safeParse(envSource);
 
   if (!result.success) {
-    result.error.issues.forEach((issue) => {
-      logger.error(issue.message, { code: 'ENV_VALIDATION_FAILED', detail: issue });
-    });
-
-    if (process.env.NODE_ENV === 'test') {
-      throw new Error('Environment validation failed');
+    // Avoid flooding CI/test logs
+    if (process.env.NODE_ENV !== 'test') {
+      result.error.issues.forEach((issue) => {
+        logger.error(issue.message, { code: 'ENV_VALIDATION_FAILED', detail: issue });
+      });
     }
 
-    // Fail fast if env validation fails
-    process.exit(1);
+    // Fail fast
+    throw new Error('Environment validation failed');
   }
 
   return result.data;
@@ -125,6 +132,10 @@ const parseEnvironment = () => {
 
 const env = parseEnvironment();
 
-module.exports = {
-  env,
-};
+// ✅ Explicitly ensure DATABASE_URL is defined for Prisma
+if (!env.DATABASE_URL) {
+  logger.error('DATABASE_URL is missing or invalid — Prisma will fail to connect.');
+  process.exit(1);
+}
+
+module.exports = { env };
