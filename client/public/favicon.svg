@@ -9,6 +9,8 @@
       letter-spacing: -0.08em;
     }
   </style>
+
+  <!-- Background -->
   <rect width="64" height="64" rx="12" fill="currentColor" fill-opacity="0.12" />
   <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="75" fill="currentColor">
     X
