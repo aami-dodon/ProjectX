@@ -1,6 +1,7 @@
 // src/integrations/prisma.js
 const { PrismaClient, AuditLogAction } = require('@prisma/client');
 const { env } = require('@/config/env');
+const { getAuditContext } = require('@/utils/audit-context-store');
 const { createLogger } = require('@/utils/logger');
 
 const logger = createLogger('prisma');
@@ -111,7 +112,7 @@ prisma.$use(async (params, next) => {
 
   const result = await next(params);
 
-  const context = global.auditContext ?? {};
+  const context = getAuditContext() ?? {};
   const action =
     params.action === 'create'
       ? AuditLogAction.CREATE
@@ -129,8 +130,8 @@ prisma.$use(async (params, next) => {
     resolveRecordId(result, params.args) ??
     resolveRecordId(previous, params.args);
 
-  try {
-    await prisma.auditLog.create({
+  const writeAuditLog = async (client) => {
+    await client.auditLog.create({
       data: {
         userId: context.userId ?? null,
         model: params.model,
@@ -142,6 +143,14 @@ prisma.$use(async (params, next) => {
         userAgent: context.userAgent ?? null,
       },
     });
+  };
+
+  try {
+    if (typeof params.runInTransaction === 'function') {
+      await params.runInTransaction((transactionClient) => writeAuditLog(transactionClient));
+    } else {
+      await writeAuditLog(prisma);
+    }
   } catch (error) {
     logger.error('Failed to write audit log entry', {
       model: params.model,
