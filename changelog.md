@@ -1,3 +1,6 @@
+## 2025-10-31 07:20:48 IST
+- Expanded the favicon lettermark to improve legibility and introduced a shared `--logo-color` token in `client/src/index.css` so future palette updates automatically carry over to the icon.
+
 ## 2025-10-31 06:41:02 IST
 - Replaced the favicon with an inline letter X SVG that inherits the primary theme colour so it stays in sync with the design tokens.
 
