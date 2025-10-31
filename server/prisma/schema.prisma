@@ -142,3 +142,26 @@ enum AuthUserStatus {
   SUSPENDED
   INVITED
 }
+
+enum AuditLogAction {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+model AuditLog {
+  id        String         @id @default(uuid())
+  userId    String?        @map("user_id")
+  model     String
+  action    AuditLogAction
+  recordId  String?        @map("record_id")
+  before    Json?
+  after     Json?
+  ip        String?
+  userAgent String?        @map("user_agent")
+  createdAt DateTime       @default(now()) @map("created_at")
+
+  @@index([model])
+  @@index([userId])
+  @@map("audit_logs")
+}
