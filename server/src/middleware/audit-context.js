@@ -1,19 +1,13 @@
-const attachAuditContext = (req, res, next) => {
+const { runWithAuditContext } = require('@/utils/audit-context-store');
+
+const attachAuditContext = (req, _res, next) => {
   const context = {
     userId: req.user?.id ?? null,
     ip: req.ip ?? null,
     userAgent: req.get('user-agent') ?? null,
   };
 
-  global.auditContext = context;
-
-  res.on('finish', () => {
-    if (global.auditContext === context) {
-      delete global.auditContext;
-    }
-  });
-
-  next();
+  runWithAuditContext(context, next);
 };
 
 module.exports = {
