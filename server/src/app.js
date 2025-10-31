@@ -17,6 +17,7 @@ const { router: healthRouter } = require('@/modules/health');
 const { router: adminRouter } = require('@/modules/admin');
 const authRouter = require('@/modules/auth/auth.router');
 const { router: filesRouter } = require('@/modules/files');
+const { router: auditRouter } = require('@/modules/audit');
 
 const logger = createLogger('app');
 
@@ -51,6 +52,7 @@ const createApp = () => {
   app.use(`${apiPrefix}/admin`, adminRouter);
   app.use(`${apiPrefix}/auth`, authRouter);
   app.use(`${apiPrefix}/files`, filesRouter);
+  app.use(`${apiPrefix}/audit`, auditRouter);
 
   app.use((req, res) => {
     res.status(404).json({

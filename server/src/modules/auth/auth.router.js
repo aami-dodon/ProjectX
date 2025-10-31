@@ -13,6 +13,7 @@ const {
   changePassword,
 } = require('./auth.controller');
 const { authenticateRequest } = require('./auth.middleware');
+const { attachAuditContext } = require('@/middleware/audit-context');
 
 const router = express.Router();
 
@@ -36,7 +37,7 @@ const router = express.Router();
  *                 user:
  *                   $ref: '#/components/schemas/AuthUser'
  */
-router.get('/me', authenticateRequest, getCurrentUser);
+router.get('/me', authenticateRequest, attachAuditContext, getCurrentUser);
 
 /**
  * @openapi
@@ -75,7 +76,7 @@ router.get('/me', authenticateRequest, getCurrentUser);
  *                 user:
  *                   $ref: '#/components/schemas/AuthUser'
  */
-router.patch('/me', authenticateRequest, updateCurrentUser);
+router.patch('/me', authenticateRequest, attachAuditContext, updateCurrentUser);
 
 /**
  * @openapi
@@ -115,7 +116,7 @@ router.patch('/me', authenticateRequest, updateCurrentUser);
  *                   type: string
  *                   example: updated
  */
-router.post('/change-password', authenticateRequest, changePassword);
+router.post('/change-password', authenticateRequest, attachAuditContext, changePassword);
 
 /**
  * @openapi
