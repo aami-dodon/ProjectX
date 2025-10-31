@@ -1,3 +1,8 @@
+## 2025-11-14 08:30:00 IST
+- Added a centralized audit trail with Prisma middleware, contextual request metadata, and an admin audit viewer so every data mutation is transparently logged.
+
+## 2025-11-13 09:15:00 IST
+- Automated the favicon build step so the SVG logo colour is re-generated from `client/src/index.css` during `npm run build`, ensuring theme updates propagate to the icon without manual edits.
 ## 2025-11-12 14:55:00 IST
 - Synced the favicon with the active theme by regenerating it from the resolved CSS logo colour so browser tabs update alongside light and dark mode.
 

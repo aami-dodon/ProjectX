@@ -1,11 +1,12 @@
 const express = require('express');
 
 const { authenticateRequest, requireRoles } = require('@/modules/auth/auth.middleware');
+const { attachAuditContext } = require('@/middleware/audit-context');
 const { listUsers, updateUser } = require('./admin.controller');
 
 const router = express.Router();
 
-router.use(authenticateRequest);
+router.use(authenticateRequest, attachAuditContext);
 router.use(requireRoles('admin'));
 
 /**

@@ -393,7 +393,7 @@ const updateUserAccount = async ({ userId, updates = {}, actorId }) => {
     let normalizedEmail;
     try {
       normalizedEmail = emailSchema.parse(updates.email).toLowerCase();
-    } catch (error) {
+    } catch {
       throw createValidationError('A valid email address is required', {
         field: 'email',
       });

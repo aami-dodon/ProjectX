@@ -1,6 +1,7 @@
 const express = require('express');
 
 const { authenticateRequest } = require('@/modules/auth/auth.middleware');
+const { attachAuditContext } = require('@/middleware/audit-context');
 const { requestDownloadUrl, requestUploadUrl } = require('./file.controller');
 
 const router = express.Router();
@@ -64,7 +65,7 @@ const router = express.Router();
  *                   type: string
  *                   description: Fully qualified object key to reuse when requesting download access.
  */
-router.get('/upload-url', authenticateRequest, requestUploadUrl);
+router.get('/upload-url', authenticateRequest, attachAuditContext, requestUploadUrl);
 
 /**
  * @openapi
@@ -99,6 +100,6 @@ router.get('/upload-url', authenticateRequest, requestUploadUrl);
  *                   format: uri
  *                   description: Signed URL that can be used to download the file contents.
  */
-router.get('/download-url', authenticateRequest, requestDownloadUrl);
+router.get('/download-url', authenticateRequest, attachAuditContext, requestDownloadUrl);
 
 module.exports = router;
