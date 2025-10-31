@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Project X logo">
   <style>
     :root {
-      color: var(--primary, oklch(0.852 0.199 91.936));
+      color: oklch(0.852 0.199 91.936);
     }
     text {
       font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -10,7 +10,7 @@
     }
   </style>
   <rect width="64" height="64" rx="12" fill="currentColor" fill-opacity="0.12" />
-  <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="40" fill="currentColor">
+  <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="75" fill="currentColor">
     X
   </text>
 </svg>

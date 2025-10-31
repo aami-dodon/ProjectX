@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "npm run sync:favicon && vite build",
+    "sync:favicon": "node ./scripts/sync-favicon.js",
     "lint": "eslint .",
     "preview": "vite preview",
     "lint:fix": "eslint . --fix",
