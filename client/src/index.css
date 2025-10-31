@@ -135,6 +135,91 @@
   --sidebar-ring: oklch(0.405 0.101 131.063);
 }
 
+/* Sonner theme overrides */
+.toaster[data-sonner-toaster] {
+  --normal-bg: var(--primary);
+  --normal-bg-hover: var(--primary);
+  --normal-border: var(--primary);
+  --normal-border-hover: var(--primary);
+  --normal-text: var(--primary-foreground);
+}
+
+.toaster[data-sonner-toaster][data-sonner-theme] {
+  --success-bg: var(--success) !important;
+  --success-border: var(--success) !important;
+  --success-text: var(--success-foreground) !important;
+
+  --info-bg: var(--info) !important;
+  --info-border: var(--info) !important;
+  --info-text: var(--info-foreground) !important;
+
+  --warning-bg: var(--warning) !important;
+  --warning-border: var(--warning) !important;
+  --warning-text: var(--warning-foreground) !important;
+
+  --error-bg: var(--danger) !important;
+  --error-border: var(--danger) !important;
+  --error-text: var(--danger-foreground) !important;
+}
+
+/* Toaster styles */
+.toaster[data-sonner-toaster] .toaster-toast {
+  --toast-bg: var(--primary);
+  --toast-fg: var(--primary-foreground);
+  --toast-border: var(--primary);
+  background: var(--toast-bg) !important;
+  color: var(--toast-fg) !important;
+  border: 1px solid var(--toast-border) !important;
+  @apply shadow-lg rounded-lg p-3 flex items-start gap-2;
+}
+
+.toaster[data-sonner-toaster] .toaster-success {
+  --toast-bg: var(--success);
+  --toast-fg: var(--success-foreground);
+  --toast-border: var(--success);
+}
+
+.toaster[data-sonner-toaster] .toaster-info {
+  --toast-bg: var(--info);
+  --toast-fg: var(--info-foreground);
+  --toast-border: var(--info);
+}
+
+.toaster[data-sonner-toaster] .toaster-warning {
+  --toast-bg: var(--warning);
+  --toast-fg: var(--warning-foreground);
+  --toast-border: var(--warning);
+}
+
+.toaster[data-sonner-toaster] .toaster-error,
+.toaster[data-sonner-toaster] .toaster-danger {
+  --toast-bg: var(--danger);
+  --toast-fg: var(--danger-foreground);
+  --toast-border: var(--danger);
+}
+
+.toaster[data-sonner-toaster] .toaster-toast .toaster-description {
+  color: var(--toast-fg);
+  @apply text-sm;
+}
+
+.toaster[data-sonner-toaster] .toaster-toast .toaster-action {
+  color: var(--toast-bg);
+  background: var(--toast-fg);
+  border-radius: calc(var(--radius) - 4px);
+  padding: 0.25rem 0.75rem;
+  font-weight: 600;
+  transition: opacity 150ms ease;
+}
+
+.toaster[data-sonner-toaster] .toaster-toast .toaster-action:hover {
+  opacity: 0.85;
+}
+
+.toaster[data-sonner-toaster] .toaster-toast .toaster-cancel {
+  color: var(--toast-fg);
+}
+
 
 @layer base {
   * {

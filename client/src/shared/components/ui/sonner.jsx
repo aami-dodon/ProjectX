@@ -13,16 +13,37 @@ const Toaster = ({
   ...props
 }) => {
   const { theme = "system" } = useTheme()
+  const baseClassNames = {
+    toast: "toaster-toast",
+    description: "toaster-description",
+    actionButton: "toaster-action",
+    cancelButton: "toaster-cancel",
+    success: "toaster-success",
+    info: "toaster-info",
+    warning: "toaster-warning",
+    error: "toaster-error",
+  }
+
+  const userClassNames = toastOptions?.classNames ?? {}
+  const mergedClassNames = {
+    ...userClassNames,
+    ...Object.entries(baseClassNames).reduce((acc, [key, value]) => {
+      const userValue = userClassNames[key]
+      acc[key] = userValue ? `${value} ${userValue}` : value
+      return acc
+    }, {}),
+  }
+
   const mergedToastOptions = {
     ...(toastOptions ?? {}),
-    classNames: {
-      toast: "toaster-toast",
-      description: "toaster-description",
-      actionButton: "toaster-action",
-      cancelButton: "toaster-cancel",
-      closeButton: "toaster-close",
-      ...(toastOptions?.classNames ?? {}),
+    classNames: mergedClassNames,
+    style: {
+      background: "var(--toast-bg)",
+      color: "var(--toast-fg)",
+      borderColor: "var(--toast-border)",
+      ...(toastOptions?.style ?? {}),
     },
+    closeButton: false,
   }
 
   return (

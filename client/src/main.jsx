@@ -10,7 +10,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
     <>
       <RouterProvider router={router} />
-      <Toaster position="top-right" richColors closeButton />
+      <Toaster position="top-right" richColors />
     </>
   </ThemeProvider>
 );
