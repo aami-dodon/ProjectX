@@ -34,11 +34,10 @@ export function AuthLayout({ children }) {
       </Card>
 
       <Card className="flex h-full w-full flex-1 min-h-0 flex-col overflow-hidden rounded-none border-none bg-background p-0 text-foreground shadow-none">
-        <CardContent className="flex flex-col gap-0 p-0">
-          <div className="flex items-center justify-end p-4 lg:p-6">
+        <CardContent className="relative flex flex-1 flex-col gap-0 p-0">
+          <div className="absolute right-4 top-4 lg:right-6 lg:top-6">
             <ModeToggle />
           </div>
-          <Separator />
           <div className="flex flex-1 min-h-0 flex-col">
             <ScrollArea
               className="flex-1"
