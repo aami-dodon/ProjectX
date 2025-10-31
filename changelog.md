@@ -1,3 +1,6 @@
+## 2025-11-12 14:55:00 IST
+- Synced the favicon with the active theme by regenerating it from the resolved CSS logo colour so browser tabs update alongside light and dark mode.
+
 ## 2025-10-31 07:20:48 IST
 - Expanded the favicon lettermark to improve legibility and introduced a shared `--logo-color` token in `client/src/index.css` so future palette updates automatically carry over to the icon.
 

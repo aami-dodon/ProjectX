@@ -139,13 +139,24 @@ apiClient.interceptors.response.use(
 
           return apiClient(originalConfig);
         } catch (refreshError) {
-          // Refresh failed — clear local auth state and propagate the error
+          logger.error(
+            { message: refreshError.message },
+            "Failed to refresh access token"
+          );
+
           try {
             window?.localStorage?.removeItem("accessToken");
             window?.localStorage?.removeItem("refreshToken");
             window?.localStorage?.removeItem("user");
             window?.dispatchEvent?.(new Event("px:user-updated"));
-          } catch {}
+          } catch (storageError) {
+            logger.warn(
+              { message: String(storageError) },
+              "Failed to clear auth state after refresh failure"
+            );
+          }
+
+          return Promise.reject(refreshError);
         }
       }
 
