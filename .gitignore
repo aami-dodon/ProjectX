@@ -25,3 +25,4 @@ venv/
 # Documents
 pdf/
 server/logs/
+client/logs/
