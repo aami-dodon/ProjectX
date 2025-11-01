@@ -9,7 +9,6 @@ import {
   IconPalette,
   IconFolder,
   IconHeartbeat,
-  IconListDetails,
   IconReport,
   IconSettings,
   IconUsers,
@@ -58,22 +57,6 @@ const defaultSidebarData = {
       title: "Overview",
       url: "/home",
       icon: IconDashboard,
-    },
-    {
-      title: "Operations",
-      icon: IconListDetails,
-      items: [
-        {
-          title: "Status Pages",
-          url: "#",
-          icon: IconReport,
-        },
-        {
-          title: "Workflows",
-          url: "#",
-          icon: IconListDetails,
-        },
-      ],
     },
     {
       title: "Intelligence",

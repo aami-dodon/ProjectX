@@ -1,3 +1,5 @@
+## 2025-11-21 10:45:00 IST
+- Removed the Operations navigation group and its submenu links from the primary sidebar so the workspace menu reflects the current feature set.
 ## 2025-11-21 09:00:00 IST
 - Matched the Design System and System Health dashboards to the full-width admin layout so they align with User Management and Customer Details pages.
 ## 2025-11-20 17:30:00 IST
