@@ -1,3 +1,5 @@
+## 2025-11-21 10:45:00 IST
+- Removed the Operations navigation group and its submenu links from the primary sidebar so the workspace menu reflects the current feature set.
 ## 2025-11-21 10:30:00 IST
 - Removed the header copy and status controls from the Design System and System Health dashboards to streamline their layouts.
 
