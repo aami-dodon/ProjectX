@@ -140,7 +140,7 @@ const adminSidebarData = {
         icon: IconUsers,
       },
       {
-        title: "Client Details",
+        title: "Customer Details",
         url: "/admin/branding",
         icon: IconSettings,
       },
@@ -165,9 +165,9 @@ export function AppSidebar({
   const currentUser = useCurrentUser()
   const branding = useBranding()
 
-  const clientSectionTitle = React.useMemo(() => {
+  const customerSectionTitle = React.useMemo(() => {
     const derivedTitle = branding.sidebarTitle?.trim() || branding.name?.trim()
-    return derivedTitle && derivedTitle.length > 0 ? derivedTitle : "Client Name"
+    return derivedTitle && derivedTitle.length > 0 ? derivedTitle : "Customer Name"
   }, [branding.sidebarTitle, branding.name])
 
   const isAdmin = React.useMemo(
@@ -206,7 +206,7 @@ export function AppSidebar({
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
-      <SidebarHeader aria-label="Client Section" title="Client Section">
+      <SidebarHeader aria-label="Customer Section" title="Customer Section">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
@@ -214,13 +214,13 @@ export function AppSidebar({
                 <span className="flex items-center gap-2">
                   <span
                     className="flex size-6 items-center justify-center overflow-hidden rounded-sm bg-sidebar border border-border"
-                    aria-label="Client Logo"
-                    title="Client Logo"
+                    aria-label="Customer Logo"
+                    title="Customer Logo"
                   >
                     {branding.logoUrl ? (
                       <img
                         src={branding.logoUrl}
-                        alt={`${clientSectionTitle} client logo`}
+                        alt={`${customerSectionTitle} customer logo`}
                         className="size-full object-contain"
                       />
                     ) : (
@@ -229,10 +229,10 @@ export function AppSidebar({
                   </span>
                   <span
                     className="text-base font-semibold leading-none"
-                    aria-label="Client Name"
-                    title="Client Name"
+                    aria-label="Customer Name"
+                    title="Customer Name"
                   >
-                    {clientSectionTitle}
+                    {customerSectionTitle}
                   </span>
                 </span>
               </Link>

@@ -12,7 +12,7 @@ export function CustomerBrandingSettingsPage() {
       return;
     }
 
-    const message = error?.data?.error?.message || error?.message || "Unable to load client details";
+    const message = error?.data?.error?.message || error?.message || "Unable to load customer details";
     toast.error(message);
   }, [error]);
 
@@ -20,9 +20,9 @@ export function CustomerBrandingSettingsPage() {
     async (values) => {
       try {
         await saveBranding(values);
-        toast.success("Client details updated successfully");
+        toast.success("Customer details updated successfully");
       } catch (error) {
-        const message = error?.data?.error?.message || error?.message || "Unable to save client details";
+        const message = error?.data?.error?.message || error?.message || "Unable to save customer details";
         toast.error(message);
         throw error;
       }
