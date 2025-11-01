@@ -330,7 +330,7 @@ export function CustomerBrandingSettingsForm({ branding, isLoading, isSaving, on
         <CardContent className="space-y-8">
           <FieldGroup>
             <Field>
-              <FieldLabel>Site Logo</FieldLabel>
+              <FieldLabel>Customer Logo</FieldLabel>
               <FieldContent>
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-center gap-4">
