@@ -11,7 +11,7 @@ const SEARCH_PLACEHOLDER = 'Search the workspace...';
 
 const DEFAULT_BRANDING = {
   name: 'Acme Inc.',
-  sidebarTitle: 'Client Name',
+  sidebarTitle: 'Customer Name',
   logoUrl: null,
   logoObjectName: null,
   searchPlaceholder: SEARCH_PLACEHOLDER,
@@ -34,8 +34,8 @@ const updateSchema = z.object({
   sidebarTitle: z
     .string()
     .trim()
-    .min(1, 'Client name is required')
-    .max(120, 'Client name must be 120 characters or fewer'),
+    .min(1, 'Customer name is required')
+    .max(120, 'Customer name must be 120 characters or fewer'),
   logoObjectName: z.union([logoObjectNameSchema, z.literal(null)]).optional(),
 });
 

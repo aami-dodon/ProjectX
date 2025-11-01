@@ -25,7 +25,7 @@ const PRESET_BREADCRUMBS = {
   "/admin/branding": () => [
     { label: "Home", href: "/home" },
     { label: "Administration" },
-    { label: "Client Details" },
+    { label: "Customer Details" },
   ],
 }
 
