@@ -3,13 +3,13 @@ const { prisma } = require('@/integrations/prisma');
 const BRANDING_ID = 'default';
 
 async function findBrandingSettings() {
-  return prisma.brandingSetting.findUnique({
+  return prisma.customerBrandingSetting.findUnique({
     where: { id: BRANDING_ID },
   });
 }
 
 async function upsertBrandingSettings(data) {
-  return prisma.brandingSetting.upsert({
+  return prisma.customerBrandingSetting.upsert({
     where: { id: BRANDING_ID },
     update: data,
     create: { id: BRANDING_ID, ...data },

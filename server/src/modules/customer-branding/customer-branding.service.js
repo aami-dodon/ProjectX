@@ -3,9 +3,9 @@ const { z } = require('zod');
 const { createValidationError } = require('@/utils/errors');
 const { createLogger } = require('@/utils/logger');
 const { getFileAccessLink } = require('@/modules/files/file.service');
-const { findBrandingSettings, upsertBrandingSettings } = require('./branding.repository');
+const { findBrandingSettings, upsertBrandingSettings } = require('./customer-branding.repository');
 
-const logger = createLogger('branding-service');
+const logger = createLogger('customer-branding-service');
 
 const DEFAULT_BRANDING = {
   name: 'Acme Inc.',
@@ -127,7 +127,7 @@ async function getBrandingSettings() {
     const { url } = await getFileAccessLink(normalized, ownerId);
     return mergeBranding(current, { logoUrl: url });
   } catch (error) {
-    logger.warn('Failed to resolve branding logo download URL', {
+    logger.warn('Failed to resolve customer branding logo download URL', {
       error: error?.message ?? error,
     });
     return mergeBranding(current, { logoUrl: null });
@@ -172,9 +172,9 @@ async function updateBrandingSettings(updates, { actorId } = {}) {
   await upsertBrandingSettings(payload);
 
   if (actorId) {
-    logger.info('Branding settings updated', { actorId });
+    logger.info('Customer branding settings updated', { actorId });
   } else {
-    logger.info('Branding settings updated');
+    logger.info('Customer branding settings updated');
   }
 
   return getBrandingSettings();
