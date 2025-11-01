@@ -20,6 +20,7 @@ import {
 } from "@/shared/components/ui/field";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { cn } from "@/shared/lib/utils";
+import { apiClient } from "@/shared/lib/client";
 import defaultLogo from "@/assets/favicon.svg";
 
 const ALLOWED_TYPES = new Set(["image/png", "image/jpeg", "image/svg+xml", "image/webp"]);
@@ -46,22 +47,33 @@ function BrandingFormSkeleton({ className }) {
   );
 }
 
-export function BrandingSettingsForm({
-  branding,
-  isLoading,
-  isSaving,
-  onSubmit,
-  onLogoUpload,
-  className,
-}) {
+export function BrandingSettingsForm({ branding, isLoading, isSaving, onSubmit, className }) {
   const [formState, setFormState] = useState({
     name: "",
     sidebarTitle: "",
     searchPlaceholder: "",
-    logoUrl: "",
+    logoObjectName: null,
   });
   const [errors, setErrors] = useState({});
+  const [logoFile, setLogoFile] = useState(null);
+  const [logoPreview, setLogoPreview] = useState("");
   const [isUploading, setIsUploading] = useState(false);
+
+  const revokePreview = useCallback((previewUrl) => {
+    if (
+      previewUrl &&
+      typeof previewUrl === "string" &&
+      previewUrl.startsWith("blob:") &&
+      typeof URL !== "undefined" &&
+      typeof URL.revokeObjectURL === "function"
+    ) {
+      try {
+        URL.revokeObjectURL(previewUrl);
+      } catch (error) {
+        console.warn("Failed to revoke branding preview URL", error);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (!branding) {
@@ -72,12 +84,65 @@ export function BrandingSettingsForm({
       name: branding.name ?? "",
       sidebarTitle: branding.sidebarTitle ?? "",
       searchPlaceholder: branding.searchPlaceholder ?? "",
-      logoUrl: branding.logoUrl ?? "",
+      logoObjectName: branding.logoObjectName ?? null,
     });
     setErrors({});
-  }, [branding]);
+    setLogoFile(null);
+    setLogoPreview((previous) => {
+      if (previous) {
+        revokePreview(previous);
+      }
+      return "";
+    });
 
-  const logoPreview = useMemo(() => formState.logoUrl || defaultLogo, [formState.logoUrl]);
+    if (!branding.logoObjectName) {
+      if (branding.logoUrl) {
+        setLogoPreview(branding.logoUrl);
+      }
+      return;
+    }
+
+    let isCurrent = true;
+
+    async function fetchPreview() {
+      try {
+        const { data } = await apiClient.get("/api/files/download-url", {
+          params: { objectName: branding.logoObjectName },
+        });
+
+        if (!isCurrent) {
+          return;
+        }
+
+        if (data?.url) {
+          setLogoPreview((previous) => {
+            if (previous) {
+              revokePreview(previous);
+            }
+            return data.url;
+          });
+        }
+      } catch (error) {
+        console.error("Failed to load branding logo preview", error);
+        if (isCurrent) {
+          setErrors((prev) => ({
+            ...prev,
+            logo: prev.logo ?? "We couldn't load the current logo preview.",
+          }));
+        }
+      }
+    }
+
+    fetchPreview();
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [branding, revokePreview]);
+
+  useEffect(() => () => revokePreview(logoPreview), [logoPreview, revokePreview]);
+
+  const resolvedLogoPreview = useMemo(() => logoPreview || defaultLogo, [logoPreview]);
 
   const handleFieldChange = useCallback((event) => {
     const { name, value } = event.target;
@@ -104,8 +169,9 @@ export function BrandingSettingsForm({
     return Object.keys(nextErrors).length === 0;
   }, [formState.name, formState.searchPlaceholder, formState.sidebarTitle]);
 
-  const handleLogoUpload = useCallback(
-    async (file) => {
+  const handleFileChange = useCallback(
+    (event) => {
+      const file = event.target.files?.[0];
       if (!file) {
         return;
       }
@@ -115,48 +181,45 @@ export function BrandingSettingsForm({
           ...prev,
           logo: "Logo must be a PNG, SVG, JPEG, or WebP image.",
         }));
-        return;
-      }
-
-      if (file.size > MAX_LOGO_SIZE) {
+        setLogoFile(null);
+        setLogoPreview((previous) => {
+          if (previous) {
+            revokePreview(previous);
+          }
+          return "";
+        });
+      } else if (file.size > MAX_LOGO_SIZE) {
         setErrors((prev) => ({
           ...prev,
           logo: "Logo must be 2MB or smaller.",
         }));
-        return;
-      }
-
-      setIsUploading(true);
-      setErrors((prev) => ({ ...prev, logo: undefined }));
-
-      try {
-        const logoUrl = await onLogoUpload?.(file);
-        if (logoUrl) {
-          setFormState((prev) => ({ ...prev, logoUrl }));
+        setLogoFile(null);
+        setLogoPreview((previous) => {
+          if (previous) {
+            revokePreview(previous);
+          }
+          return "";
+        });
+      } else {
+        let previewUrl = "";
+        if (typeof URL !== "undefined" && typeof URL.createObjectURL === "function") {
+          previewUrl = URL.createObjectURL(file);
         }
-      } catch (error) {
-        const message =
-          error?.data?.error?.message || error?.message || "Failed to upload logo.";
-        setErrors((prev) => ({
-          ...prev,
-          logo: message,
-        }));
-      } finally {
-        setIsUploading(false);
-      }
-    },
-    [onLogoUpload]
-  );
 
-  const handleFileChange = useCallback(
-    (event) => {
-      const file = event.target.files?.[0];
-      if (file) {
-        handleLogoUpload(file);
+        setLogoFile(file);
+        setFormState((prev) => ({ ...prev, logoObjectName: null }));
+        setLogoPreview((previous) => {
+          if (previous) {
+            revokePreview(previous);
+          }
+          return previewUrl;
+        });
+        setErrors((prev) => ({ ...prev, logo: undefined }));
       }
+
       event.target.value = "";
     },
-    [handleLogoUpload]
+    [revokePreview]
   );
 
   const handleSubmit = useCallback(
@@ -167,14 +230,56 @@ export function BrandingSettingsForm({
         return;
       }
 
+      let nextLogoObjectName = formState.logoObjectName ?? null;
+
+      if (logoFile) {
+        setIsUploading(true);
+
+        try {
+          const { data: uploadData } = await apiClient.get("/api/files/upload-url", {
+            params: {
+              filename: logoFile.name,
+              mimeType: logoFile.type,
+            },
+          });
+
+          const response = await fetch(uploadData.uploadUrl, {
+            method: "PUT",
+            headers: {
+              "Content-Type": logoFile.type || "application/octet-stream",
+            },
+            body: logoFile,
+          });
+
+          if (!response.ok) {
+            throw new Error(`Upload failed with status ${response.status}`);
+          }
+
+          nextLogoObjectName = uploadData.objectName;
+        } catch (error) {
+          console.error("Failed to upload branding logo", error);
+          const message =
+            error?.data?.error?.message ||
+            error?.message ||
+            "We couldn't upload the logo. Please try again.";
+          setErrors((prev) => ({
+            ...prev,
+            logo: message,
+          }));
+          setIsUploading(false);
+          return;
+        }
+      }
+
       try {
         await onSubmit?.({
           name: formState.name.trim(),
           sidebarTitle: formState.sidebarTitle.trim(),
           searchPlaceholder: formState.searchPlaceholder.trim(),
-          logoUrl: formState.logoUrl || null,
+          logoObjectName: nextLogoObjectName,
         });
         setErrors((prev) => ({ ...prev, form: undefined }));
+        setLogoFile(null);
       } catch (error) {
         const message = error?.data?.error?.message || error?.message;
         if (message) {
@@ -183,15 +288,24 @@ export function BrandingSettingsForm({
             form: message,
           }));
         }
+      } finally {
+        setIsUploading(false);
       }
     },
-    [formState.logoUrl, formState.name, formState.searchPlaceholder, formState.sidebarTitle, onSubmit, validateForm]
+    [formState.logoObjectName, formState.name, formState.searchPlaceholder, formState.sidebarTitle, logoFile, onSubmit, validateForm]
   );
 
   const handleResetLogo = useCallback(() => {
-    setFormState((prev) => ({ ...prev, logoUrl: "" }));
+    setFormState((prev) => ({ ...prev, logoObjectName: null }));
     setErrors((prev) => ({ ...prev, logo: undefined }));
-  }, []);
+    setLogoFile(null);
+    setLogoPreview((previous) => {
+      if (previous) {
+        revokePreview(previous);
+      }
+      return "";
+    });
+  }, [revokePreview]);
 
   const handleResetForm = useCallback(() => {
     if (!branding) {
@@ -202,10 +316,17 @@ export function BrandingSettingsForm({
       name: branding.name ?? "",
       sidebarTitle: branding.sidebarTitle ?? "",
       searchPlaceholder: branding.searchPlaceholder ?? "",
-      logoUrl: branding.logoUrl ?? "",
+      logoObjectName: branding.logoObjectName ?? null,
     });
     setErrors({});
-  }, [branding]);
+    setLogoFile(null);
+    setLogoPreview((previous) => {
+      if (previous) {
+        revokePreview(previous);
+      }
+      return branding.logoUrl ?? "";
+    });
+  }, [branding, revokePreview]);
 
   if (isLoading) {
     return <BrandingFormSkeleton className={className} />;
@@ -227,7 +348,7 @@ export function BrandingSettingsForm({
                   <div className="flex items-center gap-4">
                     <span className="flex size-16 items-center justify-center overflow-hidden rounded-md border border-border bg-muted">
                       <img
-                        src={logoPreview}
+                        src={resolvedLogoPreview}
                         alt="Workspace logo preview"
                         className="size-full object-contain"
                       />
@@ -266,7 +387,11 @@ export function BrandingSettingsForm({
                       variant="ghost"
                       className="w-full sm:w-auto"
                       onClick={handleResetLogo}
-                      disabled={isUploading || isSaving || !formState.logoUrl}
+                      disabled={
+                        isUploading ||
+                        isSaving ||
+                        (!formState.logoObjectName && !logoFile && !logoPreview)
+                      }
                     >
                       Use default icon
                     </Button>

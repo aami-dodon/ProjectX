@@ -170,7 +170,7 @@ model BrandingSetting {
   id                String   @id @default("default")
   name              String
   sidebarTitle      String   @map("sidebar_title")
-  logoUrl           String   @map("logo_url")
+  logoObjectName    String?  @map("logo_object_name")
   searchPlaceholder String   @map("search_placeholder")
   createdAt         DateTime @default(now()) @map("created_at")
   updatedAt         DateTime @updatedAt @map("updated_at")

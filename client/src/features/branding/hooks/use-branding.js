@@ -8,6 +8,7 @@ export const DEFAULT_BRANDING = {
   name: "Acme Inc.",
   sidebarTitle: "Acme Inc.",
   logoUrl: null,
+  logoObjectName: null,
   searchPlaceholder: "Search the workspace...",
 };
 
@@ -41,22 +42,6 @@ export async function updateBranding(payload) {
     return branding;
   } catch (error) {
     console.error("Failed to update branding", error);
-    throw error;
-  }
-}
-
-export async function uploadBrandingLogo(file) {
-  const formData = new FormData();
-  formData.append("logo", file);
-
-  try {
-    const { data } = await apiClient.post("/api/branding/logo", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-
-    return data?.logoUrl ?? null;
-  } catch (error) {
-    console.error("Failed to upload branding logo", error);
     throw error;
   }
 }
