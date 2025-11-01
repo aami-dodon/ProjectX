@@ -241,31 +241,6 @@ export function HealthPage() {
   return (
     <div className="flex flex-1 flex-col">
       <div className="@container/main flex flex-1 flex-col gap-6 px-4 py-6 lg:px-6">
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex flex-col gap-1">
-              <h1 className="text-2xl font-semibold">System Health</h1>
-              <p className="text-sm text-muted-foreground">
-                Real-time diagnostics for the API and supporting infrastructure.
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <StatusBadge status={summary.status} />
-              <Button onClick={refresh} size="sm" variant="outline" className="flex items-center gap-2">
-                <RefreshCcw className="size-4" />
-                Refresh
-              </Button>
-            </div>
-          </div>
-          {data?.timestamp ? (
-            <p className="text-xs text-muted-foreground">
-              Last checked at {new Date(data.timestamp).toLocaleString()}
-              {refreshInterval
-                ? ` (auto-refreshing every ${Math.round(refreshInterval / 1000)} seconds)`
-                : ""}
-            </p>
-          ) : null}
-        </div>
 
         {isLoading ? (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
