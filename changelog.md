@@ -1,3 +1,6 @@
+## 2025-11-21 12:30:00 IST
+- Wrapped the application layout in the shared ScrollArea and added fallback scrollbar styling so every page uses the shadcn theme consistently.
+
 ## 2025-11-21 10:45:00 IST
 - Removed the Operations navigation group and its submenu links from the primary sidebar so the workspace menu reflects the current feature set.
 ## 2025-11-21 10:30:00 IST
