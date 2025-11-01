@@ -165,6 +165,11 @@ export function AppSidebar({
   const currentUser = useCurrentUser()
   const branding = useBranding()
 
+  const clientSectionTitle = React.useMemo(() => {
+    const derivedTitle = branding.sidebarTitle?.trim() || branding.name?.trim()
+    return derivedTitle && derivedTitle.length > 0 ? derivedTitle : "Client Name"
+  }, [branding.sidebarTitle, branding.name])
+
   const isAdmin = React.useMemo(
     () => (currentUser?.roles ?? []).some((role) => role.name?.toLowerCase() === "admin"),
     [currentUser?.roles]
@@ -201,27 +206,34 @@ export function AppSidebar({
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
-      <SidebarHeader>
+      <SidebarHeader aria-label="Client Section" title="Client Section">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
               <Link to="/home">
                 <span className="flex items-center gap-2">
-                  <span className="flex size-6 items-center justify-center overflow-hidden rounded-sm bg-sidebar border border-border">
+                  <span
+                    className="flex size-6 items-center justify-center overflow-hidden rounded-sm bg-sidebar border border-border"
+                    aria-label="Client Logo"
+                    title="Client Logo"
+                  >
                     {branding.logoUrl ? (
                       <img
                         src={branding.logoUrl}
-                        alt={`${branding.sidebarTitle ?? branding.name ?? "Workspace"} logo`}
+                        alt={`${clientSectionTitle} client logo`}
                         className="size-full object-contain"
                       />
                     ) : (
-                      <Building2
-                        aria-hidden="true"
-                        className="size-4 text-muted-foreground"
-                      />
+                      <Building2 aria-hidden="true" className="size-4 text-muted-foreground" />
                     )}
                   </span>
-                  <span className="text-base font-semibold leading-none">{branding.sidebarTitle}</span>
+                  <span
+                    className="text-base font-semibold leading-none"
+                    aria-label="Client Name"
+                    title="Client Name"
+                  >
+                    {clientSectionTitle}
+                  </span>
                 </span>
               </Link>
             </SidebarMenuButton>

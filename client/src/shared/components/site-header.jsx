@@ -21,7 +21,7 @@ import { useBreadcrumbs } from "@/shared/hooks/use-breadcrumbs"
 export function SiteHeader() {
   const breadcrumbs = useBreadcrumbs()
   const { searchPlaceholder, logoUrl, name } = useBranding()
-  const resolvedLogoAlt = name ? `${name} mark` : "Project mark"
+  const resolvedLogoAlt = name ? `${name} site logo` : "Site logo"
 
   return (
     <header
@@ -65,7 +65,10 @@ export function SiteHeader() {
         </div>
         <div className="flex flex-1 items-center justify-end gap-2">
           <ModeToggle />
-          <span className="flex size-8 items-center justify-center overflow-hidden rounded-md border border-border bg-muted">
+          <span
+            className="flex size-8 items-center justify-center overflow-hidden rounded-md border border-border bg-muted"
+            aria-label="Site Logo"
+          >
             {logoUrl ? (
               <img src={logoUrl} alt={resolvedLogoAlt} className="size-full object-contain" />
             ) : (

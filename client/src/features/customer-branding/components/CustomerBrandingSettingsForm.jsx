@@ -158,7 +158,7 @@ export function CustomerBrandingSettingsForm({ branding, isLoading, isSaving, on
     }
 
     if (!formState.sidebarTitle.trim()) {
-      nextErrors.sidebarTitle = "Sidebar title is required.";
+      nextErrors.sidebarTitle = "Client name is required.";
     }
 
     if (!formState.searchPlaceholder.trim()) {
@@ -342,19 +342,19 @@ export function CustomerBrandingSettingsForm({ branding, isLoading, isSaving, on
         <CardContent className="space-y-8">
           <FieldGroup>
             <Field>
-              <FieldLabel>Logo</FieldLabel>
+              <FieldLabel>Site Logo</FieldLabel>
               <FieldContent>
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-center gap-4">
                     <span className="flex size-16 items-center justify-center overflow-hidden rounded-md border border-border bg-muted">
                       <img
                         src={resolvedLogoPreview}
-                        alt="Workspace logo preview"
+                        alt="Site logo preview"
                         className="size-full object-contain"
                       />
                     </span>
                     <div className="flex flex-col gap-1 text-sm text-muted-foreground">
-                      <span>Upload a square logo to personalize the sidebar and header.</span>
+                      <span>Upload a square logo to personalize the Client Section and header.</span>
                       <span>PNG, JPEG, SVG, or WebP up to 2MB.</span>
                     </div>
                   </div>
@@ -415,18 +415,18 @@ export function CustomerBrandingSettingsForm({ branding, isLoading, isSaving, on
               </FieldContent>
             </Field>
             <Field>
-              <FieldLabel htmlFor="branding-sidebar-title">Sidebar title</FieldLabel>
+              <FieldLabel htmlFor="branding-client-name">Client Name</FieldLabel>
               <FieldContent>
                 <Input
-                  id="branding-sidebar-title"
+                  id="branding-client-name"
                   name="sidebarTitle"
                   value={formState.sidebarTitle}
                   onChange={handleFieldChange}
-                  placeholder="Acme Inc."
+                  placeholder="Client Name"
                   disabled={isSaving || isUploading}
                 />
                 <FieldDescription>
-                  Appears at the top of the navigation menu.
+                  Appears within the Client Section at the top of the sidebar.
                 </FieldDescription>
                 <FieldError>{errors.sidebarTitle}</FieldError>
               </FieldContent>
