@@ -8,7 +8,7 @@ export const SEARCH_PLACEHOLDER = "Search the workspace...";
 
 export const DEFAULT_BRANDING = {
   name: "Acme Inc.",
-  sidebarTitle: "Client Name",
+  sidebarTitle: "Customer Name",
   logoUrl: null,
   logoObjectName: null,
   searchPlaceholder: SEARCH_PLACEHOLDER,

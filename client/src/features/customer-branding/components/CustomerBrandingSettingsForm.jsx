@@ -153,7 +153,7 @@ export function CustomerBrandingSettingsForm({ branding, isLoading, isSaving, on
     }
 
     if (!formState.sidebarTitle.trim()) {
-      nextErrors.sidebarTitle = "Client name is required.";
+      nextErrors.sidebarTitle = "Customer name is required.";
     }
 
     setErrors(nextErrors);
@@ -324,7 +324,7 @@ export function CustomerBrandingSettingsForm({ branding, isLoading, isSaving, on
   return (
     <Card className={cn("h-full", className)}>
       <CardHeader>
-        <CardTitle>Client Details</CardTitle>
+        <CardTitle>Customer Details</CardTitle>
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-8">
@@ -342,7 +342,7 @@ export function CustomerBrandingSettingsForm({ branding, isLoading, isSaving, on
                       />
                     </span>
                     <div className="flex flex-col gap-1 text-sm text-muted-foreground">
-                      <span>Upload a square logo to personalize the Client Section and header.</span>
+                      <span>Upload a square logo to personalize the Customer Section and header.</span>
                       <span>PNG, JPEG, SVG, or WebP up to 2MB.</span>
                     </div>
                   </div>
@@ -403,18 +403,18 @@ export function CustomerBrandingSettingsForm({ branding, isLoading, isSaving, on
               </FieldContent>
             </Field>
             <Field>
-              <FieldLabel htmlFor="branding-client-name">Client Name</FieldLabel>
+              <FieldLabel htmlFor="branding-customer-name">Customer Name</FieldLabel>
               <FieldContent>
                 <Input
-                  id="branding-client-name"
+                  id="branding-customer-name"
                   name="sidebarTitle"
                   value={formState.sidebarTitle}
                   onChange={handleFieldChange}
-                  placeholder="Client Name"
+                  placeholder="Customer Name"
                   disabled={isSaving || isUploading}
                 />
                 <FieldDescription>
-                  Appears within the Client Section at the top of the sidebar.
+                  Appears within the Customer Section at the top of the sidebar.
                 </FieldDescription>
                 <FieldError>{errors.sidebarTitle}</FieldError>
               </FieldContent>
