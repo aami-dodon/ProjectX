@@ -20,7 +20,7 @@ import { useBreadcrumbs } from "@/shared/hooks/use-breadcrumbs"
 
 export function SiteHeader() {
   const breadcrumbs = useBreadcrumbs()
-  const branding = useBranding()
+  const { searchPlaceholder } = useBranding()
 
   return (
     <header
@@ -55,7 +55,7 @@ export function SiteHeader() {
           <div className="relative w-full max-w-xl">
             <IconSearch className="text-muted-foreground absolute left-3 top-1/2 size-4 -translate-y-1/2" />
             <Input
-              placeholder={branding.searchPlaceholder}
+              placeholder={searchPlaceholder}
               className="bg-background pl-9"
               type="search"
               aria-label="Search"
@@ -65,11 +65,7 @@ export function SiteHeader() {
         <div className="flex flex-1 items-center justify-end gap-2">
           <ModeToggle />
           <span className="flex size-8 items-center justify-center overflow-hidden rounded-md border border-border bg-muted">
-            <img
-              src={branding.logoUrl ?? defaultLogo}
-              alt={`${branding.name} mark`}
-              className="size-full object-contain"
-            />
+            <img src={defaultLogo} alt="Project mark" className="size-full object-contain" />
           </span>
         </div>
       </div>
