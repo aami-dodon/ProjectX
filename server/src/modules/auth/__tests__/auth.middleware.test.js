@@ -8,7 +8,7 @@ jest.mock('../auth.repository', () => ({
 
 const jwt = require('jsonwebtoken');
 const { findUserById } = require('../auth.repository');
-const { authenticateRequest } = require('../auth.middleware');
+const { authenticateRequest, requireRoles } = require('../auth.middleware');
 
 const createRequest = (authorization = 'Bearer token') => ({
   headers: {
@@ -86,4 +86,45 @@ describe('authenticateRequest middleware', () => {
     expect(next.mock.calls[0]).toHaveLength(0);
   });
 
+});
+
+describe('requireRoles middleware', () => {
+  it('rejects when authentication details are missing', () => {
+    const next = jest.fn();
+
+    requireRoles('admin')({}, {}, next);
+
+    expect(next).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'Authentication is required',
+        status: 401,
+        code: 'UNAUTHORIZED',
+      }),
+    );
+  });
+
+  it('allows access when the user has a matching role regardless of case', () => {
+    const next = jest.fn();
+
+    const middleware = requireRoles('Admin');
+    middleware({ user: { roles: ['ADMIN', 'operator'] } }, {}, next);
+
+    expect(next).toHaveBeenCalledTimes(1);
+    expect(next.mock.calls[0]).toHaveLength(0);
+  });
+
+  it('rejects when the user lacks the required roles', () => {
+    const next = jest.fn();
+
+    const middleware = requireRoles('admin');
+    middleware({ user: { roles: ['operator'] } }, {}, next);
+
+    expect(next).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'You do not have permission to access this resource',
+        status: 401,
+        code: 'UNAUTHORIZED',
+      }),
+    );
+  });
 });
