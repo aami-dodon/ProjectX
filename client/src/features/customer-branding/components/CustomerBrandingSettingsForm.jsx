@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import {
   Card,
@@ -20,7 +20,41 @@ import {
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { cn } from "@/shared/lib/utils";
 import { apiClient } from "@/shared/lib/client";
-import defaultLogo from "@/assets/favicon.svg";
+
+function DefaultLogoPreview(props) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 64 64"
+      role="img"
+      aria-label="Project X logo"
+      {...props}
+    >
+      <style>{`
+        :root {
+          color: var(--logo-color, var(--primary, oklch(0.852 0.199 91.936)));
+        }
+        text {
+          font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+          font-weight: 700;
+          letter-spacing: -0.08em;
+        }
+      `}</style>
+      <rect width="64" height="64" rx="12" fill="currentColor" fillOpacity="0.12" />
+      <g transform="translate(32, 32)">
+        <text
+          textAnchor="middle"
+          dominantBaseline="middle"
+          fontSize="64"
+          fill="currentColor"
+          dy="0.1em"
+        >
+          X
+        </text>
+      </g>
+    </svg>
+  );
+}
 
 const ALLOWED_TYPES = new Set(["image/png", "image/jpeg", "image/svg+xml", "image/webp"]);
 const MAX_LOGO_SIZE = 2 * 1024 * 1024;
@@ -136,8 +170,6 @@ export function CustomerBrandingSettingsForm({ branding, isLoading, isSaving, on
   }, [branding, revokePreview]);
 
   useEffect(() => () => revokePreview(logoPreview), [logoPreview, revokePreview]);
-
-  const resolvedLogoPreview = useMemo(() => logoPreview || defaultLogo, [logoPreview]);
 
   const handleFieldChange = useCallback((event) => {
     const { name, value } = event.target;
@@ -335,11 +367,15 @@ export function CustomerBrandingSettingsForm({ branding, isLoading, isSaving, on
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-center gap-4">
                     <span className="flex size-16 items-center justify-center overflow-hidden rounded-md border border-border bg-muted">
-                      <img
-                        src={resolvedLogoPreview}
-                        alt="Site logo preview"
-                        className="size-full object-contain"
-                      />
+                      {logoPreview ? (
+                        <img
+                          src={logoPreview}
+                          alt="Site logo preview"
+                          className="size-full object-contain"
+                        />
+                      ) : (
+                        <DefaultLogoPreview className="size-full object-contain" />
+                      )}
                     </span>
                     <div className="flex flex-col gap-1 text-sm text-muted-foreground">
                       <span>Upload a square logo to personalize the Customer Section and header.</span>
