@@ -166,7 +166,7 @@ model AuditLog {
   @@map("audit_logs")
 }
 
-model BrandingSetting {
+model CustomerBrandingSetting {
   id                String   @id @default("default")
   name              String
   sidebarTitle      String   @map("sidebar_title")
@@ -175,5 +175,5 @@ model BrandingSetting {
   createdAt         DateTime @default(now()) @map("created_at")
   updatedAt         DateTime @updatedAt @map("updated_at")
 
-  @@map("branding_settings")
+  @@map("customer_branding_settings")
 }

@@ -1,4 +1,4 @@
-const { getBrandingSettings, updateBrandingSettings } = require('./branding.service');
+const { getBrandingSettings, updateBrandingSettings } = require('./customer-branding.service');
 
 const fetchBranding = async (req, res, next) => {
   try {

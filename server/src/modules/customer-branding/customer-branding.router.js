@@ -2,7 +2,7 @@ const express = require('express');
 
 const { authenticateRequest, requireRoles } = require('@/modules/auth/auth.middleware');
 const { attachAuditContext } = require('@/middleware/audit-context');
-const { fetchBranding, saveBranding } = require('./branding.controller');
+const { fetchBranding, saveBranding } = require('./customer-branding.controller');
 
 const router = express.Router();
 
