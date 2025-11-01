@@ -9,7 +9,7 @@ const logger = createLogger('customer-branding-service');
 
 const DEFAULT_BRANDING = {
   name: 'Acme Inc.',
-  sidebarTitle: 'Acme Inc.',
+  sidebarTitle: 'Client Name',
   logoUrl: null,
   logoObjectName: null,
   searchPlaceholder: 'Search the workspace...',
@@ -32,8 +32,8 @@ const updateSchema = z.object({
   sidebarTitle: z
     .string()
     .trim()
-    .min(1, 'Sidebar title is required')
-    .max(120, 'Sidebar title must be 120 characters or fewer'),
+    .min(1, 'Client name is required')
+    .max(120, 'Client name must be 120 characters or fewer'),
   searchPlaceholder: z
     .string()
     .trim()
