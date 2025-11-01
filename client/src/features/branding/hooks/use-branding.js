@@ -1,96 +1,110 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
 
-const BRANDING_STORAGE_KEY = "px:branding"
-const BRANDING_UPDATED_EVENT = "px:branding-updated"
+import { apiClient } from "@/shared/lib/client";
+
+export const BRANDING_UPDATED_EVENT = "px:branding-updated";
 
 export const DEFAULT_BRANDING = {
   name: "Acme Inc.",
   sidebarTitle: "Acme Inc.",
   logoUrl: "/favicon.svg",
   searchPlaceholder: "Search the workspace...",
-}
+};
 
 function mergeBranding(partial) {
-  return { ...DEFAULT_BRANDING, ...(partial ?? {}) }
+  return { ...DEFAULT_BRANDING, ...(partial ?? {}) };
 }
 
-function readBrandingFromStorage() {
-  if (typeof window === "undefined") {
-    return DEFAULT_BRANDING
-  }
+async function requestBranding() {
+  const { data } = await apiClient.get("/api/branding");
+  return mergeBranding(data?.branding);
+}
 
+export async function fetchBranding() {
   try {
-    const raw = window.localStorage.getItem(BRANDING_STORAGE_KEY)
-    if (!raw) {
-      return DEFAULT_BRANDING
+    return await requestBranding();
+  } catch (error) {
+    console.error("Failed to fetch branding", error);
+    return DEFAULT_BRANDING;
+  }
+}
+
+export async function updateBranding(payload) {
+  try {
+    const { data } = await apiClient.put("/api/branding", payload);
+    const branding = mergeBranding(data?.branding);
+
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent(BRANDING_UPDATED_EVENT, { detail: branding }));
     }
 
-    const parsed = JSON.parse(raw)
-    return mergeBranding(parsed)
+    return branding;
   } catch (error) {
-    console.error("Unable to read branding configuration", error)
-    return DEFAULT_BRANDING
+    console.error("Failed to update branding", error);
+    throw error;
   }
 }
 
-export function updateBranding(partial) {
-  if (typeof window === "undefined") {
-    return mergeBranding(partial)
-  }
+export async function uploadBrandingLogo(file) {
+  const formData = new FormData();
+  formData.append("logo", file);
 
-  const branding = mergeBranding(partial)
   try {
-    window.localStorage.setItem(BRANDING_STORAGE_KEY, JSON.stringify(branding))
+    const { data } = await apiClient.post("/api/branding/logo", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    return data?.logoUrl ?? null;
   } catch (error) {
-    console.error("Unable to persist branding configuration", error)
+    console.error("Failed to upload branding logo", error);
+    throw error;
   }
-
-  window.dispatchEvent(new CustomEvent(BRANDING_UPDATED_EVENT, { detail: branding }))
-  return branding
-}
-
-export function resetBranding() {
-  if (typeof window === "undefined") {
-    return DEFAULT_BRANDING
-  }
-
-  window.localStorage.removeItem(BRANDING_STORAGE_KEY)
-  window.dispatchEvent(new CustomEvent(BRANDING_UPDATED_EVENT, { detail: DEFAULT_BRANDING }))
-  return DEFAULT_BRANDING
 }
 
 export function useBranding() {
-  const [branding, setBranding] = useState(() => readBrandingFromStorage())
+  const [branding, setBranding] = useState(() => DEFAULT_BRANDING);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadBranding() {
+      try {
+        const data = await requestBranding();
+        if (isMounted) {
+          setBranding(data);
+        }
+      } catch (error) {
+        console.error("Failed to load branding", error);
+      }
+    }
+
+    loadBranding();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") {
-      return undefined
+      return undefined;
     }
 
-    function syncBranding(event) {
+    const syncBranding = (event) => {
       if (event?.detail) {
-        setBranding(mergeBranding(event.detail))
-        return
+        setBranding(mergeBranding(event.detail));
+        return;
       }
 
-      setBranding(readBrandingFromStorage())
-    }
+      setBranding((previous) => mergeBranding(previous));
+    };
 
-    function handleStorage(event) {
-      if (event.key === BRANDING_STORAGE_KEY || event.key === null) {
-        setBranding(readBrandingFromStorage())
-      }
-    }
-
-    window.addEventListener("storage", handleStorage)
-    window.addEventListener(BRANDING_UPDATED_EVENT, syncBranding)
+    window.addEventListener(BRANDING_UPDATED_EVENT, syncBranding);
 
     return () => {
-      window.removeEventListener("storage", handleStorage)
-      window.removeEventListener(BRANDING_UPDATED_EVENT, syncBranding)
-    }
-  }, [])
+      window.removeEventListener(BRANDING_UPDATED_EVENT, syncBranding);
+    };
+  }, []);
 
-  return branding
+  return branding;
 }
-
