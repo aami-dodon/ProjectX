@@ -4,6 +4,7 @@ import { IconSearch } from "@tabler/icons-react"
 
 import { ModeToggle } from "@/components/mode-toggle"   // 👈 import the toggle
 import { useBranding } from "@/features/branding"
+import defaultLogo from "@/assets/favicon.svg"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -64,7 +65,11 @@ export function SiteHeader() {
         <div className="flex flex-1 items-center justify-end gap-2">
           <ModeToggle />
           <span className="flex size-8 items-center justify-center overflow-hidden rounded-md border border-border bg-muted">
-            <img src={branding.logoUrl} alt={`${branding.name} mark`} className="size-full object-contain" />
+            <img
+              src={branding.logoUrl ?? defaultLogo}
+              alt={`${branding.name} mark`}
+              className="size-full object-contain"
+            />
           </span>
         </div>
       </div>
