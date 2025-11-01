@@ -1,4 +1,4 @@
-const prisma = require('@/integrations/prisma');
+const { prisma } = require('@/integrations/prisma');
 
 const BRANDING_ID = 'default';
 
