@@ -7,12 +7,14 @@ const { findBrandingSettings, upsertBrandingSettings } = require('./customer-bra
 
 const logger = createLogger('customer-branding-service');
 
+const SEARCH_PLACEHOLDER = 'Search the workspace...';
+
 const DEFAULT_BRANDING = {
   name: 'Acme Inc.',
   sidebarTitle: 'Client Name',
   logoUrl: null,
   logoObjectName: null,
-  searchPlaceholder: 'Search the workspace...',
+  searchPlaceholder: SEARCH_PLACEHOLDER,
 };
 
 const LEGACY_DEFAULT_LOGO = '/favicon.svg';
@@ -34,11 +36,6 @@ const updateSchema = z.object({
     .trim()
     .min(1, 'Client name is required')
     .max(120, 'Client name must be 120 characters or fewer'),
-  searchPlaceholder: z
-    .string()
-    .trim()
-    .min(1, 'Search placeholder is required')
-    .max(160, 'Search placeholder must be 160 characters or fewer'),
   logoObjectName: z.union([logoObjectNameSchema, z.literal(null)]).optional(),
 });
 
@@ -107,7 +104,7 @@ function mergeBranding(record, overrides = {}) {
   return {
     name: record.name ?? DEFAULT_BRANDING.name,
     sidebarTitle: record.sidebarTitle ?? DEFAULT_BRANDING.sidebarTitle,
-    searchPlaceholder: record.searchPlaceholder ?? DEFAULT_BRANDING.searchPlaceholder,
+    searchPlaceholder: SEARCH_PLACEHOLDER,
     logoUrl: resolvedLogoUrl,
     logoObjectName: record.logoObjectName ?? null,
     createdAt: record.createdAt ?? null,
@@ -165,7 +162,7 @@ async function updateBrandingSettings(updates, { actorId } = {}) {
   const payload = {
     name: parsed.data.name,
     sidebarTitle: parsed.data.sidebarTitle,
-    searchPlaceholder: parsed.data.searchPlaceholder,
+    searchPlaceholder: SEARCH_PLACEHOLDER,
     logoObjectName: nextLogoObjectName,
   };
 
