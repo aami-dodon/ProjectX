@@ -1,3 +1,6 @@
+## 2025-11-21 14:15:00 IST
+- Refactored the sidebar customer identity into a shared UI component so the logo and title rendering can be reused across layouts.
+
 ## 2025-11-21 13:15:00 IST
 - Updated admin branding copy to refer to customers instead of clients, aligning validation messages and breadcrumb labels with the standard terminology.
 

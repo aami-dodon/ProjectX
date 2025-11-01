@@ -13,8 +13,6 @@ import {
   IconSettings,
   IconUsers,
 } from "@tabler/icons-react"
-import { Building2 } from "lucide-react"
-
 import { useCurrentUser } from "@/features/auth"
 import { useBranding } from "@/features/customer-branding"
 import { NavDocuments } from "@/shared/components/nav-documents"
@@ -22,6 +20,7 @@ import { NavMain } from "@/shared/components/nav-main"
 import { NavSecondary } from "@/shared/components/nav-secondary"
 import { NavAdministration } from "@/shared/components/nav-administration"
 import { NavUser } from "@/shared/components/nav-user"
+import { CustomerBranding } from "@/shared/components/ui/customer-branding"
 import {
   Sidebar,
   SidebarContent,
@@ -200,30 +199,10 @@ export function AppSidebar({
           <SidebarMenuItem>
             <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
               <Link to="/home">
-                <span className="flex items-center gap-2">
-                  <span
-                    className="flex size-6 items-center justify-center overflow-hidden rounded-sm bg-sidebar border border-border"
-                    aria-label="Customer Logo"
-                    title="Customer Logo"
-                  >
-                    {branding.logoUrl ? (
-                      <img
-                        src={branding.logoUrl}
-                        alt={`${customerSectionTitle} customer logo`}
-                        className="size-full object-contain"
-                      />
-                    ) : (
-                      <Building2 aria-hidden="true" className="size-4 text-muted-foreground" />
-                    )}
-                  </span>
-                  <span
-                    className="text-base font-semibold leading-none"
-                    aria-label="Customer Name"
-                    title="Customer Name"
-                  >
-                    {customerSectionTitle}
-                  </span>
-                </span>
+                <CustomerBranding
+                  logoUrl={branding.logoUrl}
+                  title={customerSectionTitle}
+                />
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
