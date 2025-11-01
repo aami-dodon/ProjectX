@@ -16,6 +16,42 @@ function mergeBranding(partial) {
   return { ...DEFAULT_BRANDING, ...(partial ?? {}) };
 }
 
+export const BRANDING_STORAGE_KEY = "px:branding";
+
+function readStoredBranding() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    const cachedBranding = window.localStorage.getItem(BRANDING_STORAGE_KEY);
+
+    if (!cachedBranding) {
+      return null;
+    }
+
+    return mergeBranding(JSON.parse(cachedBranding));
+  } catch (error) {
+    console.error("Failed to read cached branding", error);
+    return null;
+  }
+}
+
+function writeStoredBranding(partial) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(
+      BRANDING_STORAGE_KEY,
+      JSON.stringify(mergeBranding(partial)),
+    );
+  } catch (error) {
+    console.error("Failed to write cached branding", error);
+  }
+}
+
 async function requestBranding() {
   const { data } = await apiClient.get("/api/branding");
   return mergeBranding(data?.branding);
@@ -35,6 +71,8 @@ export async function updateBranding(payload) {
     const { data } = await apiClient.put("/api/branding", payload);
     const branding = mergeBranding(data?.branding);
 
+    writeStoredBranding(branding);
+
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent(BRANDING_UPDATED_EVENT, { detail: branding }));
     }
@@ -47,7 +85,7 @@ export async function updateBranding(payload) {
 }
 
 export function useBranding() {
-  const [branding, setBranding] = useState(() => DEFAULT_BRANDING);
+  const [branding, setBranding] = useState(() => readStoredBranding() ?? DEFAULT_BRANDING);
 
   useEffect(() => {
     let isMounted = true;
@@ -57,6 +95,7 @@ export function useBranding() {
         const data = await requestBranding();
         if (isMounted) {
           setBranding(data);
+          writeStoredBranding(data);
         }
       } catch (error) {
         console.error("Failed to load branding", error);
@@ -77,11 +116,17 @@ export function useBranding() {
 
     const syncBranding = (event) => {
       if (event?.detail) {
-        setBranding(mergeBranding(event.detail));
+        const nextBranding = mergeBranding(event.detail);
+        setBranding(nextBranding);
+        writeStoredBranding(nextBranding);
         return;
       }
 
-      setBranding((previous) => mergeBranding(previous));
+      setBranding((previous) => {
+        const nextBranding = mergeBranding(previous);
+        writeStoredBranding(nextBranding);
+        return nextBranding;
+      });
     };
 
     window.addEventListener(BRANDING_UPDATED_EVENT, syncBranding);
@@ -108,10 +153,16 @@ export function useBranding() {
           return;
         }
 
-        setBranding((previous) => ({
-          ...previous,
-          logoUrl: data.url,
-        }));
+        setBranding((previous) => {
+          const nextBranding = {
+            ...previous,
+            logoUrl: data.url,
+          };
+
+          writeStoredBranding(nextBranding);
+
+          return nextBranding;
+        });
       } catch (error) {
         console.error("Failed to resolve branding logo URL", error);
       }
