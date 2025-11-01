@@ -3,7 +3,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -31,7 +30,6 @@ function CustomerBrandingFormSkeleton({ className }) {
     <Card className={cn("h-full", className)}>
       <CardHeader>
         <Skeleton className="h-7 w-1/3" />
-        <Skeleton className="mt-2 h-4 w-2/3" />
       </CardHeader>
       <CardContent className="space-y-6">
         <Skeleton className="h-24 w-full" />
@@ -335,8 +333,7 @@ export function CustomerBrandingSettingsForm({ branding, isLoading, isSaving, on
   return (
     <Card className={cn("h-full", className)}>
       <CardHeader>
-        <CardTitle>Workspace branding</CardTitle>
-        <CardDescription>Control how the workspace identity appears across navigation surfaces.</CardDescription>
+        <CardTitle>Client Details</CardTitle>
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-8">
@@ -456,7 +453,7 @@ export function CustomerBrandingSettingsForm({ branding, isLoading, isSaving, on
             Reset changes
           </Button>
           <Button type="submit" disabled={isSaving || isUploading}>
-            {isSaving ? "Saving..." : "Save branding"}
+            {isSaving ? "Saving..." : "Save details"}
           </Button>
         </CardFooter>
       </form>
