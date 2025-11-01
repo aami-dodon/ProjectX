@@ -6,6 +6,7 @@ import {
   IconDatabase,
   IconFileAi,
   IconFileDescription,
+  IconPalette,
   IconFolder,
   IconHeartbeat,
   IconListDetails,
@@ -62,11 +63,6 @@ const defaultSidebarData = {
       title: "Operations",
       icon: IconListDetails,
       items: [
-        {
-          title: "Health Checks",
-          url: "/health",
-          icon: IconHeartbeat,
-        },
         {
           title: "Status Pages",
           url: "#",
@@ -143,6 +139,16 @@ const adminSidebarData = {
         title: "Customer Details",
         url: "/admin/branding",
         icon: IconSettings,
+      },
+      {
+        title: "Health Checks",
+        url: "/health",
+        icon: IconHeartbeat,
+      },
+      {
+        title: "Design System",
+        url: "/design-system",
+        icon: IconPalette,
       },
       {
         title: "Compliance",
