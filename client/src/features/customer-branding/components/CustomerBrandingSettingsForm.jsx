@@ -35,7 +35,6 @@ function CustomerBrandingFormSkeleton({ className }) {
         <Skeleton className="h-24 w-full" />
         <Skeleton className="h-10 w-full" />
         <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
       </CardContent>
       <CardFooter className="justify-end gap-2">
         <Skeleton className="h-10 w-24" />
@@ -49,7 +48,6 @@ export function CustomerBrandingSettingsForm({ branding, isLoading, isSaving, on
   const [formState, setFormState] = useState({
     name: "",
     sidebarTitle: "",
-    searchPlaceholder: "",
     logoObjectName: null,
   });
   const [errors, setErrors] = useState({});
@@ -81,7 +79,6 @@ export function CustomerBrandingSettingsForm({ branding, isLoading, isSaving, on
     setFormState({
       name: branding.name ?? "",
       sidebarTitle: branding.sidebarTitle ?? "",
-      searchPlaceholder: branding.searchPlaceholder ?? "",
       logoObjectName: branding.logoObjectName ?? null,
     });
     setErrors({});
@@ -159,13 +156,9 @@ export function CustomerBrandingSettingsForm({ branding, isLoading, isSaving, on
       nextErrors.sidebarTitle = "Client name is required.";
     }
 
-    if (!formState.searchPlaceholder.trim()) {
-      nextErrors.searchPlaceholder = "Search placeholder is required.";
-    }
-
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
-  }, [formState.name, formState.searchPlaceholder, formState.sidebarTitle]);
+  }, [formState.name, formState.sidebarTitle]);
 
   const handleFileChange = useCallback(
     (event) => {
@@ -273,7 +266,6 @@ export function CustomerBrandingSettingsForm({ branding, isLoading, isSaving, on
         await onSubmit?.({
           name: formState.name.trim(),
           sidebarTitle: formState.sidebarTitle.trim(),
-          searchPlaceholder: formState.searchPlaceholder.trim(),
           logoObjectName: nextLogoObjectName,
         });
         setErrors((prev) => ({ ...prev, form: undefined }));
@@ -290,7 +282,7 @@ export function CustomerBrandingSettingsForm({ branding, isLoading, isSaving, on
         setIsUploading(false);
       }
     },
-    [formState.logoObjectName, formState.name, formState.searchPlaceholder, formState.sidebarTitle, logoFile, onSubmit, validateForm]
+    [formState.logoObjectName, formState.name, formState.sidebarTitle, logoFile, onSubmit, validateForm]
   );
 
   const handleResetLogo = useCallback(() => {
@@ -313,7 +305,6 @@ export function CustomerBrandingSettingsForm({ branding, isLoading, isSaving, on
     setFormState({
       name: branding.name ?? "",
       sidebarTitle: branding.sidebarTitle ?? "",
-      searchPlaceholder: branding.searchPlaceholder ?? "",
       logoObjectName: branding.logoObjectName ?? null,
     });
     setErrors({});
@@ -426,23 +417,6 @@ export function CustomerBrandingSettingsForm({ branding, isLoading, isSaving, on
                   Appears within the Client Section at the top of the sidebar.
                 </FieldDescription>
                 <FieldError>{errors.sidebarTitle}</FieldError>
-              </FieldContent>
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="branding-search-placeholder">Search placeholder</FieldLabel>
-              <FieldContent>
-                <Input
-                  id="branding-search-placeholder"
-                  name="searchPlaceholder"
-                  value={formState.searchPlaceholder}
-                  onChange={handleFieldChange}
-                  placeholder="Search the workspace..."
-                  disabled={isSaving || isUploading}
-                />
-                <FieldDescription>
-                  Displayed inside the header search bar.
-                </FieldDescription>
-                <FieldError>{errors.searchPlaceholder}</FieldError>
               </FieldContent>
             </Field>
           </FieldGroup>

@@ -1,3 +1,6 @@
+## 2025-11-20 14:45:00 IST
+- Removed the configurable search placeholder from the Client Details branding settings and now always display "Search the workspace..." in the header search bar.
+
 ## 2025-11-20 13:30:00 IST
 - Renamed the admin workspace branding experience to "Client Details" and removed the extra helper copy beneath the heading so the page reflects the new terminology.
 

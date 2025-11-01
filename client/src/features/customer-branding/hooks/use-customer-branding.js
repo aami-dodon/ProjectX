@@ -4,16 +4,22 @@ import { apiClient } from "@/shared/lib/client";
 
 export const BRANDING_UPDATED_EVENT = "px:branding-updated";
 
+export const SEARCH_PLACEHOLDER = "Search the workspace...";
+
 export const DEFAULT_BRANDING = {
   name: "Acme Inc.",
   sidebarTitle: "Client Name",
   logoUrl: null,
   logoObjectName: null,
-  searchPlaceholder: "Search the workspace...",
+  searchPlaceholder: SEARCH_PLACEHOLDER,
 };
 
 function mergeBranding(partial) {
-  return { ...DEFAULT_BRANDING, ...(partial ?? {}) };
+  return {
+    ...DEFAULT_BRANDING,
+    ...(partial ?? {}),
+    searchPlaceholder: SEARCH_PLACEHOLDER,
+  };
 }
 
 async function requestBranding() {
@@ -32,7 +38,12 @@ export async function fetchBranding() {
 
 export async function updateBranding(payload) {
   try {
-    const { data } = await apiClient.put("/api/branding", payload);
+    const requestPayload = {
+      ...payload,
+      searchPlaceholder: SEARCH_PLACEHOLDER,
+    };
+
+    const { data } = await apiClient.put("/api/branding", requestPayload);
     const branding = mergeBranding(data?.branding);
 
     if (typeof window !== "undefined") {
