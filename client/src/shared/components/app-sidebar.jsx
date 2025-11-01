@@ -15,7 +15,7 @@ import {
 } from "@tabler/icons-react"
 
 import { useCurrentUser } from "@/features/auth"
-import { useBranding } from "@/features/branding"
+import { useBranding } from "@/features/customer-branding"
 import { NavDocuments } from "@/shared/components/nav-documents"
 import { NavMain } from "@/shared/components/nav-main"
 import { NavSecondary } from "@/shared/components/nav-secondary"

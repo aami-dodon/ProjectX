@@ -3,7 +3,7 @@ import { Link } from "react-router-dom"
 import { IconSearch } from "@tabler/icons-react"
 
 import { ModeToggle } from "@/components/mode-toggle"   // 👈 import the toggle
-import { useBranding } from "@/features/branding"
+import { useBranding } from "@/features/customer-branding"
 import defaultLogo from "@/assets/favicon.svg"
 import {
   Breadcrumb,
