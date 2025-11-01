@@ -33,6 +33,7 @@ const {
   createUnauthorizedError,
   createNotFoundError,
 } = require('@/utils/errors');
+const { runWithPatchedAuditContext } = require('@/utils/audit-context-store');
 
 const logger = createLogger('auth-service');
 
@@ -203,42 +204,50 @@ const loginUser = async ({ email, password, metadata = {} }) => {
     throw createUnauthorizedError('Invalid email or password');
   }
 
-  const accessToken = issueAccessToken(user);
-  const refreshToken = issueRefreshToken();
-  const refreshTokenHash = hashValue(refreshToken);
-  const refreshExpiresAt = new Date(Date.now() + env.AUTH_REFRESH_TOKEN_TTL_SECONDS * 1000);
-
-  await createSession({
+  const contextPatch = {
     userId: user.id,
-    refreshTokenHash,
-    userAgent: metadata.userAgent,
-    ipAddress: metadata.ipAddress,
-    expiresAt: refreshExpiresAt,
-  });
+    ip: metadata?.ipAddress ?? null,
+    userAgent: metadata?.userAgent ?? null,
+  };
 
-  await updateUser(user.id, {
-    lastLoginAt: new Date(),
-    status: user.status === 'INVITED' ? 'ACTIVE' : user.status,
-  });
+  return runWithPatchedAuditContext(contextPatch, async () => {
+    const accessToken = issueAccessToken(user);
+    const refreshToken = issueRefreshToken();
+    const refreshTokenHash = hashValue(refreshToken);
+    const refreshExpiresAt = new Date(Date.now() + env.AUTH_REFRESH_TOKEN_TTL_SECONDS * 1000);
 
-  await logAuthEvent({
-    userId: user.id,
-    eventType: 'auth.session.created',
-    payload: {
+    await createSession({
+      userId: user.id,
+      refreshTokenHash,
       userAgent: metadata.userAgent,
       ipAddress: metadata.ipAddress,
-    },
+      expiresAt: refreshExpiresAt,
+    });
+
+    await updateUser(user.id, {
+      lastLoginAt: new Date(),
+      status: user.status === 'INVITED' ? 'ACTIVE' : user.status,
+    });
+
+    await logAuthEvent({
+      userId: user.id,
+      eventType: 'auth.session.created',
+      payload: {
+        userAgent: metadata.userAgent,
+        ipAddress: metadata.ipAddress,
+      },
+    });
+
+    logger.info('User logged in', { userId: user.id });
+
+    return {
+      accessToken,
+      refreshToken,
+      expiresIn: env.AUTH_ACCESS_TOKEN_TTL_SECONDS,
+      refreshExpiresAt,
+      user: await buildUserProfile({ ...user }),
+    };
   });
-
-  logger.info('User logged in', { userId: user.id });
-
-  return {
-    accessToken,
-    refreshToken,
-    expiresIn: env.AUTH_ACCESS_TOKEN_TTL_SECONDS,
-    refreshExpiresAt,
-    user: await buildUserProfile({ ...user }),
-  };
 };
 
 const logoutUser = async ({ refreshToken }) => {
@@ -252,17 +261,24 @@ const logoutUser = async ({ refreshToken }) => {
     throw createNotFoundError('Active session not found for provided token');
   }
 
-  await revokeSessionById(session.id);
-  await logAuthEvent({
-    userId: session.userId,
-    eventType: 'auth.session.revoked',
-    payload: {
-      reason: 'logout',
+  return runWithPatchedAuditContext(
+    {
+      userId: session.userId,
     },
-  });
+    async () => {
+      await revokeSessionById(session.id);
+      await logAuthEvent({
+        userId: session.userId,
+        eventType: 'auth.session.revoked',
+        payload: {
+          reason: 'logout',
+        },
+      });
 
-  logger.info('Session revoked', { sessionId: session.id });
-  return { status: 'revoked' };
+      logger.info('Session revoked', { sessionId: session.id });
+      return { status: 'revoked' };
+    },
+  );
 };
 
 const refreshSession = async ({ refreshToken, metadata = {} }) => {
@@ -288,37 +304,45 @@ const refreshSession = async ({ refreshToken, metadata = {} }) => {
     throw createUnauthorizedError('Associated account no longer exists');
   }
 
-  const accessToken = issueAccessToken(user);
-  const rotatedRefreshToken = issueRefreshToken();
-  const rotatedHash = hashValue(rotatedRefreshToken);
-  const refreshExpiresAt = new Date(Date.now() + env.AUTH_REFRESH_TOKEN_TTL_SECONDS * 1000);
-
-  await updateUser(user.id, { lastLoginAt: new Date() });
-  await logAuthEvent({
+  const contextPatch = {
     userId: user.id,
-    eventType: 'auth.session.refreshed',
-    payload: {
+    ip: metadata?.ipAddress ?? null,
+    userAgent: metadata?.userAgent ?? null,
+  };
+
+  return runWithPatchedAuditContext(contextPatch, async () => {
+    const accessToken = issueAccessToken(user);
+    const rotatedRefreshToken = issueRefreshToken();
+    const rotatedHash = hashValue(rotatedRefreshToken);
+    const refreshExpiresAt = new Date(Date.now() + env.AUTH_REFRESH_TOKEN_TTL_SECONDS * 1000);
+
+    await updateUser(user.id, { lastLoginAt: new Date() });
+    await logAuthEvent({
+      userId: user.id,
+      eventType: 'auth.session.refreshed',
+      payload: {
+        userAgent: metadata.userAgent,
+        ipAddress: metadata.ipAddress,
+      },
+    });
+
+    await revokeSessionById(session.id);
+    await createSession({
+      userId: user.id,
+      refreshTokenHash: rotatedHash,
       userAgent: metadata.userAgent,
       ipAddress: metadata.ipAddress,
-    },
-  });
+      expiresAt: refreshExpiresAt,
+    });
 
-  await revokeSessionById(session.id);
-  await createSession({
-    userId: user.id,
-    refreshTokenHash: rotatedHash,
-    userAgent: metadata.userAgent,
-    ipAddress: metadata.ipAddress,
-    expiresAt: refreshExpiresAt,
+    return {
+      accessToken,
+      refreshToken: rotatedRefreshToken,
+      expiresIn: env.AUTH_ACCESS_TOKEN_TTL_SECONDS,
+      refreshExpiresAt,
+      user: await buildUserProfile(user),
+    };
   });
-
-  return {
-    accessToken,
-    refreshToken: rotatedRefreshToken,
-    expiresIn: env.AUTH_ACCESS_TOKEN_TTL_SECONDS,
-    refreshExpiresAt,
-    user: await buildUserProfile(user),
-  };
 };
 
 const requestPasswordReset = async ({ email }) => {
