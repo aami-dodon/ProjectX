@@ -1,3 +1,6 @@
+## 2025-11-21 13:15:00 IST
+- Updated admin branding copy to refer to customers instead of clients, aligning validation messages and breadcrumb labels with the standard terminology.
+
 ## 2025-11-21 12:30:00 IST
 - Wrapped the application layout in the shared ScrollArea and added fallback scrollbar styling so every page uses the shadcn theme consistently.
 
@@ -17,10 +20,10 @@
 - Normalized admin role checks on the API so administrators keep access even when their assigned role casing varies, and added regression coverage for the middleware guard.
 
 ## 2025-11-20 14:45:00 IST
-- Removed the configurable search placeholder from the Client Details branding settings and now always display "Search the workspace..." in the header search bar.
+- Removed the configurable search placeholder from the Customer Details branding settings and now always display "Search the workspace..." in the header search bar.
 
 ## 2025-11-20 13:30:00 IST
-- Renamed the admin workspace branding experience to "Client Details" and removed the extra helper copy beneath the heading so the page reflects the new terminology.
+- Renamed the admin workspace branding experience to "Customer Details" and removed the extra helper copy beneath the heading so the page reflects the new terminology.
 
 ## 2025-11-20 12:10:00 IST
 - Documented the standard `server/logs` and `client/logs` locations, exported the server log directory for reuse, and added a regression test so logging stays consistent across the stack.
