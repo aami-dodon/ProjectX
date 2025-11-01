@@ -80,6 +80,23 @@ const swaggerDefinition = {
           },
         },
       },
+      AuditLog: {
+        type: 'object',
+        required: ['id', 'action', 'tableName', 'recordId', 'timestamp', 'user'],
+        properties: {
+          id: { type: 'string', format: 'uuid' },
+          action: {
+            type: 'string',
+            enum: ['CREATE', 'UPDATE', 'DELETE'],
+          },
+          tableName: { type: 'string' },
+          recordId: { type: 'string' },
+          oldValue: { type: 'object', nullable: true },
+          newValue: { type: 'object' },
+          timestamp: { type: 'string', format: 'date-time' },
+          user: { $ref: '#/components/schemas/AuthUser' },
+        },
+      },
     },
   },
   security: [{ bearerAuth: [] }],

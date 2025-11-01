@@ -13,7 +13,8 @@ export function SiteHeader() {
 
         {/* Right section */}
         <div className="ml-auto flex items-center gap-2">
-          <ModeToggle />  {/* 🌗 Replaces GitHub link */}
+          <ModeToggle />
+          <img src="/favicon.svg" alt="Favicon" className="h-6 w-6" />
         </div>
       </div>
     </header>

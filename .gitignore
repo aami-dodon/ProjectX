@@ -26,3 +26,4 @@ venv/
 pdf/
 server/logs/
 client/logs/
+server.log
