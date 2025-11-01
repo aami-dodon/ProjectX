@@ -5,6 +5,8 @@ services:
       dockerfile: server/Dockerfile
     env_file:
       - ./.env
+    volumes:
+      - ./server/logs:/app/logs
     ports:
       - "${SERVER_PORT}:${SERVER_PORT}"
     depends_on: []
@@ -17,6 +19,8 @@ services:
       - ./.env
     environment:
       - VITE_API_URL=${VITE_API_URL}
+    volumes:
+      - ./client/logs:/app/logs
     ports:
       - "${CLIENT_PORT}:${CLIENT_PORT}"
     depends_on:
