@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { fetchBranding, updateBranding, uploadBrandingLogo, DEFAULT_BRANDING } from "./use-branding";
+import { fetchBranding, updateBranding, DEFAULT_BRANDING } from "./use-branding";
 
 export function useBrandingManagement() {
   const [branding, setBranding] = useState(DEFAULT_BRANDING);
@@ -47,8 +47,6 @@ export function useBrandingManagement() {
     []
   );
 
-  const uploadLogo = useCallback(async (file) => uploadBrandingLogo(file), []);
-
   return useMemo(
     () => ({
       branding,
@@ -57,8 +55,7 @@ export function useBrandingManagement() {
       error,
       refresh: loadBranding,
       saveBranding,
-      uploadLogo,
     }),
-    [branding, error, isLoading, isSaving, loadBranding, saveBranding, uploadLogo]
+    [branding, error, isLoading, isSaving, loadBranding, saveBranding]
   );
 }

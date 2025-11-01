@@ -1,8 +1,8 @@
-const path = require('path');
 const { z } = require('zod');
 
 const { createValidationError } = require('@/utils/errors');
 const { createLogger } = require('@/utils/logger');
+const { getFileAccessLink } = require('@/modules/files/file.service');
 const { findBrandingSettings, upsertBrandingSettings } = require('./branding.repository');
 
 const logger = createLogger('branding-service');
@@ -11,18 +11,17 @@ const DEFAULT_BRANDING = {
   name: 'Acme Inc.',
   sidebarTitle: 'Acme Inc.',
   logoUrl: null,
+  logoObjectName: null,
   searchPlaceholder: 'Search the workspace...',
 };
 
-const BRANDING_UPLOAD_DIR = path.resolve(__dirname, '../../../..', 'client', 'public', 'branding');
 const LEGACY_DEFAULT_LOGO = '/favicon.svg';
-const ALLOWED_LOGO_PREFIXES = ['/branding/'];
 
-const logoUrlSchema = z
+const logoObjectNameSchema = z
   .string()
   .trim()
-  .min(1, 'Logo URL must be provided when present')
-  .max(300, 'Logo URL is too long');
+  .min(1, 'Logo object name must be provided when present')
+  .max(300, 'Logo object name is too long');
 
 const updateSchema = z.object({
   name: z
@@ -40,21 +39,77 @@ const updateSchema = z.object({
     .trim()
     .min(1, 'Search placeholder is required')
     .max(160, 'Search placeholder must be 160 characters or fewer'),
-  logoUrl: z.union([logoUrlSchema, z.literal(null)]).optional(),
+  logoObjectName: z.union([logoObjectNameSchema, z.literal(null)]).optional(),
 });
 
-function mergeBranding(record) {
+function normalizeLogoObjectName(objectName) {
+  const trimmed = objectName.trim();
+  if (!trimmed) {
+    throw createValidationError('Logo must reference an uploaded branding asset', {
+      field: 'logoObjectName',
+    });
+  }
+
+  return trimmed.replace(/^\/+/, '');
+}
+
+function parseLogoObjectName(objectName) {
+  const normalized = normalizeLogoObjectName(objectName);
+  const segments = normalized.split('/').filter(Boolean);
+
+  if (segments.length < 4) {
+    throw createValidationError('Logo must reference an uploaded branding asset', {
+      field: 'logoObjectName',
+    });
+  }
+
+  const [root, category, ownerSegment] = segments;
+
+  if (root !== 'uploads' || category !== 'images') {
+    throw createValidationError('Logo must reference an uploaded branding asset', {
+      field: 'logoObjectName',
+    });
+  }
+
+  if (!ownerSegment) {
+    throw createValidationError('Logo must reference an uploaded branding asset', {
+      field: 'logoObjectName',
+    });
+  }
+
+  let ownerId;
+  try {
+    ownerId = decodeURIComponent(ownerSegment);
+  } catch {
+    throw createValidationError('Logo must reference an uploaded branding asset', {
+      field: 'logoObjectName',
+    });
+  }
+
+  if (!ownerId.trim()) {
+    throw createValidationError('Logo must reference an uploaded branding asset', {
+      field: 'logoObjectName',
+    });
+  }
+
+  return { normalized, ownerId };
+}
+
+function mergeBranding(record, overrides = {}) {
   if (!record) {
     return { ...DEFAULT_BRANDING };
   }
 
-  const logoUrl = record.logoUrl === LEGACY_DEFAULT_LOGO ? DEFAULT_BRANDING.logoUrl : record.logoUrl;
+  const legacyLogoUrl =
+    record.logoUrl === LEGACY_DEFAULT_LOGO ? null : record.logoUrl ?? DEFAULT_BRANDING.logoUrl;
+  const resolvedLogoUrl = overrides.logoUrl ?? legacyLogoUrl ?? DEFAULT_BRANDING.logoUrl;
 
   return {
     name: record.name ?? DEFAULT_BRANDING.name,
     sidebarTitle: record.sidebarTitle ?? DEFAULT_BRANDING.sidebarTitle,
-    logoUrl: logoUrl ?? DEFAULT_BRANDING.logoUrl,
     searchPlaceholder: record.searchPlaceholder ?? DEFAULT_BRANDING.searchPlaceholder,
+    logoUrl: resolvedLogoUrl,
+    logoObjectName: record.logoObjectName ?? null,
     createdAt: record.createdAt ?? null,
     updatedAt: record.updatedAt ?? null,
   };
@@ -62,36 +117,21 @@ function mergeBranding(record) {
 
 async function getBrandingSettings() {
   const current = await findBrandingSettings();
-  return mergeBranding(current);
-}
 
-function resolveLogoPath(logoUrl, fallback) {
-  if (logoUrl === null) {
-    return null;
+  if (!current?.logoObjectName) {
+    return mergeBranding(current);
   }
 
-  if (typeof logoUrl === 'string') {
-    const normalized = logoUrl.trim();
-    if (normalized === LEGACY_DEFAULT_LOGO) {
-      return null;
-    }
-    if (!normalized.startsWith('/')) {
-      throw createValidationError('Logo URL must be relative to the public root', { field: 'logoUrl' });
-    }
-
-    const isAllowed = ALLOWED_LOGO_PREFIXES.some((prefix) => normalized === prefix || normalized.startsWith(prefix));
-    if (!isAllowed) {
-      throw createValidationError('Logo URL must reference an uploaded branding asset', { field: 'logoUrl' });
-    }
-
-    return normalized;
+  try {
+    const { normalized, ownerId } = parseLogoObjectName(current.logoObjectName);
+    const { url } = await getFileAccessLink(normalized, ownerId);
+    return mergeBranding(current, { logoUrl: url });
+  } catch (error) {
+    logger.warn('Failed to resolve branding logo download URL', {
+      error: error?.message ?? error,
+    });
+    return mergeBranding(current, { logoUrl: null });
   }
-
-  if (fallback === LEGACY_DEFAULT_LOGO) {
-    return null;
-  }
-
-  return fallback ?? DEFAULT_BRANDING.logoUrl;
 }
 
 async function updateBrandingSettings(updates, { actorId } = {}) {
@@ -107,16 +147,29 @@ async function updateBrandingSettings(updates, { actorId } = {}) {
   }
 
   const current = await findBrandingSettings();
-  const logoUrl = resolveLogoPath(parsed.data.logoUrl, current?.logoUrl);
+
+  let nextLogoObjectName = current?.logoObjectName ?? null;
+
+  if (Object.prototype.hasOwnProperty.call(parsed.data, 'logoObjectName')) {
+    const candidate = parsed.data.logoObjectName;
+
+    if (candidate === null) {
+      nextLogoObjectName = null;
+    } else {
+      const { normalized, ownerId } = parseLogoObjectName(candidate);
+      await getFileAccessLink(normalized, ownerId);
+      nextLogoObjectName = normalized;
+    }
+  }
 
   const payload = {
     name: parsed.data.name,
     sidebarTitle: parsed.data.sidebarTitle,
     searchPlaceholder: parsed.data.searchPlaceholder,
-    logoUrl,
+    logoObjectName: nextLogoObjectName,
   };
 
-  const record = await upsertBrandingSettings(payload);
+  await upsertBrandingSettings(payload);
 
   if (actorId) {
     logger.info('Branding settings updated', { actorId });
@@ -124,12 +177,11 @@ async function updateBrandingSettings(updates, { actorId } = {}) {
     logger.info('Branding settings updated');
   }
 
-  return mergeBranding(record);
+  return getBrandingSettings();
 }
 
 module.exports = {
   DEFAULT_BRANDING,
-  BRANDING_UPLOAD_DIR,
   getBrandingSettings,
   updateBrandingSettings,
   mergeBranding,
