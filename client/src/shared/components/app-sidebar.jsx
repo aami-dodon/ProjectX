@@ -140,7 +140,7 @@ const adminSidebarData = {
         icon: IconUsers,
       },
       {
-        title: "Workspace Branding",
+        title: "Client Details",
         url: "/admin/branding",
         icon: IconSettings,
       },

@@ -1,3 +1,6 @@
+## 2025-11-20 13:30:00 IST
+- Renamed the admin workspace branding experience to "Client Details" and removed the extra helper copy beneath the heading so the page reflects the new terminology.
+
 ## 2025-11-20 12:10:00 IST
 - Documented the standard `server/logs` and `client/logs` locations, exported the server log directory for reuse, and added a regression test so logging stays consistent across the stack.
 
