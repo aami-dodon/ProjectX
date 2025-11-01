@@ -1,3 +1,6 @@
+## 2025-11-21 10:30:00 IST
+- Removed the header copy and status controls from the Design System and System Health dashboards to streamline their layouts.
+
 ## 2025-11-21 09:00:00 IST
 - Matched the Design System and System Health dashboards to the full-width admin layout so they align with User Management and Customer Details pages.
 ## 2025-11-20 17:30:00 IST

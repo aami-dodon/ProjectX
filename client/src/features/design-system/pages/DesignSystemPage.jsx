@@ -1030,23 +1030,6 @@ export function DesignSystemPage() {
   return (
     <div className="flex flex-1 flex-col">
       <div className="@container/main flex flex-1 flex-col gap-8 px-4 py-6 lg:px-6">
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex flex-col gap-1">
-              <h1 className="text-2xl font-semibold">Design System</h1>
-              <p className="text-sm text-muted-foreground">
-                Central reference for typography, colors, and reusable interface components powering the client.
-              </p>
-            </div>
-            <Badge variant="secondary" className="text-xs font-medium">
-              Updated {new Date().toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
-            </Badge>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            This page mirrors the single page layout used by system health and surfaces every shared component with example
-            variants.
-          </p>
-        </div>
 
         <Section
           id="css-tokens"
