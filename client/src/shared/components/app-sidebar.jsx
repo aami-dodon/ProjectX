@@ -8,7 +8,6 @@ import {
   IconFileDescription,
   IconFolder,
   IconHeartbeat,
-  IconInnerShadowTop,
   IconListDetails,
   IconReport,
   IconSettings,
@@ -16,6 +15,7 @@ import {
 } from "@tabler/icons-react"
 
 import { useCurrentUser } from "@/features/auth"
+import { useBranding } from "@/features/branding"
 import { NavDocuments } from "@/shared/components/nav-documents"
 import { NavMain } from "@/shared/components/nav-main"
 import { NavSecondary } from "@/shared/components/nav-secondary"
@@ -139,8 +139,8 @@ const adminSidebarData = {
         icon: IconUsers,
       },
       {
-        title: "Workspace Controls",
-        url: "#",
+        title: "Workspace Branding",
+        url: "/admin/branding",
         icon: IconSettings,
       },
       {
@@ -162,6 +162,7 @@ export function AppSidebar({
   ...props
 }) {
   const currentUser = useCurrentUser()
+  const branding = useBranding()
 
   const isAdmin = React.useMemo(
     () => (currentUser?.roles ?? []).some((role) => role.name?.toLowerCase() === "admin"),
@@ -204,8 +205,16 @@ export function AppSidebar({
           <SidebarMenuItem>
             <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
               <Link to="/home">
-                <IconInnerShadowTop className="!size-5" />
-                <span className="text-base font-semibold">Acme Inc.</span>
+                <span className="flex items-center gap-2">
+                  <span className="flex size-6 items-center justify-center overflow-hidden rounded-sm bg-sidebar border border-border">
+                    <img
+                      src={branding.logoUrl}
+                      alt={`${branding.name} logo`}
+                      className="size-full object-contain"
+                    />
+                  </span>
+                  <span className="text-base font-semibold leading-none">{branding.sidebarTitle}</span>
+                </span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

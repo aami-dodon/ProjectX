@@ -1,3 +1,9 @@
+## 2025-11-20 11:30:00 IST
+- Fixed the branding settings repository to consume the Prisma client correctly, preventing runtime crashes when administrators save workspace identity updates.
+
+## 2025-11-20 10:05:00 IST
+- Added a persisted workspace branding API with admin controls to upload logos into `client/public/branding` and update layout copy so the sidebar and header reflect customized workspace identity.
+
 ## 2025-11-14 08:30:00 IST
 - Added a centralized audit trail with Prisma middleware, contextual request metadata, and an admin audit viewer so every data mutation is transparently logged.
 
