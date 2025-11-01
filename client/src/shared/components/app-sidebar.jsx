@@ -200,7 +200,7 @@ export function AppSidebar({
             <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
               <Link to="/home">
                 <CustomerBranding
-                  logoUrl={branding.logoUrl}
+                  customerLogo={branding.logoUrl}
                   title={customerSectionTitle}
                 />
               </Link>
