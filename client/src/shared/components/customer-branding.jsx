@@ -1,7 +1,7 @@
 import { Building2 } from "lucide-react"
 
 export function CustomerBranding({
-  logoUrl,
+  customerLogo,
   title,
 }) {
   return (
@@ -11,9 +11,9 @@ export function CustomerBranding({
         aria-label="Customer Logo"
         title="Customer Logo"
       >
-        {logoUrl ? (
+        {customerLogo ? (
           <img
-            src={logoUrl}
+            src={customerLogo}
             alt={`${title} customer logo`}
             className="size-full object-contain"
           />
