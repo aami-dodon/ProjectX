@@ -20,6 +20,7 @@ import {
 } from "@/shared/components/ui/field";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { cn } from "@/shared/lib/utils";
+import defaultLogo from "@/assets/favicon.svg";
 
 const ALLOWED_TYPES = new Set(["image/png", "image/jpeg", "image/svg+xml", "image/webp"]);
 const MAX_LOGO_SIZE = 2 * 1024 * 1024;
@@ -76,7 +77,7 @@ export function BrandingSettingsForm({
     setErrors({});
   }, [branding]);
 
-  const logoPreview = useMemo(() => formState.logoUrl || "/favicon.svg", [formState.logoUrl]);
+  const logoPreview = useMemo(() => formState.logoUrl || defaultLogo, [formState.logoUrl]);
 
   const handleFieldChange = useCallback((event) => {
     const { name, value } = event.target;
@@ -188,7 +189,7 @@ export function BrandingSettingsForm({
   );
 
   const handleResetLogo = useCallback(() => {
-    setFormState((prev) => ({ ...prev, logoUrl: "/favicon.svg" }));
+    setFormState((prev) => ({ ...prev, logoUrl: "" }));
     setErrors((prev) => ({ ...prev, logo: undefined }));
   }, []);
 
@@ -265,7 +266,7 @@ export function BrandingSettingsForm({
                       variant="ghost"
                       className="w-full sm:w-auto"
                       onClick={handleResetLogo}
-                      disabled={isUploading || isSaving || formState.logoUrl === "/favicon.svg"}
+                      disabled={isUploading || isSaving || !formState.logoUrl}
                     >
                       Use default icon
                     </Button>

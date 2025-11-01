@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom"
 
 import { ModeToggle } from "@/components/mode-toggle"
+import faviconUrl from "@/assets/favicon.svg"
 import {
   Card,
   CardContent,
@@ -41,7 +42,7 @@ export function AuthLayout({ children }) {
           {/* Mode Toggle */}
           <div className="absolute right-4 top-4 lg:right-6 lg:top-6 flex items-center gap-2">
             <ModeToggle />
-            <img src="/favicon.svg" alt="Favicon" className="h-6 w-6" />
+            <img src={faviconUrl} alt="Favicon" className="h-6 w-6" />
           </div>
 
           {/* Auth Form Container */}

@@ -7,7 +7,7 @@ export const BRANDING_UPDATED_EVENT = "px:branding-updated";
 export const DEFAULT_BRANDING = {
   name: "Acme Inc.",
   sidebarTitle: "Acme Inc.",
-  logoUrl: "/favicon.svg",
+  logoUrl: null,
   searchPlaceholder: "Search the workspace...",
 };
 

@@ -10,12 +10,13 @@ const logger = createLogger('branding-service');
 const DEFAULT_BRANDING = {
   name: 'Acme Inc.',
   sidebarTitle: 'Acme Inc.',
-  logoUrl: '/favicon.svg',
+  logoUrl: null,
   searchPlaceholder: 'Search the workspace...',
 };
 
 const BRANDING_UPLOAD_DIR = path.resolve(__dirname, '../../../..', 'client', 'public', 'branding');
-const ALLOWED_LOGO_PREFIXES = ['/branding/', DEFAULT_BRANDING.logoUrl];
+const LEGACY_DEFAULT_LOGO = '/favicon.svg';
+const ALLOWED_LOGO_PREFIXES = ['/branding/'];
 
 const logoUrlSchema = z
   .string()
@@ -47,10 +48,12 @@ function mergeBranding(record) {
     return { ...DEFAULT_BRANDING };
   }
 
+  const logoUrl = record.logoUrl === LEGACY_DEFAULT_LOGO ? DEFAULT_BRANDING.logoUrl : record.logoUrl;
+
   return {
     name: record.name ?? DEFAULT_BRANDING.name,
     sidebarTitle: record.sidebarTitle ?? DEFAULT_BRANDING.sidebarTitle,
-    logoUrl: record.logoUrl ?? DEFAULT_BRANDING.logoUrl,
+    logoUrl: logoUrl ?? DEFAULT_BRANDING.logoUrl,
     searchPlaceholder: record.searchPlaceholder ?? DEFAULT_BRANDING.searchPlaceholder,
     createdAt: record.createdAt ?? null,
     updatedAt: record.updatedAt ?? null,
@@ -64,11 +67,14 @@ async function getBrandingSettings() {
 
 function resolveLogoPath(logoUrl, fallback) {
   if (logoUrl === null) {
-    return DEFAULT_BRANDING.logoUrl;
+    return null;
   }
 
   if (typeof logoUrl === 'string') {
     const normalized = logoUrl.trim();
+    if (normalized === LEGACY_DEFAULT_LOGO) {
+      return null;
+    }
     if (!normalized.startsWith('/')) {
       throw createValidationError('Logo URL must be relative to the public root', { field: 'logoUrl' });
     }
@@ -79,6 +85,10 @@ function resolveLogoPath(logoUrl, fallback) {
     }
 
     return normalized;
+  }
+
+  if (fallback === LEGACY_DEFAULT_LOGO) {
+    return null;
   }
 
   return fallback ?? DEFAULT_BRANDING.logoUrl;
