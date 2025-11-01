@@ -4,7 +4,7 @@ import { IconSearch } from "@tabler/icons-react"
 
 import { ModeToggle } from "@/components/mode-toggle"   // 👈 import the toggle
 import { useBranding } from "@/features/customer-branding"
-import defaultLogo from "@/assets/favicon.svg"
+import defaultLogoMarkup from "@/assets/favicon.svg?raw"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -20,7 +20,8 @@ import { useBreadcrumbs } from "@/shared/hooks/use-breadcrumbs"
 
 export function SiteHeader() {
   const breadcrumbs = useBreadcrumbs()
-  const { searchPlaceholder } = useBranding()
+  const { searchPlaceholder, logoUrl, name } = useBranding()
+  const resolvedLogoAlt = name ? `${name} mark` : "Project mark"
 
   return (
     <header
@@ -65,7 +66,17 @@ export function SiteHeader() {
         <div className="flex flex-1 items-center justify-end gap-2">
           <ModeToggle />
           <span className="flex size-8 items-center justify-center overflow-hidden rounded-md border border-border bg-muted">
-            <img src={defaultLogo} alt="Project mark" className="size-full object-contain" />
+            {logoUrl ? (
+              <img src={logoUrl} alt={resolvedLogoAlt} className="size-full object-contain" />
+            ) : (
+              <span
+                className="size-full"
+                style={{ color: "var(--logo-color, var(--primary))" }}
+                role="img"
+                aria-label={resolvedLogoAlt}
+                dangerouslySetInnerHTML={{ __html: defaultLogoMarkup }}
+              />
+            )}
           </span>
         </div>
       </div>
