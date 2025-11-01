@@ -1,10 +1,10 @@
 import { useCallback, useEffect } from "react";
 import { toast } from "sonner";
 
-import { BrandingSettingsForm } from "../components/BrandingSettingsForm";
-import { useBrandingManagement } from "../hooks/use-branding-management";
+import { CustomerBrandingSettingsForm } from "../components/CustomerBrandingSettingsForm";
+import { useBrandingManagement } from "../hooks/use-customer-branding-management";
 
-export function BrandingSettingsPage() {
+export function CustomerBrandingSettingsPage() {
   const { branding, isLoading, isSaving, error, saveBranding } = useBrandingManagement();
 
   useEffect(() => {
@@ -34,7 +34,7 @@ export function BrandingSettingsPage() {
     <div className="flex flex-1 flex-col">
       <div className="@container/main flex flex-1 flex-col gap-4 py-4 md:gap-6 md:py-6">
         <div className="px-4 lg:px-6">
-          <BrandingSettingsForm
+          <CustomerBrandingSettingsForm
             branding={branding}
             isLoading={isLoading}
             isSaving={isSaving}

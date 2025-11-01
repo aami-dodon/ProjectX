@@ -26,7 +26,7 @@ import defaultLogo from "@/assets/favicon.svg";
 const ALLOWED_TYPES = new Set(["image/png", "image/jpeg", "image/svg+xml", "image/webp"]);
 const MAX_LOGO_SIZE = 2 * 1024 * 1024;
 
-function BrandingFormSkeleton({ className }) {
+function CustomerBrandingFormSkeleton({ className }) {
   return (
     <Card className={cn("h-full", className)}>
       <CardHeader>
@@ -47,7 +47,7 @@ function BrandingFormSkeleton({ className }) {
   );
 }
 
-export function BrandingSettingsForm({ branding, isLoading, isSaving, onSubmit, className }) {
+export function CustomerBrandingSettingsForm({ branding, isLoading, isSaving, onSubmit, className }) {
   const [formState, setFormState] = useState({
     name: "",
     sidebarTitle: "",
@@ -329,7 +329,7 @@ export function BrandingSettingsForm({ branding, isLoading, isSaving, onSubmit, 
   }, [branding, revokePreview]);
 
   if (isLoading) {
-    return <BrandingFormSkeleton className={className} />;
+    return <CustomerBrandingFormSkeleton className={className} />;
   }
 
   return (

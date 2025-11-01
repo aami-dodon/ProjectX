@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { fetchBranding, updateBranding, DEFAULT_BRANDING } from "./use-branding";
+import { fetchBranding, updateBranding, DEFAULT_BRANDING } from "./use-customer-branding";
 
 export function useBrandingManagement() {
   const [branding, setBranding] = useState(DEFAULT_BRANDING);
