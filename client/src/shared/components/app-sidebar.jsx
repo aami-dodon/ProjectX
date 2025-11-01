@@ -13,6 +13,7 @@ import {
   IconSettings,
   IconUsers,
 } from "@tabler/icons-react"
+import { Building2 } from "lucide-react"
 
 import { useCurrentUser } from "@/features/auth"
 import { useBranding } from "@/features/customer-branding"
@@ -207,11 +208,18 @@ export function AppSidebar({
               <Link to="/home">
                 <span className="flex items-center gap-2">
                   <span className="flex size-6 items-center justify-center overflow-hidden rounded-sm bg-sidebar border border-border">
-                    <img
-                      src={branding.logoUrl}
-                      alt={`${branding.name} logo`}
-                      className="size-full object-contain"
-                    />
+                    {branding.logoUrl ? (
+                      <img
+                        src={branding.logoUrl}
+                        alt={`${branding.sidebarTitle ?? branding.name ?? "Workspace"} logo`}
+                        className="size-full object-contain"
+                      />
+                    ) : (
+                      <Building2
+                        aria-hidden="true"
+                        className="size-4 text-muted-foreground"
+                      />
+                    )}
                   </span>
                   <span className="text-base font-semibold leading-none">{branding.sidebarTitle}</span>
                 </span>
