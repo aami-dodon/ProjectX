@@ -355,9 +355,6 @@ export function CustomerBrandingSettingsForm({ branding, isLoading, isSaving, on
 
   return (
     <Card className={cn("h-full", className)}>
-      <CardHeader>
-        <CardTitle>Customer Details</CardTitle>
-      </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-8">
           <FieldGroup>
