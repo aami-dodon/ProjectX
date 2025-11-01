@@ -91,5 +91,38 @@ export function useBranding() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!branding.logoObjectName || branding.logoUrl) {
+      return undefined;
+    }
+
+    let isCurrent = true;
+
+    async function resolveLogoUrl() {
+      try {
+        const { data } = await apiClient.get("/api/files/download-url", {
+          params: { objectName: branding.logoObjectName },
+        });
+
+        if (!isCurrent || !data?.url) {
+          return;
+        }
+
+        setBranding((previous) => ({
+          ...previous,
+          logoUrl: data.url,
+        }));
+      } catch (error) {
+        console.error("Failed to resolve branding logo URL", error);
+      }
+    }
+
+    resolveLogoUrl();
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [branding.logoObjectName, branding.logoUrl]);
+
   return branding;
 }
