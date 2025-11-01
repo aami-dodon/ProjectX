@@ -1,20 +1,71 @@
+import { Fragment } from "react"
+import { Link } from "react-router-dom"
+import { IconSearch } from "@tabler/icons-react"
+
+import { ModeToggle } from "@/components/mode-toggle"   // 👈 import the toggle
+import { useBranding } from "@/features/branding"
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/shared/components/ui/breadcrumb"
+import { Input } from "@/shared/components/ui/input"
 import { Separator } from "@/shared/components/ui/separator"
 import { SidebarTrigger } from "@/shared/components/ui/sidebar"
-import { ModeToggle } from "@/components/mode-toggle"   // 👈 import the toggle
+import { useBreadcrumbs } from "@/shared/hooks/use-breadcrumbs"
 
 export function SiteHeader() {
+  const breadcrumbs = useBreadcrumbs()
+  const branding = useBranding()
+
   return (
     <header
       className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
-      <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
-        <SidebarTrigger className="-ml-1" />
-        <Separator orientation="vertical" className="mx-2 data-[orientation=vertical]:h-4" />
-        <h1 className="text-base font-medium">Project-X</h1>
-
-        {/* Right section */}
-        <div className="ml-auto flex items-center gap-2">
+      <div className="flex w-full items-center gap-2 px-4 lg:gap-4 lg:px-6">
+        <div className="flex flex-1 items-center gap-2 min-w-0">
+          <SidebarTrigger className="-ml-1" />
+          <Separator orientation="vertical" className="mx-2 hidden h-6 lg:flex" />
+          <Breadcrumb>
+            <BreadcrumbList>
+              {breadcrumbs.map((crumb, index) => {
+                const isLast = index === breadcrumbs.length - 1
+                return (
+                  <Fragment key={`${crumb.label}-${index}`}>
+                    <BreadcrumbItem>
+                      {crumb.href && !isLast ? (
+                        <BreadcrumbLink asChild>
+                          <Link to={crumb.href}>{crumb.label}</Link>
+                        </BreadcrumbLink>
+                      ) : (
+                        <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                      )}
+                    </BreadcrumbItem>
+                    {!isLast ? <BreadcrumbSeparator /> : null}
+                  </Fragment>
+                )
+              })}
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+        <div className="flex flex-1 justify-center px-2 sm:px-4">
+          <div className="relative w-full max-w-xl">
+            <IconSearch className="text-muted-foreground absolute left-3 top-1/2 size-4 -translate-y-1/2" />
+            <Input
+              placeholder={branding.searchPlaceholder}
+              className="bg-background pl-9"
+              type="search"
+              aria-label="Search"
+            />
+          </div>
+        </div>
+        <div className="flex flex-1 items-center justify-end gap-2">
           <ModeToggle />
-          <img src="/favicon.svg" alt="Favicon" className="h-6 w-6" />
+          <span className="flex size-8 items-center justify-center overflow-hidden rounded-md border border-border bg-muted">
+            <img src={branding.logoUrl} alt={`${branding.name} mark`} className="size-full object-contain" />
+          </span>
         </div>
       </div>
     </header>
