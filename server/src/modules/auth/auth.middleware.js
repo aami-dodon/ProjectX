@@ -52,17 +52,44 @@ const authenticateRequest = async (req, _res, next) => {
   }
 };
 
-const requireRoles = (...allowedRoles) => (req, _res, next) => {
-  if (!req.user) {
-    return next(createUnauthorizedError('Authentication is required'));
+const normalizeRoleName = (role) => {
+  if (!role || typeof role !== 'string') {
+    return null;
   }
 
-  const hasRole = (req.user.roles ?? []).some((role) => allowedRoles.includes(role));
-  if (!hasRole) {
-    return next(createUnauthorizedError('You do not have permission to access this resource'));
+  const trimmed = role.trim();
+  if (!trimmed) {
+    return null;
   }
 
-  return next();
+  return trimmed.toLowerCase();
+};
+
+const requireRoles = (...allowedRoles) => {
+  const normalizedAllowedRoles = allowedRoles
+    .map(normalizeRoleName)
+    .filter((role) => Boolean(role));
+
+  return (req, _res, next) => {
+    if (!req.user) {
+      return next(createUnauthorizedError('Authentication is required'));
+    }
+
+    if (normalizedAllowedRoles.length === 0) {
+      return next();
+    }
+
+    const userRoles = (req.user.roles ?? [])
+      .map(normalizeRoleName)
+      .filter((role) => Boolean(role));
+
+    const hasRole = userRoles.some((role) => normalizedAllowedRoles.includes(role));
+    if (!hasRole) {
+      return next(createUnauthorizedError('You do not have permission to access this resource'));
+    }
+
+    return next();
+  };
 };
 
 module.exports = {

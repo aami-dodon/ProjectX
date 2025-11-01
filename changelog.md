@@ -1,3 +1,6 @@
+## 2025-11-20 16:10:00 IST
+- Normalized admin role checks on the API so administrators keep access even when their assigned role casing varies, and added regression coverage for the middleware guard.
+
 ## 2025-11-20 14:45:00 IST
 - Removed the configurable search placeholder from the Client Details branding settings and now always display "Search the workspace..." in the header search bar.
 
