@@ -1,3 +1,5 @@
+## 2025-11-20 17:30:00 IST
+- Updated the Customer Branding settings preview to render the Project X lettermark when no custom logo is set so the default matches the latest identity system.
 ## 2025-11-20 17:05:00 IST
 - Moved the System Health and Design System dashboards under the administrator sidebar section so both routes surface as admin-only submenu links.
 
