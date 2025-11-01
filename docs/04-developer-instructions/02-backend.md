@@ -24,6 +24,8 @@ This guide documents how to extend the Express + Prisma server that powers Proje
    ```
    These commands mirror the CI pipeline defined for the server workspace.
 
+> **Logging location:** All backend runtime logs rotate under `server/logs/`. Docker Compose mounts the same folder into `/app/logs` so containers and local runs share the directory. Keep this path out of version control.
+
 ## 2. Module Anatomy
 
 Every feature under `server/src/modules` follows the same layering pattern. Use existing modules such as `health` and `auth` as blueprints.

@@ -192,4 +192,5 @@ const createLogger = (moduleName) => baseLogger.child({ module: moduleName });
 module.exports = {
   baseLogger,
   createLogger,
+  LOG_DIR,
 };

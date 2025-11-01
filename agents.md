@@ -69,7 +69,7 @@
 ## Shared Workflow Expectations
 - Update `changelog.md` with every user-visible change. Use Indian Standard Time (IST) timestamps in the format `YYYY-MM-DD HH:MM:SS IST` and append entries near the top.
 - Maintain architectural and runbook documentation inside `docs/`. Align any new processes with the indexes (especially `docs/readme.md` and the section-specific `readme.md` files).
-- Keep logging directories (`server/logs/`) out of version control—generated at runtime.
+- Keep logging directories (`server/logs/`, `client/logs/`) out of version control—generated at runtime.
 - When touching both apps, validate that the Axios base URL (`VITE_API_URL`) and server routes stay in sync. Health checks (`/api/health`) power the `/health` dashboard, including MinIO/email diagnostics—avoid breaking these endpoints without coordinating frontend updates.
 - Prefer npm for dependency management in both workspaces; lockfiles (`package-lock.json`) must stay in sync with `package.json` changes.
 - Reference the frontend and backend developer guides (`docs/04-developer-instructions/*.md`) when planning changes, and update them alongside code when conventions evolve.

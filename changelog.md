@@ -1,3 +1,6 @@
+## 2025-11-20 12:10:00 IST
+- Documented the standard `server/logs` and `client/logs` locations, exported the server log directory for reuse, and added a regression test so logging stays consistent across the stack.
+
 ## 2025-11-20 11:30:00 IST
 - Fixed the branding settings repository to consume the Prisma client correctly, preventing runtime crashes when administrators save workspace identity updates.
 

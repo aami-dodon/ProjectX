@@ -16,6 +16,8 @@ This guide explains how to build new user-facing capabilities inside the Vite + 
 4. Register your new page or route by extending the `createBrowserRouter` structure in `client/src/app/routes.jsx`. Most features nest inside the default layout alongside the existing home and health routes.
 5. Reuse shared primitives from `client/src/shared`—especially API clients (`client/src/shared/lib/client.js`), layout chrome, logging helpers, and authentication flows—before adding new dependencies.
 
+> **Logging location:** When the client runs inside Docker, service logs are forwarded into `client/logs/` (mounted to `/app/logs`), mirroring the backend convention. Keep this directory out of Git just like the server logs.
+
 ### Auth and API client behavior
 
 - The shared Axios client automatically attaches the `Authorization: Bearer <accessToken>` header from `localStorage`.
