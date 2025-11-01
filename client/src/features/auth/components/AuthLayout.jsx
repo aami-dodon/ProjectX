@@ -40,9 +40,9 @@ export function AuthLayout({ children }) {
       <Card className="flex h-full w-full flex-1 min-h-0 flex-col overflow-hidden rounded-none border-none bg-background p-0 text-foreground shadow-none">
         <CardContent className="relative flex flex-1 flex-col gap-0 p-0">
           {/* Mode Toggle */}
-          <div className="absolute right-4 top-4 lg:right-6 lg:top-6 flex items-center gap-2">
+          <div className="absolute right-4 top-4 lg:right-6 lg:top-6 flex items-center gap-2" aria-label="Site Logo">
             <ModeToggle />
-            <img src={faviconUrl} alt="Favicon" className="h-6 w-6" />
+            <img src={faviconUrl} alt="Site logo" className="h-6 w-6" />
           </div>
 
           {/* Auth Form Container */}
