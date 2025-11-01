@@ -20,7 +20,7 @@ import { NavMain } from "@/shared/components/nav-main"
 import { NavSecondary } from "@/shared/components/nav-secondary"
 import { NavAdministration } from "@/shared/components/nav-administration"
 import { NavUser } from "@/shared/components/nav-user"
-import { CustomerBranding } from "@/shared/components/ui/customer-branding"
+import { CustomerBranding } from "@/shared/components/customer-branding"
 import {
   Sidebar,
   SidebarContent,
