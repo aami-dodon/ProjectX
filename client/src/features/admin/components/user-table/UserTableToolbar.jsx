@@ -21,9 +21,9 @@ import {
 import { TabsList, TabsTrigger } from "@/shared/components/ui/tabs"
 
 const DEFAULT_VIEW_OPTIONS = [
-  { value: "outline", label: "Users" },
-  { value: "past-performance", label: "Audit" },
-  { value: "key-personnel", label: "Reports" },
+  { value: "users", label: "Users" },
+  { value: "audit", label: "Audit" },
+  { value: "reports", label: "Reports" },
 ]
 
 export function UserTableHeader({
