@@ -11,6 +11,7 @@ import {
 import { TabsContent } from "@/shared/components/ui/tabs"
 
 import { useAuditLogs } from "../../hooks/use-audit-logs"
+import { AuditTableToolbar } from "../audit-table/AuditTableToolbar"
 import { formatDate } from "../user-table/UserTableDrawer"
 
 const DEFAULT_PAGE_SIZE = 20
@@ -394,6 +395,13 @@ function AuditTimestampCell({ log }) {
 export function AuditTab() {
   const [pageIndex, setPageIndex] = React.useState(0)
   const [pageSize, setPageSize] = React.useState(DEFAULT_PAGE_SIZE)
+  const [searchTerm, setSearchTerm] = React.useState("")
+  const [actionFilter, setActionFilter] = React.useState("all")
+  const [dateRange, setDateRange] = React.useState({
+    startDate: null,
+    endDate: null,
+    key: "selection",
+  })
 
   const {
     logs: auditLogs,
@@ -405,6 +413,10 @@ export function AuditTab() {
     model: "AuthUser",
     limit: pageSize,
     offset: pageIndex * pageSize,
+    searchTerm,
+    action: actionFilter === "all" ? null : actionFilter,
+    startDate: dateRange.startDate,
+    endDate: dateRange.endDate,
   })
 
   const preparedLogs = React.useMemo(
@@ -485,20 +497,44 @@ export function AuditTab() {
     return Math.max(1, Math.ceil(safeTotal / safePageSize))
   }, [auditTotal, pageSize])
 
+  const hasActiveFilters = React.useMemo(() => {
+    return (
+      searchTerm.trim() !== "" ||
+      actionFilter !== "all" ||
+      dateRange.startDate ||
+      dateRange.endDate
+    )
+  }, [searchTerm, actionFilter, dateRange])
+
+  const handleClearFilters = React.useCallback(() => {
+    setSearchTerm("")
+    setActionFilter("all")
+    setDateRange({
+      startDate: null,
+      endDate: null,
+      key: "selection",
+    })
+  }, [])
+
   return (
-    <TabsContent value="audit" className="mt-0 flex flex-col">
+    <TabsContent value="audit" className="mt-0 flex flex-col gap-4">
       <SharedDataTable
         title="Auth user audit trail"
         description="Review recent changes captured for account updates."
         columns={auditColumns}
         data={preparedLogs}
-        className="flex flex-1 flex-col"
+        className="flex flex-1 flex-col gap-4"
         isLoading={isLoadingAuditLogs}
         error={auditLogsError}
-        emptyMessage="No audit activity recorded for AuthUser yet."
+        emptyMessage={
+          hasActiveFilters
+            ? "No audit activity found for the selected filters."
+            : "No audit activity recorded for AuthUser yet."
+        }
         onRefresh={() => refreshAuditLogs({ withLoading: true })}
         enablePagination
         manualPagination
+        manualFiltering
         stickyHeader
         skeletonRowCount={4}
         totalItems={auditTotal ?? 0}
@@ -509,6 +545,21 @@ export function AuditTab() {
         pageCount={totalPages}
         pageSizeOptions={PAGE_SIZE_OPTIONS}
         onPaginationChange={handlePaginationChange}
+        renderHeader={({ table }) => (
+          <AuditTableToolbar
+            table={table}
+            searchTerm={searchTerm}
+            actionFilter={actionFilter}
+            dateRange={dateRange}
+            hasActiveFilters={hasActiveFilters}
+            onSearchChange={setSearchTerm}
+            onActionFilterChange={setActionFilter}
+            onDateRangeChange={setDateRange}
+            onClearFilters={handleClearFilters}
+            onRefresh={() => refreshAuditLogs({ withLoading: true })}
+            isLoading={isLoadingAuditLogs}
+          />
+        )}
         getRowId={(row, index) =>
           row?.id ? `${row.id}` : `${row?.createdAt ?? "audit"}-${index}`
         }

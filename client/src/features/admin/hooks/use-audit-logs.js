@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react"
 
 import { apiClient } from "@/shared/lib/client"
 
-export function useAuditLogs({ model, limit, offset } = {}) {
+export function useAuditLogs({ model, limit, offset, searchTerm, action, startDate, endDate } = {}) {
   const [logs, setLogs] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -26,6 +26,18 @@ export function useAuditLogs({ model, limit, offset } = {}) {
         }
         if (typeof model === "string" && model.trim()) {
           params.model = model.trim()
+        }
+        if (typeof searchTerm === "string" && searchTerm.trim()) {
+          params.search = searchTerm.trim()
+        }
+        if (typeof action === "string" && action.trim()) {
+          params.action = action.trim()
+        }
+        if (startDate) {
+          params.startDate = startDate.toISOString()
+        }
+        if (endDate) {
+          params.endDate = endDate.toISOString()
         }
 
         const { data } = await apiClient.get("/api/audit", { params })
@@ -59,7 +71,7 @@ export function useAuditLogs({ model, limit, offset } = {}) {
         setIsLoading(false)
       }
     },
-    [limit, model, offset]
+    [action, endDate, limit, model, offset, searchTerm, startDate]
   )
 
   useEffect(() => {
