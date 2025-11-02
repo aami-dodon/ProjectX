@@ -17,6 +17,14 @@ import { formatDate } from "../user-table/UserTableDrawer"
 
 const DEFAULT_PAGE_SIZE = 10
 const PAGE_SIZE_OPTIONS = [10, 20, 30, 40, 50]
+const ROUTINE_DATE_FIELDS = new Set([
+  "lastloginat",
+  "lastlogindate",
+  "lastaccessedat",
+  "lastaccessedtime",
+  "lastaccessedon",
+  "updatedat",
+])
 
 const SENSITIVE_KEY_PATTERNS = [
   /password/i,
@@ -201,6 +209,13 @@ function createChangeSet(before, after) {
   const keys = new Set([...beforeMap.keys(), ...afterMap.keys()])
 
   return Array.from(keys).reduce((changes, key) => {
+    const normalizedKey = typeof key === "string" ? key : `${key}`
+    const comparableKey = normalizedKey.replace(/[^a-z0-9]/gi, "").toLowerCase()
+
+    if (ROUTINE_DATE_FIELDS.has(comparableKey)) {
+      return changes
+    }
+
     const previous = beforeMap.get(key)
     const next = afterMap.get(key)
 
@@ -209,7 +224,7 @@ function createChangeSet(before, after) {
     }
 
     changes.push({
-      field: key === "value" ? "Value" : key,
+      field: normalizedKey === "value" ? "Value" : normalizedKey,
       previous: previous ?? "—",
       next: next ?? "—",
     })
@@ -217,18 +232,9 @@ function createChangeSet(before, after) {
   }, [])
 }
 
-function formatTableLabel(model) {
-  if (!model) {
-    return "—"
-  }
-
-  const spaced = model.replace(/([a-z0-9])([A-Z])/g, "$1 $2")
-  return spaced.toLowerCase()
-}
-
-function buildUserLabel(log) {
-  const fullName = log?.user?.fullName?.trim()
-  const email = log?.user?.email?.trim()
+function buildPersonLabel(user) {
+  const fullName = user?.fullName?.trim()
+  const email = user?.email?.trim()
 
   if (fullName && email) {
     return `${fullName} (${email})`
@@ -242,7 +248,33 @@ function buildUserLabel(log) {
     return email
   }
 
-  return log?.userId ? "User account" : "System"
+  return null
+}
+
+function resolveAffectedUserLabel(log) {
+  const label = buildPersonLabel(log?.affectedUser)
+  if (label) {
+    return label
+  }
+
+  if (log?.affectedUserId) {
+    return "User account"
+  }
+
+  return "—"
+}
+
+function resolveModifiedByLabel(log) {
+  const label = buildPersonLabel(log?.performedBy)
+  if (label) {
+    return label
+  }
+
+  if (log?.performedById) {
+    return "User account"
+  }
+
+  return "System"
 }
 
 function buildContext(log) {
@@ -255,15 +287,25 @@ function buildContext(log) {
 function prepareAuditRow(log) {
   const sanitizedBefore = sanitizeSnapshot(log?.before)
   const sanitizedAfter = sanitizeSnapshot(log?.after)
+  const changeEntries = Array.isArray(log?.changes)
+    ? log.changes.filter((entry) => typeof entry === "string" && entry.trim().length > 0)
+    : []
+
+  const computedChanges =
+    changeEntries.length > 0
+      ? changeEntries
+      : createChangeSet(sanitizedBefore, sanitizedAfter).map(
+          (change) => `${change.field}: ${change.previous} -> ${change.next}`
+        )
 
   return {
     id: log?.id ?? null,
     action: log?.action ?? "—",
     model: log?.model ?? "—",
-    tableLabel: formatTableLabel(log?.model),
-    userLabel: buildUserLabel(log),
-    createdAt: log?.createdAt ?? null,
-    changes: createChangeSet(sanitizedBefore, sanitizedAfter),
+    changes: computedChanges,
+    affectedUserLabel: resolveAffectedUserLabel(log),
+    modifiedByLabel: resolveModifiedByLabel(log),
+    timestamp: log?.timestamp ?? log?.createdAt ?? null,
     context: buildContext(log),
     beforeSummary: formatReadableValue(sanitizedBefore),
     afterSummary: formatReadableValue(sanitizedAfter),
@@ -272,12 +314,12 @@ function prepareAuditRow(log) {
 
 function AuditDetails({ log }) {
   const [open, setOpen] = React.useState(false)
-  const hasChanges = Array.isArray(log?.changes) && log.changes.length > 0
   const contextEntries = Array.isArray(log?.context) ? log.context : []
   const hasContext = contextEntries.length > 0
   const hasSnapshots = Boolean(log?.beforeSummary || log?.afterSummary)
+  const hasDetails = hasContext || hasSnapshots
 
-  if (!hasChanges && !hasContext && !hasSnapshots) {
+  if (!hasDetails) {
     return null
   }
 
@@ -303,27 +345,6 @@ function AuditDetails({ log }) {
         </Button>
       </CollapsibleTrigger>
       <CollapsibleContent className="mt-2 space-y-3">
-        <div className="space-y-2">
-          <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-            Changes
-          </span>
-          {hasChanges ? (
-            <ul className="space-y-1">
-              {log.changes.map((change, index) => (
-                <li key={`${change.field}-${index}`} className="text-xs text-muted-foreground">
-                  <span className="font-medium text-foreground">{change.field}:</span>{" "}
-                  <span>{change.previous}</span>
-                  <span className="mx-1" aria-hidden="true">
-                    →
-                  </span>
-                  <span>{change.next}</span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-xs text-muted-foreground">No field-level changes captured.</p>
-          )}
-        </div>
         {hasSnapshots ? (
           <div className="space-y-1">
             <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
@@ -373,23 +394,39 @@ function AuditActionCell({ log }) {
   )
 }
 
-function AuditTableCell({ log }) {
-  return <span className="text-sm text-muted-foreground">{log.tableLabel}</span>
-}
+function AuditChangesCell({ log }) {
+  const changeEntries = Array.isArray(log?.changes) ? log.changes : []
 
-function AuditUserCell({ log }) {
-  return <span className="text-sm text-muted-foreground">{log.userLabel}</span>
-}
-
-function AuditTimestampCell({ log }) {
-  if (!log.createdAt) {
+  if (changeEntries.length === 0) {
     return <span className="text-sm text-muted-foreground">—</span>
   }
 
   return (
-    <span className="text-sm text-muted-foreground">
-      {formatDate(log.createdAt)}
-    </span>
+    <ul className="space-y-1 text-sm text-muted-foreground">
+      {changeEntries.map((change, index) => (
+        <li key={`${change}-${index}`} className="leading-5">
+          {change}
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+function AuditAffectedUserCell({ log }) {
+  return <span className="text-sm text-muted-foreground">{log.affectedUserLabel}</span>
+}
+
+function AuditModifiedByCell({ log }) {
+  return <span className="text-sm text-muted-foreground">{log.modifiedByLabel}</span>
+}
+
+function AuditTimestampCell({ log }) {
+  if (!log.timestamp) {
+    return <span className="text-sm text-muted-foreground">—</span>
+  }
+
+  return (
+    <span className="text-sm text-muted-foreground">{formatDate(log.timestamp)}</span>
   )
 }
 
@@ -455,35 +492,44 @@ export function AuditTab() {
       },
       {
         accessorKey: "action",
-        header: "Action",
+        header: "Action Performed",
         meta: {
-          columnLabel: "Action",
+          columnLabel: "Action Performed",
           headerClassName: "w-56",
           cellClassName: "align-top",
         },
         cell: ({ row }) => <AuditActionCell log={row.original} />,
       },
       {
-        accessorKey: "tableLabel",
-        header: "Table",
+        accessorKey: "changes",
+        header: "Changes",
         meta: {
-          columnLabel: "Table",
-          headerClassName: "w-40",
+          columnLabel: "Changes",
+          headerClassName: "w-[26rem]",
           cellClassName: "align-top",
         },
-        cell: ({ row }) => <AuditTableCell log={row.original} />,
+        cell: ({ row }) => <AuditChangesCell log={row.original} />,
       },
       {
-        accessorKey: "userLabel",
+        accessorKey: "affectedUserLabel",
         header: "User",
         meta: {
           columnLabel: "User",
           cellClassName: "align-top",
         },
-        cell: ({ row }) => <AuditUserCell log={row.original} />,
+        cell: ({ row }) => <AuditAffectedUserCell log={row.original} />,
       },
       {
-        accessorKey: "createdAt",
+        accessorKey: "modifiedByLabel",
+        header: "Modified By",
+        meta: {
+          columnLabel: "Modified By",
+          cellClassName: "align-top",
+        },
+        cell: ({ row }) => <AuditModifiedByCell log={row.original} />,
+      },
+      {
+        accessorKey: "timestamp",
         header: "Timestamp",
         meta: {
           columnLabel: "Timestamp",
@@ -589,7 +635,7 @@ export function AuditTab() {
           />
         )}
         getRowId={(row, index) =>
-          row?.id ? `${row.id}` : `${row?.createdAt ?? "audit"}-${index}`
+          row?.id ? `${row.id}` : `${row?.timestamp ?? "audit"}-${index}`
         }
       />
     </TabsContent>
