@@ -44,8 +44,8 @@ function UnknownRouteHandler() {
 const defaultLayoutRoutes = [
   { path: "/home", element: <HomePage /> },
   { path: "/account", element: <AccountSettingsPage /> },
-  { path: "/health", element: <HealthPage /> },
-  { path: "/design-system", element: <DesignSystemPage /> },
+  { path: "/admin/health", element: <AdminRoute><HealthPage /></AdminRoute> },
+  { path: "/admin/design-system", element: <AdminRoute><DesignSystemPage /></AdminRoute> },
   { path: "/admin/users", element: <AdminRoute><UserManagementPage /></AdminRoute> },
 ];
 

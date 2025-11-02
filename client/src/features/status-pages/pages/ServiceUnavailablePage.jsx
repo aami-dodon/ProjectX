@@ -17,7 +17,7 @@ export function ServiceUnavailablePage() {
         description="Our service is temporarily offline for maintenance or heavy load."
         actions={[
           <Button asChild key="status">
-            <Link to="/health">
+            <Link to="/admin/health">
               <SignalHigh className="size-4" aria-hidden="true" />
               View status page
             </Link>

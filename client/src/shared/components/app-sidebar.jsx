@@ -71,8 +71,8 @@ const NAVIGATION_CONFIG = {
     icon: IconSettings,
     items: [
       { title: "User Management", url: "/admin/users", icon: IconUsers },
-      { title: "Health Checks", url: "/health", icon: IconHeartbeat },
-      { title: "Design System", url: "/design-system", icon: IconPalette },
+      { title: "Health Checks", url: "/admin/health", icon: IconHeartbeat },
+      { title: "Design System", url: "/admin/design-system", icon: IconPalette },
       { title: "Compliance", url: "#", icon: IconReport },
     ],
   },
