@@ -17,7 +17,6 @@ const { router: healthRouter } = require('@/modules/health');
 const { router: adminRouter } = require('@/modules/admin');
 const authRouter = require('@/modules/auth/auth.router');
 const { router: filesRouter } = require('@/modules/files');
-const { router: customerBrandingRouter } = require('@/modules/customer-branding');
 const { router: auditRouter } = require('@/modules/audit');
 
 const logger = createLogger('app');
@@ -53,7 +52,6 @@ const createApp = () => {
   app.use(`${apiPrefix}/admin`, adminRouter);
   app.use(`${apiPrefix}/auth`, authRouter);
   app.use(`${apiPrefix}/files`, filesRouter);
-  app.use(`${apiPrefix}/branding`, customerBrandingRouter);
   app.use(`${apiPrefix}/audit`, auditRouter);
 
   app.use((req, res) => {

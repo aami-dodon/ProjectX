@@ -22,11 +22,6 @@ const PRESET_BREADCRUMBS = {
     { label: "Administration" },
     { label: "Users" },
   ],
-  "/admin/branding": () => [
-    { label: "Home", href: "/home" },
-    { label: "Administration" },
-    { label: "Customer Details" },
-  ],
 }
 
 function formatSegment(segment) {

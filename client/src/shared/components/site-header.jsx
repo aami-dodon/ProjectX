@@ -3,7 +3,6 @@ import { Link } from "react-router-dom"
 import { IconSearch } from "@tabler/icons-react"
 
 import { ModeToggle } from "@/components/mode-toggle"   // 👈 import the toggle
-import { useBranding } from "@/features/customer-branding"
 import defaultLogoMarkup from "@/assets/favicon.svg?raw"
 import {
   Breadcrumb,
@@ -18,10 +17,11 @@ import { Separator } from "@/shared/components/ui/separator"
 import { SidebarTrigger } from "@/shared/components/ui/sidebar"
 import { useBreadcrumbs } from "@/shared/hooks/use-breadcrumbs"
 
+const SEARCH_PLACEHOLDER = "Search the workspace..."
+const LOGO_ALT_TEXT = "Site logo"
+
 export function SiteHeader() {
   const breadcrumbs = useBreadcrumbs()
-  const { searchPlaceholder, logoUrl, name } = useBranding()
-  const resolvedLogoAlt = name ? `${name} site logo` : "Site logo"
 
   return (
     <header
@@ -56,7 +56,7 @@ export function SiteHeader() {
           <div className="relative w-full max-w-xl">
             <IconSearch className="text-muted-foreground absolute left-3 top-1/2 size-4 -translate-y-1/2" />
             <Input
-              placeholder={searchPlaceholder}
+              placeholder={SEARCH_PLACEHOLDER}
               className="bg-background pl-9"
               type="search"
               aria-label="Search"
@@ -69,17 +69,13 @@ export function SiteHeader() {
             className="flex size-8 items-center justify-center overflow-hidden rounded-md border border-border bg-muted"
             aria-label="Site Logo"
           >
-            {logoUrl ? (
-              <img src={logoUrl} alt={resolvedLogoAlt} className="size-full object-contain" />
-            ) : (
-              <span
-                className="size-full"
-                style={{ color: "var(--logo-color, var(--primary))" }}
-                role="img"
-                aria-label={resolvedLogoAlt}
-                dangerouslySetInnerHTML={{ __html: defaultLogoMarkup }}
-              />
-            )}
+            <span
+              className="size-full"
+              style={{ color: "var(--logo-color, var(--primary))" }}
+              role="img"
+              aria-label={LOGO_ALT_TEXT}
+              dangerouslySetInnerHTML={{ __html: defaultLogoMarkup }}
+            />
           </span>
         </div>
       </div>

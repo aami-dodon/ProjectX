@@ -14,7 +14,6 @@ import {
   IconUsers,
 } from "@tabler/icons-react"
 import { useCurrentUser } from "@/features/auth"
-import { useBranding } from "@/features/customer-branding"
 import { NavDocuments } from "@/shared/components/nav-documents"
 import { NavMain } from "@/shared/components/nav-main"
 import { NavSecondary } from "@/shared/components/nav-secondary"
@@ -49,6 +48,8 @@ const sharedDocuments = [
     icon: IconDatabase,
   },
 ]
+
+const CUSTOMER_SECTION_TITLE = "Customer Name"
 
 const defaultSidebarData = {
   navMain: [
@@ -118,11 +119,6 @@ const adminSidebarData = {
         icon: IconUsers,
       },
       {
-        title: "Customer Details",
-        url: "/admin/branding",
-        icon: IconSettings,
-      },
-      {
         title: "Health Checks",
         url: "/health",
         icon: IconHeartbeat,
@@ -151,12 +147,6 @@ export function AppSidebar({
   ...props
 }) {
   const currentUser = useCurrentUser()
-  const branding = useBranding()
-
-  const customerSectionTitle = React.useMemo(() => {
-    const derivedTitle = branding.sidebarTitle?.trim() || branding.name?.trim()
-    return derivedTitle && derivedTitle.length > 0 ? derivedTitle : "Customer Name"
-  }, [branding.sidebarTitle, branding.name])
 
   const isAdmin = React.useMemo(
     () => (currentUser?.roles ?? []).some((role) => role.name?.toLowerCase() === "admin"),
@@ -199,10 +189,7 @@ export function AppSidebar({
           <SidebarMenuItem>
             <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
               <Link to="/home">
-                <CustomerBranding
-                  customerLogo={branding.logoUrl}
-                  title={customerSectionTitle}
-                />
+                <CustomerBranding title={CUSTOMER_SECTION_TITLE} />
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

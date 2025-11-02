@@ -6,7 +6,6 @@ import { DesignSystemPage } from "@/features/design-system";
 import { HealthPage } from "@/features/health";
 import { AccountSettingsPage } from "@/features/account";
 import { UserManagementPage } from "@/features/admin";
-import { CustomerBrandingSettingsPage } from "@/features/customer-branding";
 
 import { AuthLayout, LoginPage, authRoutes, useAuthStatus, useHasRole } from "@/features/auth";
 import { ErrorPage, ForbiddenPage, InternalServerErrorPage, NotFoundPage, RequestTimeoutPage, ServiceUnavailablePage, UnauthorizedPage, statusRoutes } from "@/features/status-pages";
@@ -48,7 +47,6 @@ const defaultLayoutRoutes = [
   { path: "/health", element: <HealthPage /> },
   { path: "/design-system", element: <DesignSystemPage /> },
   { path: "/admin/users", element: <AdminRoute><UserManagementPage /></AdminRoute> },
-  { path: "/admin/branding", element: <AdminRoute><CustomerBrandingSettingsPage /></AdminRoute> },
 ];
 
 /* -------------------------------------------------------------------------- */
