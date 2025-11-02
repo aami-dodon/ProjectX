@@ -1,3 +1,6 @@
+## 2025-11-22 11:30:00 IST
+- Restored the sidebar account avatar to render in full color by removing the grayscale filter from the user menu.
+
 ## 2025-11-22 09:00:00 IST
 - Removed the customer branding experience and API so the workspace shell always displays the default Project X identity.
 
