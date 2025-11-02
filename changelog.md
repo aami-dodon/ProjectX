@@ -1,3 +1,6 @@
+## 2025-11-21 15:00:00 IST
+- Limited the Customer Details form to updating the customer logo and name so the sidebar branding component reflects only those fields.
+
 ## 2025-11-21 14:15:00 IST
 - Refactored the sidebar customer identity into a shared UI component so the logo and title rendering can be reused across layouts.
 
