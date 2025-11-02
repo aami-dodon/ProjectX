@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { Building2 } from "lucide-react";
 
 import {
   Card,
@@ -21,38 +22,13 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 import { cn } from "@/shared/lib/utils";
 import { apiClient } from "@/shared/lib/client";
 
-function DefaultLogoPreview(props) {
+function DefaultLogoPreview({ className, ...props }) {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 64 64"
-      role="img"
-      aria-label="Project X logo"
+    <Building2
+      aria-hidden="true"
+      className={cn("size-8 text-muted-foreground", className)}
       {...props}
-    >
-      <style>{`
-        :root {
-          color: var(--logo-color, var(--primary, oklch(0.852 0.199 91.936)));
-        }
-        text {
-          font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-          font-weight: 700;
-          letter-spacing: -0.08em;
-        }
-      `}</style>
-      <rect width="64" height="64" rx="12" fill="currentColor" fillOpacity="0.12" />
-      <g transform="translate(32, 32)">
-        <text
-          textAnchor="middle"
-          dominantBaseline="middle"
-          fontSize="64"
-          fill="currentColor"
-          dy="0.1em"
-        >
-          X
-        </text>
-      </g>
-    </svg>
+    />
   );
 }
 

@@ -1,3 +1,6 @@
+## 2025-11-21 15:00:00 IST
+- Matched the admin branding form's default logo preview to the shared customer branding icon so the fallback imagery stays consistent across the app.
+
 ## 2025-11-21 14:15:00 IST
 - Refactored the sidebar customer identity into a shared UI component so the logo and title rendering can be reused across layouts.
 
