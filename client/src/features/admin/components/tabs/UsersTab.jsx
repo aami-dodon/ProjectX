@@ -56,13 +56,24 @@ export function UsersTab({
   error,
   onUpdate,
   onRefresh,
+  pagination,
+  searchTerm = "",
+  statusFilter = null,
+  roleFilter = null,
+  sort = null,
+  onSearchChange,
+  onStatusFilterChange,
+  onRoleFilterChange,
+  onPaginationChange,
+  onPageSizeChange,
+  onSortChange,
+  onClearFilters,
 }) {
   const [data, setData] = React.useState(() => users ?? [])
-  const [searchTerm, setSearchTerm] = React.useState("")
-  const [statusFilter, setStatusFilter] = React.useState("all")
-  const [roleFilter, setRoleFilter] = React.useState("all")
+  const [searchInput, setSearchInput] = React.useState(searchTerm ?? "")
   const [drawerState, setDrawerState] = React.useState({ userId: null, tab: "view" })
   const [isRefreshing, setIsRefreshing] = React.useState(false)
+  const [sortingState, setSortingState] = React.useState([])
 
   const tableIsLoading = isLoading || isRefreshing
 
@@ -160,6 +171,51 @@ export function UsersTab({
     setData(users ?? [])
   }, [users])
 
+  React.useEffect(() => {
+    setSearchInput(searchTerm ?? "")
+  }, [searchTerm])
+
+  React.useEffect(() => {
+    if (!sort?.field) {
+      setSortingState([])
+      return
+    }
+
+    const sortFieldMap = {
+      name: "fullName",
+      email: "email",
+      status: "status",
+      lastLoginAt: "lastLoginAt",
+      emailVerifiedAt: "emailVerifiedAt",
+    }
+    const columnId = Object.entries(sortFieldMap).find(([, value]) => value === sort.field)?.[0]
+
+    if (!columnId) {
+      setSortingState([])
+      return
+    }
+
+    setSortingState([{ id: columnId, desc: sort.direction !== "asc" }])
+  }, [sort])
+
+  React.useEffect(() => {
+    if (!onSearchChange) {
+      return
+    }
+
+    const handler = setTimeout(() => {
+      const trimmed = searchInput?.trim?.() ?? ""
+      if (trimmed === (searchTerm?.trim?.() ?? "")) {
+        return
+      }
+      onSearchChange(trimmed)
+    }, 300)
+
+    return () => {
+      clearTimeout(handler)
+    }
+  }, [searchInput, searchTerm, onSearchChange])
+
   const columns = React.useMemo(
     () => [
       {
@@ -198,14 +254,7 @@ export function UsersTab({
         header: "User",
         meta: {
           columnLabel: "User",
-        },
-        filterFn: (row, columnId, filterValue) => {
-          if (!filterValue) return true
-
-          const searchValue = `${filterValue}`.toLowerCase()
-          const fullName = `${row.original.fullName ?? ""}`.toLowerCase()
-          const email = `${row.original.email ?? ""}`.toLowerCase()
-          return `${fullName} ${email}`.includes(searchValue)
+          sortField: "name",
         },
         cell: ({ row }) => (
           <UserTableDrawerCellViewer
@@ -222,7 +271,7 @@ export function UsersTab({
       {
         accessorKey: "email",
         header: "Email",
-        meta: { columnLabel: "Email" },
+        meta: { columnLabel: "Email", sortField: "email" },
         cell: ({ row }) => (
           <div className="text-sm">
             {row.original.email ? (
@@ -236,9 +285,7 @@ export function UsersTab({
       {
         accessorKey: "status",
         header: "Status",
-        meta: { columnLabel: "Status" },
-        filterFn: (row, columnId, filterValue) =>
-          !filterValue || `${row.getValue(columnId) ?? ""}` === filterValue,
+        meta: { columnLabel: "Status", sortField: "status" },
         cell: ({ row }) => (
           <Badge
             variant="outline"
@@ -267,6 +314,7 @@ export function UsersTab({
           headerClassName: "text-right",
           headerAlign: "right",
           cellClassName: "text-right",
+          sortField: "lastLoginAt",
         },
         cell: ({ row }) => (
           <div className="text-right text-sm">{formatDate(row.original.lastLoginAt)}</div>
@@ -353,9 +401,64 @@ export function UsersTab({
     [availableRoles]
   )
 
-  const hasActiveFilters = React.useMemo(
-    () => (searchTerm?.trim() ?? "") !== "" || statusFilter !== "all" || roleFilter !== "all",
-    [searchTerm, statusFilter, roleFilter]
+  const hasActiveFilters = React.useMemo(() => {
+    const trimmedSearch = searchTerm?.trim?.() ?? ""
+    const resolvedStatus = statusFilter ?? "all"
+    const resolvedRole = roleFilter ?? "all"
+    return trimmedSearch !== "" || resolvedStatus !== "all" || resolvedRole !== "all"
+  }, [searchTerm, statusFilter, roleFilter])
+
+  const resolvedStatusFilter = statusFilter ?? "all"
+  const resolvedRoleFilter = roleFilter ?? "all"
+
+  const handleSortingChange = React.useCallback(
+    (updater) => {
+      setSortingState((previous) => {
+        const nextState = typeof updater === "function" ? updater(previous) : updater ?? []
+        const [nextSort] = nextState
+
+        if (typeof onSortChange === "function") {
+          if (!nextSort) {
+            onSortChange(null)
+          } else {
+            const sortFieldMap = {
+              fullName: "name",
+              email: "email",
+              status: "status",
+              lastLoginAt: "lastLoginAt",
+              emailVerifiedAt: "emailVerifiedAt",
+            }
+            const nextField = sortFieldMap[nextSort.id] ?? nextSort.id
+            onSortChange({ field: nextField, direction: nextSort.desc ? "desc" : "asc" })
+          }
+        }
+
+        return nextState
+      })
+    },
+    [onSortChange]
+  )
+
+  const handlePaginationChange = React.useCallback(
+    (next) => {
+      if (!next) {
+        return
+      }
+
+      const nextPageSize = next.pageSize ?? pagination?.pageSize ?? 10
+      const nextPageIndex = next.pageIndex ?? 0
+      const nextPage = nextPageIndex + 1
+
+      if (typeof onPageSizeChange === "function" && nextPageSize !== pagination?.pageSize) {
+        onPageSizeChange(nextPageSize)
+        return
+      }
+
+      if (typeof onPaginationChange === "function" && nextPage !== (pagination?.page ?? 1)) {
+        onPaginationChange(nextPage)
+      }
+    },
+    [onPaginationChange, onPageSizeChange, pagination]
   )
 
   return (
@@ -367,38 +470,48 @@ export function UsersTab({
         enableRowReorder
         enableRowSelection
         enablePagination
+        manualPagination
+        manualSorting
+        manualFiltering
         onDataChange={setData}
         stickyHeader
         isLoading={tableIsLoading}
         error={error}
+        totalItems={pagination?.total ?? 0}
+        paginationState={{
+          pageIndex: Math.max(0, (pagination?.page ?? 1) - 1),
+          pageSize: pagination?.pageSize ?? 10,
+        }}
+        pageCount={Math.max(
+          1,
+          Math.ceil((pagination?.total ?? 0) / Math.max(pagination?.pageSize ?? 10, 1))
+        )}
+        sortingState={sortingState}
+        onSortingChange={handleSortingChange}
+        onPaginationChange={handlePaginationChange}
         renderHeader={({ table }) => (
           <UserTableToolbar
             table={table}
-            searchTerm={searchTerm}
-            statusFilter={statusFilter}
-            roleFilter={roleFilter}
+            searchTerm={searchInput}
+            statusFilter={resolvedStatusFilter}
+            roleFilter={resolvedRoleFilter}
             statusOptions={STATUS_LABELS}
             roleOptions={roleOptions}
             hasActiveFilters={hasActiveFilters}
-            onSearchChange={(value) => {
-              setSearchTerm(value)
-              table.getColumn("fullName")?.setFilterValue(value || undefined)
-            }}
+            onSearchChange={setSearchInput}
             onStatusFilterChange={(value) => {
-              setStatusFilter(value)
-              table.getColumn("status")?.setFilterValue(value === "all" ? undefined : value)
+              const nextValue = value === "all" ? null : value
+              onStatusFilterChange?.(nextValue)
             }}
             onRoleFilterChange={(value) => {
-              setRoleFilter(value)
-              table.getColumn("roles")?.setFilterValue(value === "all" ? undefined : value)
+              const nextValue = value === "all" ? null : value
+              onRoleFilterChange?.(nextValue)
             }}
             onClearFilters={() => {
-              setSearchTerm("")
-              setStatusFilter("all")
-              setRoleFilter("all")
-              table.getColumn("fullName")?.setFilterValue(undefined)
-              table.getColumn("status")?.setFilterValue(undefined)
-              table.getColumn("roles")?.setFilterValue(undefined)
+              setSearchInput("")
+              onClearFilters?.()
+              onStatusFilterChange?.(null)
+              onRoleFilterChange?.(null)
             }}
             onRefresh={typeof onRefresh === "function" ? handleRefresh : undefined}
             isLoading={tableIsLoading}

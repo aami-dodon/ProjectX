@@ -8,16 +8,49 @@ const USER_INCLUDE = {
   },
 };
 
-const listUsers = async ({ where = {}, limit, offset } = {}) =>
+const listUsers = async ({ where = {}, limit, offset, orderBy } = {}) =>
   prisma.authUser.findMany({
     where,
     include: USER_INCLUDE,
-    orderBy: { createdAt: 'desc' },
+    orderBy: Array.isArray(orderBy) && orderBy.length > 0 ? orderBy : { createdAt: 'desc' },
     ...(typeof limit === 'number' ? { take: limit } : {}),
     ...(typeof offset === 'number' ? { skip: offset } : {}),
   });
 
 const countUsers = ({ where = {} } = {}) => prisma.authUser.count({ where });
+
+const countUsersByStatus = async ({ where = {} } = {}) => {
+  const results = await prisma.authUser.groupBy({
+    by: ['status'],
+    where,
+    _count: { _all: true },
+  });
+
+  return results.reduce(
+    (acc, entry) => ({
+      ...acc,
+      [entry.status]: entry._count?._all ?? 0,
+    }),
+    {}
+  );
+};
+
+const listUserRegistrationsSince = async ({ since }) =>
+  prisma.authUser.findMany({
+    where: since
+      ? {
+          createdAt: {
+            gte: since,
+          },
+        }
+      : undefined,
+    select: {
+      createdAt: true,
+    },
+    orderBy: {
+      createdAt: 'asc',
+    },
+  });
 
 const findUserById = (id) =>
   prisma.authUser.findUnique({
@@ -49,8 +82,10 @@ const findRolesByIds = (ids = []) =>
 module.exports = {
   listUsers,
   countUsers,
+  countUsersByStatus,
   findUserById,
   updateUserById,
   listRoles,
   findRolesByIds,
+  listUserRegistrationsSince,
 };

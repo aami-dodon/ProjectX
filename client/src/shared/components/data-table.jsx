@@ -115,9 +115,17 @@ export function DataTable({
   enablePagination = false,
   pageSizeOptions = [10, 20, 30, 40, 50],
   initialPageSize = 10,
+  manualPagination = false,
+  manualSorting = false,
+  manualFiltering = false,
+  paginationState,
+  sortingState,
+  totalItems,
   renderFooter,
   selectionMessage = (table) =>
     `${table.getFilteredSelectedRowModel().rows.length} of ${table.getFilteredRowModel().rows.length} row(s) selected.`,
+  onSortingChange,
+  onPaginationChange,
 }) {
   const [tableData, setTableData] = React.useState(() => data ?? [])
 
@@ -128,11 +136,75 @@ export function DataTable({
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] = React.useState({})
   const [columnFilters, setColumnFilters] = React.useState([])
-  const [sorting, setSorting] = React.useState([])
-  const [pagination, setPagination] = React.useState({
-    pageIndex: 0,
-    pageSize: initialPageSize,
-  })
+  const isSortingControlled = typeof sortingState !== "undefined"
+  const [internalSorting, setInternalSorting] = React.useState(() => sortingState ?? [])
+  React.useEffect(() => {
+    if (isSortingControlled) {
+      setInternalSorting(Array.isArray(sortingState) ? sortingState : [])
+    }
+  }, [isSortingControlled, sortingState])
+
+  const resolvedSorting = isSortingControlled
+    ? Array.isArray(sortingState)
+      ? sortingState
+      : []
+    : internalSorting
+
+  const isPaginationControlled = typeof paginationState !== "undefined"
+  const [internalPagination, setInternalPagination] = React.useState(() =>
+    paginationState ?? {
+      pageIndex: 0,
+      pageSize: initialPageSize,
+    }
+  )
+
+  React.useEffect(() => {
+    if (isPaginationControlled && paginationState) {
+      setInternalPagination(paginationState)
+    }
+  }, [isPaginationControlled, paginationState])
+
+  const resolvedPagination = isPaginationControlled && paginationState
+    ? paginationState
+    : internalPagination
+
+  const handleSortingChange = React.useCallback(
+    (updater) => {
+      if (!isSortingControlled) {
+        setInternalSorting((previous) =>
+          typeof updater === "function" ? updater(previous) : updater ?? []
+        )
+      }
+
+      if (typeof onSortingChange === "function") {
+        const current = isSortingControlled
+          ? Array.isArray(sortingState)
+            ? sortingState
+            : []
+          : internalSorting
+        const nextValue = typeof updater === "function" ? updater(current) : updater ?? []
+        onSortingChange(nextValue)
+      }
+    },
+    [isSortingControlled, internalSorting, onSortingChange, sortingState]
+  )
+
+  const handlePaginationChange = React.useCallback(
+    (updater) => {
+      if (!isPaginationControlled) {
+        setInternalPagination((previous) =>
+          typeof updater === "function" ? updater(previous) : updater ?? previous
+        )
+      }
+
+      if (typeof onPaginationChange === "function") {
+        const current = isPaginationControlled && paginationState ? paginationState : resolvedPagination
+        const nextValue = typeof updater === "function" ? updater(current) : updater ?? current
+        onPaginationChange(nextValue)
+      }
+    },
+    [isPaginationControlled, onPaginationChange, paginationState, resolvedPagination]
+  )
 
   const resolvedGetRowId = React.useCallback(
     (row, index) => {
@@ -159,23 +231,13 @@ export function DataTable({
     [getRowId]
   )
 
-  const tableState = React.useMemo(
-    () => ({
-      sorting,
-      columnVisibility,
-      columnFilters,
-      pagination,
-      ...(enableRowSelection ? { rowSelection } : {}),
-    }),
-    [
-      sorting,
-      columnVisibility,
-      columnFilters,
-      pagination,
-      enableRowSelection,
-      rowSelection,
-    ]
-  )
+  const tableState = {
+    sorting: resolvedSorting,
+    columnVisibility,
+    columnFilters,
+    pagination: resolvedPagination,
+    ...(enableRowSelection ? { rowSelection } : {}),
+  }
 
   const table = useReactTable({
     data: tableData,
@@ -183,16 +245,28 @@ export function DataTable({
     state: tableState,
     enableRowSelection,
     onRowSelectionChange: enableRowSelection ? setRowSelection : undefined,
-    onSortingChange: setSorting,
+    onSortingChange: handleSortingChange,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
-    onPaginationChange: setPagination,
+    onPaginationChange: handlePaginationChange,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
+    ...(manualPagination ? {} : { getPaginationRowModel: getPaginationRowModel() }),
+    ...(manualSorting ? {} : { getSortedRowModel: getSortedRowModel() }),
+    manualPagination,
+    manualSorting,
+    manualFiltering,
+    pageCount: manualPagination
+      ? Math.max(
+          1,
+          Math.ceil(
+            (typeof totalItems === "number" ? totalItems : tableData.length) /
+              Math.max(resolvedPagination?.pageSize ?? initialPageSize, 1)
+          )
+        )
+      : undefined,
     getRowId: resolvedGetRowId,
   })
 

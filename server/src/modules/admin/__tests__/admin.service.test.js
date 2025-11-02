@@ -6,6 +6,8 @@ const {
   findUserById,
   findRolesByIds,
   countUsers,
+  countUsersByStatus,
+  listUserRegistrationsSince,
 } = require('../admin.repository');
 const { getFileAccessLink } = require('@/modules/files/file.service');
 const { logAuthEvent } = require('@/modules/auth/auth.repository');
@@ -17,6 +19,8 @@ jest.mock('../admin.repository', () => ({
   findUserById: jest.fn(),
   findRolesByIds: jest.fn(),
   countUsers: jest.fn(),
+  countUsersByStatus: jest.fn(),
+  listUserRegistrationsSince: jest.fn(),
 }));
 
 jest.mock('@/modules/files/file.service', () => ({
@@ -74,12 +78,18 @@ describe('admin.service - getAdminUsers', () => {
     ]);
     getFileAccessLink.mockResolvedValue({ url: 'https://files.example.com/avatar-user-1.png' });
     countUsers
-      .mockResolvedValueOnce(2) // total matching
-      .mockResolvedValueOnce(1) // active
-      .mockResolvedValueOnce(0) // pending
-      .mockResolvedValueOnce(0) // suspended
-      .mockResolvedValueOnce(1) // invited
-      .mockResolvedValueOnce(0); // verified
+      .mockResolvedValueOnce(2) // total matching with filters
+      .mockResolvedValueOnce(5) // global total
+      .mockResolvedValueOnce(3); // verified count
+    countUsersByStatus.mockResolvedValue({
+      ACTIVE: 4,
+      INVITED: 1,
+      PENDING_VERIFICATION: 0,
+      SUSPENDED: 0,
+    });
+    listUserRegistrationsSince.mockResolvedValue([
+      { createdAt: new Date('2024-01-05T00:00:00Z') },
+    ]);
 
     const result = await getAdminUsers();
 
@@ -89,6 +99,7 @@ describe('admin.service - getAdminUsers', () => {
       where: {},
       limit: 25,
       offset: 0,
+      orderBy: [{ createdAt: 'desc' }],
     });
 
     expect(result.users).toHaveLength(2);
@@ -107,13 +118,16 @@ describe('admin.service - getAdminUsers', () => {
       total: 2,
       limit: 25,
       offset: 0,
+      page: 1,
+      pageSize: 25,
     });
+    expect(result.totalCount).toBe(2);
 
     expect(result.metrics.totals).toMatchObject({
-      all: 2,
-      active: 1,
+      all: 5,
+      active: 4,
       invited: 1,
-      verified: 0,
+      verified: 3,
     });
   });
 
@@ -124,12 +138,11 @@ describe('admin.service - getAdminUsers', () => {
     listRoles.mockResolvedValue([]);
     getFileAccessLink.mockRejectedValue(new Error('MinIO unavailable'));
     countUsers
-      .mockResolvedValueOnce(1) // total
-      .mockResolvedValueOnce(1) // active
-      .mockResolvedValueOnce(0)
-      .mockResolvedValueOnce(0)
-      .mockResolvedValueOnce(0)
-      .mockResolvedValueOnce(0);
+      .mockResolvedValueOnce(1) // total matching
+      .mockResolvedValueOnce(1) // global total
+      .mockResolvedValueOnce(0); // verified count
+    countUsersByStatus.mockResolvedValue({ ACTIVE: 1 });
+    listUserRegistrationsSince.mockResolvedValue([]);
 
     const result = await getAdminUsers();
 
@@ -143,8 +156,15 @@ describe('admin.service - getAdminUsers', () => {
     listUsers.mockResolvedValue(users);
     listRoles.mockResolvedValue([]);
     countUsers
-      .mockResolvedValueOnce(5) // total
-      .mockResolvedValueOnce(2); // verified
+      .mockResolvedValueOnce(5) // total matching with filters
+      .mockResolvedValueOnce(12) // global total
+      .mockResolvedValueOnce(2); // verified count
+    countUsersByStatus.mockResolvedValue({
+      ACTIVE: 7,
+      SUSPENDED: 3,
+      INVITED: 2,
+    });
+    listUserRegistrationsSince.mockResolvedValue([]);
 
     const result = await getAdminUsers({ limit: 10, offset: 20, status: 'active' });
 
@@ -152,16 +172,22 @@ describe('admin.service - getAdminUsers', () => {
       where: { status: 'ACTIVE' },
       limit: 10,
       offset: 20,
+      orderBy: [{ createdAt: 'desc' }],
     });
 
     expect(countUsers).toHaveBeenCalledWith({ where: { status: 'ACTIVE' } });
-    expect(result.pagination).toEqual({ total: 5, limit: 10, offset: 20 });
+    expect(result.pagination).toEqual({
+      total: 5,
+      limit: 10,
+      offset: 20,
+      page: 3,
+      pageSize: 10,
+    });
     expect(result.metrics.totals).toMatchObject({
-      all: 5,
-      active: 5,
-      pending: 0,
-      suspended: 0,
-      invited: 0,
+      all: 12,
+      active: 7,
+      suspended: 3,
+      invited: 2,
       verified: 2,
     });
   });

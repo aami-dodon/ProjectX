@@ -18,6 +18,24 @@ bound to `/api/admin`.
 - **Repository (`admin.repository.js`)** – wraps Prisma queries for retrieving and
   updating auth users with role assignment relationships.
 
+### `/api/admin/users` query capabilities
+
+The listing endpoint supports fully server-side pagination, searching, sorting,
+and filtering. The following query parameters are accepted:
+
+- `page` (number, default `1`) – 1-based page index.
+- `pageSize` (number, default `25`) – page size, capped at 100.
+- `search` – case-insensitive match across name and email.
+- `status` – one of `ACTIVE`, `PENDING_VERIFICATION`, `SUSPENDED`, `INVITED`.
+- `filter=role:<roleId>` – restricts results to users assigned a specific role.
+- `sort=<field>:<direction>` – supports `name`, `email`, `status`,
+  `lastLoginAt`, and defaults to `createdAt:desc`.
+
+Responses now include `pagination.page`, `pagination.pageSize`, and
+`totalCount` alongside the existing `limit`/`offset` properties for
+backwards compatibility. Dashboard metrics (`metrics`) are computed using the
+global user base rather than the current page of results.
+
 Import the module through the shared alias:
 
 ```js

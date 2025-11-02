@@ -7,6 +7,10 @@ const listUsers = async (req, res, next) => {
       status: req.query?.status,
       limit: req.query?.limit,
       offset: req.query?.offset,
+      page: req.query?.page,
+      pageSize: req.query?.pageSize,
+      sort: req.query?.sort,
+      filter: req.query?.filter,
     });
 
     return res.json(data);
