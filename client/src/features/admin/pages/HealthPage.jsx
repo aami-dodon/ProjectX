@@ -1,14 +1,14 @@
 import { useMemo } from "react";
-import { Cpu, HardDrive, MemoryStick, RefreshCcw } from "lucide-react";
+import { Cpu, HardDrive, MemoryStick } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 
-import { HealthStatusCard } from "../components/HealthStatusCard";
-import { StatusBadge } from "../components/StatusBadge";
-import { useClientRuntimeMetrics } from "../hooks/useClientRuntimeMetrics";
-import { useHealthStatus } from "../hooks/useHealthStatus";
+import { HealthStatusCard } from "@/features/admin/components/health/HealthStatusCard";
+import { StatusBadge } from "@/features/admin/components/health/StatusBadge";
+import { useClientRuntimeMetrics } from "@/features/admin/hooks/useClientRuntimeMetrics";
+import { useHealthStatus } from "@/features/admin/hooks/useHealthStatus";
 
 const clampPercentage = (value) => {
   if (!Number.isFinite(value)) return 0;
