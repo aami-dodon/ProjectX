@@ -3,6 +3,7 @@ import { IconChevronDown, IconChevronUp } from "@tabler/icons-react"
 
 import { DataTable as SharedDataTable } from "@/shared/components/data-table"
 import { Button } from "@/shared/components/ui/button"
+import { Checkbox } from "@/shared/components/ui/checkbox"
 import {
   Collapsible,
   CollapsibleContent,
@@ -427,6 +428,32 @@ export function AuditTab() {
   const auditColumns = React.useMemo(
     () => [
       {
+        id: "select",
+        header: ({ table }) => (
+          <div className="flex items-center justify-center">
+            <Checkbox
+              checked={
+                table.getIsAllPageRowsSelected() ||
+                (table.getIsSomePageRowsSelected() && "indeterminate")
+              }
+              onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+              aria-label="Select all"
+            />
+          </div>
+        ),
+        cell: ({ row }) => (
+          <div className="flex items-center justify-center">
+            <Checkbox
+              checked={row.getIsSelected()}
+              onCheckedChange={(value) => row.toggleSelected(!!value)}
+              aria-label="Select row"
+            />
+          </div>
+        ),
+        enableSorting: false,
+        enableHiding: false,
+      },
+      {
         accessorKey: "action",
         header: "Action",
         meta: {
@@ -545,6 +572,7 @@ export function AuditTab() {
         pageCount={totalPages}
         pageSizeOptions={PAGE_SIZE_OPTIONS}
         onPaginationChange={handlePaginationChange}
+        enableRowSelection
         renderHeader={({ table }) => (
           <AuditTableToolbar
             table={table}
