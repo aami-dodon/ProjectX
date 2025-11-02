@@ -15,7 +15,7 @@ import { useAuditLogs } from "../../hooks/use-audit-logs"
 import { AuditTableToolbar } from "../audit-table/AuditTableToolbar"
 import { formatDate } from "../user-table/UserTableDrawer"
 
-const DEFAULT_PAGE_SIZE = 20
+const DEFAULT_PAGE_SIZE = 10
 const PAGE_SIZE_OPTIONS = [10, 20, 30, 40, 50]
 
 const SENSITIVE_KEY_PATTERNS = [
