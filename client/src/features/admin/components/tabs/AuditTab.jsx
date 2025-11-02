@@ -48,6 +48,69 @@ const SENSITIVE_KEYS = new Set([
   "sessionid",
 ])
 
+function extractRoleName(entry) {
+  if (!entry) {
+    return null
+  }
+
+  if (typeof entry === "string") {
+    const trimmed = entry.trim()
+    return trimmed.length > 0 ? trimmed : null
+  }
+
+  if (typeof entry !== "object") {
+    return null
+  }
+
+  if (typeof entry.role === "string") {
+    const trimmed = entry.role.trim()
+    if (trimmed.length > 0) {
+      return trimmed
+    }
+  }
+
+  if (entry.role && typeof entry.role === "object") {
+    const roleName = typeof entry.role.name === "string" ? entry.role.name.trim() : ""
+    if (roleName.length > 0) {
+      return roleName
+    }
+  }
+
+  if (typeof entry.roleName === "string") {
+    const trimmed = entry.roleName.trim()
+    if (trimmed.length > 0) {
+      return trimmed
+    }
+  }
+
+  if (typeof entry.name === "string") {
+    const trimmed = entry.name.trim()
+    if (trimmed.length > 0) {
+      return trimmed
+    }
+  }
+
+  return null
+}
+
+function simplifyRoleAssignments(value) {
+  if (!value) {
+    return null
+  }
+
+  const entries = Array.isArray(value) ? value : [value]
+  const roleNames = entries
+    .map((entry) => extractRoleName(entry))
+    .filter((roleName) => typeof roleName === "string" && roleName.length > 0)
+
+  if (roleNames.length === 0) {
+    return null
+  }
+
+  const uniqueRoleNames = Array.from(new Set(roleNames))
+  return uniqueRoleNames.length === 1 ? uniqueRoleNames[0] : uniqueRoleNames
+}
+
 function isSensitiveKey(key) {
   if (!key) {
     return false
@@ -109,7 +172,19 @@ function sanitizeSnapshot(value) {
   if (typeof value === "object") {
     const sanitizedEntries = Object.entries(value)
       .filter(([key]) => !isSensitiveKey(key))
-      .map(([key, entryValue]) => [key, sanitizeSnapshot(entryValue)])
+      .map(([key, entryValue]) => {
+        const sanitizedValue = sanitizeSnapshot(entryValue)
+        if (key && key.toLowerCase() === "roleassignments") {
+          const simplified = simplifyRoleAssignments(sanitizedValue)
+          if (!simplified) {
+            return null
+          }
+          return ["role", simplified]
+        }
+
+        return [key, sanitizedValue]
+      })
+      .filter(Boolean)
       .filter(([, entryValue]) => {
         if (entryValue === null || typeof entryValue === "undefined") {
           return false
