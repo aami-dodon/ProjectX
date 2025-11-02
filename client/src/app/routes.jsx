@@ -1,11 +1,9 @@
 import { Navigate, createBrowserRouter } from "react-router-dom";
 import DefaultLayout from "./layouts/DefaultLayout";
 
-import { HomePage } from "@/features/home";
-import { DesignSystemPage } from "@/features/design-system";
-import { HealthPage } from "@/features/health";
 import { AccountSettingsPage } from "@/features/account";
-import { UserManagementPage } from "@/features/admin";
+import { DesignSystemPage, HealthPage, UserManagementPage } from "@/features/admin";
+import { HomePage } from "@/features/home";
 
 import { AuthLayout, LoginPage, authRoutes, useAuthStatus, useHasRole } from "@/features/auth";
 import { ErrorPage, ForbiddenPage, InternalServerErrorPage, NotFoundPage, RequestTimeoutPage, ServiceUnavailablePage, UnauthorizedPage, statusRoutes } from "@/features/status-pages";
