@@ -122,8 +122,7 @@ export function DataTable({
   sortingState,
   totalItems,
   renderFooter,
-  selectionMessage = (table) =>
-    `${table.getFilteredSelectedRowModel().rows.length} of ${table.getFilteredRowModel().rows.length} row(s) selected.`,
+  selectionMessage: selectionMessageProp,
   onSortingChange,
   onPaginationChange,
 }) {
@@ -280,6 +279,37 @@ export function DataTable({
     useSensor(TouchSensor, {}),
     useSensor(KeyboardSensor, {})
   )
+
+  const resolvedTotalCount = React.useMemo(() => {
+    if (typeof totalItems === "number" && !Number.isNaN(totalItems)) {
+      return totalItems
+    }
+
+    return tableData.length
+  }, [tableData, totalItems])
+
+  const defaultSelectionMessage = React.useCallback(
+    (tableInstance) => {
+      const selected = tableInstance.getFilteredSelectedRowModel().rows.length
+      const pageCount = tableInstance.getRowModel().rows.length
+
+      return `${selected} of ${pageCount} row(s) selected (${resolvedTotalCount} records)`
+    },
+    [resolvedTotalCount]
+  )
+
+  const selectionMessage = React.useMemo(() => {
+    if (typeof selectionMessageProp === "function") {
+      return (tableInstance) =>
+        selectionMessageProp(tableInstance, {
+          total: resolvedTotalCount,
+          pageRowCount: tableInstance?.getRowModel().rows.length ?? 0,
+          selectedRowCount: tableInstance?.getFilteredSelectedRowModel().rows.length ?? 0,
+        })
+    }
+
+    return defaultSelectionMessage
+  }, [defaultSelectionMessage, resolvedTotalCount, selectionMessageProp])
 
   const handleDataChange = React.useCallback(
     (updater) => {
@@ -602,7 +632,9 @@ function renderDefaultFooter({
       : null
 
   if (!enablePagination) {
-    if (!selectionText) return null;
+    if (!selectionText) {
+      return null
+    }
     return (
       <div className="px-4 pb-4 text-sm text-muted-foreground lg:px-6">
         {selectionText}
