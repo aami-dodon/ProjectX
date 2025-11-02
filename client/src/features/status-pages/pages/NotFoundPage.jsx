@@ -23,7 +23,7 @@ export function NotFoundPage() {
             </Link>
           </Button>,
           <Button asChild variant="ghost" key="status">
-            <Link to="/health">
+            <Link to="/admin/health">
               <Waypoints className="size-4" aria-hidden="true" />
               View system status
             </Link>

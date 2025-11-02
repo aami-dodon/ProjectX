@@ -54,7 +54,7 @@ const formatDuration = (seconds) => {
 };
 
 export function HealthPage() {
-  const { data, error, isLoading, refresh, summary, refreshInterval } = useHealthStatus();
+  const { data, error, isLoading, refresh, refreshInterval } = useHealthStatus();
   const clientMetrics = useClientRuntimeMetrics({ refreshMs: refreshInterval });
 
   const systemStats = data?.data?.system;

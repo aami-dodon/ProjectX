@@ -9,12 +9,14 @@ const PRESET_BREADCRUMBS = {
     { label: "Home", href: "/home" },
     { label: "Account Settings" },
   ],
-  "/health": () => [
+  "/admin/health": () => [
     { label: "Home", href: "/home" },
+    { label: "Administration", href: "/admin/users" },
     { label: "Health" },
   ],
-  "/design-system": () => [
+  "/admin/design-system": () => [
     { label: "Home", href: "/home" },
+    { label: "Administration", href: "/admin/users" },
     { label: "Design System" },
   ],
   "/admin/users": () => [
