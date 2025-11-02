@@ -3,7 +3,7 @@ import { Link } from "react-router-dom"
 import { IconSearch } from "@tabler/icons-react"
 
 import { ModeToggle } from "@/components/mode-toggle"
-import siteLogoMarkup from "@/assets/favicon.svg?raw"  // ✅ renamed for clarity
+import siteLogoMarkup from "@/assets/SiteLogo.svg?raw"  // ✅ renamed for clarity
 import {
   Breadcrumb,
   BreadcrumbItem,
