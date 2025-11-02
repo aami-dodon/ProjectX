@@ -25,6 +25,17 @@ router.use(requireRoles('admin'));
  *           minimum: 1
  *           maximum: 200
  *         description: Maximum number of records to return. Defaults to 50.
+ *       - in: query
+ *         name: offset
+ *         schema:
+ *           type: integer
+ *           minimum: 0
+ *         description: Number of records to skip before starting to collect the result set. Defaults to 0.
+ *       - in: query
+ *         name: model
+ *         schema:
+ *           type: string
+ *         description: Filter logs for a specific audited model/table name.
  *     responses:
  *       '200':
  *         description: Collection of audit log entries.
@@ -37,6 +48,15 @@ router.use(requireRoles('admin'));
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/AuditLog'
+ *                 total:
+ *                   type: integer
+ *                   description: Total number of logs that match the provided filters.
+ *                 limit:
+ *                   type: integer
+ *                   description: The resolved page size applied to the query.
+ *                 offset:
+ *                   type: integer
+ *                   description: The resolved offset applied to the query.
  */
 router.get('/', listRecentAuditLogs);
 
