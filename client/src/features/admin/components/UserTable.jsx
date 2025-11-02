@@ -17,6 +17,18 @@ export function UserTable({
   error,
   onUpdate,
   onRefresh,
+  pagination,
+  searchTerm,
+  statusFilter,
+  roleFilter,
+  sort,
+  onSearchChange,
+  onStatusFilterChange,
+  onRoleFilterChange,
+  onPaginationChange,
+  onPageSizeChange,
+  onSortChange,
+  onClearFilters,
 }) {
   const [activeView, setActiveView] = React.useState("users")
 
@@ -32,6 +44,18 @@ export function UserTable({
             error={error}
             onUpdate={onUpdate}
             onRefresh={onRefresh}
+            pagination={pagination}
+            searchTerm={searchTerm}
+            statusFilter={statusFilter}
+            roleFilter={roleFilter}
+            sort={sort}
+            onSearchChange={onSearchChange}
+            onStatusFilterChange={onStatusFilterChange}
+            onRoleFilterChange={onRoleFilterChange}
+            onPaginationChange={onPaginationChange}
+            onPageSizeChange={onPageSizeChange}
+            onSortChange={onSortChange}
+            onClearFilters={onClearFilters}
           />
           <AuditTab />
           <ReportsTab />

@@ -13,6 +13,8 @@ const {
   listRoles,
   findRolesByIds,
   countUsers,
+  countUsersByStatus,
+  listUserRegistrationsSince,
 } = require('./admin.repository');
 
 const logger = createLogger('admin-service');
@@ -78,7 +80,40 @@ const serializeRole = (role) => ({
   isSystemDefault: role.isSystemDefault,
 });
 
-const buildWhereClause = ({ search, status }) => {
+const parseFilterParam = (rawFilter) => {
+  if (!rawFilter) {
+    return {};
+  }
+
+  const values = Array.isArray(rawFilter)
+    ? rawFilter
+    : `${rawFilter}`
+        .split(',')
+        .map((entry) => entry.trim())
+        .filter(Boolean);
+
+  return values.reduce((acc, entry) => {
+    const [rawKey, ...valueParts] = entry.split(':');
+    if (!rawKey || valueParts.length === 0) {
+      return acc;
+    }
+
+    const key = rawKey.trim().toLowerCase();
+    const value = valueParts.join(':').trim();
+    if (!value) {
+      return acc;
+    }
+
+    if (!acc[key]) {
+      acc[key] = [];
+    }
+
+    acc[key].push(value);
+    return acc;
+  }, {});
+};
+
+const buildWhereClause = ({ search, status, filters }) => {
   const where = {};
 
   const normalizedStatus = normalizeStatus(status);
@@ -100,51 +135,55 @@ const buildWhereClause = ({ search, status }) => {
     }
   }
 
+  const roleFilters = filters?.role ?? filters?.roles;
+  if (Array.isArray(roleFilters) && roleFilters.length > 0) {
+    const roleConditions = roleFilters.flatMap((value) => {
+      const trimmed = value.trim();
+      if (!trimmed) {
+        return [];
+      }
+
+      return [
+        { id: trimmed },
+        { name: { equals: trimmed, mode: 'insensitive' } },
+      ];
+    });
+
+    if (roleConditions.length > 0) {
+      where.roleAssignments = {
+        some: {
+          role: {
+            OR: roleConditions,
+          },
+        },
+      };
+    }
+  }
+
   return where;
 };
 
-const buildStatusMetrics = (users, overrides = {}) => {
-  const derivedCounts = {
-    ACTIVE: 0,
-    PENDING_VERIFICATION: 0,
-    SUSPENDED: 0,
-    INVITED: 0,
-  };
-
-  let derivedVerified = 0;
-
-  users.forEach((user) => {
-    if (derivedCounts[user.status] !== undefined) {
-      derivedCounts[user.status] += 1;
-    }
-
-    if (user.emailVerifiedAt) {
-      derivedVerified += 1;
-    }
-  });
-
-  const totalsOverride = overrides?.totals ?? {};
-
-  const finalCounts = {
-    ACTIVE: totalsOverride.active ?? derivedCounts.ACTIVE,
-    PENDING_VERIFICATION:
-      totalsOverride.pending ?? derivedCounts.PENDING_VERIFICATION,
-    SUSPENDED: totalsOverride.suspended ?? derivedCounts.SUSPENDED,
-    INVITED: totalsOverride.invited ?? derivedCounts.INVITED,
-  };
+const buildStatusMetrics = ({ statusCounts = {}, verifiedCount = 0, totalCount = 0 }) => {
+  const resolvedCounts = STATUS_KEYS.reduce(
+    (acc, key) => ({
+      ...acc,
+      [key]: statusCounts[key] ?? 0,
+    }),
+    {}
+  );
 
   const totals = {
-    all: totalsOverride.all ?? users.length,
-    active: finalCounts.ACTIVE,
-    pending: finalCounts.PENDING_VERIFICATION,
-    suspended: finalCounts.SUSPENDED,
-    invited: finalCounts.INVITED,
-    verified: totalsOverride.verified ?? derivedVerified,
+    all: typeof totalCount === 'number' ? totalCount : 0,
+    active: resolvedCounts.ACTIVE,
+    pending: resolvedCounts.PENDING_VERIFICATION,
+    suspended: resolvedCounts.SUSPENDED,
+    invited: resolvedCounts.INVITED,
+    verified: verifiedCount ?? 0,
   };
 
   return {
     totals,
-    statusDistribution: Object.entries(finalCounts).map(([status, value]) => ({
+    statusDistribution: Object.entries(resolvedCounts).map(([status, value]) => ({
       status,
       value,
       label: status
@@ -155,7 +194,7 @@ const buildStatusMetrics = (users, overrides = {}) => {
   };
 };
 
-const buildRegistrationTrend = (users) => {
+const buildRegistrationTrend = (registrations) => {
   const now = new Date();
   now.setHours(0, 0, 0, 0);
 
@@ -183,12 +222,13 @@ const buildRegistrationTrend = (users) => {
     bucketMap.set(key, entry);
   }
 
-  users.forEach((user) => {
-    if (!user.createdAt) {
+  (registrations ?? []).forEach((entry) => {
+    const createdAt = entry?.createdAt ?? entry;
+    if (!createdAt) {
       return;
     }
 
-    const userDate = new Date(user.createdAt);
+    const userDate = new Date(createdAt);
     userDate.setHours(0, 0, 0, 0);
 
     const key = userDate.toISOString().slice(0, 10);
@@ -204,7 +244,34 @@ const buildRegistrationTrend = (users) => {
 const MAX_LIMIT = 100;
 const DEFAULT_LIMIT = 25;
 
-const normalizePagination = ({ limit, offset } = {}) => {
+const normalizePagination = ({ limit, offset, page, pageSize } = {}) => {
+  if (page !== undefined || pageSize !== undefined) {
+    const parsedPageSize = pageSize !== undefined ? Number(pageSize) : DEFAULT_LIMIT;
+    if (!Number.isInteger(parsedPageSize) || parsedPageSize <= 0) {
+      throw createValidationError('pageSize must be a positive integer', {
+        field: 'pageSize',
+      });
+    }
+
+    const boundedPageSize = Math.min(parsedPageSize, MAX_LIMIT);
+
+    const parsedPage = page !== undefined ? Number(page) : 1;
+    if (!Number.isInteger(parsedPage) || parsedPage <= 0) {
+      throw createValidationError('page must be a positive integer', {
+        field: 'page',
+      });
+    }
+
+    const offsetFromPage = (parsedPage - 1) * boundedPageSize;
+
+    return {
+      limit: boundedPageSize,
+      offset: offsetFromPage,
+      page: parsedPage,
+      pageSize: boundedPageSize,
+    };
+  }
+
   let resolvedLimit = DEFAULT_LIMIT;
   if (limit !== undefined) {
     const parsed = Number(limit);
@@ -227,62 +294,84 @@ const normalizePagination = ({ limit, offset } = {}) => {
     resolvedOffset = parsed;
   }
 
-  return { limit: resolvedLimit, offset: resolvedOffset };
+  const inferredPage = Math.floor(resolvedOffset / resolvedLimit) + 1;
+
+  return {
+    limit: resolvedLimit,
+    offset: resolvedOffset,
+    page: inferredPage,
+    pageSize: resolvedLimit,
+  };
 };
 
-const getAdminUsers = async ({ search, status, limit, offset } = {}) => {
-  const where = buildWhereClause({ search, status });
-  const pagination = normalizePagination({ limit, offset });
+const SORTABLE_FIELD_MAP = {
+  name: 'fullName',
+  fullName: 'fullName',
+  email: 'email',
+  status: 'status',
+  createdAt: 'createdAt',
+  lastLoginAt: 'lastLoginAt',
+  lastLogin: 'lastLoginAt',
+};
+
+const normalizeSort = (sortInput) => {
+  if (!sortInput) {
+    return [{ createdAt: 'desc' }];
+  }
+
+  const entries = Array.isArray(sortInput)
+    ? sortInput
+    : `${sortInput}`
+        .split(',')
+        .map((value) => value.trim())
+        .filter(Boolean);
+
+  const orderBy = entries
+    .map((entry) => {
+      const [rawField, rawDirection] = entry.split(':');
+      const normalizedField = rawField?.trim();
+      const field = SORTABLE_FIELD_MAP[normalizedField] ?? SORTABLE_FIELD_MAP[entry.trim()];
+      if (!field) {
+        return null;
+      }
+
+      const direction = rawDirection?.trim().toLowerCase() === 'asc' ? 'asc' : 'desc';
+      return { [field]: direction };
+    })
+    .filter(Boolean);
+
+  if (orderBy.length === 0) {
+    return [{ createdAt: 'desc' }];
+  }
+
+  return orderBy;
+};
+
+const getAdminUsers = async ({
+  search,
+  status,
+  limit,
+  offset,
+  page,
+  pageSize,
+  sort,
+  filter,
+} = {}) => {
+  const filters = parseFilterParam(filter);
+  const where = buildWhereClause({ search, status, filters });
+  const pagination = normalizePagination({ limit, offset, page, pageSize });
+  const orderBy = normalizeSort(sort);
 
   const [users, roles, totalMatching] = await Promise.all([
-    listUsers({ where, limit: pagination.limit, offset: pagination.offset }),
+    listUsers({
+      where,
+      limit: pagination.limit,
+      offset: pagination.offset,
+      orderBy,
+    }),
     listRoles(),
     countUsers({ where }),
   ]);
-
-  const { status: statusFilter, ...filtersWithoutStatus } = where;
-
-  let statusTotals = STATUS_KEYS.reduce(
-    (acc, key) => ({ ...acc, [key]: 0 }),
-    {}
-  );
-
-  let verifiedCount = 0;
-
-  if (statusFilter) {
-    statusTotals = { ...statusTotals, [statusFilter]: totalMatching };
-    verifiedCount = await countUsers({
-      where: {
-        ...where,
-        emailVerifiedAt: { not: null },
-      },
-    });
-  } else {
-    const statusCounts = await Promise.all(
-      STATUS_KEYS.map((statusKey) =>
-        countUsers({
-          where: {
-            ...filtersWithoutStatus,
-            status: statusKey,
-          },
-        })
-      )
-    );
-    statusTotals = STATUS_KEYS.reduce(
-      (acc, statusKey, index) => ({
-        ...acc,
-        [statusKey]: statusCounts[index] ?? 0,
-      }),
-      statusTotals
-    );
-
-    verifiedCount = await countUsers({
-      where: {
-        ...filtersWithoutStatus,
-        emailVerifiedAt: { not: null },
-      },
-    });
-  }
 
   const enrichedUsers = await Promise.all(
     users.map(async (user) => ({
@@ -291,17 +380,30 @@ const getAdminUsers = async ({ search, status, limit, offset } = {}) => {
     }))
   );
 
-  const { totals, statusDistribution } = buildStatusMetrics(enrichedUsers, {
-    totals: {
-      all: totalMatching,
-      active: statusTotals.ACTIVE,
-      pending: statusTotals.PENDING_VERIFICATION,
-      suspended: statusTotals.SUSPENDED,
-      invited: statusTotals.INVITED,
-      verified: verifiedCount,
-    },
+  const [globalTotal, statusCounts, verifiedCount, recentRegistrations] = await Promise.all([
+    countUsers(),
+    countUsersByStatus(),
+    countUsers({
+      where: {
+        emailVerifiedAt: { not: null },
+      },
+    }),
+    listUserRegistrationsSince({
+      since: (() => {
+        const since = new Date();
+        since.setDate(since.getDate() - 89);
+        since.setHours(0, 0, 0, 0);
+        return since;
+      })(),
+    }),
+  ]);
+
+  const { totals, statusDistribution } = buildStatusMetrics({
+    statusCounts,
+    verifiedCount,
+    totalCount: globalTotal,
   });
-  const monthlyRegistrations = buildRegistrationTrend(enrichedUsers);
+  const monthlyRegistrations = buildRegistrationTrend(recentRegistrations);
 
   return {
     users: enrichedUsers.map(serializeUser),
@@ -316,10 +418,12 @@ const getAdminUsers = async ({ search, status, limit, offset } = {}) => {
       total: totalMatching,
       limit: pagination.limit,
       offset: pagination.offset,
+      page: pagination.page,
+      pageSize: pagination.pageSize,
     },
+    totalCount: totalMatching,
   };
 };
-
 const addField = (fields, value) => {
   if (!fields.includes(value)) {
     fields.push(value);

@@ -32,6 +32,8 @@ model AuthUser {
   events           AuthEventLedger[]
 
   @@map("auth_users")
+  @@index([status])
+  @@index([createdAt])
 }
 
 model AuthSession {

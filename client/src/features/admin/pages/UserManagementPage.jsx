@@ -6,7 +6,24 @@ import { UserTable } from "../components/UserTable";
 import { useAdminUsers } from "../hooks/use-admin-users";
 
 export function UserManagementPage() {
-  const { users, metrics, roles, isLoading, error, refresh, updateUser } = useAdminUsers();
+  const {
+    users,
+    metrics,
+    roles,
+    isLoading,
+    error,
+    refresh,
+    updateUser,
+    pagination,
+    query,
+    setPage,
+    setPageSize,
+    setSearch,
+    setStatus,
+    setRole,
+    setSort,
+    clearFilters,
+  } = useAdminUsers();
   const refreshTable = useCallback(() => refresh({ withLoading: false }), [refresh]);
 
   const statusDistribution = useMemo(() => metrics?.statusDistribution ?? [], [metrics?.statusDistribution]);
@@ -37,6 +54,18 @@ export function UserManagementPage() {
               error={error}
               onRefresh={refreshTable}
               onUpdate={updateUser}
+              pagination={pagination}
+              searchTerm={query.search}
+              statusFilter={query.status}
+              roleFilter={query.role}
+              sort={query.sort}
+              onSearchChange={setSearch}
+              onStatusFilterChange={setStatus}
+              onRoleFilterChange={setRole}
+              onPaginationChange={setPage}
+              onPageSizeChange={setPageSize}
+              onSortChange={setSort}
+              onClearFilters={clearFilters}
             />
           </div>
         </div>

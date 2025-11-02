@@ -1,3 +1,6 @@
+## 2025-11-22 13:45:00 IST
+- Optimized the admin user directory to use backend-driven pagination, sorting, and filtering while keeping global metrics accurate and responsive.
+
 ## 2025-11-22 11:30:00 IST
 - Restored the sidebar account avatar to render in full color by removing the grayscale filter from the user menu.
 
