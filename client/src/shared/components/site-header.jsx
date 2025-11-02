@@ -2,8 +2,8 @@ import { Fragment } from "react"
 import { Link } from "react-router-dom"
 import { IconSearch } from "@tabler/icons-react"
 
-import { ModeToggle } from "@/components/mode-toggle"   // 👈 import the toggle
-import defaultLogoMarkup from "@/assets/favicon.svg?raw"
+import { ModeToggle } from "@/components/mode-toggle"
+import siteLogoMarkup from "@/assets/favicon.svg?raw"  // ✅ renamed for clarity
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -18,15 +18,17 @@ import { SidebarTrigger } from "@/shared/components/ui/sidebar"
 import { useBreadcrumbs } from "@/shared/hooks/use-breadcrumbs"
 
 const SEARCH_PLACEHOLDER = "Search the workspace..."
-const LOGO_ALT_TEXT = "Site logo"
+const SITE_LOGO_ALT_TEXT = "Site logo"  // ✅ consistent naming
 
 export function SiteHeader() {
   const breadcrumbs = useBreadcrumbs()
 
   return (
     <header
-      className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
+      className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)"
+    >
       <div className="flex w-full items-center gap-2 px-4 lg:gap-4 lg:px-6">
+        {/* Breadcrumbs Section */}
         <div className="flex flex-1 items-center gap-2 min-w-0">
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mx-2 hidden h-6 lg:flex" />
@@ -52,6 +54,8 @@ export function SiteHeader() {
             </BreadcrumbList>
           </Breadcrumb>
         </div>
+
+        {/* Search Section */}
         <div className="flex flex-1 justify-center px-2 sm:px-4">
           <div className="relative w-full max-w-xl">
             <IconSearch className="text-muted-foreground absolute left-3 top-1/2 size-4 -translate-y-1/2" />
@@ -63,6 +67,8 @@ export function SiteHeader() {
             />
           </div>
         </div>
+
+        {/* Right Section (Mode toggle + Logo) */}
         <div className="flex flex-1 items-center justify-end gap-2">
           <ModeToggle />
           <span
@@ -73,8 +79,8 @@ export function SiteHeader() {
               className="size-full"
               style={{ color: "var(--logo-color, var(--primary))" }}
               role="img"
-              aria-label={LOGO_ALT_TEXT}
-              dangerouslySetInnerHTML={{ __html: defaultLogoMarkup }}
+              aria-label={SITE_LOGO_ALT_TEXT}
+              dangerouslySetInnerHTML={{ __html: siteLogoMarkup }}
             />
           </span>
         </div>
