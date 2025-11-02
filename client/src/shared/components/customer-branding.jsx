@@ -1,9 +1,6 @@
 import { Building2 } from "lucide-react"
 
-export function CustomerBranding({
-  customerLogo,
-  title,
-}) {
+export function CustomerBranding() {
   return (
     <span className="flex items-center gap-2">
       <span
@@ -11,22 +8,14 @@ export function CustomerBranding({
         aria-label="Customer Logo"
         title="Customer Logo"
       >
-        {customerLogo ? (
-          <img
-            src={customerLogo}
-            alt={`${title} customer logo`}
-            className="size-full object-contain"
-          />
-        ) : (
-          <Building2 aria-hidden="true" className="size-4 text-muted-foreground" />
-        )}
+        <Building2 aria-hidden="true" className="size-4 text-muted-foreground" />
       </span>
       <span
         className="text-base font-semibold leading-none"
         aria-label="Customer Name"
         title="Customer Name"
       >
-        {title}
+        Customer Name
       </span>
     </span>
   )
