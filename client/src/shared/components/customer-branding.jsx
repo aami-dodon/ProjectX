@@ -1,6 +1,10 @@
 import { Building2 } from "lucide-react"
 
-export function CustomerBranding() {
+const DEFAULT_TITLE = "Customer Name"
+
+export function CustomerBranding({ title = DEFAULT_TITLE }) {
+  const resolvedTitle = typeof title === "string" && title.trim().length > 0 ? title.trim() : DEFAULT_TITLE
+
   return (
     <span className="flex items-center gap-2">
       <span
@@ -13,9 +17,9 @@ export function CustomerBranding() {
       <span
         className="text-base font-semibold leading-none"
         aria-label="Customer Name"
-        title="Customer Name"
+        title={resolvedTitle}
       >
-        Customer Name
+        {resolvedTitle}
       </span>
     </span>
   )

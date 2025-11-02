@@ -1,3 +1,6 @@
+## 2025-11-22 09:00:00 IST
+- Removed the customer branding experience and API so the workspace shell always displays the default Project X identity.
+
 ## 2025-11-21 15:00:00 IST
 - Matched the admin branding form's default logo preview to the shared customer branding icon so the fallback imagery stays consistent across the app.
 
