@@ -95,7 +95,7 @@ export function UserTable({
   onUpdate,
   onRefresh,
 }) {
-  const [activeView, setActiveView] = React.useState("outline")
+  const [activeView, setActiveView] = React.useState("users")
   const [data, setData] = React.useState(() => users ?? [])
   const [searchTerm, setSearchTerm] = React.useState("")
   const [statusFilter, setStatusFilter] = React.useState("all")
@@ -337,14 +337,11 @@ export function UserTable({
           columnLabel: "User",
         },
         filterFn: (row, columnId, filterValue) => {
-          if (!filterValue) {
-            return true
-          }
+          if (!filterValue) return true
 
           const searchValue = `${filterValue}`.toLowerCase()
           const fullName = `${row.original.fullName ?? ""}`.toLowerCase()
           const email = `${row.original.email ?? ""}`.toLowerCase()
-
           return `${fullName} ${email}`.includes(searchValue)
         },
         cell: ({ row }) => (
@@ -362,9 +359,7 @@ export function UserTable({
       {
         accessorKey: "email",
         header: "Email",
-        meta: {
-          columnLabel: "Email",
-        },
+        meta: { columnLabel: "Email" },
         cell: ({ row }) => (
           <div className="text-sm">
             {row.original.email ? (
@@ -378,16 +373,9 @@ export function UserTable({
       {
         accessorKey: "status",
         header: "Status",
-        meta: {
-          columnLabel: "Status",
-        },
-        filterFn: (row, columnId, filterValue) => {
-          if (!filterValue) {
-            return true
-          }
-
-          return `${row.getValue(columnId) ?? ""}` === filterValue
-        },
+        meta: { columnLabel: "Status" },
+        filterFn: (row, columnId, filterValue) =>
+          !filterValue || `${row.getValue(columnId) ?? ""}` === filterValue,
         cell: ({ row }) => (
           <Badge
             variant="outline"
@@ -399,14 +387,9 @@ export function UserTable({
       {
         accessorKey: "roles",
         header: "Roles",
-        meta: {
-          columnLabel: "Roles",
-        },
+        meta: { columnLabel: "Roles" },
         filterFn: (row, columnId, filterValue) => {
-          if (!filterValue) {
-            return true
-          }
-
+          if (!filterValue) return true
           const roles = row.original.roles ?? []
           return roles.some((role) => `${role.id}` === filterValue || role.name === filterValue)
         },
@@ -454,7 +437,6 @@ export function UserTable({
         id: "actions",
         cell: ({ row }) => {
           const user = row.original
-
           return (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -467,10 +449,7 @@ export function UserTable({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-32">
-                <DropdownMenuItem
-                  onSelect={() => {
-                    handleEditUser(user.id)
-                  }}>
+                <DropdownMenuItem onSelect={() => handleEditUser(user.id)}>
                   Edit profile
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -481,7 +460,6 @@ export function UserTable({
                       handleSuspendUser(user)
                       return
                     }
-
                     handleActivateUser(user)
                   }}>
                   {user.status === "ACTIVE" ? "Suspend" : "Activate"}
@@ -505,19 +483,12 @@ export function UserTable({
   )
 
   const roleOptions = React.useMemo(
-    () =>
-      (availableRoles ?? []).map((role) => ({
-        id: `${role.id}`,
-        name: role.name,
-      })),
+    () => (availableRoles ?? []).map((role) => ({ id: `${role.id}`, name: role.name })),
     [availableRoles]
   )
 
   const hasActiveFilters = React.useMemo(
-    () =>
-      (searchTerm?.trim() ?? "") !== "" ||
-      statusFilter !== "all" ||
-      roleFilter !== "all",
+    () => (searchTerm?.trim() ?? "") !== "" || statusFilter !== "all" || roleFilter !== "all",
     [searchTerm, statusFilter, roleFilter]
   )
 
@@ -526,7 +497,8 @@ export function UserTable({
       <Tabs value={activeView} onValueChange={setActiveView} className="flex h-full flex-col">
         <UserTableHeader activeView={activeView} onViewChange={setActiveView} />
         <CardContent className="flex flex-1 flex-col gap-6 p-4 sm:p-6">
-          <TabsContent value="outline" className="mt-0 flex flex-col gap-4">
+          {/* USERS TAB */}
+          <TabsContent value="users" className="mt-0 flex flex-col gap-4">
             <SharedDataTable
               columns={columns}
               data={data}
@@ -553,15 +525,11 @@ export function UserTable({
                   }}
                   onStatusFilterChange={(value) => {
                     setStatusFilter(value)
-                    table
-                      .getColumn("status")
-                      ?.setFilterValue(value === "all" ? undefined : value)
+                    table.getColumn("status")?.setFilterValue(value === "all" ? undefined : value)
                   }}
                   onRoleFilterChange={(value) => {
                     setRoleFilter(value)
-                    table
-                      .getColumn("roles")
-                      ?.setFilterValue(value === "all" ? undefined : value)
+                    table.getColumn("roles")?.setFilterValue(value === "all" ? undefined : value)
                   }}
                   onClearFilters={() => {
                     setSearchTerm("")
@@ -579,7 +547,9 @@ export function UserTable({
               onRefresh={handleRefresh}
             />
           </TabsContent>
-          <TabsContent value="past-performance" className="mt-0 flex flex-col">
+
+          {/* AUDIT TAB */}
+          <TabsContent value="audit" className="mt-0 flex flex-col">
             <SharedDataTable
               title="Auth user audit trail"
               description="Review recent changes captured for account updates."
@@ -598,7 +568,9 @@ export function UserTable({
               }
             />
           </TabsContent>
-          <TabsContent value="key-personnel" className="mt-0 flex flex-col">
+
+          {/* REPORTS TAB */}
+          <TabsContent value="reports" className="mt-0 flex flex-col">
             <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-border/60 bg-muted/30 p-6 text-sm text-muted-foreground">
               Reports and exports will be available in a future update.
             </div>
