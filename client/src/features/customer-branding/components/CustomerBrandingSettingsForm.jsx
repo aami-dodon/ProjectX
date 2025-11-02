@@ -21,8 +21,6 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 import { cn } from "@/shared/lib/utils";
 import { apiClient } from "@/shared/lib/client";
 
-import { DEFAULT_BRANDING } from "../hooks/use-customer-branding";
-
 function DefaultLogoPreview(props) {
   return (
     <svg
@@ -70,6 +68,7 @@ function CustomerBrandingFormSkeleton({ className }) {
       <CardContent className="space-y-6">
         <Skeleton className="h-24 w-full" />
         <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-10 w-full" />
       </CardContent>
       <CardFooter className="justify-end gap-2">
         <Skeleton className="h-10 w-24" />
@@ -81,6 +80,7 @@ function CustomerBrandingFormSkeleton({ className }) {
 
 export function CustomerBrandingSettingsForm({ branding, isLoading, isSaving, onSubmit, className }) {
   const [formState, setFormState] = useState({
+    name: "",
     sidebarTitle: "",
     logoObjectName: null,
   });
@@ -88,7 +88,6 @@ export function CustomerBrandingSettingsForm({ branding, isLoading, isSaving, on
   const [logoFile, setLogoFile] = useState(null);
   const [logoPreview, setLogoPreview] = useState("");
   const [isUploading, setIsUploading] = useState(false);
-  const brandingName = branding?.name ?? "";
 
   const revokePreview = useCallback((previewUrl) => {
     if (
@@ -112,6 +111,7 @@ export function CustomerBrandingSettingsForm({ branding, isLoading, isSaving, on
     }
 
     setFormState({
+      name: branding.name ?? "",
       sidebarTitle: branding.sidebarTitle ?? "",
       logoObjectName: branding.logoObjectName ?? null,
     });
@@ -180,13 +180,17 @@ export function CustomerBrandingSettingsForm({ branding, isLoading, isSaving, on
   const validateForm = useCallback(() => {
     const nextErrors = {};
 
+    if (!formState.name.trim()) {
+      nextErrors.name = "Workspace name is required.";
+    }
+
     if (!formState.sidebarTitle.trim()) {
       nextErrors.sidebarTitle = "Customer name is required.";
     }
 
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
-  }, [formState.sidebarTitle]);
+  }, [formState.name, formState.sidebarTitle]);
 
   const handleFileChange = useCallback(
     (event) => {
@@ -291,11 +295,8 @@ export function CustomerBrandingSettingsForm({ branding, isLoading, isSaving, on
       }
 
       try {
-        const workspaceName = brandingName.trim();
-        const normalizedName = workspaceName && workspaceName.length > 0 ? workspaceName : DEFAULT_BRANDING.name;
-
         await onSubmit?.({
-          name: normalizedName,
+          name: formState.name.trim(),
           sidebarTitle: formState.sidebarTitle.trim(),
           logoObjectName: nextLogoObjectName,
         });
@@ -313,7 +314,7 @@ export function CustomerBrandingSettingsForm({ branding, isLoading, isSaving, on
         setIsUploading(false);
       }
     },
-    [brandingName, formState.logoObjectName, formState.sidebarTitle, logoFile, onSubmit, validateForm]
+    [formState.logoObjectName, formState.name, formState.sidebarTitle, logoFile, onSubmit, validateForm]
   );
 
   const handleResetLogo = useCallback(() => {
@@ -334,6 +335,7 @@ export function CustomerBrandingSettingsForm({ branding, isLoading, isSaving, on
     }
 
     setFormState({
+      name: branding.name ?? "",
       sidebarTitle: branding.sidebarTitle ?? "",
       logoObjectName: branding.logoObjectName ?? null,
     });
@@ -417,6 +419,20 @@ export function CustomerBrandingSettingsForm({ branding, isLoading, isSaving, on
                   </div>
                 </div>
                 <FieldError>{errors.logo}</FieldError>
+              </FieldContent>
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="branding-name">Workspace name</FieldLabel>
+              <FieldContent>
+                <Input
+                  id="branding-name"
+                  name="name"
+                  value={formState.name}
+                  onChange={handleFieldChange}
+                  placeholder="Acme Inc."
+                  disabled={isSaving || isUploading}
+                />
+                <FieldError>{errors.name}</FieldError>
               </FieldContent>
             </Field>
             <Field>
