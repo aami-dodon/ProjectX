@@ -36,6 +36,29 @@ router.use(requireRoles('admin'));
  *         schema:
  *           type: string
  *         description: Filter logs for a specific audited model/table name.
+ *       - in: query
+ *         name: action
+ *         schema:
+ *           type: string
+ *           enum: [CREATE, UPDATE, DELETE]
+ *         description: Restrict logs to a single action type.
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Case-insensitive match against actions, models, record IDs, IPs, and user identities.
+ *       - in: query
+ *         name: startDate
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         description: Include logs created on or after this timestamp.
+ *       - in: query
+ *         name: endDate
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         description: Include logs created on or before this timestamp.
  *     responses:
  *       '200':
  *         description: Collection of audit log entries.

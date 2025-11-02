@@ -1,3 +1,9 @@
+## 2025-11-22 19:45:00 IST
+- Enhanced audit log filtering to support action, user, and date range queries while ensuring responses document actor IDs for downstream integrations.
+
+## 2025-11-22 16:30:00 IST
+- Extended the audit log experience to show formatted field changes, impacted users, modifiers, and precise timestamps while filtering routine date noise.
+
 ## 2025-11-22 13:45:00 IST
 - Optimized the admin user directory to use backend-driven pagination, sorting, and filtering while keeping global metrics accurate and responsive.
 

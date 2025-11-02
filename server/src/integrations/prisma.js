@@ -19,6 +19,14 @@ const prisma = new PrismaClient({
 });
 
 const WRITE_ACTIONS = new Set(['create', 'update', 'delete']);
+const ROUTINE_DATE_FIELDS = new Set([
+  'lastloginat',
+  'lastlogindate',
+  'lastaccessedat',
+  'lastaccessedtime',
+  'lastaccessedon',
+  'updatedat',
+]);
 
 const getDelegate = (model) => {
   if (!model) {
@@ -90,6 +98,140 @@ const resolveRecordId = (source, args) => {
   return null;
 };
 
+const formatChangeValue = (value) => {
+  if (value === null || value === undefined) {
+    return '—';
+  }
+
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : '—';
+  }
+
+  if (typeof value === 'number' || typeof value === 'bigint') {
+    return value.toString();
+  }
+
+  if (typeof value === 'boolean') {
+    return value ? 'true' : 'false';
+  }
+
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
+
+  if (Array.isArray(value)) {
+    if (value.length === 0) {
+      return '[]';
+    }
+
+    return value
+      .map((entry) => formatChangeValue(entry))
+      .filter((entry) => entry && entry !== '—')
+      .join(', ');
+  }
+
+  if (typeof value === 'object') {
+    try {
+      return JSON.stringify(value);
+    } catch (error) {
+      logger.warn('Failed to stringify change value', {
+        error: error.message,
+      });
+    }
+  }
+
+  return String(value);
+};
+
+const snapshotToEntries = (snapshot) => {
+  if (snapshot === null || snapshot === undefined) {
+    return [];
+  }
+
+  if (Array.isArray(snapshot) || typeof snapshot !== 'object') {
+    return [
+      {
+        field: 'value',
+        value: snapshot,
+      },
+    ];
+  }
+
+  return Object.entries(snapshot).map(([field, value]) => ({
+    field,
+    value,
+  }));
+};
+
+const buildChangeEntries = (beforeSnapshot, afterSnapshot) => {
+  const beforeEntries = snapshotToEntries(beforeSnapshot);
+  const afterEntries = snapshotToEntries(afterSnapshot);
+
+  const beforeMap = new Map(beforeEntries.map((entry) => [entry.field, entry.value]));
+  const afterMap = new Map(afterEntries.map((entry) => [entry.field, entry.value]));
+
+  const keys = new Set([...beforeMap.keys(), ...afterMap.keys()]);
+
+  return Array.from(keys).reduce((changes, key) => {
+    const normalizedKey = key?.toString().trim();
+    if (!normalizedKey) {
+      return changes;
+    }
+
+    const lowerKey = normalizedKey.replace(/[^a-z0-9]/gi, '').toLowerCase();
+    if (ROUTINE_DATE_FIELDS.has(lowerKey)) {
+      return changes;
+    }
+
+    const previous = beforeMap.get(key);
+    const next = afterMap.get(key);
+
+    const serializedPrevious = JSON.stringify(previous);
+    const serializedNext = JSON.stringify(next);
+
+    if (serializedPrevious === serializedNext) {
+      return changes;
+    }
+
+    changes.push({
+      field: normalizedKey === 'value' ? 'Value' : normalizedKey,
+      previous: formatChangeValue(previous),
+      next: formatChangeValue(next),
+    });
+
+    return changes;
+  }, []);
+};
+
+const resolveAffectedUserId = ({
+  context,
+  model,
+  recordId,
+  beforeSnapshot,
+  afterSnapshot,
+}) => {
+  if (context?.affectedUserId) {
+    return context.affectedUserId;
+  }
+
+  if (model === 'AuthUser') {
+    if (recordId) {
+      return recordId;
+    }
+
+    const source =
+      (afterSnapshot && typeof afterSnapshot === 'object' && afterSnapshot.id) ||
+      (beforeSnapshot && typeof beforeSnapshot === 'object' && beforeSnapshot.id);
+
+    if (source) {
+      return String(source);
+    }
+  }
+
+  return null;
+};
+
 prisma.$use(async (params, next) => {
   if (!params.model || params.model === 'AuditLog' || !WRITE_ACTIONS.has(params.action)) {
     return next(params);
@@ -130,15 +272,28 @@ prisma.$use(async (params, next) => {
     resolveRecordId(result, params.args) ??
     resolveRecordId(previous, params.args);
 
+  const serializedBefore = serializeForAudit(previous);
+  const serializedAfter = params.action === 'delete' ? null : serializeForAudit(result);
+  const changes = buildChangeEntries(serializedBefore, serializedAfter);
+  const affectedUserId = resolveAffectedUserId({
+    context,
+    model: params.model,
+    recordId,
+    beforeSnapshot: serializedBefore,
+    afterSnapshot: serializedAfter,
+  });
+
   const writeAuditLog = async (client) => {
     await client.auditLog.create({
       data: {
-        userId: context.userId ?? null,
+        performedById: context.userId ?? null,
+        affectedUserId,
         model: params.model,
         action,
         recordId,
-        before: serializeForAudit(previous),
-        after: params.action === 'delete' ? null : serializeForAudit(result),
+        before: serializedBefore,
+        after: serializedAfter,
+        changes: changes.length > 0 ? changes : null,
         ip: context.ip ?? null,
         userAgent: context.userAgent ?? null,
       },

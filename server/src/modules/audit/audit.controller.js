@@ -6,6 +6,10 @@ const listRecentAuditLogs = async (req, res, next) => {
       limit: req.query.limit,
       offset: req.query.offset,
       model: req.query.model,
+      action: req.query.action,
+      search: req.query.search,
+      startDate: req.query.startDate,
+      endDate: req.query.endDate,
     });
     res.json({ logs, total, limit, offset });
   } catch (error) {
