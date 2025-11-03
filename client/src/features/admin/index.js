@@ -1,3 +1,4 @@
+export { adminRoutes, AdminRoute } from "./routes";
 export { DesignSystemPage } from "./pages/DesignSystemPage";
 export { HealthPage } from "./pages/HealthPage";
 export { UserManagementPage } from "./pages/UserManagementPage";

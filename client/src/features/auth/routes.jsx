@@ -23,6 +23,26 @@ function AuthRouteLayout() {
   );
 }
 
+function AuthLandingRouteComponent() {
+  const isAuthenticated = useAuthStatus();
+
+  if (isAuthenticated) {
+    return <Navigate to="/home" replace />;
+  }
+
+  return (
+    <AuthLayout>
+      <LoginPage />
+    </AuthLayout>
+  );
+}
+
+export const authLandingRoute = {
+  path: "/",
+  element: <AuthLandingRouteComponent />,
+  errorElement: <ErrorPage />,
+};
+
 export const authRoutes = {
   path: "/auth",
   element: <AuthRouteLayout />,
