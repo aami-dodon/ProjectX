@@ -1,60 +1,27 @@
-import { Navigate, createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom";
+
 import DefaultLayout from "./layouts/DefaultLayout";
 
-import { AccountSettingsPage } from "@/features/account";
-import { DesignSystemPage, HealthPage, UserManagementPage } from "@/features/admin";
-import { HomePage } from "@/features/home";
+import { accountRoutes } from "@/features/account";
+import { adminRoutes } from "@/features/admin";
+import { authLandingRoute, authRoutes, ProtectedRoute } from "@/features/auth";
+import { homeRoutes } from "@/features/home";
+import { ErrorPage, statusRoutes, unknownStatusRoute } from "@/features/status-pages";
 
-import { AuthLayout, LoginPage, authRoutes, useAuthStatus, useHasRole } from "@/features/auth";
-import { ErrorPage, ForbiddenPage, InternalServerErrorPage, NotFoundPage, RequestTimeoutPage, ServiceUnavailablePage, UnauthorizedPage, statusRoutes } from "@/features/status-pages";
-
-/* -------------------------------------------------------------------------- */
-/*                                  GUARDS                                    */
-/* -------------------------------------------------------------------------- */
-
-function AuthRoute() {
-  const isAuthenticated = useAuthStatus();
-  return isAuthenticated ? <Navigate to="/home" replace /> : <AuthLayout><LoginPage /></AuthLayout>;
-}
-
-function ProtectedRoute({ children }) {
-  const isAuthenticated = useAuthStatus();
-  return !isAuthenticated ? <Navigate to="/" replace /> : children;
-}
-
-function AdminRoute({ children }) {
-  const isAuthenticated = useAuthStatus();
-  const hasAdminRole = useHasRole("admin");
-  if (!isAuthenticated) return <Navigate to="/" replace />;
-  if (!hasAdminRole) return <Navigate to="/403" replace />;
-  return children;
-}
-
-function UnknownRouteHandler() {
-  const isAuthenticated = useAuthStatus();
-  return isAuthenticated ? <NotFoundPage /> : <Navigate to="/" replace />;
-}
-
-/* -------------------------------------------------------------------------- */
-/*                                 MAIN ROUTES                                */
-/* -------------------------------------------------------------------------- */
-
-const defaultLayoutRoutes = [
-  { path: "/home", element: <HomePage /> },
-  { path: "/account", element: <AccountSettingsPage /> },
-  { path: "/admin/health", element: <AdminRoute><HealthPage /></AdminRoute> },
-  { path: "/admin/design-system", element: <AdminRoute><DesignSystemPage /></AdminRoute> },
-  { path: "/admin/users", element: <AdminRoute><UserManagementPage /></AdminRoute> },
-];
-
-/* -------------------------------------------------------------------------- */
-/*                             ROUTER CONFIGURATION                           */
-/* -------------------------------------------------------------------------- */
+const defaultLayoutRoutes = [...homeRoutes, ...accountRoutes, ...adminRoutes];
 
 export const router = createBrowserRouter([
-  { path: "/", element: <AuthRoute />, errorElement: <ErrorPage /> },
-  { element: <ProtectedRoute><DefaultLayout /></ProtectedRoute>, errorElement: <ErrorPage />, children: defaultLayoutRoutes },
+  authLandingRoute,
+  {
+    element: (
+      <ProtectedRoute>
+        <DefaultLayout />
+      </ProtectedRoute>
+    ),
+    errorElement: <ErrorPage />,
+    children: defaultLayoutRoutes,
+  },
   ...statusRoutes,
   authRoutes,
-  { path: "*", element: <UnknownRouteHandler />, errorElement: <ErrorPage /> },
+  unknownStatusRoute,
 ]);

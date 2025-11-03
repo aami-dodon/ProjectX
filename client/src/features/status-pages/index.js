@@ -1,4 +1,4 @@
-export { statusRoutes } from "./routes";
+export { statusRoutes, unknownStatusRoute } from "./routes.jsx";
 
 export { ErrorPage } from "./pages/ErrorPage";
 export { ForbiddenPage } from "./pages/ForbiddenPage";
