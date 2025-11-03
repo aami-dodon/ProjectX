@@ -1,6 +1,6 @@
 import * as React from "react"
+import { format } from "date-fns"
 import { IconFilterX, IconLayoutColumns, IconRefresh } from "@tabler/icons-react"
-import { DateRangePicker } from "react-date-range"
 
 import { Button } from "@/shared/components/ui/button"
 import {
@@ -17,6 +17,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/shared/components/ui/popover"
+import { Calendar } from "@/shared/components/ui/calendar"
 
 const AUDIT_ACTION_OPTIONS = [
   { value: "all", label: "All actions" },
@@ -38,12 +44,15 @@ export function AuditTableToolbar({
   onRefresh,
   isLoading,
 }) {
-  const [showDatePicker, setShowDatePicker] = React.useState(false)
+  const [open, setOpen] = React.useState(false)
 
-  const handleDateRangeSelect = (ranges) => {
-    const { selection } = ranges
-    onDateRangeChange(selection)
-    setShowDatePicker(false)
+  const handleRangeSelect = (range) => {
+    if (!range?.from || !range?.to) return
+    onDateRangeChange({
+      startDate: range.from,
+      endDate: range.to,
+    })
+    setOpen(false)
   }
 
   return (
@@ -57,7 +66,9 @@ export function AuditTableToolbar({
             value={searchTerm}
             onChange={(event) => onSearchChange?.(event.target.value)}
           />
+
           <div className="flex flex-1 flex-col gap-2 items-center sm:flex-row sm:items-center">
+            {/* Action Filter */}
             <Select value={actionFilter} onValueChange={onActionFilterChange}>
               <SelectTrigger size="sm" className="h-8 py-0 w-full sm:w-48">
                 <SelectValue placeholder="Filter by action" />
@@ -70,26 +81,40 @@ export function AuditTableToolbar({
                 ))}
               </SelectContent>
             </Select>
-            <div className="relative">
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 py-0 w-full sm:w-48"
-                onClick={() => setShowDatePicker(!showDatePicker)}
-              >
-                {dateRange.startDate && dateRange.endDate
-                  ? `${dateRange.startDate.toLocaleDateString()} - ${dateRange.endDate.toLocaleDateString()}`
-                  : "Select date range"}
-              </Button>
-              {showDatePicker && (
-                <div className="absolute z-10 top-full mt-2">
-                  <DateRangePicker
-                    ranges={[dateRange]}
-                    onChange={handleDateRangeSelect}
-                  />
-                </div>
-              )}
-            </div>
+
+            {/* Date Range Picker */}
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 py-0 min-w-[10rem] max-w-full justify-between text-left font-normal"
+                >
+                  {dateRange.startDate && dateRange.endDate ? (
+                    <>
+                      {format(dateRange.startDate, "LLL dd, y")} -{" "}
+                      {format(dateRange.endDate, "LLL dd, y")}
+                    </>
+                  ) : (
+                    <span>Select date range</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="range"
+                  numberOfMonths={1}
+                  selected={{
+                    from: dateRange.startDate,
+                    to: dateRange.endDate,
+                  }}
+                  onSelect={handleRangeSelect}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+
+            {/* Clear Filters */}
             <Button
               type="button"
               variant="ghost"
@@ -106,7 +131,10 @@ export function AuditTableToolbar({
           </div>
         </div>
       </div>
+
+      {/* Right side */}
       <div className="flex flex-wrap items-center justify-end gap-2">
+        {/* Column toggle */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -137,7 +165,9 @@ export function AuditTableToolbar({
                   <DropdownMenuCheckboxItem
                     key={column.id}
                     checked={column.getIsVisible()}
-                    onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                    onCheckedChange={(value) =>
+                      column.toggleVisibility(!!value)
+                    }
                   >
                     {label}
                   </DropdownMenuCheckboxItem>
@@ -145,6 +175,8 @@ export function AuditTableToolbar({
               })}
           </DropdownMenuContent>
         </DropdownMenu>
+
+        {/* Refresh */}
         {onRefresh ? (
           <Button
             variant="ghost"
