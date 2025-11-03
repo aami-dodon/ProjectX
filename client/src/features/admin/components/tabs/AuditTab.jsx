@@ -261,10 +261,7 @@ function createChangeSet(before, after) {
 
 function buildPersonLabel(user) {
   const fullName = user?.fullName?.trim()
-  const email = user?.email?.trim()
-  if (fullName && email) return `${fullName} (${email})`
   if (fullName) return fullName
-  if (email) return email
   return null
 }
 
