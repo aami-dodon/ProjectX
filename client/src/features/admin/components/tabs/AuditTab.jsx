@@ -48,6 +48,8 @@ const SENSITIVE_KEYS = new Set([
   "sessionid",
 ])
 
+const DISPLAY_PLACEHOLDER = "—"
+
 function extractRoleName(entry) {
   if (!entry) {
     return null
@@ -132,6 +134,10 @@ function sanitizeSnapshot(value) {
   if (typeof value === "string") {
     const trimmed = value.trim()
     if (!trimmed) {
+      return null
+    }
+
+    if (trimmed === DISPLAY_PLACEHOLDER) {
       return null
     }
 
@@ -252,6 +258,95 @@ function formatReadableValue(value) {
   return `${value}`
 }
 
+function sanitizeChangeValue(value) {
+  if (value === null || typeof value === "undefined") {
+    return null
+  }
+
+  if (typeof value !== "string") {
+    return sanitizeSnapshot(value)
+  }
+
+  const trimmed = value.trim()
+  if (!trimmed || trimmed === DISPLAY_PLACEHOLDER) {
+    return null
+  }
+
+  return sanitizeSnapshot(trimmed)
+}
+
+function formatChangeValue(value) {
+  if (value === null || typeof value === "undefined") {
+    return DISPLAY_PLACEHOLDER
+  }
+
+  const formatted = formatReadableValue(value)
+  return formatted ?? DISPLAY_PLACEHOLDER
+}
+
+function normalizeChangeEntries(changeEntries) {
+  if (!Array.isArray(changeEntries)) {
+    return []
+  }
+
+  return changeEntries
+    .map((entry) => {
+      if (typeof entry !== "string") {
+        return null
+      }
+
+      const separatorIndex = entry.indexOf(":")
+      if (separatorIndex === -1) {
+        const formattedValue = formatChangeValue(sanitizeChangeValue(entry))
+        return formattedValue === DISPLAY_PLACEHOLDER ? null : formattedValue
+      }
+
+      const field = entry.slice(0, separatorIndex).trim()
+      const rawValues = entry.slice(separatorIndex + 1)
+      const arrowIndex = rawValues.indexOf("->")
+
+      if (arrowIndex === -1) {
+        return entry.trim()
+      }
+
+      const rawPrevious = rawValues.slice(0, arrowIndex)
+      const rawNext = rawValues.slice(arrowIndex + 2)
+
+      const previousSanitized = sanitizeChangeValue(rawPrevious)
+      const nextSanitized = sanitizeChangeValue(rawNext)
+
+      const lowerField = field.toLowerCase()
+      let displayField = field
+      let previousValue = previousSanitized
+      let nextValue = nextSanitized
+
+      if (lowerField === "roleassignments") {
+        displayField = "role"
+        const simplifiedPrevious = simplifyRoleAssignments(previousSanitized)
+        const simplifiedNext = simplifyRoleAssignments(nextSanitized)
+        if (simplifiedPrevious !== null && typeof simplifiedPrevious !== "undefined") {
+          previousValue = simplifiedPrevious
+        }
+        if (simplifiedNext !== null && typeof simplifiedNext !== "undefined") {
+          nextValue = simplifiedNext
+        }
+      }
+
+      const previousFormatted = formatChangeValue(previousValue)
+      const nextFormatted = formatChangeValue(nextValue)
+
+      if (
+        previousFormatted === DISPLAY_PLACEHOLDER &&
+        nextFormatted === DISPLAY_PLACEHOLDER
+      ) {
+        return null
+      }
+
+      return `${displayField}: ${previousFormatted} -> ${nextFormatted}`
+    })
+    .filter((entry) => typeof entry === "string" && entry.trim().length > 0)
+}
+
 function snapshotToEntries(value) {
   if (value === null || typeof value === "undefined") {
     return []
@@ -366,9 +461,12 @@ function prepareAuditRow(log) {
     ? log.changes.filter((entry) => typeof entry === "string" && entry.trim().length > 0)
     : []
 
+  const normalizedChanges =
+    changeEntries.length > 0 ? normalizeChangeEntries(changeEntries) : []
+
   const computedChanges =
-    changeEntries.length > 0
-      ? changeEntries
+    normalizedChanges.length > 0
+      ? normalizedChanges
       : createChangeSet(sanitizedBefore, sanitizedAfter).map(
           (change) => `${change.field}: ${change.previous} -> ${change.next}`
         )
