@@ -11,6 +11,7 @@ import {
   IconHeartbeat,
   IconReport,
   IconSettings,
+  IconShield,
   IconUsers,
 } from "@tabler/icons-react";
 import { useCurrentUser } from "@/features/auth";
@@ -72,6 +73,7 @@ const NAVIGATION_CONFIG = {
     items: [
       { title: "User Management", url: "/admin/users", icon: IconUsers },
       { title: "Health Checks", url: "/admin/health", icon: IconHeartbeat },
+      { title: "Access Control", url: "/admin/access-control", icon: IconShield },
       { title: "Design System", url: "/admin/design-system", icon: IconPalette },
       { title: "Compliance", url: "#", icon: IconReport },
     ],
@@ -93,10 +95,12 @@ const FALLBACK_USER = {
 export function AppSidebar({ customerTitle = "Customer Name", ...props }) {
   const currentUser = useCurrentUser();
 
-  const isAdmin = React.useMemo(
-    () => (currentUser?.roles ?? []).some((r) => r.name?.toLowerCase() === "admin"),
-    [currentUser?.roles]
-  );
+  const canAccessAdminNav = React.useMemo(() => {
+    const roles = (currentUser?.roles ?? [])
+      .map((role) => role?.name?.toLowerCase?.())
+      .filter(Boolean);
+    return roles.includes("admin") || roles.includes("compliance officer");
+  }, [currentUser?.roles]);
 
   const user = React.useMemo(() => {
     if (!currentUser) return FALLBACK_USER;
@@ -112,9 +116,9 @@ export function AppSidebar({ customerTitle = "Customer Name", ...props }) {
       navMain: NAVIGATION_CONFIG.MAIN,
       navSecondary: [],
       documents: SHARED_DOCUMENTS,
-      ...(isAdmin && { navAdmin: NAVIGATION_CONFIG.ADMIN }),
+      ...(canAccessAdminNav && { navAdmin: NAVIGATION_CONFIG.ADMIN }),
     }),
-    [isAdmin]
+    [canAccessAdminNav]
   );
 
   return (

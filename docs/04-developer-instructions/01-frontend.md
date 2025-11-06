@@ -49,6 +49,8 @@ The administrator experience follows a nested module layout so we can grow isola
 
 The feature surface (`client/src/features/admin/index.js`) re-exports the admin routes plus the key hooks (`useDesignSystem`, `useHealthStatus`, `useAdminUsers`, `useAuditLogs`, `useClientRuntimeMetrics`) so other parts of the app can opt into admin behavior without reaching into private folders.
 
+Use `client/src/shared/components/guards/RequirePermission.jsx` to protect admin routes that rely on RBAC checks; the guard defers to the backend's Casbin evaluator and accepts optional `allowRoles` overrides for privileged roles.
+
 ## 3. Styling System
 
 Tailwind CSS v4 powers all styling. The global stylesheet (`client/src/index.css`) imports the Tailwind base layers and centralizes the design tokens:

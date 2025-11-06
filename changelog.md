@@ -1,3 +1,6 @@
+## 2025-11-23 12:30:00 IST
+- Introduced the RBAC administration module with Casbin-backed policy APIs and new Access Control dashboards so administrators can manage roles, permissions, and access reviews from a unified console.
+
 ## 2025-11-22 21:00:00 IST
 - Restructured the admin frontend into design-system, health, and user-management submodules with shared hooks and exports so future dashboards stay isolated and maintainable.
 

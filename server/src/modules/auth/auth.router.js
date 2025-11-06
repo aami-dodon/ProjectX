@@ -14,6 +14,7 @@ const {
 } = require('./auth.controller');
 const { authenticateRequest } = require('./auth.middleware');
 const { attachAuditContext } = require('@/middleware/audit-context');
+const rbacRouter = require('./routes/rbac.routes');
 
 const router = express.Router();
 
@@ -376,5 +377,7 @@ router.post('/reset-password', resetPassword);
  *                   $ref: '#/components/schemas/AuthUser'
  */
 router.post('/verify-email', verifyEmail);
+
+router.use('/', rbacRouter);
 
 module.exports = router;

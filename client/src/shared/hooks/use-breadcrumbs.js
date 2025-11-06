@@ -19,6 +19,17 @@ const PRESET_BREADCRUMBS = {
     { label: "Administration", href: "/admin/users" },
     { label: "Design System" },
   ],
+  "/admin/access-control": () => [
+    { label: "Home", href: "/home" },
+    { label: "Administration", href: "/admin/users" },
+    { label: "Access Control" },
+  ],
+  "/admin/access-control/policies": () => [
+    { label: "Home", href: "/home" },
+    { label: "Administration", href: "/admin/users" },
+    { label: "Access Control", href: "/admin/access-control" },
+    { label: "Policies" },
+  ],
   "/admin/users": () => [
     { label: "Home", href: "/home" },
     { label: "Administration" },
@@ -63,4 +74,3 @@ export function useBreadcrumbs() {
     return crumbs
   }, [location.pathname])
 }
-

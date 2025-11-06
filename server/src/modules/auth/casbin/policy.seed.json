@@ -1,0 +1,74 @@
+[
+  {
+    "type": "p",
+    "subject": "admin",
+    "domain": "global",
+    "object": "rbac:roles",
+    "action": "read",
+    "effect": "allow",
+    "description": "Administrators can list and view roles"
+  },
+  {
+    "type": "p",
+    "subject": "admin",
+    "domain": "global",
+    "object": "rbac:roles",
+    "action": "create",
+    "effect": "allow",
+    "description": "Administrators can create roles"
+  },
+  {
+    "type": "p",
+    "subject": "admin",
+    "domain": "global",
+    "object": "rbac:roles",
+    "action": "update",
+    "effect": "allow",
+    "description": "Administrators can update roles"
+  },
+  {
+    "type": "p",
+    "subject": "admin",
+    "domain": "global",
+    "object": "rbac:roles",
+    "action": "delete",
+    "effect": "allow",
+    "description": "Administrators can archive roles"
+  },
+  {
+    "type": "p",
+    "subject": "admin",
+    "domain": "global",
+    "object": "rbac:policies",
+    "action": "*",
+    "effect": "allow",
+    "description": "Administrators can manage RBAC policies"
+  },
+  {
+    "type": "p",
+    "subject": "compliance officer",
+    "domain": "global",
+    "object": "rbac:roles",
+    "action": "read",
+    "effect": "allow",
+    "description": "Compliance officers can review role definitions"
+  },
+  {
+    "type": "p",
+    "subject": "compliance officer",
+    "domain": "global",
+    "object": "rbac:policies",
+    "action": "read",
+    "effect": "allow",
+    "description": "Compliance officers can review RBAC policies"
+  },
+  {
+    "type": "p",
+    "subject": "compliance officer",
+    "domain": "global",
+    "object": "rbac:access-review",
+    "action": "launch",
+    "effect": "allow",
+    "description": "Compliance officers can launch access reviews"
+  }
+]

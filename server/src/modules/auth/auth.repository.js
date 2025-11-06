@@ -38,27 +38,48 @@ const updateUser = (id, data) =>
     include: USER_INCLUDE,
   });
 
-const upsertRole = ({ name, description, isSystemDefault = false }) =>
+const upsertRole = ({
+  name,
+  description,
+  isSystemDefault = false,
+  tenantId = null,
+  domain = 'global',
+  inheritsRoleId = null,
+  reviewCadenceDays = null,
+  metadata = null,
+}) =>
   prisma.authRole.upsert({
     where: { name },
     update: {
       description,
       isSystemDefault,
+      tenantId,
+      domain,
+      inheritsRoleId,
+      reviewCadenceDays,
+      metadata,
+      archivedAt: null,
     },
     create: {
       name,
       description,
       isSystemDefault,
+      tenantId,
+      domain,
+      inheritsRoleId,
+      reviewCadenceDays,
+      metadata,
     },
   });
 
-const assignRoleToUser = ({ userId, roleId, assignedBy, expiresAt }) =>
+const assignRoleToUser = ({ userId, roleId, assignedBy, expiresAt, domain }) =>
   prisma.authRoleAssignment.create({
     data: {
       userId,
       roleId,
       assignedBy,
       expiresAt,
+      ...(domain ? { domain } : {}),
     },
     include: {
       role: true,

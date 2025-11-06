@@ -3,6 +3,7 @@ require('module-alias/register');
 const { createApp } = require('@/app');
 const { env } = require('@/config/env');
 const { ensureDefaultAdmin } = require('@/modules/auth/seed-default-admin');
+const { ensureEnforcer } = require('@/modules/auth/rbac-enforcer');
 const { createLogger } = require('@/utils/logger');
 
 const logger = createLogger('server');
@@ -13,6 +14,12 @@ app.locals.serverStartTime = serverStartTime;
 
 ensureDefaultAdmin().catch((error) => {
   logger.error('Failed to ensure default admin user', {
+    error: error.message,
+  });
+});
+
+ensureEnforcer().catch((error) => {
+  logger.error('Failed to prime RBAC enforcer', {
     error: error.message,
   });
 });

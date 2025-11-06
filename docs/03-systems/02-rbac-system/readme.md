@@ -31,18 +31,19 @@ server/src/modules/auth/
 │   ├── rbac_with_domains_model.conf
 │   └── policy.seed.json
 ├── controllers/
-│   └── rbac.controller.ts
+│   └── rbac.controller.js
 ├── services/
-│   ├── role.service.ts
-│   └── policy.service.ts
+│   ├── role.service.js
+│   └── policy.service.js
 ├── repositories/
-│   ├── role.repository.ts
-│   └── policy.repository.ts
-├── casbin-adapter.ts
-└── routes/rbac.routes.ts      # Mounts /api/auth RBAC endpoints
+│   ├── role.repository.js
+│   └── policy.repository.js
+├── casbin-adapter.js
+├── rbac-enforcer.js
+└── routes/rbac.routes.js      # Mounts /api/auth RBAC endpoints
 
 server/src/middleware/
-└── authorization.ts
+└── authorization.js
 ```
 
 ### Role Model & Enforcement
@@ -55,7 +56,7 @@ RBAC follows hierarchical inheritance that mirrors the platform-wide security mo
 Policies combine resource type, identifier, and action verb (e.g., `framework:123:update`, `control:*:approve`). Casbin domains provide tenant scoping, wildcards enable read vs. write bundles, and middleware-level attribute checks add ABAC-style conditions for contextual enforcement.
 
 #### Enforcement Surface
-Middleware in `server/src/middleware/authorization.ts` validates JWTs, builds Casbin subjects/domains/objects/actions, and denies or allows requests with audit logging. Module-specific helpers extend enforcement into Governance Engine, Evidence, Notifications, and Tasks modules to guarantee consistent authorization across feature services.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L56-L115】 Observability hooks log decisions to `audit_logs` for compliance and forensics, forwarding structured JSON to the centralized monitoring stack mandated by DevOps and security governance.【F:docs/02-technical-specifications/06-security-implementation.md†L120-L156】【F:docs/02-technical-specifications/05-devops-infrastructure.md†L64-L141】
+Middleware in `server/src/middleware/authorization.js` validates JWTs, builds Casbin subjects/domains/objects/actions, and denies or allows requests with audit logging. Module-specific helpers extend enforcement into Governance Engine, Evidence, Notifications, and Tasks modules to guarantee consistent authorization across feature services.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L56-L115】 Observability hooks log decisions to `audit_logs` for compliance and forensics, forwarding structured JSON to the centralized monitoring stack mandated by DevOps and security governance.【F:docs/02-technical-specifications/06-security-implementation.md†L120-L156】【F:docs/02-technical-specifications/05-devops-infrastructure.md†L64-L141】
 
 ### API Contracts & Module Interfaces
 RBAC functionality is exposed through dedicated REST endpoints served by the Auth Service and mounted under the `/api` prefix in line with the platform's API standards.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L90-L151】【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L200-L251】
@@ -67,6 +68,7 @@ RBAC functionality is exposed through dedicated REST endpoints served by the Aut
 | `/api/auth/policies` | GET/POST | Manage granular Casbin `p` rules for resources and actions with dry-run support. |
 | `/api/auth/policies/:id` | PATCH/DELETE | Update or revoke specific policies; mutation events invalidate caches. |
 | `/api/auth/access-reviews` | POST | Launch scheduled or ad-hoc access recertification workflows that integrate with the Task Service. |
+| `/api/auth/permissions/check` | POST | Evaluate whether the current subject can perform an action on a resource within a domain. |
 | `/api/auth/service-accounts` | POST/PATCH | Issue scoped credentials for automation and partner integrations with domain-bound permissions. |
 
 All endpoints require JWT authentication and are guarded by Casbin middleware before reaching controller logic. Responses follow the standardized `{ status, message, data, error }` schema and publish OpenAPI documentation through `/api/docs` to keep implementation and documentation in sync.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L208-L251】
@@ -88,20 +90,22 @@ Role management experiences live inside the admin area of the React client under
 ```
 client/src/features/admin/rbac/
 ├── pages/
-│   ├── RoleListPage.tsx
-│   ├── RoleDetailPage.tsx
-│   └── PolicyEditorPage.tsx
+│   ├── RoleListPage.jsx
+│   ├── RoleDetailPage.jsx
+│   └── PolicyEditorPage.jsx
 ├── components/
-│   ├── PermissionMatrix.tsx
-│   ├── RoleInheritanceGraph.tsx
-│   └── AccessReviewSummary.tsx
+│   ├── PermissionMatrix.jsx
+│   ├── RoleInheritanceGraph.jsx
+│   └── AccessReviewSummary.jsx
 ├── hooks/
-│   └── useRoleAssignments.ts
+│   ├── useRoles.js
+│   ├── usePolicies.js
+│   └── useRoleAssignments.js
 └── api/
-    └── rbacClient.ts
+    └── rbac-client.js
 
-client/src/components/guards/
-└── RequirePermission.tsx
+client/src/shared/components/guards/
+└── RequirePermission.jsx
 ```
 
 ### Reusable Components & UI Flows
@@ -134,7 +138,7 @@ Schema migrations are executed through Prisma migration bundles submitted via th
 5. **Audit:** Verify `auth_policy_revisions` captures the change with justification and reviewer sign-off, then export summaries for immutable evidence storage.
 
 ### Testing RBAC Scenarios
-- **Unit Tests:** `server/src/modules/auth/__tests__/authorization.spec.ts` mocks the Casbin enforcer to cover allow/deny paths and inheritance edge cases.
+- **Unit Tests:** `server/src/modules/auth/__tests__/authorization.spec.js` mocks the Casbin enforcer to cover allow/deny paths and inheritance edge cases.
 - **Integration Tests:** API tests under `server/src/routes/__tests__` seed PostgreSQL with fixtures to verify middleware and module-specific enforcement, exercising the standardized error schema.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L200-L228】
 - **Manual Verification:** Leverage the shared Postman collection, run `npm run test:rbac`, and execute the security hardening checklist before releases, including cache flushes and policy reload verification.【F:docs/02-technical-specifications/06-security-implementation.md†L96-L116】【F:docs/02-technical-specifications/05-devops-infrastructure.md†L128-L180】
 

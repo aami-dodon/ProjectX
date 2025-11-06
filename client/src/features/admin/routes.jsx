@@ -2,9 +2,11 @@ import { Navigate } from "react-router-dom";
 
 import { useAuthStatus, useHasRole } from "@/features/auth";
 
-import { DesignSystemPage } from "./design-system/pages/DesignSystemPage";
-import { HealthPage } from "./health/pages/HealthPage";
-import { UserManagementPage } from "./user-management/pages/UserManagementPage";
+import { DesignSystemPage } from "@/features/admin/design-system/pages/DesignSystemPage";
+import { HealthPage } from "@/features/admin/health/pages/HealthPage";
+import { RoleDetailPage, RoleListPage, PolicyEditorPage } from "@/features/admin/rbac";
+import { UserManagementPage } from "@/features/admin/user-management/pages/UserManagementPage";
+import { RequirePermission } from "@/shared/components/guards/RequirePermission";
 
 function AdminRoute({ children }) {
   const isAuthenticated = useAuthStatus();
@@ -43,6 +45,36 @@ export const adminRoutes = [
     element: (
       <AdminRoute>
         <UserManagementPage />
+      </AdminRoute>
+    ),
+  },
+  {
+    path: "/admin/access-control",
+    element: (
+      <AdminRoute>
+        <RequirePermission resource="rbac:roles" action="read" allowRoles={["admin", "compliance officer"]}>
+          <RoleListPage />
+        </RequirePermission>
+      </AdminRoute>
+    ),
+  },
+  {
+    path: "/admin/access-control/roles/:roleId",
+    element: (
+      <AdminRoute>
+        <RequirePermission resource="rbac:roles" action="read" allowRoles={["admin", "compliance officer"]}>
+          <RoleDetailPage />
+        </RequirePermission>
+      </AdminRoute>
+    ),
+  },
+  {
+    path: "/admin/access-control/policies",
+    element: (
+      <AdminRoute>
+        <RequirePermission resource="rbac:policies" action="read" allowRoles={["admin", "compliance officer"]}>
+          <PolicyEditorPage />
+        </RequirePermission>
       </AdminRoute>
     ),
   },

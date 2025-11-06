@@ -63,6 +63,9 @@ const sanitizeUser = (user) => {
       id: assignment.role.id,
       name: assignment.role.name,
       description: assignment.role.description,
+      domain: assignment.domain ?? assignment.role?.domain ?? 'global',
+      assignedAt: assignment.assignedAt,
+      expiresAt: assignment.expiresAt,
     })),
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
@@ -114,6 +117,12 @@ const ensureDefaultRole = async () => {
     name: DEFAULT_ROLE_NAME,
     description: DEFAULT_ROLE_DESCRIPTION,
     isSystemDefault: true,
+    domain: 'global',
+    tenantId: null,
+    reviewCadenceDays: 90,
+    metadata: {
+      seed: true,
+    },
   });
 
   return role;
@@ -146,6 +155,7 @@ const registerUser = async ({ email, password, fullName }) => {
   await assignRoleToUser({
     userId: user.id,
     roleId: defaultRole.id,
+    domain: defaultRole.domain ?? 'global',
   });
 
   const enrichedUser = await findUserById(user.id);

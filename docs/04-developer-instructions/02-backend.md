@@ -46,6 +46,7 @@ When you create a new module:
 - Wrap asynchronous controllers in `try/catch` blocks and forward unexpected errors with `next(error)` so the global handler in `server/src/middleware/errorHandler.js` can format the response.
 - Preserve observability by passing each request through the logger middleware defined in `server/src/middleware/request-logger.js`. Avoid early `res.end` calls that would bypass logging and metrics.
 - Surface domain-specific errors with `ApplicationError` instances from `server/src/utils/errors.js`. Set `statusCode`, `code`, and `details` to keep responses uniform.
+- Enforce RBAC with the shared `requirePermission` middleware from `server/src/middleware/authorization.js`. Pair it with `authenticateRequest` when routes should respect Casbin policies instead of static role checks.
 
 ## 4. Database & Integrations
 

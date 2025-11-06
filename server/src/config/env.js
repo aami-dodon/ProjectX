@@ -58,6 +58,9 @@ const defaults = {
   CLIENT_PORT: '5173',
   CLIENT_ALLOWED_HOSTS: 'localhost',
   VITE_API_URL: 'http://localhost:5000/api',
+  AUTH_RBAC_MODEL_PATH: 'src/modules/auth/casbin/rbac_with_domains_model.conf',
+  AUTH_RBAC_POLICY_SEED_PATH: 'src/modules/auth/casbin/policy.seed.json',
+  AUTH_RBAC_CACHE_TTL_SECONDS: '300',
   LOG_LEVEL: process.env.LOG_LEVEL,
 };
 
@@ -104,6 +107,9 @@ const EnvSchema = z.object({
   CLIENT_PORT: z.coerce.number().int().positive(),
   CLIENT_ALLOWED_HOSTS: z.string().min(1).transform(splitCommaSeparated),
   VITE_API_URL: z.string().url(),
+  AUTH_RBAC_MODEL_PATH: z.string().min(1),
+  AUTH_RBAC_POLICY_SEED_PATH: z.string().min(1),
+  AUTH_RBAC_CACHE_TTL_SECONDS: z.coerce.number().int().positive(),
   LOG_LEVEL: z.enum(LOG_LEVEL_VALUES),
   AUTH_DEFAULT_ADMIN_EMAIL: optionalFromString(z.string().email()),
   AUTH_DEFAULT_ADMIN_PASSWORD: optionalFromString(z.string().min(12)),

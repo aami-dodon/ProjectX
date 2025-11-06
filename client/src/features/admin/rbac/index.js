@@ -1,0 +1,10 @@
+export { RoleListPage } from "@/features/admin/rbac/pages/RoleListPage";
+export { RoleDetailPage } from "@/features/admin/rbac/pages/RoleDetailPage";
+export { PolicyEditorPage } from "@/features/admin/rbac/pages/PolicyEditorPage";
+export { useRoles } from "@/features/admin/rbac/hooks/useRoles";
+export { usePolicies } from "@/features/admin/rbac/hooks/usePolicies";
+export { useRoleAssignments } from "@/features/admin/rbac/hooks/useRoleAssignments";
+export { usePermission } from "@/features/admin/rbac/hooks/usePermission";
+export { AccessReviewSummary } from "@/features/admin/rbac/components/AccessReviewSummary";
+export { PermissionMatrix } from "@/features/admin/rbac/components/PermissionMatrix";
+export { RoleInheritanceGraph } from "@/features/admin/rbac/components/RoleInheritanceGraph";
