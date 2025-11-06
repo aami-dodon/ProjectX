@@ -62,7 +62,7 @@ When you create a new module:
 
 - Validate configuration inside `server/src/config/env.js`. Add new settings to the Zod schema, provide sensible defaults for local development, and document them in `.env.example`.
 - The authentication stack expects JWT secrets, token TTLs, and reset/verification expiry windows. Define `AUTH_ACCESS_TOKEN_SECRET`, `AUTH_REFRESH_TOKEN_SECRET`, their TTL values, and the reset/verification timers (`AUTH_PASSWORD_RESET_TOKEN_TTL_MINUTES`, `AUTH_EMAIL_VERIFICATION_TOKEN_TTL_MINUTES`) in the environment so the auth service can hash, rotate, and expire credentials consistently. Mirror these keys in `.env.example` and keep the schema in sync.
-- Keep `VITE_API_URL` in sync with the Express public base URL whenever you expose new routes that the frontend consumes.
+- Keep `VITE_API_URL` in sync with the Express public base URL (without `/api`) whenever you expose new routes that the frontend consumes. Client paths already include the `/api` prefix.
 - Treat secrets carefully—never commit real credentials. Use descriptive placeholder values in `.env.example` to indicate expected formats (URLs, tokens, etc.).
 
 ## 6. Testing Strategy

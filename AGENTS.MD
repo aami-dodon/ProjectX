@@ -31,19 +31,19 @@
 ## Repository Layout
 | Area | Purpose |
 | --- | --- |
-| `client/` | Vite-powered React 19 SPA that renders the operator dashboards, health tools, and auth flows. Routing lives under `src/app`, features under `src/features`, and shared primitives under `src/shared`. |
+| `client/` | Vite-powered React SPA that renders the operator dashboards, health tools, and auth flows. Routing lives under `src/app`, features under `src/features`, and shared primitives under `src/shared`. |
 | `server/` | Express 4 API that exposes health diagnostics, storage helpers, and email utilities. Uses Prisma to talk to PostgreSQL and integrates with MinIO + SMTP. |
 | `docs/` | Source of truth for product, architecture, and developer guides. Update these when behaviour or processes change. |
 | `scripts/` | Bash utilities for scaffolding frontend features, provisioning MinIO buckets, and exporting documentation bundles. |
 
 ## Environment & Configuration
 - `.env.example` documents every configuration flag consumed by both apps. Keep it current whenever you add or retire environment variables. Defaults in `server/src/config/env.js` backstop missing values during local development—mirror any new settings there too.
-- Vite reads browser-exposed variables from `VITE_*`. The frontend currently depends on `VITE_API_URL`, `VITE_LOG_LEVEL`, and optional HMR toggles (`CLIENT_USE_SECURE_HMR`, `CLIENT_HMR_PROTOCOL`).
+- Vite reads browser-exposed variables from `VITE_*`. The frontend depends on `VITE_API_URL` (base URL only, without `/api`) and optional logging/HMR toggles: `VITE_LOG_LEVEL`, `CLIENT_USE_SECURE_HMR`, `CLIENT_HMR_PROTOCOL`.
 - Docker Compose (`docker-compose.yml`) builds the client and server containers only. PostgreSQL and MinIO are assumed to be provided externally.
 - Do not commit secrets. Use descriptive placeholders in `.env.example` and update the docs when configuration knobs change.
 
 ## Frontend Standards (`client/`)
-- Vite config (`client/vite.config.js`) enables the `@` alias that maps to `client/src`. Keep imports alias-based; avoid relative path ladders.
+- Vite config (`client/vite.config.js`) uses `vite-tsconfig-paths` with `client/jsconfig.json` so the `@` alias maps to `client/src`. Keep imports alias-based; avoid relative path ladders.
 - Organise product code under `client/src/features/<feature>`. Each feature exposes a public surface from its `index.js` (pages, hooks, route config) so the global router (`client/src/app/routes.jsx`) can stay declarative.
 - Layouts live in `client/src/app/layouts`. When adding routes, reuse these shells instead of creating ad-hoc wrappers. The `scripts/scaffold-feature.sh` helper can scaffold new feature modules and register routes for you—extend it when layout or routing conventions evolve.
 - Styling:

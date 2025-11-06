@@ -11,7 +11,7 @@ This guide explains how to build new user-facing capabilities inside the Vite + 
    npm run dev
    ```
    Vite reads optional environment toggles such as `CLIENT_PORT`, `CLIENT_ALLOWED_HOSTS`, and `CLIENT_USE_SECURE_HMR` from your shell when it assembles the dev server configuration (`vite.config.js`).
-2. Supply frontend environment variables through a `.env` file or your shell. All values that must reach the browser **have to be prefixed with `VITE_`**, e.g. `VITE_API_URL`, to satisfy the Vite exposure rules described in the root `agents.md` brief. Logging verbosity comes from `VITE_LOG_LEVEL` and defaults to `debug` during development.
+2. Supply frontend environment variables through a `.env` file or your shell. All values that must reach the browser **have to be prefixed with `VITE_`**, e.g. `VITE_API_URL`, to satisfy the Vite exposure rules. Important: set `VITE_API_URL` to the server base URL only (e.g. `http://localhost:5000`) — do not include `/api` because client requests already use paths like `/api/auth/...`. Logging verbosity comes from `VITE_LOG_LEVEL` and defaults to `debug` during development.
 3. Implement your UI inside a feature module under `client/src/features`. Export the entry points (pages, hooks, route objects) from the feature’s `index.js` so they can be pulled into the application router (`client/src/app/routes.jsx`).
 4. Register your new page or route by extending the `createBrowserRouter` structure in `client/src/app/routes.jsx`. Most features nest inside the default layout alongside the existing home and health routes.
 5. Reuse shared primitives from `client/src/shared`—especially API clients (`client/src/shared/lib/client.js`), layout chrome, logging helpers, and authentication flows—before adding new dependencies.
@@ -37,7 +37,7 @@ Every folder under `client/src/features` represents a self-contained feature sli
 - **`routes.jsx`** — optional router configuration exported as part of the feature (used by the auth stack to provide nested routes and layout composition).
 - **`index.js`** — the module surface that re-exports pages, hooks, and route definitions for easy import elsewhere.
 
-When you add a new feature, mirror this layout: create `pages/` for route components, keep `components/` for subviews, and expose your public API via `index.js`. Stick with `@/` path aliases (configured in `client/jsconfig.json`) to avoid brittle relative paths.
+When you add a new feature, mirror this layout: create `pages/` for route components, keep `components/` for subviews, and expose your public API via `index.js`. Stick with `@/` path aliases (configured via `client/jsconfig.json` and wired by `vite-tsconfig-paths` in `client/vite.config.js`) to avoid brittle relative paths.
 
 ## 3. Styling System
 
