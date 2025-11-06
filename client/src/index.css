@@ -160,45 +160,33 @@
 
 /* ===== Toaster Styles ===== */
 .toaster[data-sonner-toaster] .toaster-toast {
-  --toast-bg: var(--primary);
-  --toast-fg: var(--primary-foreground);
-  --toast-border: var(--primary);
+  --toast-bg: var(--muted);
+  --toast-fg: var(--muted-foreground);
+  --toast-border: var(--muted);
   background: var(--toast-bg) !important;
   color: var(--toast-fg) !important;
   border: 1px solid var(--toast-border) !important;
   @apply shadow-lg rounded-lg p-3 flex items-start gap-2;
 }
 
-.toaster[data-sonner-toaster] .toaster-success {
-  --toast-bg: var(--success);
-  --toast-fg: var(--success-foreground);
-  --toast-border: var(--success);
-}
-
-.toaster[data-sonner-toaster] .toaster-info {
-  --toast-bg: var(--info);
-  --toast-fg: var(--info-foreground);
-  --toast-border: var(--info);
-}
-
-.toaster[data-sonner-toaster] .toaster-warning {
-  --toast-bg: var(--warning);
-  --toast-fg: var(--warning-foreground);
-  --toast-border: var(--warning);
-}
-
+/* All toast types use the same muted theme colors */
+.toaster[data-sonner-toaster] .toaster-success,
+.toaster[data-sonner-toaster] .toaster-info,
+.toaster[data-sonner-toaster] .toaster-warning,
 .toaster[data-sonner-toaster] .toaster-error,
 .toaster[data-sonner-toaster] .toaster-danger {
-  --toast-bg: var(--danger);
-  --toast-fg: var(--danger-foreground);
-  --toast-border: var(--danger);
+  --toast-bg: var(--muted);
+  --toast-fg: var(--muted-foreground);
+  --toast-border: var(--muted);
 }
 
+/* Toast description text */
 .toaster[data-sonner-toaster] .toaster-toast .toaster-description {
   color: var(--toast-fg);
   @apply text-sm;
 }
 
+/* Toast action button */
 .toaster[data-sonner-toaster] .toaster-toast .toaster-action {
   color: var(--toast-bg);
   background: var(--toast-fg);
@@ -212,9 +200,11 @@
   opacity: 0.85;
 }
 
+/* Toast cancel button */
 .toaster[data-sonner-toaster] .toaster-toast .toaster-cancel {
   color: var(--toast-fg);
 }
+
 
 /* ===== Base Layer ===== */
 @layer base {
