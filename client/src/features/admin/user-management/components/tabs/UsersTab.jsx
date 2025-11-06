@@ -21,14 +21,14 @@ import {
 } from "@/shared/components/ui/dropdown-menu"
 import { TabsContent } from "@/shared/components/ui/tabs"
 
-import { UserTableToolbar } from "../user-table/UserTableToolbar"
+import { UserTableToolbar } from "../table/UserTableToolbar"
 import {
   TableCellViewer as UserTableDrawerCellViewer,
   STATUS_BADGE_STYLES,
   STATUS_LABELS,
   RoleBadge,
   formatDate,
-} from "../user-table/UserTableDrawer"
+} from "../table/UserTableDrawer"
 
 function DragHandle({ id }) {
   const { attributes, listeners } = useSortable({

@@ -57,331 +57,7 @@ import {
   TooltipTrigger,
 } from "@/shared/components/ui/tooltip";
 import { TextEditor } from "@/shared/components/text-editor";
-
-const baseColorTokens = [
-  "background",
-  "foreground",
-  "card",
-  "card-foreground",
-  "popover",
-  "popover-foreground",
-  "border",
-  "input",
-  "ring",
-];
-
-const semanticColorTokens = [
-  "primary",
-  "primary-foreground",
-  "secondary",
-  "secondary-foreground",
-  "muted",
-  "muted-foreground",
-  "accent",
-  "accent-foreground",
-  "destructive",
-];
-
-const extendedColorTokens = [
-  "chart-1",
-  "chart-2",
-  "chart-3",
-  "chart-4",
-  "chart-5",
-  "sidebar",
-  "sidebar-foreground",
-  "sidebar-primary",
-  "sidebar-primary-foreground",
-  "sidebar-accent",
-  "sidebar-accent-foreground",
-  "sidebar-border",
-  "sidebar-ring",
-];
-
-const buttonVariants = [
-  { variant: "default", label: "Default" },
-  { variant: "secondary", label: "Secondary" },
-  { variant: "outline", label: "Outline" },
-  { variant: "ghost", label: "Ghost" },
-  { variant: "link", label: "Link" },
-  { variant: "destructive", label: "Destructive" },
-];
-
-const buttonSizes = [
-  { size: "sm", label: "Small" },
-  { size: "default", label: "Default" },
-  { size: "lg", label: "Large" },
-];
-
-const iconButtonSizes = [
-  { size: "icon-sm", label: "Icon SM" },
-  { size: "icon", label: "Icon" },
-  { size: "icon-lg", label: "Icon LG" },
-];
-
-const badgeVariants = [
-  { variant: "default", label: "Default" },
-  { variant: "secondary", label: "Secondary" },
-  { variant: "outline", label: "Outline" },
-  { variant: "destructive", label: "Destructive" },
-];
-
-const typographyScale = [
-  {
-    id: "display",
-    title: "Display",
-    description: "High-impact hero treatments and KPI callouts.",
-    items: [
-      {
-        id: "display-2xl",
-        name: "Display 2XL",
-        usage: "Primary hero headings and executive summaries.",
-        sample: "AI Governance Overview",
-        tokens: {
-          font: "--font-sans",
-          size: "--text-6xl",
-          lineHeight: "--text-6xl--line-height",
-          weight: "--font-weight-semibold",
-          tracking: "--tracking-tight",
-        },
-      },
-      {
-        id: "display-xl",
-        name: "Display XL",
-        usage: "Spotlight modules and dashboard hero copy.",
-        sample: "Risk posture trending positive",
-        tokens: {
-          font: "--font-sans",
-          size: "--text-5xl",
-          lineHeight: "--text-5xl--line-height",
-          weight: "--font-weight-semibold",
-          tracking: "--tracking-tight",
-        },
-      },
-      {
-        id: "display-lg",
-        name: "Display LG",
-        usage: "Section intros, summary cards, and marketing banners.",
-        sample: "Enterprise controls coverage",
-        tokens: {
-          font: "--font-sans",
-          size: "--text-4xl",
-          lineHeight: "--text-4xl--line-height",
-          weight: "--font-weight-semibold",
-          tracking: "--tracking-tight",
-        },
-      },
-    ],
-  },
-  {
-    id: "headlines",
-    title: "Headlines",
-    description: "Core page headings and major section titles.",
-    items: [
-      {
-        id: "headline-xl",
-        name: "Headline XL",
-        usage: "Top-level page headings inside feature layouts.",
-        sample: "Control evidence summary",
-        tokens: {
-          font: "--font-sans",
-          size: "--text-3xl",
-          lineHeight: "--text-3xl--line-height",
-          weight: "--font-weight-semibold",
-          tracking: "--tracking-tight",
-        },
-      },
-      {
-        id: "headline-lg",
-        name: "Headline LG",
-        usage: "Card headers and major subsection titles.",
-        sample: "Assessment readiness checklist",
-        tokens: {
-          font: "--font-sans",
-          size: "--text-2xl",
-          lineHeight: "--text-2xl--line-height",
-          weight: "--font-weight-semibold",
-          tracking: "--tracking-tight",
-        },
-      },
-      {
-        id: "headline-md",
-        name: "Headline MD",
-        usage: "Widget headings and data table intros.",
-        sample: "Workflow automation queue",
-        tokens: {
-          font: "--font-sans",
-          size: "--text-xl",
-          lineHeight: "--text-xl--line-height",
-          weight: "--font-weight-semibold",
-          tracking: "--tracking-normal",
-        },
-      },
-    ],
-  },
-  {
-    id: "body",
-    title: "Body Copy",
-    description: "Paragraphs, summaries, and supporting narratives.",
-    items: [
-      {
-        id: "body-lg",
-        name: "Body LG",
-        usage: "Descriptive paragraphs and multi-sentence summaries.",
-        sample:
-          "Use this size for page descriptions and onboarding copy across compliance workflows.",
-        tokens: {
-          font: "--font-sans",
-          size: "--text-lg",
-          leading: "--leading-relaxed",
-          weight: "--font-weight-normal",
-          tracking: "--tracking-normal",
-        },
-      },
-      {
-        id: "body-base",
-        name: "Body Base",
-        usage: "Default form copy, data explanations, and modal text.",
-        sample:
-          "This base size handles most body text, checklists, and inline explanations in the app.",
-        tokens: {
-          font: "--font-sans",
-          size: "--text-base",
-          leading: "--leading-relaxed",
-          weight: "--font-weight-normal",
-          tracking: "--tracking-normal",
-        },
-      },
-      {
-        id: "body-sm",
-        name: "Body SM",
-        usage: "Helper text and secondary descriptions.",
-        sample:
-          "Compact helper text for field descriptions, table subtitles, and metadata blurbs.",
-        tokens: {
-          font: "--font-sans",
-          size: "--text-sm",
-          leading: "--leading-snug",
-          weight: "--font-weight-normal",
-          tracking: "--tracking-normal",
-        },
-      },
-    ],
-  },
-  {
-    id: "supporting",
-    title: "Supporting Text",
-    description: "Labels, captions, and monospace treatments.",
-    items: [
-      {
-        id: "supporting-label",
-        name: "Label",
-        usage: "Overlines, filter labels, and data viz annotations.",
-        sample: "STATUS UPDATE",
-        tokens: {
-          font: "--font-sans",
-          size: "--text-xs",
-          leading: "--leading-tight",
-          weight: "--font-weight-medium",
-          tracking: "--tracking-widest",
-          transform: "uppercase",
-        },
-      },
-      {
-        id: "supporting-caption",
-        name: "Caption",
-        usage: "Caption copy and muted metadata.",
-        sample: "Additional context for data tables or component footers.",
-        tokens: {
-          font: "--font-sans",
-          size: "--text-xs",
-          leading: "--leading-snug",
-          weight: "--font-weight-normal",
-          tracking: "--tracking-normal",
-        },
-      },
-      {
-        id: "supporting-mono",
-        name: "Numeric / Mono",
-        usage: "Identifiers, code snippets, and tightly aligned numerics.",
-        sample: "0x3A CONTROL-42",
-        tokens: {
-          font: "--font-mono",
-          size: "--text-sm",
-          leading: "--leading-tight",
-          weight: "--font-weight-medium",
-          tracking: "--tracking-normal",
-        },
-      },
-    ],
-  },
-];
-
-const typographyMeta = [
-  {
-    id: "font-sans",
-    title: "Sans stack",
-    description: "Primary UI font stack applied globally via var(--font-sans).",
-    sample: "Aa Governance",
-    tokens: ["--font-sans"],
-    sampleTokens: {
-      font: "--font-sans",
-      size: "--text-lg",
-      leading: "--leading-tight",
-      weight: "--font-weight-semibold",
-    },
-  },
-  {
-    id: "font-mono",
-    title: "Mono stack",
-    description: "Used for IDs, data, and inline code moments.",
-    sample: "0x41 2025",
-    tokens: ["--font-mono"],
-    sampleTokens: {
-      font: "--font-mono",
-      size: "--text-base",
-      leading: "--leading-normal",
-      weight: "--font-weight-medium",
-    },
-  },
-  {
-    id: "tracking",
-    title: "Letter spacing",
-    description: "Apply tracking tokens to balance dense dashboards with readable labels.",
-    sample: "TRACKING TOKENS",
-    tokens: ["--tracking-tight", "--tracking-normal", "--tracking-wide", "--tracking-wider", "--tracking-widest"],
-    sampleTokens: {
-      font: "--font-sans",
-      size: "--text-xs",
-      leading: "--leading-tight",
-      weight: "--font-weight-semibold",
-      tracking: "--tracking-widest",
-      transform: "uppercase",
-    },
-  },
-  {
-    id: "line-height",
-    title: "Line heights",
-    description: "Shared rhythm tokens for paragraphs and helper copy.",
-    sample: "Line height cadence keeps paragraphs comfortable for longer AI governance explanations.",
-    tokens: ["--leading-tight", "--leading-snug", "--leading-normal", "--leading-relaxed"],
-    sampleTokens: {
-      font: "--font-sans",
-      size: "--text-sm",
-      leading: "--leading-normal",
-      weight: "--font-weight-normal",
-    },
-  },
-];
-
-const tokenPropertyLabels = {
-  font: "font-family",
-  size: "font-size",
-  lineHeight: "line-height",
-  leading: "line-height",
-  weight: "font-weight",
-  tracking: "letter-spacing",
-};
+import { useDesignSystem } from "../hooks/useDesignSystem";
 
 function createTypographyStyle(tokens = {}) {
   const style = {};
@@ -450,12 +126,12 @@ function ColorGrid({ tokens }) {
   );
 }
 
-function TypographySamples() {
+function TypographySamples({ scale, meta, propertyLabels }) {
   return (
     <div className="flex flex-col gap-8">
       <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
         <div className="flex flex-col gap-6">
-          {typographyScale.map((group) => (
+          {scale.map((group) => (
             <div key={group.id} className="flex flex-col gap-3">
               <div className="flex flex-col gap-1">
                 <h3 className="text-lg font-semibold">{group.title}</h3>
@@ -476,7 +152,7 @@ function TypographySamples() {
                         .filter(([, token]) => typeof token === "string" && token.startsWith("--"))
                         .map(([key, token]) => (
                           <code key={`${item.id}-${key}`} className="rounded border bg-muted/30 px-2 py-1 font-mono">
-                            {`${tokenPropertyLabels[key]}: var(${token})`}
+                            {`${propertyLabels[key] ?? key}: var(${token})`}
                           </code>
                         ))}
                     </div>
@@ -494,19 +170,19 @@ function TypographySamples() {
             </p>
           </div>
           <div className="flex flex-col gap-3">
-            {typographyMeta.map((meta) => (
-              <div key={meta.id} className="flex flex-col gap-2 rounded-md border bg-background p-3">
+            {meta.map((metaItem) => (
+              <div key={metaItem.id} className="flex flex-col gap-2 rounded-md border bg-background p-3">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    {meta.title}
+                    {metaItem.title}
                   </span>
-                  <span className="rounded bg-muted/40 px-2 py-1 text-xs font-medium text-foreground" style={createTypographyStyle(meta.sampleTokens)}>
-                    {meta.sample}
+                  <span className="rounded bg-muted/40 px-2 py-1 text-xs font-medium text-foreground" style={createTypographyStyle(metaItem.sampleTokens)}>
+                    {metaItem.sample}
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground">{meta.description}</p>
+                <p className="text-xs text-muted-foreground">{metaItem.description}</p>
                 <div className="flex flex-wrap gap-2 text-[11px] text-muted-foreground">
-                  {meta.tokens.map((token) => (
+                  {metaItem.tokens.map((token) => (
                     <code key={token} className="rounded border bg-muted/30 px-2 py-1 font-mono">
                       {`var(${token})`}
                     </code>
@@ -521,25 +197,25 @@ function TypographySamples() {
   );
 }
 
-function ButtonShowcase() {
+function ButtonShowcase({ variants, sizes, iconSizes, badges }) {
   return (
     <div className="flex flex-col gap-6">
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {buttonVariants.map(({ variant, label }) => (
+        {variants.map(({ variant, label }) => (
           <div key={variant} className="flex flex-col gap-3 rounded-lg border bg-background p-4">
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold">{label}</span>
               <Badge variant="outline" className="text-xs">variant="{variant}"</Badge>
             </div>
             <div className="flex flex-wrap gap-3">
-              {buttonSizes.map(({ size }) => (
+              {sizes.map(({ size }) => (
                 <Button key={size} variant={variant} size={size}>
                   {size === "default" ? "Button" : `${label} ${size}`}
                 </Button>
               ))}
             </div>
             <div className="flex flex-wrap gap-3">
-              {iconButtonSizes.map(({ size }) => (
+              {iconSizes.map(({ size }) => (
                 <Button key={size} variant={variant} size={size}>
                   <IconLayoutBoardSplit className="size-4" />
                   <span className="sr-only">Icon button</span>
@@ -551,7 +227,7 @@ function ButtonShowcase() {
       </div>
       <Separator />
       <div className="flex flex-wrap gap-3">
-        {badgeVariants.map(({ variant, label }) => (
+        {badges.map(({ variant, label }) => (
           <Badge key={variant} variant={variant}>
             {label} badge
           </Badge>
@@ -1026,98 +702,111 @@ function ContentShowcase() {
   );
 }
 
-export function DesignSystemPage() {
+export function DesignSystemShowcase() {
+  const {
+    colorTokens,
+    buttonVariants,
+    buttonSizes,
+    iconButtonSizes,
+    badgeVariants,
+    typographyScale,
+    typographyMeta,
+    tokenPropertyLabels,
+  } = useDesignSystem();
+
   return (
-    <div className="flex flex-1 flex-col">
-      <div className="@container/main flex flex-1 flex-col gap-8 px-4 py-6 lg:px-6">
-
-        <Section
-          id="css-tokens"
-          icon={IconColorSwatch}
-          title="CSS Tokens"
-          description="Global CSS custom properties configured in index.css."
-        >
-          <div className="flex flex-col gap-6">
-            <div className="flex flex-col gap-3">
-              <h3 className="text-lg font-semibold">Base surfaces</h3>
-              <ColorGrid tokens={baseColorTokens} />
-            </div>
-            <div className="flex flex-col gap-3">
-              <h3 className="text-lg font-semibold">Semantic tokens</h3>
-              <ColorGrid tokens={semanticColorTokens} />
-            </div>
-            <div className="flex flex-col gap-3">
-              <h3 className="text-lg font-semibold">Extended palette</h3>
-              <ColorGrid tokens={extendedColorTokens} />
-            </div>
+    <>
+      <Section
+        id="css-tokens"
+        icon={IconColorSwatch}
+        title="CSS Tokens"
+        description="Global CSS custom properties configured in index.css."
+      >
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-3">
+            <h3 className="text-lg font-semibold">Base surfaces</h3>
+            <ColorGrid tokens={colorTokens.base} />
           </div>
-        </Section>
+          <div className="flex flex-col gap-3">
+            <h3 className="text-lg font-semibold">Semantic tokens</h3>
+            <ColorGrid tokens={colorTokens.semantic} />
+          </div>
+          <div className="flex flex-col gap-3">
+            <h3 className="text-lg font-semibold">Extended palette</h3>
+            <ColorGrid tokens={colorTokens.extended} />
+          </div>
+        </div>
+      </Section>
 
-        <Section
-          id="typography"
-          icon={IconTypography}
-          title="Typography"
-          description="Heading hierarchy, body copy, and supporting text scales."
-        >
-          <TypographySamples />
-        </Section>
+      <Section
+        id="typography"
+        icon={IconTypography}
+        title="Typography"
+        description="Heading hierarchy, body copy, and supporting text scales."
+      >
+        <TypographySamples scale={typographyScale} meta={typographyMeta} propertyLabels={tokenPropertyLabels} />
+      </Section>
 
-        <Section
-          id="buttons"
-          icon={IconComponents}
-          title="Buttons & Badges"
-          description="Interactive button variants, sizes, and supporting badges."
-        >
-          <ButtonShowcase />
-        </Section>
+      <Section
+        id="buttons"
+        icon={IconComponents}
+        title="Buttons & Badges"
+        description="Interactive button variants, sizes, and supporting badges."
+      >
+        <ButtonShowcase
+          variants={buttonVariants}
+          sizes={buttonSizes}
+          iconSizes={iconButtonSizes}
+          badges={badgeVariants}
+        />
+      </Section>
 
-        <Section
-          id="forms"
-          icon={IconLetterSpacing}
-          title="Form Controls"
-          description="Shared form primitives for inputs, selects, checkboxes, skeletons, and tabs."
-        >
-          <FormShowcase />
-        </Section>
+      <Section
+        id="forms"
+        icon={IconLetterSpacing}
+        title="Form Controls"
+        description="Shared form primitives for inputs, selects, checkboxes, skeletons, and tabs."
+      >
+        <FormShowcase />
+      </Section>
 
-        <Section
-          id="text-editor"
-          icon={IconPencil}
-          title="Rich Text Editor"
-          description="TipTap-powered editor with toolbar controls and live preview."
-        >
-          <RichTextShowcase />
-        </Section>
+      <Section
+        id="text-editor"
+        icon={IconPencil}
+        title="Rich Text Editor"
+        description="TipTap-powered editor with toolbar controls and live preview."
+      >
+        <RichTextShowcase />
+      </Section>
 
-        <Section
-          id="interactions"
-          icon={IconPalette}
-          title="Interactive Elements"
-          description="Toggle family, dropdown menus, tooltips, and sheets."
-        >
-          <InteractiveShowcase />
-        </Section>
+      <Section
+        id="interactions"
+        icon={IconPalette}
+        title="Interactive Elements"
+        description="Toggle family, dropdown menus, tooltips, and sheets."
+      >
+        <InteractiveShowcase />
+      </Section>
 
-        <Section
-          id="notifications"
-          icon={IconBellRinging}
-          title="Notifications"
-          description="Toast notifications for user feedback across flows."
-        >
-          <ToastShowcase />
-        </Section>
+      <Section
+        id="notifications"
+        icon={IconBellRinging}
+        title="Notifications"
+        description="Toast notifications for user feedback across flows."
+      >
+        <ToastShowcase />
+      </Section>
 
-        <Section
-          id="content"
-          icon={IconLayoutBoardSplit}
-          title="Content Patterns"
-          description="Cards, avatars, breadcrumbs, and tables composed with shared tokens."
-        >
-          <ContentShowcase />
-        </Section>
-      </div>
-    </div>
+      <Section
+        id="content"
+        icon={IconLayoutBoardSplit}
+        title="Content Patterns"
+        description="Cards, avatars, breadcrumbs, and tables composed with shared tokens."
+      >
+        <ContentShowcase />
+      </Section>
+    </>
   );
 }
 
-export default DesignSystemPage;
+export default DesignSystemShowcase;

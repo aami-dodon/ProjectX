@@ -3,12 +3,12 @@ import * as React from "react"
 import { Card, CardContent } from "@/shared/components/ui/card"
 import { Tabs } from "@/shared/components/ui/tabs"
 
-import { UserTableHeader } from "./user-table/UserTableToolbar"
-import { UsersTab } from "./tabs/UsersTab"
-import { AuditTab } from "./tabs/AuditTab"
-import { ReportsTab } from "./tabs/ReportsTab"
+import { UserTableHeader } from "./UserTableToolbar"
+import { UsersTab } from "../tabs/UsersTab"
+import { AuditTab } from "../tabs/AuditTab"
+import { ReportsTab } from "../tabs/ReportsTab"
 
-export { schema, TableCellViewer } from "./user-table/UserTableDrawer"
+export { schema, TableCellViewer } from "./UserTableDrawer"
 
 export function UserTable({
   users = [],

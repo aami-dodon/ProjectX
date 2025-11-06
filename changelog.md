@@ -1,3 +1,6 @@
+## 2025-11-22 21:00:00 IST
+- Restructured the admin frontend into design-system, health, and user-management submodules with shared hooks and exports so future dashboards stay isolated and maintainable.
+
 ## 2025-11-22 19:45:00 IST
 - Enhanced audit log filtering to support action, user, and date range queries while ensuring responses document actor IDs for downstream integrations.
 

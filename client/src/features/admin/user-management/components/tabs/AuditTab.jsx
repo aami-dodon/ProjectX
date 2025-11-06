@@ -5,8 +5,8 @@ import { Checkbox } from "@/shared/components/ui/checkbox"
 import { TabsContent } from "@/shared/components/ui/tabs"
 
 import { useAuditLogs } from "../../hooks/use-audit-logs"
-import { AuditTableToolbar } from "../audit-table/AuditTableToolbar"
-import { formatDate } from "../user-table/UserTableDrawer"
+import { AuditTableToolbar } from "../audit/AuditTableToolbar"
+import { formatDate } from "../table/UserTableDrawer"
 
 const DEFAULT_PAGE_SIZE = 10
 const PAGE_SIZE_OPTIONS = [10, 20, 30, 40, 50]

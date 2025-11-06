@@ -2,9 +2,9 @@ import { Navigate } from "react-router-dom";
 
 import { useAuthStatus, useHasRole } from "@/features/auth";
 
-import { DesignSystemPage } from "./pages/DesignSystemPage";
-import { HealthPage } from "./pages/HealthPage";
-import { UserManagementPage } from "./pages/UserManagementPage";
+import { DesignSystemPage } from "./design-system/pages/DesignSystemPage";
+import { HealthPage } from "./health/pages/HealthPage";
+import { UserManagementPage } from "./user-management/pages/UserManagementPage";
 
 function AdminRoute({ children }) {
   const isAuthenticated = useAuthStatus();

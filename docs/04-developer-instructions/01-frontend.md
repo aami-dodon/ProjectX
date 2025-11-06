@@ -39,6 +39,16 @@ Every folder under `client/src/features` represents a self-contained feature sli
 
 When you add a new feature, mirror this layout: create `pages/` for route components, keep `components/` for subviews, and expose your public API via `index.js`. Stick with `@/` path aliases (configured via `client/jsconfig.json` and wired by `vite-tsconfig-paths` in `client/vite.config.js`) to avoid brittle relative paths.
 
+### Admin feature module
+
+The administrator experience follows a nested module layout so we can grow isolated dashboards without polluting the shared namespace. All admin routes live under `client/src/features/admin/` and break down into three domains:
+
+- `design-system/` — houses the design system showcases split into `components/`, `hooks/`, and `pages/` (`DesignSystemShowcase.jsx`, `useDesignSystem.js`, `DesignSystemPage.jsx`).
+- `health/` — contains the system health UI, including reusable cards (`components/`), the polling hook (`hooks/useHealthStatus.js`), and the route wrapper under `pages/HealthPage.jsx`.
+- `user-management/` — encapsulates the directory, reports, and audit tooling with dedicated folders for charts, stats, tabs, table helpers, and domain hooks. Tests that exercise this slice live alongside the shared Vitest suites in `client/tests/`.
+
+The feature surface (`client/src/features/admin/index.js`) re-exports the admin routes plus the key hooks (`useDesignSystem`, `useHealthStatus`, `useAdminUsers`, `useAuditLogs`, `useClientRuntimeMetrics`) so other parts of the app can opt into admin behavior without reaching into private folders.
+
 ## 3. Styling System
 
 Tailwind CSS v4 powers all styling. The global stylesheet (`client/src/index.css`) imports the Tailwind base layers and centralizes the design tokens:

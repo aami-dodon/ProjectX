@@ -5,10 +5,10 @@ import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 
-import { HealthStatusCard } from "@/features/admin/components/health/HealthStatusCard";
-import { StatusBadge } from "@/features/admin/components/health/StatusBadge";
-import { useClientRuntimeMetrics } from "@/features/admin/hooks/useClientRuntimeMetrics";
-import { useHealthStatus } from "@/features/admin/hooks/useHealthStatus";
+import { HealthStatusCard } from "@/features/admin/health/components/HealthStatusCard";
+import { StatusBadge } from "@/features/admin/health/components/StatusBadge";
+import { useClientRuntimeMetrics } from "@/features/admin/user-management/hooks/useClientRuntimeMetrics";
+import { useHealthStatus } from "@/features/admin/health/hooks/useHealthStatus";
 
 const clampPercentage = (value) => {
   if (!Number.isFinite(value)) return 0;
@@ -361,4 +361,3 @@ export function HealthPage() {
     </div>
   );
 }
-

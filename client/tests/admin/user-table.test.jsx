@@ -34,7 +34,7 @@ vi.mock('@/shared/components/ui/avatar', () => ({
   AvatarFallback: ({ children }) => <span data-testid="avatar-fallback">{children}</span>,
 }))
 
-import { TableCellViewer } from '../UserTable'
+import { TableCellViewer } from '@/features/admin/user-management/components/table/UserTable'
 
 describe('TableCellViewer', () => {
   it('renders drawer header with avatar, email, and status details', () => {
@@ -132,4 +132,3 @@ describe('TableCellViewer', () => {
     expect(fallbacks.length).toBeGreaterThan(0)
   })
 })
-

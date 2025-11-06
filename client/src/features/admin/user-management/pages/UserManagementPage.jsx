@@ -1,8 +1,8 @@
 import { useCallback, useMemo } from "react";
 
-import { UserCharts } from "../components/UserCharts";
-import { UserStatsCards } from "../components/UserStatsCards";
-import { UserTable } from "../components/UserTable";
+import { UserCharts } from "../components/charts/UserCharts";
+import { UserStatsCards } from "../components/stats/UserStatsCards";
+import { UserTable } from "../components/table/UserTable";
 import { useAdminUsers } from "../hooks/use-admin-users";
 
 export function UserManagementPage() {
