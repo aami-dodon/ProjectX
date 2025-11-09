@@ -18,7 +18,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { TaskControlPanel } from "@/components/governance/TaskControlPanel";
 
 const STATUS_FILTERS = [
-  { value: "", label: "All statuses" },
+  { value: "ALL", label: "All statuses" },
   { value: "OPEN", label: "Open" },
   { value: "IN_PROGRESS", label: "In progress" },
   { value: "AWAITING_EVIDENCE", label: "Awaiting evidence" },
@@ -27,7 +27,7 @@ const STATUS_FILTERS = [
 ];
 
 const PRIORITY_FILTERS = [
-  { value: "", label: "All priorities" },
+  { value: "ALL", label: "All priorities" },
   { value: "CRITICAL", label: "Critical" },
   { value: "HIGH", label: "High" },
   { value: "MEDIUM", label: "Medium" },
@@ -103,7 +103,16 @@ export function TaskInboxPage() {
               </div>
               <div className="space-y-1">
                 <Label className="text-xs text-muted-foreground">Status</Label>
-                <Select value={filters.status ?? ""} onValueChange={(value) => setFilters({ ...filters, status: value || undefined, offset: 0 })}>
+                <Select
+                  value={filters.status ?? "ALL"}
+                  onValueChange={(value) =>
+                    setFilters({
+                      ...filters,
+                      status: value === "ALL" ? undefined : value,
+                      offset: 0,
+                    })
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
@@ -119,8 +128,14 @@ export function TaskInboxPage() {
               <div className="space-y-1">
                 <Label className="text-xs text-muted-foreground">Priority</Label>
                 <Select
-                  value={filters.priority ?? ""}
-                  onValueChange={(value) => setFilters({ ...filters, priority: value || undefined, offset: 0 })}
+                  value={filters.priority ?? "ALL"}
+                  onValueChange={(value) =>
+                    setFilters({
+                      ...filters,
+                      priority: value === "ALL" ? undefined : value,
+                      offset: 0,
+                    })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Priority" />

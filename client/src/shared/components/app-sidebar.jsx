@@ -69,6 +69,14 @@ const NAVIGATION_CONFIG = {
         { title: "Approvals", url: "#", icon: IconFileDescription },
       ],
     },
+    {
+      title: "Remediation",
+      icon: IconChecklist,
+      items: [
+        { title: "Task Inbox", url: "/tasks", icon: IconChecklist },
+        { title: "Task Board", url: "/tasks/board", icon: IconReport },
+      ],
+    },
   ],
   ADMIN: {
     title: "Administration",
