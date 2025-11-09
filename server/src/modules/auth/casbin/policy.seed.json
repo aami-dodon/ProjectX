@@ -205,5 +205,77 @@
     "action": "read",
     "effect": "allow",
     "description": "Compliance officers can audit probe metrics"
+  },
+  {
+    "type": "p",
+    "subject": "admin",
+    "domain": "global",
+    "object": "evidence:records",
+    "action": "*",
+    "effect": "allow",
+    "description": "Administrators can manage evidence records end-to-end"
+  },
+  {
+    "type": "p",
+    "subject": "admin",
+    "domain": "global",
+    "object": "evidence:links",
+    "action": "update",
+    "effect": "allow",
+    "description": "Administrators can attach or detach evidence links"
+  },
+  {
+    "type": "p",
+    "subject": "admin",
+    "domain": "global",
+    "object": "evidence:retention",
+    "action": "read",
+    "effect": "allow",
+    "description": "Administrators can review retention dashboards"
+  },
+  {
+    "type": "p",
+    "subject": "compliance officer",
+    "domain": "global",
+    "object": "evidence:records",
+    "action": "read",
+    "effect": "allow",
+    "description": "Compliance officers can browse evidence records"
+  },
+  {
+    "type": "p",
+    "subject": "compliance officer",
+    "domain": "global",
+    "object": "evidence:records",
+    "action": "create",
+    "effect": "allow",
+    "description": "Compliance officers can upload new evidence"
+  },
+  {
+    "type": "p",
+    "subject": "compliance officer",
+    "domain": "global",
+    "object": "evidence:records",
+    "action": "update",
+    "effect": "allow",
+    "description": "Compliance officers can update evidence metadata"
+  },
+  {
+    "type": "p",
+    "subject": "compliance officer",
+    "domain": "global",
+    "object": "evidence:links",
+    "action": "update",
+    "effect": "allow",
+    "description": "Compliance officers can manage evidence associations"
+  },
+  {
+    "type": "p",
+    "subject": "compliance officer",
+    "domain": "global",
+    "object": "evidence:retention",
+    "action": "read",
+    "effect": "allow",
+    "description": "Compliance officers can inspect retention pipelines"
   }
 ]

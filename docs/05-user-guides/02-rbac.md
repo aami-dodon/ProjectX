@@ -128,7 +128,19 @@ The new Framework Mapping system exposes four permission resources aligned with 
 
 Add or update Casbin policies (`p` rules) when you need more granular control—for example, granting `frameworks:catalog:read` to auditor roles without create/update access.
 
-## 9. Troubleshooting
+## 9. Evidence Management permissions
+
+The Evidence Management system introduces three new resources aligned with `/api/evidence`:
+
+| Resource | Action(s) | Purpose | Default roles |
+| --- | --- | --- | --- |
+| `evidence:records` | `read`, `create`, `update` | List/search artifacts, request uploads, and edit metadata/retention settings. | Admin (all actions), Compliance Officer (read/create/update) |
+| `evidence:links` | `update` | Attach or detach controls, checks, and task references from evidence records. | Admin, Compliance Officer |
+| `evidence:retention` | `read` | Load retention summaries, policy coverage, and upcoming purge schedules. | Admin, Compliance Officer |
+
+Update the Casbin policy file whenever you add new evidence actions so the router middleware stays in sync with the UI affordances documented in `docs/03-systems/11-evidence-management-system/readme.md`.
+
+## 10. Troubleshooting
 
 | Symptom | Recommended action |
 | --- | --- |

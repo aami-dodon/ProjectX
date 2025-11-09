@@ -13,6 +13,7 @@ import {
   IconReport,
   IconSettings,
   IconShield,
+  IconUpload,
   IconUsers,
 } from "@tabler/icons-react";
 import { useCurrentUser } from "@/features/auth";
@@ -78,6 +79,9 @@ const NAVIGATION_CONFIG = {
       { title: "Framework Catalog", url: "/frameworks", icon: IconFolder },
       { title: "Access Control", url: "/admin/access-control", icon: IconShield },
       { title: "Design System", url: "/admin/design-system", icon: IconPalette },
+      { title: "Evidence Library", url: "/evidence", icon: IconFileDescription },
+      { title: "Upload Evidence", url: "/evidence/upload", icon: IconUpload },
+      { title: "Retention", url: "/evidence/retention", icon: IconShield },
       { title: "Check Catalog", url: "/governance/checks", icon: IconChecklist },
       { title: "Review Queue", url: "/governance/review-queue", icon: IconReport },
       { title: "Result Explorer", url: "/governance/results", icon: IconFileDescription },

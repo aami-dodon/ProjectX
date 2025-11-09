@@ -71,6 +71,20 @@ Control governance lives beside the check stack in `server/src/modules/governanc
 
 Whenever you add new control states, coverage levels, or scoring dimensions, update `prisma/schema.prisma`, regenerate the client, and adjust both the service logic and the developer docs so the frontend dashboard and automation remain in lockstep.
 
+### Evidence Management module
+
+The evidence backend lives under `server/src/modules/evidence/` and mirrors the same router/controller/service layering used elsewhere.
+
+- **Router & RBAC:** `evidence.router.js` mounts beneath `/api/evidence` and protects routes with `requirePermission` resources `evidence:records`, `evidence:links`, and `evidence:retention`. The default Casbin seed grants admin/compliance roles the necessary actions—extend `src/modules/auth/casbin/policy.seed.json` whenever you add new verbs.
+- **Controllers & services:**
+  - `upload.controller.js` + `upload.service.js` validate upload payloads with `evidence.schemas.js`, ensure a retention policy exists (falling back to the default seeded by `ensureDefaultRetentionPolicy`), create the `evidence` + `evidence_links` rows, and return the presigned PUT from MinIO.
+  - `download.controller.js` + `download.service.js` resolve the storage key, increment `downloadCount`, emit an `EvidenceEventAction.DOWNLOAD_ISSUED`, and return the short-lived GET URL.
+  - `metadata.controller.js` + `metadata.service.js` cover listing/searching, metadata updates (with optional version bumps recorded via `evidence_versions`), retention summarisation, and link management. The retention helper (`tasks/retention.scheduler.js`) keeps archival/purge dates consistent.
+- **Repositories & schema:** `repositories/evidence.repository.js` and `repositories/evidence-links.repository.js` wrap Prisma access to the `evidence`, `evidence_links`, `evidence_events`, `evidence_versions`, and `evidence_retention_policies` tables introduced in `server/prisma/migrations/20251228113000_add_evidence_management_system/migration.sql`. Always go through these repositories so transactions capture versions + events atomically.
+- **Events & serialization:** `events/evidence.events.js` writes the audit-friendly ledger rows reused by the frontend timeline, and `evidence.serializers.js` centralises how evidence records are shaped for HTTP responses.
+
+Follow the reference guide in `docs/03-systems/11-evidence-management-system/readme.md` whenever you add new filters, retention states, or integrations so docs and implementation stay in sync.
+
 ### Framework Mapping module
 
 Framework governance lives under `server/src/modules/frameworks/` and mirrors the layered architecture used elsewhere:

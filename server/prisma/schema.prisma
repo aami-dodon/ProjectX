@@ -32,6 +32,7 @@ model AuthUser {
   events           AuthEventLedger[]
   authoredPolicies AuthPolicy[]          @relation("AuthPolicyCreatedBy")
   policyRevisions  AuthPolicyRevision[]  @relation("AuthPolicyRevisionCreatedBy")
+  evidenceUploads  Evidence[]
 
   @@map("auth_users")
   @@index([status])
@@ -452,6 +453,7 @@ model Check {
   reviewQueue     ReviewQueueItem[]
   controlLinks    CheckControlLink[]
   notifications   CheckNotification[]
+  evidenceLinks   EvidenceLink[]
   control         Control?     @relation(fields: [controlId], references: [id], onDelete: SetNull)
 
   @@map("checks")
@@ -601,6 +603,7 @@ model Control {
   scores                 ControlScore[]
   auditEvents            ControlAuditEvent[]
   results                CheckResult[]
+  evidenceLinks          EvidenceLink[]
 
   @@map("controls")
   @@index([status])
@@ -812,6 +815,135 @@ enum FrameworkJobStatus {
   RUNNING
   COMPLETED
   FAILED
+}
+
+enum EvidenceRetentionState {
+  ACTIVE
+  ARCHIVED
+  LEGAL_HOLD
+  PURGE_SCHEDULED
+}
+
+enum EvidenceSource {
+  MANUAL
+  PROBE
+  API
+  IMPORT
+}
+
+enum EvidenceEventAction {
+  UPLOAD_REQUESTED
+  UPLOAD_CONFIRMED
+  DOWNLOAD_ISSUED
+  METADATA_UPDATED
+  LINK_ATTACHED
+  LINK_REMOVED
+  RETENTION_UPDATED
+}
+
+model EvidenceRetentionPolicy {
+  id                 String    @id @default(uuid())
+  name               String
+  retentionMonths    Int       @map("retention_months")
+  archiveAfterMonths Int?      @map("archive_after_months")
+  description        String?
+  isDefault          Boolean   @default(false) @map("is_default")
+  legalHoldAllowed   Boolean   @default(true) @map("legal_hold_allowed")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+  evidence           Evidence[]
+
+  @@map("evidence_retention_policies")
+  @@index([isDefault])
+}
+
+model Evidence {
+  id                 String                 @id @default(uuid())
+  displayName        String                 @map("display_name")
+  description        String?
+  storageKey         String                 @unique @map("storage_key")
+  objectName         String                 @map("object_name")
+  bucket             String
+  mimeType           String                 @map("mime_type")
+  size               Int
+  checksum           String
+  version            Int                    @default(1)
+  source             EvidenceSource         @default(MANUAL)
+  tags               String[]               @default([])
+  retentionState     EvidenceRetentionState @default(ACTIVE) @map("retention_state")
+  retentionPolicyId  String?                @map("retention_policy_id")
+  purgeScheduledFor  DateTime?              @map("purge_scheduled_for")
+  archivedAt         DateTime?              @map("archived_at")
+  legalHoldAppliedAt DateTime?              @map("legal_hold_applied_at")
+  metadata           Json?
+  uploaderId         String                 @map("uploader_id")
+  downloadCount      Int                    @default(0) @map("download_count")
+  createdAt          DateTime               @default(now()) @map("created_at")
+  updatedAt          DateTime               @updatedAt @map("updated_at")
+  retentionPolicy    EvidenceRetentionPolicy? @relation(fields: [retentionPolicyId], references: [id], onDelete: SetNull)
+  links              EvidenceLink[]
+  events             EvidenceEvent[]
+  versions           EvidenceVersion[]
+  uploader           AuthUser               @relation(fields: [uploaderId], references: [id], onDelete: Restrict)
+
+  @@map("evidence")
+  @@index([retentionState])
+  @@index([retentionPolicyId])
+  @@index([createdAt])
+  @@index([uploaderId])
+}
+
+model EvidenceLink {
+  id            String   @id @default(uuid())
+  evidenceId    String   @map("evidence_id")
+  controlId     String?  @map("control_id")
+  checkId       String?  @map("check_id")
+  taskReference String?  @map("task_reference")
+  role          String?
+  justification String?
+  linkedBy      String?  @map("linked_by")
+  linkedAt      DateTime @default(now()) @map("linked_at")
+  metadata      Json?
+  evidence      Evidence @relation(fields: [evidenceId], references: [id], onDelete: Cascade)
+  control       Control? @relation(fields: [controlId], references: [id], onDelete: SetNull)
+  check         Check?   @relation(fields: [checkId], references: [id], onDelete: SetNull)
+
+  @@map("evidence_links")
+  @@index([controlId])
+  @@index([checkId])
+  @@index([taskReference])
+}
+
+model EvidenceEvent {
+  id         String              @id @default(uuid())
+  evidenceId String              @map("evidence_id")
+  actorId    String?             @map("actor_id")
+  action     EvidenceEventAction
+  ipAddress  String?             @map("ip_address")
+  userAgent  String?             @map("user_agent")
+  metadata   Json?
+  createdAt  DateTime            @default(now()) @map("created_at")
+  evidence   Evidence            @relation(fields: [evidenceId], references: [id], onDelete: Cascade)
+
+  @@map("evidence_events")
+  @@index([evidenceId])
+  @@index([action])
+}
+
+model EvidenceVersion {
+  id         String   @id @default(uuid())
+  evidenceId String   @map("evidence_id")
+  version    Int
+  checksum   String
+  storageKey String   @map("storage_key")
+  size       Int
+  metadata   Json?
+  createdAt  DateTime @default(now()) @map("created_at")
+  createdBy  String?  @map("created_by")
+  evidence   Evidence @relation(fields: [evidenceId], references: [id], onDelete: Cascade)
+
+  @@map("evidence_versions")
+  @@unique([evidenceId, version])
 }
 
 model Framework {

@@ -97,6 +97,16 @@ Framework lifecycle management sits in `client/src/features/frameworks/` and mir
 
 When you introduce new mapping workflows or diff visualisations, extend these hooks/components rather than introducing new global state; keep saved views/signals wired through the shared hooks so the catalog, mapping page, and version diff stay in sync.
 
+### Evidence Management feature
+
+Evidence workflows live under `client/src/features/evidence/` and reuse the shared API client + hooks pattern:
+
+- `routes.jsx` exports the library, upload, detail, and retention routes so `client/src/app/routes.jsx` can simply spread `evidenceRoutes` into the protected layout.
+- `api/evidenceClient.js` wraps every `/api/evidence` operation (list, upload, metadata, links, retention) while `useEvidenceLibrary`, `useEvidenceUpload`, and `useEvidenceRetention` own the derived state, pagination, and mutation helpers consumed by their respective pages.
+- Components such as `EvidenceUploadWizard`, `EvidenceMetadataPanel`, `EvidenceDownloadButton`, and `EvidenceLinkingForm` compose the heavy UX for upload and detail screens. The shared `client/src/components/governance/EvidenceTimeline.jsx` renders the event ledger so any future drawers or dashboards can visualise the same history payload.
+
+When adding new evidence filters, retention states, or UI surfaces, extend these hooks/components and keep API calls inside `api/evidenceClient.js`. Update `docs/03-systems/11-evidence-management-system/readme.md` alongside UI changes so the reference stays accurate.
+
 ## 3. Styling System
 
 Tailwind CSS v4 powers all styling. The global stylesheet (`client/src/index.css`) imports the Tailwind base layers and centralizes the design tokens:

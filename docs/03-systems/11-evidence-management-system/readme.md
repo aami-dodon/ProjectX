@@ -29,39 +29,41 @@ Evidence orchestration lives in `server/src/modules/evidence`, integrating with 
 ```
 server/src/modules/evidence/
 ├── controllers/
-│   ├── upload.controller.ts
-│   ├── download.controller.ts
-│   └── metadata.controller.ts
+│   ├── upload.controller.js
+│   ├── download.controller.js
+│   └── metadata.controller.js
 ├── services/
-│   ├── upload.service.ts
-│   ├── download.service.ts
-│   └── metadata.service.ts
+│   ├── upload.service.js
+│   ├── download.service.js
+│   └── metadata.service.js
 ├── repositories/
-│   ├── evidence.repository.ts
-│   └── evidence-links.repository.ts
-├── integrations/
-│   └── minio.client.ts
+│   ├── evidence.repository.js
+│   └── evidence-links.repository.js
+├── evidence.router.js
+├── evidence.serializers.js
+├── evidence.schemas.js
 ├── events/
-│   ├── evidence.created.ts
-│   └── evidence.accessed.ts
+│   └── evidence.events.js
 └── tasks/
-    └── retention.scheduler.ts
+    └── retention.scheduler.js
 ```
 
 ### API Surface & Controllers
 | Endpoint | Method | Controller | Purpose |
 | --- | --- | --- | --- |
-| `/api/evidence/upload` | POST | `upload.controller.ts` | Issues presigned upload sessions, validates RBAC scopes, and coordinates checksum-validated completion callbacks.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L122-L171】 |
-| `/api/evidence/:id/download` | GET | `download.controller.ts` | Authorizes access, minting short-lived presigned GET URLs with binding to stored metadata and audit context.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L122-L171】【F:docs/01-about/04-security-and-data-protection.md†L248-L338】 |
-| `/api/evidence/:id/metadata` | GET/PUT | `metadata.controller.ts` | Retrieves or amends descriptive metadata, version lineage, retention flags, and governance linkages under audit review policies.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L122-L171】【F:docs/02-technical-specifications/04-database-design.md†L82-L139】 |
-| `/api/evidence/:id/links` | POST/DELETE | `metadata.controller.ts` | Adds or removes associations to controls, checks, and tasks while enforcing compensating control documentation.【F:docs/02-technical-specifications/04-database-design.md†L82-L146】【F:docs/03-systems/09-control-management-system/readme.md†L28-L103】 |
+| `/api/evidence` | GET | `metadata.controller.js` | Lists evidence records with pagination, retention summaries, and filters for tags, controls, checks, and uploader context. |
+| `/api/evidence/upload` | POST | `upload.controller.js` | Issues presigned upload sessions, validates RBAC scopes, and coordinates checksum-validated completion callbacks.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L122-L171】 |
+| `/api/evidence/:id/download` | GET | `download.controller.js` | Authorizes access, minting short-lived presigned GET URLs with binding to stored metadata and audit context.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L122-L171】【F:docs/01-about/04-security-and-data-protection.md†L248-L338】 |
+| `/api/evidence/:id/metadata` | GET/PUT | `metadata.controller.js` | Retrieves or amends descriptive metadata, version lineage, retention flags, and governance linkages under audit review policies.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L122-L171】【F:docs/02-technical-specifications/04-database-design.md†L82-L139】 |
+| `/api/evidence/:id/links` | POST/DELETE | `metadata.controller.js` | Adds or removes associations to controls, checks, and tasks while enforcing compensating control documentation.【F:docs/02-technical-specifications/04-database-design.md†L82-L146】【F:docs/03-systems/09-control-management-system/readme.md†L28-L103】 |
+| `/api/evidence/retention` | GET | `metadata.controller.js` | Aggregates retention stats, policy coverage, and upcoming purge schedules for the Retention workspace. |
 
-Controllers register with Express routers inside `server/src/modules/evidence/routes.ts` and rely on shared middleware for authentication (`JwtGuard`), Casbin scope checks, and structured error handling to maintain consistent API posture across the platform.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L44-L171】【F:docs/02-technical-specifications/06-security-implementation.md†L6-L148】
+Controllers register with Express routers inside `server/src/modules/evidence/evidence.router.js` and rely on shared middleware for authentication (`JwtGuard`), Casbin scope checks, and structured error handling to maintain consistent API posture across the platform.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L44-L171】【F:docs/02-technical-specifications/06-security-implementation.md†L6-L148】
 
 ### Service Responsibilities & Cross-Cutting Concerns
-- **`upload.service.ts`:** Generates presigned PUT URLs, records expected checksums, and queues completion tasks for immutability verification. Handles both human and automated probe submissions so ingestion parity remains consistent.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L44-L171】【F:docs/02-technical-specifications/07-integration-architecture.md†L70-L117】
-- **`download.service.ts`:** Resolves storage keys, enforces download throttling, and assembles audit payloads prior to generating signed GET URLs. Integrates with Notification and Audit Logging modules for anomaly detection hooks.【F:docs/01-about/04-security-and-data-protection.md†L248-L338】【F:docs/03-systems/06-audit-logging-and-monitoring/readme.md†L7-L200】
-- **`metadata.service.ts`:** Applies validation schemas, persists retention and version markers, and orchestrates link mutations to governance entities. Soft-delete semantics preserve historical context while preventing orphaned records.【F:docs/02-technical-specifications/04-database-design.md†L82-L177】
+- **`upload.service.js`:** Generates presigned PUT URLs, records expected checksums, and queues completion tasks for immutability verification. Handles both human and automated probe submissions so ingestion parity remains consistent.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L44-L171】【F:docs/02-technical-specifications/07-integration-architecture.md†L70-L117】
+- **`download.service.js`:** Resolves storage keys, enforces download throttling, and assembles audit payloads prior to generating signed GET URLs. Integrates with Notification and Audit Logging modules for anomaly detection hooks.【F:docs/01-about/04-security-and-data-protection.md†L248-L338】【F:docs/03-systems/06-audit-logging-and-monitoring/readme.md†L7-L200】
+- **`metadata.service.js`:** Applies validation schemas, persists retention and version markers, and orchestrates link mutations to governance entities. Soft-delete semantics preserve historical context while preventing orphaned records.【F:docs/02-technical-specifications/04-database-design.md†L82-L177】
 - **Repositories:** Prisma-backed repositories centralize query patterns, enforce referential integrity, and expose transactional helpers for multi-table updates (evidence + links + events). Indices on tags, control IDs, and retention states keep retrieval performant for dashboards.【F:docs/02-technical-specifications/04-database-design.md†L82-L150】
 - **Integrations & Events:** Shared MinIO client wraps credential injection and bucket routing; event publishers emit `evidence.created` and `evidence.accessed` messages into the governance event bus consumed by Control, Task, and Notification systems.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L44-L171】【F:docs/03-systems/04-notification-system/readme.md†L7-L222】【F:docs/03-systems/13-task-management-system/readme.md†L7-L226】
 
@@ -70,7 +72,7 @@ Controllers register with Express routers inside `server/src/modules/evidence/ro
 2. **Presign Orchestration:** Upload service calculates object keys using `{tenant}/{classification}/{yyyy}/{mm}` conventions inherited from the Upload System to ensure consistent retention policies and compression behavior.【F:docs/03-systems/03-document-and-media-upload/readme.md†L33-L131】
 3. **Completion & Validation:** Workers verify size, checksum, and malware scan status before promoting evidence to active state, persisting metadata, and publishing `evidence.created` events that the Governance Engine consumes to refresh coverage matrices.【F:docs/03-systems/03-document-and-media-upload/readme.md†L107-L177】【F:docs/03-systems/12-governance-engine/readme.md†L52-L113】
 4. **Access & Audit:** Download requests gather metadata (version, retention, legal holds), log immutable audit entries, and stream via expiring URLs. Audit logs feed dashboards and compliance reports for regulators.【F:docs/01-about/04-security-and-data-protection.md†L248-L338】【F:docs/03-systems/14-dashboard-and-reporting-system/readme.md†L7-L118】
-5. **Retention Automation:** `retention.scheduler.ts` evaluates retention policies nightly, transitioning artifacts to archival storage, pausing deletions under legal hold, and opening remediation tasks when manual approval is required.【F:docs/02-technical-specifications/04-database-design.md†L162-L190】【F:docs/03-systems/13-task-management-system/readme.md†L7-L226】
+5. **Retention Automation:** `retention.scheduler.js` evaluates retention policies nightly, transitioning artifacts to archival storage, pausing deletions under legal hold, and opening remediation tasks when manual approval is required.【F:docs/02-technical-specifications/04-database-design.md†L162-L190】【F:docs/03-systems/13-task-management-system/readme.md†L7-L226】
 
 ### Ingestion & Distribution Flows
 - **Manual & Assisted Uploads:** Privileged users request upload sessions (`/evidence/upload`), receive short-lived presigned URLs to stream files into MinIO, and on completion metadata (size, checksum, MIME type, actor, control/check/task references) persists to `evidence` and `evidence_links`.【F:docs/02-technical-specifications/02-backend-architecture-and-apis.md†L122-L133】【F:docs/02-technical-specifications/01-system-architecture.md†L166-L193】
@@ -92,34 +94,34 @@ Evidence workflows surface in `client/src/features/evidence`, giving compliance 
 ```
 client/src/features/evidence/
 ├── pages/
-│   ├── EvidenceLibraryPage.tsx
-│   ├── EvidenceUploadPage.tsx
-│   ├── EvidenceDetailPage.tsx
-│   └── EvidenceRetentionPage.tsx
+│   ├── EvidenceLibraryPage.jsx
+│   ├── EvidenceUploadPage.jsx
+│   ├── EvidenceDetailPage.jsx
+│   └── EvidenceRetentionPage.jsx
 ├── components/
-│   ├── EvidenceUploadWizard.tsx
-│   ├── EvidenceMetadataPanel.tsx
-│   ├── EvidenceDownloadButton.tsx
-│   └── EvidenceLinkingForm.tsx
+│   ├── EvidenceUploadWizard.jsx
+│   ├── EvidenceMetadataPanel.jsx
+│   ├── EvidenceDownloadButton.jsx
+│   └── EvidenceLinkingForm.jsx
 ├── hooks/
-│   ├── useEvidenceLibrary.ts
-│   ├── useEvidenceUpload.ts
-│   └── useEvidenceRetention.ts
+│   ├── useEvidenceLibrary.js
+│   ├── useEvidenceUpload.js
+│   └── useEvidenceRetention.js
 └── api/
-    └── evidenceClient.ts
+    └── evidenceClient.js
 
 client/src/components/governance/
-└── EvidenceTimeline.tsx
+└── EvidenceTimeline.jsx
 ```
 
 ### Reusable Components & UI Flows
-- **Upload Wizard:** Guides users through metadata capture (control, check, task references), calculates checksums client-side, and displays compression requirements before requesting presigned URLs.
-- **Library & Detail Views:** `EvidenceLibraryPage` provides search/filtering by tags, framework, control, and retention status; `EvidenceMetadataPanel` reveals version history, audit logs, and linked remediation tasks.
-- **Download & Linking:** `EvidenceDownloadButton` enforces revalidation before generating presigned links, while `EvidenceLinkingForm` allows reassociation of artifacts with additional controls or tasks under audit supervision.
-- **Retention Management:** `EvidenceRetentionPage` and `useEvidenceRetention` display lifecycle stages (active, archived, purge scheduled) with approval workflows for legal holds and deletions.
+- **Upload Wizard (`EvidenceUploadWizard` + `useEvidenceUpload`):** Drives checksum generation through the browser crypto APIs, captures tags/control/check/task context, and streams files directly to the presigned MinIO URL returned from `/api/evidence/upload` before redirecting to the detail view.
+- **Library & Detail Views:** `EvidenceLibraryPage` + `useEvidenceLibrary` provide retention-aware filters (search, tags, control/check lookups) and summary cards, while `EvidenceDetailPage` composes `EvidenceMetadataPanel`, `EvidenceDownloadButton`, `EvidenceLinkingForm`, and the shared `EvidenceTimeline` component to show audit events and links in one console.
+- **Download & Linking:** `EvidenceDownloadButton` ensures every click requests a fresh presigned link, increments download counters, and surfaces errors inline; `EvidenceLinkingForm` batches control/check/task associations so reviewers can keep context without leaving the page.
+- **Retention Management:** `EvidenceRetentionPage` and `useEvidenceRetention` fetch `/api/evidence/retention` to display lifecycle counts, policy coverage, and upcoming purge windows so legal holds can be audited without querying the database directly.
 
 ### State Management & API Contracts
-- **API Client (`api/evidenceClient.ts`):** Wraps Axios with interceptors for JWT handling, error normalization, and retry logic aligned with frontend architecture guidelines.【F:docs/02-technical-specifications/03-frontend-architecture.md†L96-L168】
+- **API Client (`api/evidenceClient.js`):** Consolidates calls to `/api/evidence`, `/upload`, `/retention`, and link/metadata routes so hooks can depend on a single transport abstraction that inherits the shared Axios interceptors.【F:docs/02-technical-specifications/03-frontend-architecture.md†L96-L168】
 - **Hooks:** `useEvidenceLibrary`, `useEvidenceUpload`, and `useEvidenceRetention` encapsulate query caching, optimistic updates for metadata edits, and websocket-driven status updates broadcast from Notification service topics.【F:docs/02-technical-specifications/03-frontend-architecture.md†L96-L168】【F:docs/03-systems/04-notification-system/readme.md†L7-L222】
 - **State Containers:** Feature hooks integrate with Auth and Notification contexts to respect RBAC-scoped UI and toasts, falling back to local reducers for wizard progress per the design philosophy of localized state.【F:docs/02-technical-specifications/03-frontend-architecture.md†L88-L150】
 - **Validation & Accessibility:** Forms leverage shared validation schemas and shadcn/ui components to remain WCAG AA compliant, with keyboard navigable evidence tables and focus-managed modals for download confirmation.【F:docs/02-technical-specifications/03-frontend-architecture.md†L88-L146】
