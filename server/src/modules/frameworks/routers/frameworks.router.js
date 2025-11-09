@@ -8,6 +8,8 @@ const {
   createFramework,
   getFramework,
   updateFramework,
+  archiveFramework,
+  restoreFramework,
 } = require('../controllers/frameworks.controller');
 const {
   listFrameworkControlsHandler,
@@ -75,6 +77,16 @@ router.patch(
   '/:frameworkId',
   guard('frameworks:catalog', 'update'),
   updateFramework,
+);
+router.delete(
+  '/:frameworkId',
+  guard('frameworks:catalog', 'delete'),
+  archiveFramework,
+);
+router.post(
+  '/:frameworkId/restore',
+  guard('frameworks:catalog', 'update'),
+  restoreFramework,
 );
 
 module.exports = router;

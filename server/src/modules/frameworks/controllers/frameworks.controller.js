@@ -3,6 +3,8 @@ const {
   createFrameworkDefinition,
   getFrameworkDetail,
   updateFrameworkDefinition,
+  archiveFrameworkDefinition,
+  restoreFrameworkDefinition,
 } = require('../services/frameworks.service');
 
 const listFrameworkCatalog = async (req, res, next) => {
@@ -42,6 +44,32 @@ const updateFramework = async (req, res, next) => {
     const record = await updateFrameworkDefinition({
       frameworkId: req.params?.frameworkId,
       payload: req.body ?? {},
+      actorId: req.user?.id ?? null,
+    });
+    return res.json({ data: record });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+const archiveFramework = async (req, res, next) => {
+  try {
+    const record = await archiveFrameworkDefinition({
+      frameworkId: req.params?.frameworkId,
+      payload: req.body ?? {},
+      actorId: req.user?.id ?? null,
+    });
+    return res.json({ data: record });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+const restoreFramework = async (req, res, next) => {
+  try {
+    const record = await restoreFrameworkDefinition({
+      frameworkId: req.params?.frameworkId,
+      actorId: req.user?.id ?? null,
     });
     return res.json({ data: record });
   } catch (error) {
@@ -50,8 +78,10 @@ const updateFramework = async (req, res, next) => {
 };
 
 module.exports = {
+  archiveFramework,
   createFramework,
   getFramework,
+  restoreFramework,
   listFrameworkCatalog,
   updateFramework,
 };

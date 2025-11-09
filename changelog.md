@@ -1,3 +1,6 @@
+## 2025-11-09 21:16:21 IST
+- Added framework lifecycle controls with audited retire/restore APIs and UI actions so compliance teams can sunset frameworks with context and bring them back without recreating mappings or losing history.
+
 ## 2025-12-20 11:45:00 IST
 - Launched the Control Management system end-to-end with new Prisma models (`controls`, mappings, scores, audit events), Express governance APIs for catalog/mapping/scoring/remediation, updated developer docs, and the React control catalog, detail, mapping, and scoreboard experiences so compliance teams can curate controls, align frameworks, inspect score trends, and trigger remediation from one workflow.
 

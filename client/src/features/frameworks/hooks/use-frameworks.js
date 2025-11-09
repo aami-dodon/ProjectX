@@ -4,6 +4,8 @@ import {
   createFramework,
   fetchFramework,
   fetchFrameworks,
+  restoreFramework as restoreFrameworkRequest,
+  retireFramework as retireFrameworkRequest,
   updateFramework,
 } from "@/features/frameworks/api/frameworks-client";
 
@@ -91,6 +93,34 @@ export function useFrameworks(initialFilters = {}) {
     [load]
   );
 
+  const retireRecord = useCallback(
+    async (frameworkId, payload = {}) => {
+      if (!frameworkId) return null;
+      const record = await retireFrameworkRequest(frameworkId, payload);
+      setDetailCache((prev) => ({
+        ...prev,
+        [frameworkId]: record ?? null,
+      }));
+      await load();
+      return record;
+    },
+    [load]
+  );
+
+  const restoreRecord = useCallback(
+    async (frameworkId) => {
+      if (!frameworkId) return null;
+      const record = await restoreFrameworkRequest(frameworkId);
+      setDetailCache((prev) => ({
+        ...prev,
+        [frameworkId]: record ?? null,
+      }));
+      await load();
+      return record;
+    },
+    [load]
+  );
+
   const getFrameworkById = useCallback(
     async (frameworkId, { force = false } = {}) => {
       if (!frameworkId) return null;
@@ -122,5 +152,7 @@ export function useFrameworks(initialFilters = {}) {
     createFramework: createRecord,
     updateFramework: updateRecord,
     getFramework: getFrameworkById,
+    retireFramework: retireRecord,
+    restoreFramework: restoreRecord,
   };
 }

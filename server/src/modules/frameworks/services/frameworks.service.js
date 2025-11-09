@@ -1,5 +1,6 @@
 const { z } = require('zod');
 
+const { createLogger } = require('@/utils/logger');
 const {
   createNotFoundError,
   createValidationError,
@@ -21,6 +22,11 @@ const {
 const {
   listFrameworkVersions,
 } = require('../repositories/version.repository');
+const {
+  createFrameworkAuditLogEntry,
+} = require('../repositories/audit.repository');
+
+const logger = createLogger('frameworks-service');
 
 const normalizeMultiValue = (value) => {
   if (!value) {
@@ -69,6 +75,11 @@ const BASE_FRAMEWORK_SCHEMA = z.object({
 });
 
 const UPDATE_FRAMEWORK_SCHEMA = BASE_FRAMEWORK_SCHEMA.partial();
+
+const ARCHIVE_FRAMEWORK_SCHEMA = z.object({
+  effectiveTo: z.coerce.date().optional(),
+  reason: z.string().max(4000).optional(),
+});
 
 const parseListParams = (params = {}) =>
   LIST_SCHEMA.parse({
@@ -148,6 +159,108 @@ const extractFrameworkData = (payload) => ({
   metadata: payload.metadata ?? null,
 });
 
+const buildAuditSnapshot = (record) => {
+  if (!record) {
+    return null;
+  }
+
+  return {
+    id: record.id,
+    slug: record.slug,
+    title: record.title,
+    status: record.status,
+    validFrom: record.validFrom,
+    validTo: record.validTo,
+    domain: record.domain ?? null,
+    jurisdiction: record.jurisdiction ?? null,
+    publisher: record.publisher ?? null,
+    tags: record.tags ?? [],
+    metadata: record.metadata ?? null,
+  };
+};
+
+const recordAuditEvent = async ({
+  frameworkId,
+  action,
+  actorId,
+  before,
+  after,
+  metadata,
+}) => {
+  if (!frameworkId || !action) {
+    return;
+  }
+
+  try {
+    await createFrameworkAuditLogEntry({
+      frameworkId,
+      entityType: 'framework',
+      entityId: frameworkId,
+      action,
+      actorId: actorId ?? null,
+      payloadBefore: before ?? null,
+      payloadAfter: after ?? null,
+      metadata: metadata ?? null,
+    });
+  } catch (error) {
+    logger.warn('Failed to record framework audit event', {
+      error: error.message,
+      frameworkId,
+      action,
+    });
+  }
+};
+
+const applyRetirementMetadata = ({
+  metadata,
+  actorId,
+  reason,
+  retiredAt,
+  previousStatus,
+}) => {
+  const base =
+    metadata && typeof metadata === 'object' ? { ...metadata } : {};
+  base.retiredAt = retiredAt.toISOString();
+  if (actorId) {
+    base.retiredBy = actorId;
+  }
+  if (reason) {
+    base.retiredReason = reason;
+  }
+  if (previousStatus) {
+    base.previousStatus = previousStatus;
+  }
+  return base;
+};
+
+const resolvePreviousStatus = (metadata) => {
+  if (!metadata || typeof metadata !== 'object') {
+    return null;
+  }
+
+  const previousStatus = metadata.previousStatus;
+  if (!previousStatus || typeof previousStatus !== 'string') {
+    return null;
+  }
+
+  const normalized = previousStatus.toUpperCase();
+  return ['DRAFT', 'ACTIVE'].includes(normalized) ? normalized : null;
+};
+
+const clearRetirementMetadata = (metadata) => {
+  if (!metadata || typeof metadata !== 'object') {
+    return null;
+  }
+
+  const nextMetadata = { ...metadata };
+  delete nextMetadata.retiredAt;
+  delete nextMetadata.retiredBy;
+  delete nextMetadata.retiredReason;
+  delete nextMetadata.previousStatus;
+
+  return Object.keys(nextMetadata).length > 0 ? nextMetadata : null;
+};
+
 const listFrameworks = async (params = {}) => {
   const parsed = parseListParams(params);
 
@@ -180,7 +293,7 @@ const listFrameworks = async (params = {}) => {
   };
 };
 
-const createFrameworkDefinition = async ({ payload }) => {
+const createFrameworkDefinition = async ({ payload, actorId }) => {
   const parsed = BASE_FRAMEWORK_SCHEMA.parse(payload ?? {});
 
   const record = await createFrameworkRecord({
@@ -192,13 +305,20 @@ const createFrameworkDefinition = async ({ payload }) => {
     },
   });
 
+  await recordAuditEvent({
+    frameworkId: record.id,
+    action: 'FRAMEWORK_CREATED',
+    actorId,
+    after: buildAuditSnapshot(record),
+  });
+
   return serializeFramework(record, {
     controlCounts: new Map([[record.id, 0]]),
     mappingCounts: new Map([[record.id, 0]]),
   });
 };
 
-const updateFrameworkDefinition = async ({ frameworkId, payload }) => {
+const updateFrameworkDefinition = async ({ frameworkId, payload, actorId }) => {
   if (!frameworkId) {
     throw createValidationError('frameworkId is required');
   }
@@ -209,6 +329,8 @@ const updateFrameworkDefinition = async ({ frameworkId, payload }) => {
   if (!existing) {
     throw createNotFoundError('Framework not found');
   }
+
+  const beforeSnapshot = buildAuditSnapshot(existing);
 
   const updated = await updateFrameworkRecord(
     frameworkId,
@@ -223,6 +345,106 @@ const updateFrameworkDefinition = async ({ frameworkId, payload }) => {
     countControlsByFramework([frameworkId]),
     countMappingsByFramework([frameworkId]),
   ]);
+
+  await recordAuditEvent({
+    frameworkId,
+    action: 'FRAMEWORK_UPDATED',
+    actorId,
+    before: beforeSnapshot,
+    after: buildAuditSnapshot(updated),
+  });
+
+  return serializeFramework(updated, {
+    controlCounts,
+    mappingCounts,
+  });
+};
+
+const archiveFrameworkDefinition = async ({
+  frameworkId,
+  payload,
+  actorId,
+}) => {
+  if (!frameworkId) {
+    throw createValidationError('frameworkId is required');
+  }
+
+  const parsed = ARCHIVE_FRAMEWORK_SCHEMA.parse(payload ?? {});
+  const existing = await findFrameworkById(frameworkId);
+  if (!existing) {
+    throw createNotFoundError('Framework not found');
+  }
+
+  if (existing.status === 'RETIRED') {
+    throw createValidationError('Framework is already retired');
+  }
+
+  const retiredAt = parsed.effectiveTo ?? new Date();
+  const updated = await updateFrameworkRecord(frameworkId, {
+    status: 'RETIRED',
+    validTo: retiredAt,
+    metadata: applyRetirementMetadata({
+      metadata: existing.metadata,
+      actorId,
+      reason: parsed.reason,
+      retiredAt,
+      previousStatus: existing.status,
+    }),
+  });
+
+  const [controlCounts, mappingCounts] = await Promise.all([
+    countControlsByFramework([frameworkId]),
+    countMappingsByFramework([frameworkId]),
+  ]);
+
+  await recordAuditEvent({
+    frameworkId,
+    action: 'FRAMEWORK_RETIRED',
+    actorId,
+    before: buildAuditSnapshot(existing),
+    after: buildAuditSnapshot(updated),
+    metadata: parsed.reason ? { reason: parsed.reason } : null,
+  });
+
+  return serializeFramework(updated, {
+    controlCounts,
+    mappingCounts,
+  });
+};
+
+const restoreFrameworkDefinition = async ({ frameworkId, actorId }) => {
+  if (!frameworkId) {
+    throw createValidationError('frameworkId is required');
+  }
+
+  const existing = await findFrameworkById(frameworkId);
+  if (!existing) {
+    throw createNotFoundError('Framework not found');
+  }
+
+  if (existing.status !== 'RETIRED') {
+    throw createValidationError('Framework is not retired');
+  }
+
+  const previousStatus = resolvePreviousStatus(existing.metadata) ?? 'ACTIVE';
+  const updated = await updateFrameworkRecord(frameworkId, {
+    status: previousStatus,
+    validTo: null,
+    metadata: clearRetirementMetadata(existing.metadata),
+  });
+
+  const [controlCounts, mappingCounts] = await Promise.all([
+    countControlsByFramework([frameworkId]),
+    countMappingsByFramework([frameworkId]),
+  ]);
+
+  await recordAuditEvent({
+    frameworkId,
+    action: 'FRAMEWORK_RESTORED',
+    actorId,
+    before: buildAuditSnapshot(existing),
+    after: buildAuditSnapshot(updated),
+  });
 
   return serializeFramework(updated, {
     controlCounts,
@@ -263,8 +485,10 @@ const getFrameworkDetail = async ({ frameworkId }) => {
 };
 
 module.exports = {
+  archiveFrameworkDefinition,
   createFrameworkDefinition,
   getFrameworkDetail,
   listFrameworks,
+  restoreFrameworkDefinition,
   updateFrameworkDefinition,
 };

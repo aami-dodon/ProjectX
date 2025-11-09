@@ -7,6 +7,8 @@ import {
   createFrameworkControl,
   fetchFramework,
   fetchFrameworkControls,
+  retireFramework as retireFrameworkRequest,
+  restoreFramework as restoreFrameworkRequest,
 } from "@/features/frameworks/api/frameworks-client";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -20,6 +22,7 @@ export function FrameworkDetailPage() {
   const [controls, setControls] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSavingControl, setIsSavingControl] = useState(false);
+  const [isLifecycleBusy, setIsLifecycleBusy] = useState(false);
 
   const load = useCallback(async () => {
     if (!frameworkId) return;
@@ -55,6 +58,42 @@ export function FrameworkDetailPage() {
     }
   };
 
+  const handleRetireFramework = async () => {
+    if (!frameworkId) return;
+    const confirmed = window.confirm("Retire this framework? Controls and mappings will remain available for reporting.");
+    if (!confirmed) return;
+
+    const reason = window.prompt("Add a retirement note (optional)") ?? "";
+
+    setIsLifecycleBusy(true);
+    try {
+      await retireFrameworkRequest(frameworkId, reason.trim() ? { reason: reason.trim() } : {});
+      toast.success("Framework retired");
+      await load();
+    } catch (error) {
+      toast.error(error?.message ?? "Unable to retire framework");
+    } finally {
+      setIsLifecycleBusy(false);
+    }
+  };
+
+  const handleRestoreFramework = async () => {
+    if (!frameworkId) return;
+    const confirmed = window.confirm("Restore this framework and return it to the catalog?");
+    if (!confirmed) return;
+
+    setIsLifecycleBusy(true);
+    try {
+      await restoreFrameworkRequest(frameworkId);
+      toast.success("Framework restored");
+      await load();
+    } catch (error) {
+      toast.error(error?.message ?? "Unable to restore framework");
+    } finally {
+      setIsLifecycleBusy(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -87,6 +126,15 @@ export function FrameworkDetailPage() {
           <Button variant="outline" onClick={() => navigate(`/frameworks/${frameworkId}/versions`)}>
             Version history
           </Button>
+          {data.status === "RETIRED" ? (
+            <Button variant="secondary" onClick={handleRestoreFramework} disabled={isLifecycleBusy}>
+              Restore framework
+            </Button>
+          ) : (
+            <Button variant="destructive" onClick={handleRetireFramework} disabled={isLifecycleBusy}>
+              Retire framework
+            </Button>
+          )}
         </div>
       </header>
 

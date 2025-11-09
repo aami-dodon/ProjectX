@@ -20,6 +20,18 @@ export async function updateFramework(frameworkId, payload) {
   return response?.data?.data;
 }
 
+export async function retireFramework(frameworkId, payload = {}) {
+  const response = await apiClient.delete(`/api/frameworks/${frameworkId}`, {
+    data: payload,
+  });
+  return response?.data?.data;
+}
+
+export async function restoreFramework(frameworkId) {
+  const response = await apiClient.post(`/api/frameworks/${frameworkId}/restore`);
+  return response?.data?.data;
+}
+
 export async function fetchFrameworkControls(frameworkId, params = {}) {
   const response = await apiClient.get(`/api/frameworks/${frameworkId}/controls`, { params });
   return response?.data ?? { data: [] };
