@@ -115,7 +115,20 @@ The Check Management system introduces three new permission resources aligned wi
 
 Permissions are enforced server-side via `governance.router.js`, and the frontend reuses `<RequirePermission>` so the catalog, review queue, and result explorer hide automatically when the user lacks access. Update the tables above whenever you add another action (e.g., `retire`) so admins can mirror the change in Casbin.
 
-## 8. Troubleshooting
+## 8. Framework Mapping permissions
+
+The new Framework Mapping system exposes four permission resources aligned with `/api/frameworks`:
+
+| Resource | Action(s) | Purpose | Default roles |
+| --- | --- | --- | --- |
+| `frameworks:catalog` | `read`, `create`, `update` | List frameworks, onboard new catalogs, and edit metadata such as jurisdictions, publishers, and lifecycle flags. | Admin (all), Compliance Officer (read/update) |
+| `frameworks:controls` | `read`, `create` | Review or add framework-specific controls, including risk metadata and evidence requirements. | Admin, Compliance Officer |
+| `frameworks:mappings` | `read`, `create` | Explore the mapping matrix, inspect coverage metrics, and align controls across standards. | Admin, Compliance Officer |
+| `frameworks:versions` | `read`, `create` | Review historical versions, diff releases, and publish new semantic versions with changelog notes. | Admin (all), Compliance Officer (read) |
+
+Add or update Casbin policies (`p` rules) when you need more granular control—for example, granting `frameworks:catalog:read` to auditor roles without create/update access.
+
+## 9. Troubleshooting
 
 | Symptom | Recommended action |
 | --- | --- |

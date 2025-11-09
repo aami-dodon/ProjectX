@@ -60,6 +60,16 @@ The governance engine now ships with a first-class Check Management stack under 
 
 When you introduce new check types or lifecycle states, update the shared enums in `server/prisma/schema.prisma`, regenerate the client, and extend the relevant service. Always emit `ApplicationError` objects so the frontend receives uniform error payloads, and remember to update `.env.example` if you add scheduler knobs or external integrations for governance checks.
 
+### Framework Mapping module
+
+Framework governance lives under `server/src/modules/frameworks/` and mirrors the layered architecture used elsewhere:
+
+- **Routers** (`routers/frameworks.router.js`) mount under `/api/frameworks` and secure every route with `authenticateRequest`, `attachAuditContext`, and `requirePermission` guards for `frameworks:catalog`, `frameworks:controls`, `frameworks:mappings`, and `frameworks:versions`.
+- **Services + repositories** orchestrate Prisma access to the new tables (`frameworks`, `framework_versions`, `framework_controls`, `framework_mappings`, and the history/import/export ledgers). Use `frameworks.service.js` for catalog metadata, `controls.service.js` for inline control CRUD, `mappings.service.js` for alignment workflows + coverage analytics, and `versions.service.js` for semantic publishes.
+- **Prisma schema** additions live in `server/prisma/schema.prisma` alongside a dedicated migration; remember to regenerate the client after editing enums such as `FrameworkStatus`, `FrameworkVersionStatus`, and `FrameworkMappingStrength`.
+
+When extending the module, keep mapping creation behind the history helpers in `mappings.service.js` so every change records a `framework_mapping_history` entry, and update the RBAC tables/documents whenever you add a new permission verb.
+
 ## 3. Request Lifecycle & Middleware
 
 - Perform lightweight validation as close to the router as possible. Simple checks can live in the controller; complex workflows should add dedicated middleware inside the module.

@@ -72,6 +72,20 @@ Governance dashboards for check definitions, review queues, and result explorati
 
 When you add new governance flows, extend these hooks/components first, keep API access inside `checksClient`, and mirror any permission or lifecycle additions in the RBAC documentation under `docs/05-user-guides/02-rbac.md`.
 
+### Framework Mapping feature
+
+Framework lifecycle management sits in `client/src/features/frameworks/` and mirrors the backend spec:
+
+- `api/frameworks-client.js` fronts `/api/frameworks` and its nested routes so the catalog, detail, mapping matrix, and version history pages share the same Axios calls.
+- Hooks:
+  - `use-frameworks.js` powers the catalog with filters, pagination, and creation/update helpers.
+  - `use-framework-mappings.js` streams mapping lists, strength summaries, and coverage matrices for the mapping editor.
+  - `use-framework-versions.js` loads semantic versions and exposes the creation helper used by the history page.
+- Components such as `framework-form.jsx`, `control-list.jsx`, `mapping-editor.jsx`, and `version-diff-viewer.jsx` keep the heavy UI logic reusable across pages. Common visuals (e.g., the coverage matrix) live under `client/src/components/governance/`.
+- Routes are registered via `features/frameworks/routes.jsx` and gated with `<RequirePermission>` for `frameworks:*` resources so navigation hides automatically when RBAC denies access.
+
+When you introduce new mapping workflows or diff visualisations, extend these hooks/components rather than introducing new global state; keep saved views/signals wired through the shared hooks so the catalog, mapping page, and version diff stay in sync.
+
 ## 3. Styling System
 
 Tailwind CSS v4 powers all styling. The global stylesheet (`client/src/index.css`) imports the Tailwind base layers and centralizes the design tokens:

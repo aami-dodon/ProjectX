@@ -1,3 +1,6 @@
+## 2025-12-12 15:05:00 IST
+- Delivered the Framework Mapping system end-to-end with new Prisma models, Express routers, and React dashboards so teams can catalog frameworks, manage controls, align cross-standard mappings, and govern version lifecycles alongside the rest of the governance suite.
+
 ## 2025-11-09 18:47:39 IST
 - Launched the Check Management system with new Prisma models, Express governance APIs, background scheduler helpers, and React dashboards for the catalog, review queue, and result explorer so compliance teams can operationalise checks end-to-end.
 

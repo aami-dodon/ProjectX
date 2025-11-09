@@ -52,7 +52,7 @@ export function ProbeDetailsPanel({ probe, onRegister, isRegistering }) {
     if (formState.environmentOverlays.trim()) {
       try {
         overlays = JSON.parse(formState.environmentOverlays);
-      } catch (error) {
+      } catch {
         setFormError("Environment overlays must be valid JSON");
         return;
       }

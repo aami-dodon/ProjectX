@@ -8,9 +8,17 @@ import { authLandingRoute, authRoutes, ProtectedRoute } from "@/features/auth";
 import { homeRoutes } from "@/features/home";
 import { probeRoutes } from "@/features/probes";
 import { governanceRoutes } from "@/features/governance";
+import { frameworkRoutes } from "@/features/frameworks";
 import { ErrorPage, statusRoutes, unknownStatusRoute } from "@/features/status-pages";
 
-const defaultLayoutRoutes = [...homeRoutes, ...accountRoutes, ...adminRoutes, ...probeRoutes, ...governanceRoutes];
+const defaultLayoutRoutes = [
+  ...homeRoutes,
+  ...accountRoutes,
+  ...adminRoutes,
+  ...probeRoutes,
+  ...governanceRoutes,
+  ...frameworkRoutes,
+];
 
 export const router = createBrowserRouter([
   authLandingRoute,

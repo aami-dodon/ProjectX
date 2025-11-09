@@ -75,6 +75,7 @@ const NAVIGATION_CONFIG = {
       { title: "User Management", url: "/admin/users", icon: IconUsers },
       { title: "Health Checks", url: "/admin/health", icon: IconHeartbeat },
       { title: "Probe Management", url: "/probes", icon: IconDatabase },
+      { title: "Framework Catalog", url: "/frameworks", icon: IconFolder },
       { title: "Access Control", url: "/admin/access-control", icon: IconShield },
       { title: "Design System", url: "/admin/design-system", icon: IconPalette },
       { title: "Check Catalog", url: "/governance/checks", icon: IconChecklist },

@@ -1,6 +1,5 @@
 const { z } = require('zod');
 
-const { createLogger } = require('@/utils/logger');
 const {
   createValidationError,
   createNotFoundError,
@@ -19,8 +18,6 @@ const {
 } = require('../repositories/review-queue.repository');
 const { calculateNextRunAt } = require('../schedulers/governance.scheduler');
 const { publishCheckFailed } = require('../events/check.failed');
-
-const logger = createLogger('governance-execution-service');
 
 const RESULT_LIST_SCHEMA = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(25),

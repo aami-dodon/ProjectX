@@ -626,3 +626,222 @@ enum CheckNotificationStatus {
   FAILED
   CANCELLED
 }
+
+enum FrameworkStatus {
+  DRAFT
+  ACTIVE
+  RETIRED
+}
+
+enum FrameworkVersionStatus {
+  DRAFT
+  PENDING_APPROVAL
+  PUBLISHED
+  RETIRED
+}
+
+enum FrameworkControlStatus {
+  DRAFT
+  ACTIVE
+  RETIRED
+}
+
+enum FrameworkMappingStrength {
+  EXACT
+  PARTIAL
+  INFORMATIVE
+}
+
+enum FrameworkMappingStatus {
+  ACTIVE
+  IN_REVIEW
+  RETIRED
+}
+
+enum FrameworkJobStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+model Framework {
+  id               String              @id @default(uuid())
+  slug             String              @unique
+  title            String
+  description      String?
+  domain           String?
+  jurisdiction     String?
+  publisher        String?
+  status           FrameworkStatus     @default(DRAFT)
+  validFrom        DateTime?           @map("valid_from")
+  validTo          DateTime?           @map("valid_to")
+  tags             String[]            @default([])
+  metadata         Json?
+  activeVersionId  String?             @map("active_version_id") @unique
+  createdAt        DateTime            @default(now()) @map("created_at")
+  updatedAt        DateTime            @updatedAt @map("updated_at")
+  activeVersion    FrameworkVersion?   @relation("ActiveFrameworkVersion", fields: [activeVersionId], references: [id])
+  versions         FrameworkVersion[]
+  controls         FrameworkControl[]
+  sourceMappings   FrameworkMapping[]  @relation("SourceFramework")
+  targetMappings   FrameworkMapping[]  @relation("TargetFramework")
+  imports          FrameworkImport[]
+  exports          FrameworkExport[]
+  auditLogs        FrameworkAuditLog[]
+
+  @@map("frameworks")
+  @@index([status])
+  @@index([jurisdiction])
+  @@index([publisher])
+  @@index([domain])
+}
+
+model FrameworkVersion {
+  id              String                  @id @default(uuid())
+  frameworkId     String                  @map("framework_id")
+  version         String
+  status          FrameworkVersionStatus  @default(DRAFT)
+  changelog       String?
+  diffHash        String?                 @map("diff_hash")
+  diffSummary     Json?                   @map("diff_summary")
+  approvals       Json?
+  metadata        Json?
+  effectiveFrom   DateTime?               @map("effective_from")
+  effectiveTo     DateTime?               @map("effective_to")
+  publishedAt     DateTime?               @map("published_at")
+  createdAt       DateTime                @default(now()) @map("created_at")
+  updatedAt       DateTime                @updatedAt @map("updated_at")
+  framework       Framework               @relation(fields: [frameworkId], references: [id], onDelete: Cascade)
+  controls        FrameworkControl[]
+  activeFramework Framework?              @relation("ActiveFrameworkVersion")
+
+  @@map("framework_versions")
+  @@index([frameworkId])
+  @@index([status])
+  @@unique([frameworkId, version])
+}
+
+model FrameworkControl {
+  id                   String                 @id @default(uuid())
+  frameworkId          String                 @map("framework_id")
+  frameworkVersionId   String?                @map("framework_version_id")
+  code                 String
+  title                String
+  description          String?
+  category             String?
+  riskLevel            String?                @map("risk_level")
+  status               FrameworkControlStatus @default(DRAFT)
+  tags                 String[]               @default([])
+  evidenceRequirements Json?                  @map("evidence_requirements")
+  metadata             Json?
+  createdAt            DateTime               @default(now()) @map("created_at")
+  updatedAt            DateTime               @updatedAt @map("updated_at")
+  framework            Framework              @relation(fields: [frameworkId], references: [id], onDelete: Cascade)
+  frameworkVersion     FrameworkVersion?      @relation(fields: [frameworkVersionId], references: [id], onDelete: SetNull)
+  sourceMappings       FrameworkMapping[]     @relation("SourceControl")
+  targetMappings       FrameworkMapping[]     @relation("TargetControl")
+
+  @@map("framework_controls")
+  @@unique([frameworkId, code])
+  @@index([frameworkVersionId])
+  @@index([status])
+}
+
+model FrameworkMapping {
+  id                String                   @id @default(uuid())
+  sourceFrameworkId String                   @map("source_framework_id")
+  sourceControlId   String                   @map("source_control_id")
+  targetFrameworkId String                   @map("target_framework_id")
+  targetControlId   String                   @map("target_control_id")
+  mappingStrength   FrameworkMappingStrength @default(EXACT) @map("mapping_strength")
+  status            FrameworkMappingStatus   @default(ACTIVE)
+  justification     String?
+  tags              String[]                 @default([])
+  metadata          Json?
+  createdAt         DateTime                 @default(now()) @map("created_at")
+  updatedAt         DateTime                 @updatedAt @map("updated_at")
+  sourceFramework   Framework                @relation("SourceFramework", fields: [sourceFrameworkId], references: [id], onDelete: Cascade)
+  targetFramework   Framework                @relation("TargetFramework", fields: [targetFrameworkId], references: [id], onDelete: Cascade)
+  sourceControl     FrameworkControl         @relation("SourceControl", fields: [sourceControlId], references: [id], onDelete: Cascade)
+  targetControl     FrameworkControl         @relation("TargetControl", fields: [targetControlId], references: [id], onDelete: Cascade)
+  history           FrameworkMappingHistory[]
+
+  @@map("framework_mappings")
+  @@index([sourceFrameworkId])
+  @@index([targetFrameworkId])
+  @@index([mappingStrength])
+  @@unique([sourceControlId, targetControlId])
+}
+
+model FrameworkMappingHistory {
+  id            String           @id @default(uuid())
+  mappingId     String           @map("mapping_id")
+  changeType    String           @map("change_type")
+  actorId       String?          @map("actor_id")
+  payloadBefore Json?            @map("payload_before")
+  payloadAfter  Json?            @map("payload_after")
+  justification String?
+  metadata      Json?
+  createdAt     DateTime         @default(now()) @map("created_at")
+  mapping       FrameworkMapping @relation(fields: [mappingId], references: [id], onDelete: Cascade)
+
+  @@map("framework_mapping_history")
+  @@index([mappingId])
+}
+
+model FrameworkImport {
+  id           String            @id @default(uuid())
+  frameworkId  String?           @map("framework_id")
+  source       String?
+  format       String?
+  status       FrameworkJobStatus @default(PENDING)
+  artifactUri  String?           @map("artifact_uri")
+  errorDetails Json?             @map("error_details")
+  metadata     Json?
+  startedAt    DateTime?         @map("started_at")
+  completedAt  DateTime?         @map("completed_at")
+  createdAt    DateTime          @default(now()) @map("created_at")
+  framework    Framework?        @relation(fields: [frameworkId], references: [id], onDelete: SetNull)
+
+  @@map("framework_imports")
+  @@index([frameworkId])
+  @@index([status])
+}
+
+model FrameworkExport {
+  id           String            @id @default(uuid())
+  frameworkId  String?           @map("framework_id")
+  format       String?
+  status       FrameworkJobStatus @default(PENDING)
+  destination  String?
+  artifactUri  String?           @map("artifact_uri")
+  errorDetails Json?             @map("error_details")
+  metadata     Json?
+  startedAt    DateTime?         @map("started_at")
+  completedAt  DateTime?         @map("completed_at")
+  createdAt    DateTime          @default(now()) @map("created_at")
+  framework    Framework?        @relation(fields: [frameworkId], references: [id], onDelete: SetNull)
+
+  @@map("framework_exports")
+  @@index([frameworkId])
+  @@index([status])
+}
+
+model FrameworkAuditLog {
+  id            String    @id @default(uuid())
+  frameworkId   String?   @map("framework_id")
+  entityType    String    @map("entity_type")
+  entityId      String?   @map("entity_id")
+  action        String
+  actorId       String?   @map("actor_id")
+  payloadBefore Json?     @map("payload_before")
+  payloadAfter  Json?     @map("payload_after")
+  metadata      Json?
+  createdAt     DateTime  @default(now()) @map("created_at")
+  framework     Framework? @relation(fields: [frameworkId], references: [id], onDelete: SetNull)
+
+  @@map("framework_audit_log")
+  @@index([frameworkId])
+  @@index([entityType])
+}
