@@ -52,6 +52,16 @@ const NAVIGATION_CONFIG = {
       icon: IconDashboard,
     },
     {
+      title: "Dashboards",
+      icon: IconChartBar,
+      items: [
+        { title: "Framework Posture", url: "/dashboards/frameworks", icon: IconShieldCheck },
+        { title: "Control Health", url: "/dashboards/control-health", icon: IconShield },
+        { title: "Remediation", url: "/dashboards/remediation", icon: IconReport },
+        { title: "Evidence Coverage", url: "/dashboards/evidence", icon: IconFileDescription },
+      ],
+    },
+    {
       title: "Intelligence",
       icon: IconFileAi,
       items: [

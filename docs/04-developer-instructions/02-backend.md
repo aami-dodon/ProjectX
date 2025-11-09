@@ -72,6 +72,17 @@ Control governance lives beside the check stack in `server/src/modules/governanc
 
 Whenever you add new control states, coverage levels, or scoring dimensions, update `prisma/schema.prisma`, regenerate the client, and adjust both the service logic and the developer docs so the frontend dashboard and automation remain in lockstep.
 
+### Reporting module
+
+The dashboard + export stack lives in `server/src/modules/reports/` and ties together governance, task, and evidence telemetry.
+
+- **Structure:** `reports.router.js` mounts beneath `/api/reports` with two controller families: dashboards (`controllers/dashboards.controller.js`) and exports (`controllers/exports.controller.js`). Services under `services/` compose dedicated repositories so controllers remain thin. Keep raw Prisma access inside `repositories/dashboards.repository.js` and `repositories/exports.repository.js` to reuse data projections across dashboards, cache warmers, and exports.
+- **Schema:** New Prisma models (`report_scores`, `report_metrics`, `report_exports`, `report_audit_log`, `report_widgets`) plus enums (`ReportScoreGranularity`, `ReportMetricType`, `ReportExportFormat`, `ReportExportStatus`, `ReportExportType`) capture cached analytics, export jobs, and widget toggles. Add migrations whenever these structures change and run `npx prisma generate` so downstream layers stay type-safe.
+- **Dashboards:** `dashboard.service.js` calls the repositories to aggregate framework posture, control health, remediation throughput, and evidence freshness, then persists lightweight snapshots via `persistMetricSnapshot`. A lightweight worker (`workers/cache.worker.js`) refreshes these metrics at the cadence defined by `REPORTS_CACHE_REFRESH_INTERVAL_MINUTES` (skipped during tests) so read paths stay warm.
+- **Exports:** `exports.service.js` orchestrates export jobs (`createExportJob`, `retryExportJob`, `getExportJob`) and reuses the dashboard services to build datasets. Artifacts default to the MinIO bucket defined by `REPORTS_EXPORT_BUCKET` with signed URLs governed by `REPORTS_EXPORT_URL_EXPIRATION_SECONDS`. When MinIO is unavailable the service stores a base64 inline payload so operators can still download the artifact. Template serializers live in `templates/export-templates.js`; extend them whenever you add a new export type.
+- **RBAC:** `policies/reports.policy.js` defines the `reports:dashboards` and `reports:exports` resources. Dashboard routes allow the analyst-oriented roles (admin, compliance officer, auditor, executive) while export writer routes restrict to admins/compliance officers. Update the Casbin seed and the RBAC docs when you introduce new actions.
+- **Config:** Document any new env knobs in `.env.example` and mirror them inside `server/src/config/env.js`. Today the module expects `REPORTS_EXPORT_BUCKET`, `REPORTS_EXPORT_URL_EXPIRATION_SECONDS`, and `REPORTS_CACHE_REFRESH_INTERVAL_MINUTES`, alongside the existing MinIO settings that power signed URLs.
+
 ### Task Management module
 
 Remediation workflows now live under `server/src/modules/tasks/`. The module mirrors the same layering pattern as governance/evidence, but adds schedulers and external sync adapters:

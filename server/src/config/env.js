@@ -76,6 +76,9 @@ const defaults = {
   TASK_SLA_CHECK_INTERVAL_MINUTES: '60',
   TASK_ESCALATION_THRESHOLDS_MINUTES: '60,240,720',
   TASK_VERIFICATION_QUEUE_CONCURRENCY: '5',
+  REPORTS_EXPORT_BUCKET: 'reports',
+  REPORTS_EXPORT_URL_EXPIRATION_SECONDS: '900',
+  REPORTS_CACHE_REFRESH_INTERVAL_MINUTES: '15',
 };
 
 const optionalFromString = (schema) =>
@@ -143,6 +146,9 @@ const EnvSchema = z.object({
       return parsed;
     }),
   TASK_VERIFICATION_QUEUE_CONCURRENCY: z.coerce.number().int().min(1),
+  REPORTS_EXPORT_BUCKET: z.string().min(1),
+  REPORTS_EXPORT_URL_EXPIRATION_SECONDS: z.coerce.number().int().positive(),
+  REPORTS_CACHE_REFRESH_INTERVAL_MINUTES: z.coerce.number().int().min(5),
   LOG_LEVEL: z.enum(LOG_LEVEL_VALUES),
   AUTH_DEFAULT_ADMIN_EMAIL: optionalFromString(z.string().email()),
   AUTH_DEFAULT_ADMIN_PASSWORD: optionalFromString(z.string().min(12)),

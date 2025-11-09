@@ -94,6 +94,18 @@ Remediation UI lives in `client/src/features/tasks/` and mirrors the backend tas
 
 Remember to wrap pages with `<RequirePermission>` inside `tasksRoutes` so RBAC matches the backend router (`tasks:records`, `tasks:assignments`, `tasks:evidence`, `tasks:metrics`, `tasks:integrations`). Update this section plus `docs/03-systems/13-task-management-system/readme.md` when the remediation UI workflows evolve.
 
+### Dashboards & reporting feature
+
+The `/api/reports` experience lives in `client/src/features/dashboards/` and follows the same feature-slice conventions:
+
+- `api/reportsClient.js` centralizes every reporting request (four dashboard GETs plus the export CRUD helpers). Import from here instead of calling Axios directly so interceptors keep auth tokens in sync.
+- Hooks (`useFrameworkScores`, `useControlMetrics`, `useRemediationMetrics`, `useEvidenceMetrics`, `useReportExport`) expose `{ data, isLoading, error, refresh, setFilters }` so route components remain declarative. When you add a new dashboard, create a hook first so filters/polling stay reusable.
+- Components (`ScoreGauge`, `ControlHeatmap`, `RemediationTrendChart`, `EvidenceFreshnessTable`) encapsulate the heavier chart/table UIs and can be embedded in other features that need reporting snippets.
+- Pages live under `pages/` (`FrameworkScoresPage.jsx`, `ControlHealthPage.jsx`, `RemediationDashboardPage.jsx`, `EvidenceCoveragePage.jsx`) and register via `dashboardsRoutes`. Each route is wrapped with `<RequirePermission resource=\"reports:dashboards\">` to mirror the backend policy.
+- Cross-feature UI such as the export scheduler dialog sits in `client/src/components/reports/ExportSchedulerModal.jsx` so governance/tasks pages can launch reporting exports without duplicating markup.
+
+Whenever you add new reporting surfaces, extend the shared client + hook first, then register the route and update the sidebar/nav config (`client/src/shared/components/app-sidebar.jsx`) so operators can discover the page.
+
 ### Framework Mapping feature
 
 Framework lifecycle management sits in `client/src/features/frameworks/` and mirrors the backend spec:

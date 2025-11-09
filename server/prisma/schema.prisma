@@ -39,6 +39,8 @@ model AuthUser {
   taskAssignments  TaskAssignment[]      @relation("TaskAssignmentUser")
   taskDelegations  TaskAssignment[]      @relation("TaskDelegatedBy")
   taskEvidenceReviews TaskEvidenceLink[] @relation("TaskEvidenceReviewer")
+  reportExports    ReportExport[]
+  reportAuditLogs  ReportAuditLog[]
 
   @@map("auth_users")
   @@index([status])
@@ -612,6 +614,7 @@ model Control {
   results                CheckResult[]
   evidenceLinks          EvidenceLink[]
   tasks                  Task[]
+  reportScores           ReportScore[]
 
   @@map("controls")
   @@index([status])
@@ -981,6 +984,7 @@ model Framework {
   exports          FrameworkExport[]
   auditLogs        FrameworkAuditLog[]
   tasks            Task[]
+  reportScores     ReportScore[]
 
   @@map("frameworks")
   @@index([status])
@@ -1283,4 +1287,132 @@ model TaskSlaMetric {
   @@map("task_sla_metrics")
   @@unique([taskId])
   @@index([lastBreachAt])
+}
+
+model ReportScore {
+  id             String                  @id @default(uuid())
+  frameworkId    String?                 @map("framework_id")
+  controlId      String?                 @map("control_id")
+  domain         String?
+  granularity    ReportScoreGranularity  @default(DAILY)
+  windowStart    DateTime                @map("window_start")
+  windowEnd      DateTime                @map("window_end")
+  averageScore   Float?                  @map("average_score")
+  failingCount   Int                     @default(0) @map("failing_count")
+  trendDelta     Float?                  @map("trend_delta")
+  dimensions     Json?
+  metadata       Json?
+  createdAt      DateTime                @default(now()) @map("created_at")
+  updatedAt      DateTime                @updatedAt @map("updated_at")
+  framework      Framework?              @relation(fields: [frameworkId], references: [id], onDelete: SetNull)
+  control        Control?                @relation(fields: [controlId], references: [id], onDelete: SetNull)
+
+  @@map("report_scores")
+  @@index([frameworkId])
+  @@index([controlId])
+  @@index([granularity])
+  @@index([windowStart])
+}
+
+model ReportMetric {
+  id          String             @id @default(uuid())
+  metricType  ReportMetricType   @map("metric_type")
+  scope       String?
+  filtersHash String?            @map("filters_hash")
+  windowStart DateTime?          @map("window_start")
+  windowEnd   DateTime?          @map("window_end")
+  payload     Json?
+  createdAt   DateTime           @default(now()) @map("created_at")
+
+  @@map("report_metrics")
+  @@index([metricType])
+  @@index([filtersHash])
+}
+
+model ReportExport {
+  id                     String               @id @default(uuid())
+  exportType             ReportExportType     @map("export_type") @default(FRAMEWORK_ATTESTATION)
+  format                 ReportExportFormat   @default(JSON)
+  status                 ReportExportStatus   @default(PENDING)
+  filters                Json?
+  schedule               Json?
+  artifactBucket         String?              @map("artifact_bucket")
+  artifactObjectName     String?              @map("artifact_object_name")
+  artifactInlinePayload  Json?                @map("artifact_inline_payload")
+  artifactInlineEncoding String?              @map("artifact_inline_encoding")
+  failureReason          String?              @map("failure_reason")
+  requestedById          String?              @map("requested_by_id")
+  scheduledFor           DateTime?            @map("scheduled_for")
+  completedAt            DateTime?            @map("completed_at")
+  createdAt              DateTime             @default(now()) @map("created_at")
+  updatedAt              DateTime             @updatedAt @map("updated_at")
+  requestedBy            AuthUser?            @relation(fields: [requestedById], references: [id], onDelete: SetNull)
+  auditLogs              ReportAuditLog[]
+
+  @@map("report_exports")
+  @@index([status])
+  @@index([exportType])
+  @@index([requestedById])
+}
+
+model ReportAuditLog {
+  id        String    @id @default(uuid())
+  exportId  String?   @map("export_id")
+  eventType String    @map("event_type")
+  payload   Json?
+  actorId   String?   @map("actor_id")
+  createdAt DateTime  @default(now()) @map("created_at")
+  export    ReportExport? @relation(fields: [exportId], references: [id], onDelete: Cascade)
+  actor     AuthUser? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@map("report_audit_log")
+  @@index([exportId])
+  @@index([actorId])
+}
+
+model ReportWidget {
+  id        String   @id @default(uuid())
+  tenantId  String?  @map("tenant_id")
+  slug      String
+  enabled   Boolean  @default(true)
+  config    Json?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("report_widgets")
+  @@unique([tenantId, slug])
+  @@index([tenantId])
+}
+
+enum ReportScoreGranularity {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+enum ReportMetricType {
+  FRAMEWORK
+  CONTROL_HEALTH
+  REMEDIATION
+  EVIDENCE
+}
+
+enum ReportExportFormat {
+  JSON
+  CSV
+  XLSX
+}
+
+enum ReportExportStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum ReportExportType {
+  FRAMEWORK_ATTESTATION
+  CONTROL_BREAKDOWN
+  REMEDIATION_DIGEST
+  EVIDENCE_OVERVIEW
 }

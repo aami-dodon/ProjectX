@@ -23,6 +23,7 @@ const { router: governanceRouter } = require('@/modules/governance');
 const { router: frameworksRouter } = require('@/modules/frameworks');
 const { router: evidenceRouter } = require('@/modules/evidence');
 const { router: tasksRouter } = require('@/modules/tasks');
+const { router: reportsRouter } = require('@/modules/reports');
 
 const logger = createLogger('app');
 
@@ -63,6 +64,7 @@ const createApp = () => {
   app.use(`${apiPrefix}/frameworks`, frameworksRouter);
   app.use(`${apiPrefix}/evidence`, evidenceRouter);
   app.use(`${apiPrefix}/tasks`, tasksRouter);
+  app.use(`${apiPrefix}/reports`, reportsRouter);
 
   app.use((req, res) => {
     res.status(404).json({

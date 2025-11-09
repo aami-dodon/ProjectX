@@ -1,0 +1,9 @@
+export { dashboardsRoutes } from "@/features/dashboards/routes";
+export { FrameworkScoresPage } from "@/features/dashboards/pages/FrameworkScoresPage";
+export { ControlHealthPage } from "@/features/dashboards/pages/ControlHealthPage";
+export { RemediationDashboardPage } from "@/features/dashboards/pages/RemediationDashboardPage";
+export { EvidenceCoveragePage } from "@/features/dashboards/pages/EvidenceCoveragePage";
+export { useFrameworkScores } from "@/features/dashboards/hooks/useFrameworkScores";
+export { useControlMetrics } from "@/features/dashboards/hooks/useControlMetrics";
+export { useRemediationMetrics } from "@/features/dashboards/hooks/useRemediationMetrics";
+export { useEvidenceMetrics } from "@/features/dashboards/hooks/useEvidenceMetrics";

@@ -11,6 +11,7 @@ import { governanceRoutes } from "@/features/governance";
 import { frameworkRoutes } from "@/features/frameworks";
 import { evidenceRoutes } from "@/features/evidence";
 import { tasksRoutes } from "@/features/tasks";
+import { dashboardsRoutes } from "@/features/dashboards";
 import { ErrorPage, statusRoutes, unknownStatusRoute } from "@/features/status-pages";
 
 const defaultLayoutRoutes = [
@@ -22,6 +23,7 @@ const defaultLayoutRoutes = [
   ...frameworkRoutes,
   ...evidenceRoutes,
   ...tasksRoutes,
+  ...dashboardsRoutes,
 ];
 
 export const router = createBrowserRouter([
