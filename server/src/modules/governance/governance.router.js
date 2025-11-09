@@ -10,6 +10,16 @@ const {
   activateCheck,
 } = require('./controllers/checks.controller');
 const {
+  archiveControl,
+  createControl,
+  getControl,
+  getControlScores,
+  listControls,
+  triggerControlRemediationHandler,
+  updateControl,
+  updateControlMappings,
+} = require('./controllers/controls.controller');
+const {
   listResults,
   runCheck,
   publishResultHandler,
@@ -24,6 +34,86 @@ const router = express.Router();
 router.use(authenticateRequest, attachAuditContext);
 
 const allowGovernanceRoles = ['admin', 'compliance officer'];
+
+router.get(
+  '/controls',
+  requirePermission({
+    resource: 'governance:controls',
+    action: 'read',
+    allowRoles: allowGovernanceRoles,
+  }),
+  listControls,
+);
+
+router.post(
+  '/controls',
+  requirePermission({
+    resource: 'governance:controls',
+    action: 'create',
+    allowRoles: allowGovernanceRoles,
+  }),
+  createControl,
+);
+
+router.get(
+  '/controls/:controlId',
+  requirePermission({
+    resource: 'governance:controls',
+    action: 'read',
+    allowRoles: allowGovernanceRoles,
+  }),
+  getControl,
+);
+
+router.patch(
+  '/controls/:controlId',
+  requirePermission({
+    resource: 'governance:controls',
+    action: 'update',
+    allowRoles: allowGovernanceRoles,
+  }),
+  updateControl,
+);
+
+router.post(
+  '/controls/:controlId/archive',
+  requirePermission({
+    resource: 'governance:controls',
+    action: 'archive',
+    allowRoles: allowGovernanceRoles,
+  }),
+  archiveControl,
+);
+
+router.put(
+  '/controls/:controlId/mappings',
+  requirePermission({
+    resource: 'governance:controls:mappings',
+    action: 'update',
+    allowRoles: allowGovernanceRoles,
+  }),
+  updateControlMappings,
+);
+
+router.get(
+  '/controls/:controlId/scores',
+  requirePermission({
+    resource: 'governance:controls',
+    action: 'read',
+    allowRoles: allowGovernanceRoles,
+  }),
+  getControlScores,
+);
+
+router.post(
+  '/controls/:controlId/remediation',
+  requirePermission({
+    resource: 'governance:controls:remediation',
+    action: 'create',
+    allowRoles: allowGovernanceRoles,
+  }),
+  triggerControlRemediationHandler,
+);
 
 router.get(
   '/checks',

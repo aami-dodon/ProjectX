@@ -1,3 +1,6 @@
+## 2025-12-20 11:45:00 IST
+- Launched the Control Management system end-to-end with new Prisma models (`controls`, mappings, scores, audit events), Express governance APIs for catalog/mapping/scoring/remediation, updated developer docs, and the React control catalog, detail, mapping, and scoreboard experiences so compliance teams can curate controls, align frameworks, inspect score trends, and trigger remediation from one workflow.
+
 ## 2025-12-12 15:05:00 IST
 - Delivered the Framework Mapping system end-to-end with new Prisma models, Express routers, and React dashboards so teams can catalog frameworks, manage controls, align cross-standard mappings, and govern version lifecycles alongside the rest of the governance suite.
 

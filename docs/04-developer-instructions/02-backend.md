@@ -60,6 +60,17 @@ The governance engine now ships with a first-class Check Management stack under 
 
 When you introduce new check types or lifecycle states, update the shared enums in `server/prisma/schema.prisma`, regenerate the client, and extend the relevant service. Always emit `ApplicationError` objects so the frontend receives uniform error payloads, and remember to update `.env.example` if you add scheduler knobs or external integrations for governance checks.
 
+### Control Management module
+
+Control governance lives beside the check stack in `server/src/modules/governance/controls/` and keeps the canonical catalog, framework mappings, scoring pipeline, and remediation workflows in sync:
+
+- **Schema additions:** The Prisma models `controls`, `control_framework_links`, `control_scores`, and `control_audit_events` track taxonomy metadata, framework/requirement mappings, cached score snapshots, and immutable lifecycle events. `check_control_links` now references `controls` so scoring can weight results by enforcement and risk tier.
+- **Services:** `control.service.js` handles catalog CRUD, lifecycle validation (draft → active → deprecated), slug normalization, and audit logging. `mapping.service.js` validates framework IDs before swapping matrices, `scoring.service.js` materializes score histories from `check_results` using the weighted formula (`PASS=1`, `WARNING=0.5`, `FAIL/ERROR=0` scaled by enforcement + risk multipliers), and `lifecycle.service.js` raises remediation events for downstream Task/Notification systems.
+- **Repositories:** `controls/repositories/control.repository.js` centralizes Prisma access (filters, aggregates, auditing, mapping writes, score upserts). Always go through the repository instead of calling Prisma directly so multi-step mutations stay transactional.
+- **Router:** `governance.router.js` now exposes `/api/governance/controls` plus child endpoints for mappings, scores, archiving, and remediation. Protect routes with `requirePermission` resources `governance:controls`, `governance:controls:mappings`, and `governance:controls:remediation` to mirror Casbin policies.
+
+Whenever you add new control states, coverage levels, or scoring dimensions, update `prisma/schema.prisma`, regenerate the client, and adjust both the service logic and the developer docs so the frontend dashboard and automation remain in lockstep.
+
 ### Framework Mapping module
 
 Framework governance lives under `server/src/modules/frameworks/` and mirrors the layered architecture used elsewhere:

@@ -72,6 +72,17 @@ Governance dashboards for check definitions, review queues, and result explorati
 
 When you add new governance flows, extend these hooks/components first, keep API access inside `checksClient`, and mirror any permission or lifecycle additions in the RBAC documentation under `docs/05-user-guides/02-rbac.md`.
 
+### Control Management feature
+
+Control governance UI now lives at `client/src/features/governance/controls/` alongside the existing check dashboards:
+
+- `controls/api/controlsClient.js` fans out to `/api/governance/controls` for catalog reads, CRUD, mapping updates, remediation triggers, and score history so every page uses the same Axios helpers.
+- Hooks (`useControls`, `useControlMappings`, `useControlScores`) own list filters, selection state, mapping persistence, and score polling logic. They expose helpers for archiving, swapping mappings, and launching remediation workflows so the catalog, detail, and scoreboard views never duplicate fetch code.
+- Components split responsibilities: `ControlCatalogTable`, `ControlForm`, `ControlDetailPanel`, `MappingMatrix`, `ScoreTrendChart`, and `RemediationTaskList` compose the catalog/dashboard, while `FrameworkCoverageHeatmap` (under `client/src/components/governance/`) visualises coverage across frameworks.
+- Routes were added to `features/governance/routes.jsx` for `/governance/controls`, `/:controlId`, `/:controlId/mappings`, and `/controls/scoreboard`, all wrapped with `<RequirePermission>` for the new `governance:controls*` resources so RBAC drives visibility.
+
+When you extend control workflows (e.g., new coverage badges, remediation UX, or score visualisations), update the hooks/components above instead of re-implementing state in pages. Keep new API calls inside `controlsClient` and ensure any RBAC/resource changes align with the backend router.
+
 ### Framework Mapping feature
 
 Framework lifecycle management sits in `client/src/features/frameworks/` and mirrors the backend spec:
