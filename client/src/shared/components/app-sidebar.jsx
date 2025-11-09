@@ -18,7 +18,6 @@ import {
 } from "@tabler/icons-react";
 import { useCurrentUser } from "@/features/auth";
 import { NavMain } from "@/shared/components/nav-main";
-import { NavSecondary } from "@/shared/components/nav-secondary";
 import { NavAdministration } from "@/shared/components/nav-administration";
 import { NavUser } from "@/shared/components/nav-user";
 import { CustomerBranding } from "@/shared/components/customer-branding";
@@ -103,9 +102,6 @@ const NAVIGATION_CONFIG = {
       { title: "Design System", url: "/admin/design-system", icon: IconPalette },
     ],
   },
-  SECONDARY: [
-    { title: "Account Settings", url: "/account", icon: IconSettings },
-  ],
 };
 
 /* -----------------------------------------
@@ -142,7 +138,6 @@ export function AppSidebar({ customerTitle = "Customer Name", ...props }) {
   const navigation = React.useMemo(() => {
     return {
       navMain: NAVIGATION_CONFIG.MAIN,
-      navSecondary: NAVIGATION_CONFIG.SECONDARY,
       ...(canAccessAdminNav && { navAdmin: NAVIGATION_CONFIG.ADMIN }),
     };
   }, [canAccessAdminNav]);
@@ -166,7 +161,6 @@ export function AppSidebar({ customerTitle = "Customer Name", ...props }) {
           <div className="flex h-full flex-col gap-2">
             <NavMain items={navigation.navMain} />
             {navigation.navAdmin && <NavAdministration section={navigation.navAdmin} />}
-            <NavSecondary items={navigation.navSecondary} className="mt-auto" />
           </div>
         </ScrollArea>
       </SidebarContent>
