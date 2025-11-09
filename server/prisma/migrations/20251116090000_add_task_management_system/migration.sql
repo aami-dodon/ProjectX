@@ -108,9 +108,7 @@ CREATE INDEX "task_sla_metrics_last_breach_at_idx" ON "task_sla_metrics"("last_b
 
 -- Foreign keys
 ALTER TABLE "tasks"
-  ADD CONSTRAINT "tasks_control_id_fkey" FOREIGN KEY ("control_id") REFERENCES "controls"("id") ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT "tasks_check_id_fkey" FOREIGN KEY ("check_id") REFERENCES "checks"("id") ON DELETE SET NULL ON UPDATE CASCADE,
-  ADD CONSTRAINT "tasks_framework_id_fkey" FOREIGN KEY ("framework_id") REFERENCES "frameworks"("id") ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT "tasks_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "auth_users"("id") ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT "tasks_assignee_id_fkey" FOREIGN KEY ("assignee_id") REFERENCES "auth_users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
@@ -125,7 +123,6 @@ ALTER TABLE "task_assignments"
 
 ALTER TABLE "task_evidence_links"
   ADD CONSTRAINT "task_evidence_links_task_id_fkey" FOREIGN KEY ("task_id") REFERENCES "tasks"("id") ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT "task_evidence_links_evidence_id_fkey" FOREIGN KEY ("evidence_id") REFERENCES "evidence"("id") ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT "task_evidence_links_reviewer_id_fkey" FOREIGN KEY ("reviewer_id") REFERENCES "auth_users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 ALTER TABLE "task_sla_metrics"

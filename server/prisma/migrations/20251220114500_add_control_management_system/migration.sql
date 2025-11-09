@@ -170,3 +170,11 @@ ALTER TABLE "check_results"
 ALTER TABLE "check_control_links"
   ADD CONSTRAINT "check_control_links_control_id_fkey"
     FOREIGN KEY ("control_id") REFERENCES "controls"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE "tasks"
+  ADD CONSTRAINT "tasks_control_id_fkey"
+    FOREIGN KEY ("control_id") REFERENCES "controls"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE "report_scores"
+  ADD CONSTRAINT "report_scores_control_id_fkey"
+    FOREIGN KEY ("control_id") REFERENCES "controls"("id") ON DELETE SET NULL ON UPDATE CASCADE;

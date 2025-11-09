@@ -192,3 +192,11 @@ ALTER TABLE "framework_exports"
 
 ALTER TABLE "framework_audit_log"
   ADD CONSTRAINT "framework_audit_log_framework_id_fkey" FOREIGN KEY ("framework_id") REFERENCES "frameworks"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE "tasks"
+  ADD CONSTRAINT "tasks_framework_id_fkey"
+    FOREIGN KEY ("framework_id") REFERENCES "frameworks"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE "report_scores"
+  ADD CONSTRAINT "report_scores_framework_id_fkey"
+    FOREIGN KEY ("framework_id") REFERENCES "frameworks"("id") ON DELETE SET NULL ON UPDATE CASCADE;

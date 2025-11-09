@@ -147,3 +147,8 @@ ALTER TABLE "evidence_versions"
   ADD CONSTRAINT "evidence_versions_evidence_id_fkey"
     FOREIGN KEY ("evidence_id") REFERENCES "evidence"("id")
     ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE "task_evidence_links"
+  ADD CONSTRAINT "task_evidence_links_evidence_id_fkey"
+    FOREIGN KEY ("evidence_id") REFERENCES "evidence"("id")
+    ON DELETE CASCADE ON UPDATE CASCADE;

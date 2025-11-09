@@ -1,3 +1,9 @@
+## 2025-11-10 04:11:33 IST
+- Hardened `scripts/demo-data.js` so it tags every seeded record with a demo marker, removes only those records (instead of truncating tables or deleting existing users), and fails fast when migrations are missing—making the demo workflow safe to run in populated environments.
+
+## 2025-11-10 03:24:16 IST
+- Added `scripts/demo-data.js` so developers can seed or clear a full set of governance, evidence, probe, and reporting demo records (flagged via `--clear`/`--delete`), and documented the workflow in the backend and onboarding guides so the toolchain stays aligned with the Prisma schema.
+
 ## 2025-11-10 02:05:31 IST
 - Launched the Dashboard and Reporting system end-to-end: new Prisma models/migration (`report_scores`, `report_metrics`, `report_exports`, `report_audit_log`, `report_widgets` + enums), the Express reporting module (`/api/reports` dashboards + export jobs, caching worker, RBAC resources, MinIO-backed artifact handling, env knobs, and docs), plus the React dashboards/exports experience (feature slice under `client/src/features/dashboards`, reusable charts + hooks, sidebar/nav wiring, and the export scheduler modal) so compliance teams can visualise posture/remediation/evidence metrics and schedule attestation packs from one workspace.
 

@@ -99,12 +99,6 @@ CREATE TABLE "report_widgets" (
 CREATE UNIQUE INDEX "report_widgets_tenant_id_slug_key" ON "report_widgets"("tenant_id", "slug");
 CREATE INDEX "report_widgets_tenant_id_idx" ON "report_widgets"("tenant_id");
 
-ALTER TABLE "report_scores"
-  ADD CONSTRAINT "report_scores_framework_id_fkey" FOREIGN KEY ("framework_id") REFERENCES "frameworks"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
-ALTER TABLE "report_scores"
-  ADD CONSTRAINT "report_scores_control_id_fkey" FOREIGN KEY ("control_id") REFERENCES "controls"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
 ALTER TABLE "report_exports"
   ADD CONSTRAINT "report_exports_requested_by_id_fkey" FOREIGN KEY ("requested_by_id") REFERENCES "auth_users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 

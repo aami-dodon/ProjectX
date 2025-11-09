@@ -137,6 +137,7 @@ When extending the module, keep mapping creation behind the history helpers in `
   Commit the generated migration files alongside schema updates.
 - Use the MinIO helper in `server/src/integrations/minio.js` for object storage interactions. Define clear MIME type and size validation when exposing new upload-style routes.
 - Send transactional email through the transport exported from `server/src/integrations/mailer.js`. Compose templates in the relevant module service so they stay close to the triggering workflow.
+- Populate the database with consistent demo records (or clear them) via `node scripts/demo-data.js` from the repository root. The script reads the shared `.env`, mirrors the Prisma schema to generator complete governance, evidence, probe, and reporting data, and includes `--clear` / `--delete` switches for cleanup before reruns.
 
 ## 5. Configuration & Environment
 
