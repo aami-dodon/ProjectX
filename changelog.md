@@ -1,3 +1,6 @@
+## 2025-11-09 18:47:39 IST
+- Launched the Check Management system with new Prisma models, Express governance APIs, background scheduler helpers, and React dashboards for the catalog, review queue, and result explorer so compliance teams can operationalise checks end-to-end.
+
 ## 2025-11-08 18:37:42 IST
 - Shipped the Probe Management System end-to-end with Prisma tables, Express APIs, Probe SDK helpers, and the new Vite probe dashboards so operators can register probes, launch deployments, schedule runs, and monitor health from one workflow.
 

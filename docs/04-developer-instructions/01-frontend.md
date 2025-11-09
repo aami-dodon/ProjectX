@@ -61,6 +61,17 @@ Probe operations (registry, deployments, schedules, and health) live in `client/
 
 Add new UI flows by extending the hooks/components inside this feature before reaching for cross-cutting state.
 
+### Check Management feature
+
+Governance dashboards for check definitions, review queues, and result exploration live in `client/src/features/governance/`. The module follows the same slice conventions:
+
+- `checks/api/checksClient.js` centralises access to `/api/governance/*` so catalog views, queue drawers, and explorers all reuse the same Axios instance.
+- Hooks such as `useCheckDefinitions`, `useReviewQueue`, and `useCheckResults` manage filters, pagination, optimistic updates, and toast-friendly error states. They also expose helpers for activating checks, running ad-hoc executions, and completing review tasks.
+- UI is split across `CheckCatalogPage`, `ReviewQueuePage`, and `ResultExplorerPage`, each registered via `features/governance/routes.jsx` and gated with `<RequirePermission>` for the new `governance:*` resources.
+- Reusable components (`CheckDefinitionForm`, `ReviewTaskDrawer`, `ResultTimeline`, `ControlCoverageChart`) handle the heavier UX (forms, drawers, charts) so future check types can plug into the same primitives.
+
+When you add new governance flows, extend these hooks/components first, keep API access inside `checksClient`, and mirror any permission or lifecycle additions in the RBAC documentation under `docs/05-user-guides/02-rbac.md`.
+
 ## 3. Styling System
 
 Tailwind CSS v4 powers all styling. The global stylesheet (`client/src/index.css`) imports the Tailwind base layers and centralizes the design tokens:

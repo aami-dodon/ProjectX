@@ -2,6 +2,7 @@ import * as React from "react";
 import { Link } from "react-router-dom";
 import {
   IconChartBar,
+  IconChecklist,
   IconDashboard,
   IconDatabase,
   IconFileAi,
@@ -76,7 +77,9 @@ const NAVIGATION_CONFIG = {
       { title: "Probe Management", url: "/probes", icon: IconDatabase },
       { title: "Access Control", url: "/admin/access-control", icon: IconShield },
       { title: "Design System", url: "/admin/design-system", icon: IconPalette },
-      { title: "Compliance", url: "#", icon: IconReport },
+      { title: "Check Catalog", url: "/governance/checks", icon: IconChecklist },
+      { title: "Review Queue", url: "/governance/review-queue", icon: IconReport },
+      { title: "Result Explorer", url: "/governance/results", icon: IconFileDescription },
     ],
   },
 };

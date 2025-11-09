@@ -425,3 +425,204 @@ enum ProbeEventType {
   DEPLOYMENT
   RUN
 }
+
+model Check {
+  id              String       @id @default(uuid())
+  name            String
+  description     String?
+  type            CheckType    @default(AUTOMATED)
+  status          CheckStatus  @default(DRAFT)
+  severityDefault CheckSeverity @default(MEDIUM) @map("severity_default")
+  controlId       String?      @map("control_id")
+  probeId         String?      @map("probe_id")
+  version         Int          @default(1)
+  frequency       String?
+  metadata        Json?
+  tags            String[]     @default([])
+  createdBy       String?      @map("created_by")
+  updatedBy       String?      @map("updated_by")
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+  lastRunAt       DateTime?    @map("last_run_at")
+  nextRunAt       DateTime?    @map("next_run_at")
+  readyAt         DateTime?    @map("ready_at")
+  retiredAt       DateTime?    @map("retired_at")
+  versions        CheckVersion[]
+  results         CheckResult[]
+  reviewQueue     ReviewQueueItem[]
+  controlLinks    CheckControlLink[]
+  notifications   CheckNotification[]
+
+  @@map("checks")
+  @@index([status])
+  @@index([controlId])
+  @@index([probeId])
+}
+
+model CheckVersion {
+  id             String      @id @default(uuid())
+  checkId        String      @map("check_id")
+  version        Int
+  statusSnapshot CheckStatus @map("status_snapshot")
+  definition     Json?
+  diff           Json?
+  notes          String?
+  createdBy      String?     @map("created_by")
+  createdAt      DateTime    @default(now()) @map("created_at")
+  check          Check       @relation(fields: [checkId], references: [id], onDelete: Cascade)
+
+  @@unique([checkId, version])
+  @@map("check_versions")
+}
+
+model CheckResult {
+  id               String                        @id @default(uuid())
+  checkId          String                        @map("check_id")
+  controlId        String?                       @map("control_id")
+  runContext       String?                       @map("run_context")
+  triggerSource    String?                       @map("trigger_source")
+  status           CheckResultStatus             @default(PENDING_REVIEW)
+  severity         CheckSeverity                 @default(MEDIUM)
+  evidenceLinkId   String?                       @map("evidence_link_id")
+  notes            String?
+  metadata         Json?
+  rawOutput        Json?                         @map("raw_output")
+  executedAt       DateTime                      @default(now()) @map("executed_at")
+  validatedAt      DateTime?                     @map("validated_at")
+  publishedAt      DateTime?                     @map("published_at")
+  publicationState CheckResultPublicationState   @default(PENDING) @map("publication_state")
+  createdBy        String?                       @map("created_by")
+  updatedAt        DateTime?                     @map("updated_at")
+  check            Check                         @relation(fields: [checkId], references: [id], onDelete: Cascade)
+  reviewQueueItem  ReviewQueueItem?              @relation("CheckResultReviewQueue")
+  notifications    CheckNotification[]
+
+  @@index([checkId])
+  @@index([controlId])
+  @@index([status])
+  @@map("check_results")
+}
+
+model ReviewQueueItem {
+  id                String             @id @default(uuid())
+  checkId           String             @map("check_id")
+  resultId          String?            @unique @map("result_id")
+  assignedTo        String?            @map("assigned_to")
+  dueAt             DateTime?          @map("due_at")
+  priority          ReviewQueuePriority @default(MEDIUM)
+  state             ReviewQueueState   @default(OPEN)
+  slaMinutes        Int?               @map("sla_minutes")
+  acknowledgedAt    DateTime?          @map("acknowledged_at")
+  completedAt       DateTime?          @map("completed_at")
+  escalationLevel   String?            @map("escalation_level")
+  evidenceBundleId  String?            @map("evidence_bundle_id")
+  metadata          Json?
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+  check             Check              @relation(fields: [checkId], references: [id], onDelete: Cascade)
+  result            CheckResult?       @relation("CheckResultReviewQueue", fields: [resultId], references: [id])
+
+  @@index([checkId])
+  @@index([state])
+  @@map("review_queue_items")
+}
+
+model CheckControlLink {
+  id                   String                       @id @default(uuid())
+  checkId              String                       @map("check_id")
+  controlId            String                       @map("control_id")
+  weight               Float?                       @default(1)
+  enforcementLevel     CheckControlEnforcementLevel @default(OPTIONAL) @map("enforcement_level")
+  evidenceRequirements String?                      @map("evidence_requirements")
+  metadata             Json?
+  createdAt            DateTime                     @default(now()) @map("created_at")
+  updatedAt            DateTime                     @updatedAt @map("updated_at")
+  check                Check                        @relation(fields: [checkId], references: [id], onDelete: Cascade)
+
+  @@unique([checkId, controlId])
+  @@map("check_control_links")
+}
+
+model CheckNotification {
+  id             String                   @id @default(uuid())
+  checkId        String                   @map("check_id")
+  resultId       String?                  @map("result_id")
+  template       String
+  channel        String?
+  recipient      String?
+  status         CheckNotificationStatus  @default(PENDING)
+  correlationId  String?                  @map("correlation_id")
+  metadata       Json?
+  sentAt         DateTime?                @map("sent_at")
+  createdAt      DateTime                 @default(now()) @map("created_at")
+  updatedAt      DateTime                 @updatedAt @map("updated_at")
+  check          Check                    @relation(fields: [checkId], references: [id], onDelete: Cascade)
+  result         CheckResult?             @relation(fields: [resultId], references: [id])
+
+  @@index([checkId])
+  @@index([resultId])
+  @@map("check_notifications")
+}
+
+enum CheckType {
+  AUTOMATED
+  MANUAL
+  HYBRID
+}
+
+enum CheckStatus {
+  DRAFT
+  READY_FOR_VALIDATION
+  ACTIVE
+  RETIRED
+}
+
+enum CheckSeverity {
+  INFO
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum CheckResultStatus {
+  PASS
+  FAIL
+  WARNING
+  PENDING_REVIEW
+  ERROR
+}
+
+enum CheckResultPublicationState {
+  PENDING
+  VALIDATED
+  PUBLISHED
+  REJECTED
+}
+
+enum ReviewQueueState {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  ESCALATED
+}
+
+enum ReviewQueuePriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum CheckControlEnforcementLevel {
+  OPTIONAL
+  RECOMMENDED
+  MANDATORY
+}
+
+enum CheckNotificationStatus {
+  PENDING
+  SENT
+  FAILED
+  CANCELLED
+}

@@ -48,6 +48,18 @@ Probe orchestration now lives in `server/src/modules/probes/`. Use it as a refer
 - Workflows (`registerProbe.workflow.js`, `rolloutProbe.workflow.js`) handle multi-step operations and emit `probe.*` events so downstream systems stay informed.
 - Every new route must be wired through `api/probes.router.js` with the appropriate `requirePermission` resource, and any new env knobs must be reflected in both `server/src/config/env.js` and `.env.example`.
 
+### Check Management module
+
+The governance engine now ships with a first-class Check Management stack under `server/src/modules/governance/`. The module is split into services (`checks/`), repositories, and controllers so you can extend definitions, executions, lifecycle events, or review queues independently:
+
+- `checks.service.js` exposes CRUD logic for the `/api/governance/checks` catalogue, handles lifecycle validation (draft → ready → active → retired), and persists version snapshots in the `check_versions` table whenever definitions change.
+- `execution.service.js` wraps ad-hoc runs, result pagination, and Bull-style scheduling helpers. It records executions in `check_results`, hydrates review-queue items for manual/hybrid flows, and emits `check.failed` events for downstream automation.
+- `lifecycle.service.js` manages activation approvals, publishing review outcomes, and updating `review_queue_items` so Casbin policies and audit trails stay aligned.
+- `repositories/` encapsulate the new Prisma models (`checks`, `check_control_links`, `review_queue_items`, `check_notifications`), including helpers for control coverage metrics consumed by the frontend dashboards.
+- `governance.router.js` wires the routers beneath `/api/governance` with `requirePermission` guards for `governance:checks`, `governance:results`, and `governance:review-queue`. Keep new endpoints behind the same middleware stack (`authenticateRequest`, `attachAuditContext`).
+
+When you introduce new check types or lifecycle states, update the shared enums in `server/prisma/schema.prisma`, regenerate the client, and extend the relevant service. Always emit `ApplicationError` objects so the frontend receives uniform error payloads, and remember to update `.env.example` if you add scheduler knobs or external integrations for governance checks.
+
 ## 3. Request Lifecycle & Middleware
 
 - Perform lightweight validation as close to the router as possible. Simple checks can live in the controller; complex workflows should add dedicated middleware inside the module.

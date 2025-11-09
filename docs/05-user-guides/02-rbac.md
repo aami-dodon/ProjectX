@@ -103,7 +103,19 @@ Probe Management APIs follow the same RBAC pipeline. The table below summarises 
 
 Each permission maps 1:1 with the corresponding router middleware in `server/src/modules/probes/api/probes.router.js`, so you can reason about access directly from the policy grid. Extend the Casbin policies if your organisation needs finer-grained tenant controls.
 
-## 7. Troubleshooting
+## 7. Check Management permissions
+
+The Check Management system introduces three new permission resources aligned with the `/api/governance` routes:
+
+| Resource | Action(s) | Purpose | Default roles |
+| --- | --- | --- | --- |
+| `governance:checks` | `read`, `create`, `update`, `activate`, `execute` | Manage the definition catalogue, promote checks through lifecycle states, and trigger ad-hoc executions. | Admin (all), Compliance Officer (read/update/activate/execute) |
+| `governance:results` | `read`, `publish` | Review execution history, drill into evidence, and promote validated findings to published dashboards. | Admin, Compliance Officer |
+| `governance:review-queue` | `read`, `complete` | Manage manual/hybrid review tasks, capture approvals, and close the governance queue. | Admin, Compliance Officer |
+
+Permissions are enforced server-side via `governance.router.js`, and the frontend reuses `<RequirePermission>` so the catalog, review queue, and result explorer hide automatically when the user lacks access. Update the tables above whenever you add another action (e.g., `retire`) so admins can mirror the change in Casbin.
+
+## 8. Troubleshooting
 
 | Symptom | Recommended action |
 | --- | --- |
