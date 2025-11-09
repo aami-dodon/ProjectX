@@ -35,28 +35,28 @@ Probe orchestration and SDK utilities live in `server/src/modules/probes`, coord
 ```
 server/src/modules/probes/
 ├── api/
-│   ├── probes.controller.ts
-│   ├── deployments.controller.ts
-│   └── schedules.controller.ts
+│   ├── probes.controller.js
+│   ├── deployments.controller.js
+│   └── schedules.controller.js
 ├── services/
-│   ├── registry.service.ts
-│   ├── deployment.service.ts
-│   ├── scheduler.service.ts
-│   └── health.service.ts
+│   ├── registry.service.js
+│   ├── deployment.service.js
+│   ├── scheduler.service.js
+│   └── health.service.js
 ├── sdk/
-│   ├── ProbeClient.ts
-│   ├── ProbeScheduler.ts
-│   ├── ProbeHealthClient.ts
-│   └── ProbeConfigLoader.ts
+│   ├── ProbeClient.js
+│   ├── ProbeScheduler.js
+│   ├── ProbeHealthClient.js
+│   └── ProbeConfigLoader.js
 ├── events/
-│   ├── probe.heartbeat.ts
-│   ├── probe.evidence.ts
-│   └── probe.failure.ts
+│   ├── probe.heartbeat.js
+│   ├── probe.evidence.js
+│   └── probe.failure.js
 ├── workflows/
-│   ├── registerProbe.workflow.ts
-│   └── rolloutProbe.workflow.ts
+│   ├── registerProbe.workflow.js
+│   └── rolloutProbe.workflow.js
 └── tests/
-    └── probe.management.spec.ts
+    └── probe.management.spec.js
 ```
 
 ### Configuration & Environment
@@ -115,24 +115,24 @@ Probe administration lives in `client/src/features/probes`, giving operators vis
 ```
 client/src/features/probes/
 ├── pages/
-│   ├── ProbeRegistryPage.tsx
-│   ├── ProbeDeploymentPage.tsx
-│   ├── ProbeSchedulePage.tsx
-│   └── ProbeHealthDashboard.tsx
+│   ├── ProbeRegistryPage.jsx
+│   ├── ProbeDeploymentPage.jsx
+│   ├── ProbeSchedulePage.jsx
+│   └── ProbeHealthDashboard.jsx
 ├── components/
-│   ├── ProbeDetailsPanel.tsx
-│   ├── DeploymentTimeline.tsx
-│   ├── ScheduleEditor.tsx
-│   └── HealthStatusCard.tsx
+│   ├── ProbeDetailsPanel.jsx
+│   ├── DeploymentTimeline.jsx
+│   ├── ScheduleEditor.jsx
+│   └── HealthStatusCard.jsx
 ├── hooks/
-│   ├── useProbeRegistry.ts
-│   ├── useDeploymentStatus.ts
-│   └── useProbeMetrics.ts
+│   ├── useProbeRegistry.js
+│   ├── useDeploymentStatus.js
+│   └── useProbeMetrics.js
 └── api/
-    └── probesClient.ts
+    └── probesClient.js
 
 client/src/components/evidence/
-└── ControlMappingMatrix.tsx
+└── ControlMappingMatrix.jsx
 ```
 
 ### Reusable Components & UI Flows

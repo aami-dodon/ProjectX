@@ -1,3 +1,6 @@
+## 2025-11-08 18:37:42 IST
+- Shipped the Probe Management System end-to-end with Prisma tables, Express APIs, Probe SDK helpers, and the new Vite probe dashboards so operators can register probes, launch deployments, schedule runs, and monitor health from one workflow.
+
 ## 2025-11-23 12:30:00 IST
 - Introduced the RBAC administration module with Casbin-backed policy APIs and new Access Control dashboards so administrators can manage roles, permissions, and access reviews from a unified console.
 

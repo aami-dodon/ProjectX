@@ -73,6 +73,7 @@ const NAVIGATION_CONFIG = {
     items: [
       { title: "User Management", url: "/admin/users", icon: IconUsers },
       { title: "Health Checks", url: "/admin/health", icon: IconHeartbeat },
+      { title: "Probe Management", url: "/probes", icon: IconDatabase },
       { title: "Access Control", url: "/admin/access-control", icon: IconShield },
       { title: "Design System", url: "/admin/design-system", icon: IconPalette },
       { title: "Compliance", url: "#", icon: IconReport },

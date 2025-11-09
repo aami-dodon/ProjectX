@@ -51,6 +51,16 @@ The feature surface (`client/src/features/admin/index.js`) re-exports the admin 
 
 Use `client/src/shared/components/guards/RequirePermission.jsx` to protect admin routes that rely on RBAC checks; the guard defers to the backend's Casbin evaluator and accepts optional `allowRoles` overrides for privileged roles.
 
+### Probe Management feature
+
+Probe operations (registry, deployments, schedules, and health) live in `client/src/features/probes/`. The module mirrors the server spec with:
+
+- `api/probesClient.js` to wrap `/api/probes` endpoints via the shared Axios client.
+- Hooks such as `useProbeRegistry`, `useProbeDeployments`, and `useProbeMetrics` that normalise API payloads for the UI.
+- Pages (`ProbeRegistryPage.jsx`, `ProbeDeploymentPage.jsx`, `ProbeSchedulePage.jsx`, `ProbeHealthDashboard.jsx`) registered through `features/probes/routes.jsx` and guarded with `<RequirePermission>` so only authorised roles see them.
+
+Add new UI flows by extending the hooks/components inside this feature before reaching for cross-cutting state.
+
 ## 3. Styling System
 
 Tailwind CSS v4 powers all styling. The global stylesheet (`client/src/index.css`) imports the Tailwind base layers and centralizes the design tokens:

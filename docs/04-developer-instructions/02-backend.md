@@ -40,6 +40,14 @@ When you create a new module:
 1. Scaffold the files above under `server/src/modules/<feature>/`.
 2. Register the router inside `server/src/app.js` so the routes are reachable under the `/api` namespace. Follow the existing `health` and `auth` imports when wiring your router.
 
+### Probe Management module
+
+Probe orchestration now lives in `server/src/modules/probes/`. Use it as a reference when you need to add registry fields, new rollout actions, or scheduler behaviours:
+
+- Repositories encapsulate all Prisma access under `repositories/`, then services compose them with SDK helpers (`sdk/ProbeClient.js`, `sdk/ProbeScheduler.js`, etc.).
+- Workflows (`registerProbe.workflow.js`, `rolloutProbe.workflow.js`) handle multi-step operations and emit `probe.*` events so downstream systems stay informed.
+- Every new route must be wired through `api/probes.router.js` with the appropriate `requirePermission` resource, and any new env knobs must be reflected in both `server/src/config/env.js` and `.env.example`.
+
 ## 3. Request Lifecycle & Middleware
 
 - Perform lightweight validation as close to the router as possible. Simple checks can live in the controller; complex workflows should add dedicated middleware inside the module.

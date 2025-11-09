@@ -62,6 +62,12 @@ const defaults = {
   AUTH_RBAC_POLICY_SEED_PATH: 'src/modules/auth/casbin/policy.seed.json',
   AUTH_RBAC_CACHE_TTL_SECONDS: '300',
   LOG_LEVEL: process.env.LOG_LEVEL,
+  PROBE_REGISTRY_WEBHOOK_SECRET: 'dev-probe-webhook',
+  PROBE_HEARTBEAT_INTERVAL_SECONDS: '300',
+  PROBE_HEARTBEAT_GRACE_SECONDS: '600',
+  PROBE_DEPLOYMENT_TOPIC: 'probe.rollouts',
+  PROBE_SDK_VERSION_MIN: '1.0.0',
+  PROBE_SDK_VERSION_TARGET: '1.2.0',
 };
 
 const optionalFromString = (schema) =>
@@ -110,6 +116,12 @@ const EnvSchema = z.object({
   AUTH_RBAC_MODEL_PATH: z.string().min(1),
   AUTH_RBAC_POLICY_SEED_PATH: z.string().min(1),
   AUTH_RBAC_CACHE_TTL_SECONDS: z.coerce.number().int().positive(),
+  PROBE_REGISTRY_WEBHOOK_SECRET: z.string().min(1),
+  PROBE_HEARTBEAT_INTERVAL_SECONDS: z.coerce.number().int().positive(),
+  PROBE_HEARTBEAT_GRACE_SECONDS: z.coerce.number().int().positive(),
+  PROBE_DEPLOYMENT_TOPIC: z.string().min(1),
+  PROBE_SDK_VERSION_MIN: z.string().min(1),
+  PROBE_SDK_VERSION_TARGET: z.string().min(1),
   LOG_LEVEL: z.enum(LOG_LEVEL_VALUES),
   AUTH_DEFAULT_ADMIN_EMAIL: optionalFromString(z.string().email()),
   AUTH_DEFAULT_ADMIN_PASSWORD: optionalFromString(z.string().min(12)),

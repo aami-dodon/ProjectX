@@ -70,5 +70,140 @@
     "action": "launch",
     "effect": "allow",
     "description": "Compliance officers can launch access reviews"
+  },
+  {
+    "type": "p",
+    "subject": "admin",
+    "domain": "global",
+    "object": "probes:registry",
+    "action": "*",
+    "effect": "allow",
+    "description": "Administrators manage probe registrations"
+  },
+  {
+    "type": "p",
+    "subject": "admin",
+    "domain": "global",
+    "object": "probes:deployments",
+    "action": "*",
+    "effect": "allow",
+    "description": "Administrators can launch and inspect probe deployments"
+  },
+  {
+    "type": "p",
+    "subject": "admin",
+    "domain": "global",
+    "object": "probes:schedules",
+    "action": "*",
+    "effect": "allow",
+    "description": "Administrators can manage probe schedules"
+  },
+  {
+    "type": "p",
+    "subject": "admin",
+    "domain": "global",
+    "object": "probes:runs",
+    "action": "execute",
+    "effect": "allow",
+    "description": "Administrators can trigger ad-hoc probe runs"
+  },
+  {
+    "type": "p",
+    "subject": "admin",
+    "domain": "global",
+    "object": "probes:metrics",
+    "action": "read",
+    "effect": "allow",
+    "description": "Administrators can view probe health metrics"
+  },
+  {
+    "type": "p",
+    "subject": "engineer",
+    "domain": "global",
+    "object": "probes:registry",
+    "action": "read",
+    "effect": "allow",
+    "description": "Engineers can review probe registrations"
+  },
+  {
+    "type": "p",
+    "subject": "engineer",
+    "domain": "global",
+    "object": "probes:registry",
+    "action": "create",
+    "effect": "allow",
+    "description": "Engineers can register probes"
+  },
+  {
+    "type": "p",
+    "subject": "engineer",
+    "domain": "global",
+    "object": "probes:deployments",
+    "action": "read",
+    "effect": "allow",
+    "description": "Engineers can inspect deployment history"
+  },
+  {
+    "type": "p",
+    "subject": "engineer",
+    "domain": "global",
+    "object": "probes:deployments",
+    "action": "create",
+    "effect": "allow",
+    "description": "Engineers can launch deployments"
+  },
+  {
+    "type": "p",
+    "subject": "engineer",
+    "domain": "global",
+    "object": "probes:metrics",
+    "action": "read",
+    "effect": "allow",
+    "description": "Engineers can review probe metrics"
+  },
+  {
+    "type": "p",
+    "subject": "compliance officer",
+    "domain": "global",
+    "object": "probes:registry",
+    "action": "read",
+    "effect": "allow",
+    "description": "Compliance officers can audit probe registrations"
+  },
+  {
+    "type": "p",
+    "subject": "compliance officer",
+    "domain": "global",
+    "object": "probes:schedules",
+    "action": "create",
+    "effect": "allow",
+    "description": "Compliance officers can configure probe schedules"
+  },
+  {
+    "type": "p",
+    "subject": "compliance officer",
+    "domain": "global",
+    "object": "probes:schedules",
+    "action": "read",
+    "effect": "allow",
+    "description": "Compliance officers can review schedules"
+  },
+  {
+    "type": "p",
+    "subject": "compliance officer",
+    "domain": "global",
+    "object": "probes:runs",
+    "action": "execute",
+    "effect": "allow",
+    "description": "Compliance officers can trigger ad-hoc runs"
+  },
+  {
+    "type": "p",
+    "subject": "compliance officer",
+    "domain": "global",
+    "object": "probes:metrics",
+    "action": "read",
+    "effect": "allow",
+    "description": "Compliance officers can audit probe metrics"
   }
 ]

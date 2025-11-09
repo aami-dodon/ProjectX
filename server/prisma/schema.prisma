@@ -239,3 +239,189 @@ model CustomerBrandingSetting {
 
   @@map("customer_branding_settings")
 }
+
+model Probe {
+  id                       String            @id @default(uuid())
+  slug                     String            @unique
+  name                     String
+  description              String?
+  ownerEmail               String            @map("owner_email")
+  ownerTeam                String?           @map("owner_team")
+  status                   ProbeStatus       @default(DRAFT)
+  frameworkBindings        String[]          @default([]) @map("framework_bindings")
+  evidenceSchema           Json?             @map("evidence_schema")
+  tags                     String[]          @default([])
+  environmentOverlays      Json?             @map("environment_overlays")
+  sdkVersionMin            String?           @map("sdk_version_min")
+  sdkVersionTarget         String?           @map("sdk_version_target")
+  heartbeatIntervalSeconds Int?              @map("heartbeat_interval_seconds")
+  alertChannels            String[]          @default([]) @map("alert_channels")
+  lastDeployedAt           DateTime?         @map("last_deployed_at")
+  metadata                 Json?
+  createdAt                DateTime          @default(now()) @map("created_at")
+  updatedAt                DateTime          @updatedAt @map("updated_at")
+  deployments              ProbeDeployment[]
+  schedules                ProbeSchedule[]
+  metrics                  ProbeMetric?
+  credentials              ProbeCredential[]
+  events                   ProbeEvent[]
+
+  @@index([status])
+  @@map("probes")
+}
+
+model ProbeDeployment {
+  id                String                 @id @default(uuid())
+  probeId           String                 @map("probe_id")
+  version           String
+  environment       String
+  canaryPercent     Int?                   @map("canary_percent")
+  status            ProbeDeploymentStatus  @default(PENDING)
+  summary           String?
+  manifest          Json?
+  metadata          Json?
+  selfTestSnapshot  Json?                  @map("self_test_snapshot")
+  startedAt         DateTime?              @map("started_at")
+  completedAt       DateTime?              @map("completed_at")
+  rolledBackAt      DateTime?              @map("rolled_back_at")
+  createdAt         DateTime               @default(now()) @map("created_at")
+  updatedAt         DateTime               @updatedAt @map("updated_at")
+  probe             Probe                  @relation(fields: [probeId], references: [id], onDelete: Cascade)
+
+  @@index([probeId])
+  @@index([probeId, environment])
+  @@map("probe_deployments")
+}
+
+model ProbeSchedule {
+  id             String                @id @default(uuid())
+  probeId        String                @map("probe_id")
+  type           ProbeScheduleType
+  expression     String?
+  priority       ProbeSchedulePriority @default(NORMAL)
+  status         ProbeScheduleStatus   @default(ACTIVE)
+  controls       String[]              @default([])
+  triggerMetadata Json?                @map("trigger_metadata")
+  metadata       Json?
+  lastRunAt      DateTime?             @map("last_run_at")
+  nextRunAt      DateTime?             @map("next_run_at")
+  createdAt      DateTime              @default(now()) @map("created_at")
+  updatedAt      DateTime              @updatedAt @map("updated_at")
+  probe          Probe                 @relation(fields: [probeId], references: [id], onDelete: Cascade)
+
+  @@index([probeId])
+  @@index([probeId, status])
+  @@map("probe_schedules")
+}
+
+model ProbeMetric {
+  id                         String               @id @default(uuid())
+  probeId                    String               @unique @map("probe_id")
+  heartbeatStatus            ProbeHeartbeatStatus @default(UNKNOWN) @map("heartbeat_status")
+  heartbeatIntervalSeconds   Int?                 @map("heartbeat_interval_seconds")
+  lastHeartbeatAt            DateTime?            @map("last_heartbeat_at")
+  failureCount24h            Int                  @default(0) @map("failure_count_24h")
+  latencyP95Ms               Int?                 @map("latency_p95_ms")
+  latencyP99Ms               Int?                 @map("latency_p99_ms")
+  errorRatePercent           Float?               @map("error_rate_percent")
+  evidenceThroughputPerHour  Int?                 @map("evidence_throughput_per_hour")
+  lastErrorCode              String?              @map("last_error_code")
+  metadata                   Json?
+  createdAt                  DateTime             @default(now()) @map("created_at")
+  updatedAt                  DateTime             @updatedAt @map("updated_at")
+  probe                      Probe                @relation(fields: [probeId], references: [id], onDelete: Cascade)
+
+  @@map("probe_metrics")
+}
+
+model ProbeCredential {
+  id             String                 @id @default(uuid())
+  probeId        String                 @map("probe_id")
+  type           ProbeCredentialType
+  credentialHash String                 @map("credential_hash")
+  status         ProbeCredentialStatus  @default(ACTIVE)
+  issuedAt       DateTime               @default(now()) @map("issued_at")
+  expiresAt      DateTime?              @map("expires_at")
+  rotatedAt      DateTime?              @map("rotated_at")
+  metadata       Json?
+  createdAt      DateTime               @default(now()) @map("created_at")
+  updatedAt      DateTime               @updatedAt @map("updated_at")
+  probe          Probe                  @relation(fields: [probeId], references: [id], onDelete: Cascade)
+
+  @@index([probeId])
+  @@map("probe_credentials")
+}
+
+model ProbeEvent {
+  id        String        @id @default(uuid())
+  probeId   String        @map("probe_id")
+  type      ProbeEventType
+  payload   Json?
+  createdAt DateTime       @default(now()) @map("created_at")
+  probe     Probe          @relation(fields: [probeId], references: [id], onDelete: Cascade)
+
+  @@index([probeId])
+  @@index([createdAt])
+  @@map("probe_events")
+}
+
+enum ProbeStatus {
+  DRAFT
+  ACTIVE
+  DEPRECATED
+}
+
+enum ProbeDeploymentStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  ROLLED_BACK
+  CANCELLED
+}
+
+enum ProbeScheduleType {
+  CRON
+  EVENT
+  ADHOC
+}
+
+enum ProbeSchedulePriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum ProbeScheduleStatus {
+  ACTIVE
+  PAUSED
+  DISABLED
+}
+
+enum ProbeHeartbeatStatus {
+  OPERATIONAL
+  DEGRADED
+  OUTAGE
+  UNKNOWN
+}
+
+enum ProbeCredentialType {
+  API_KEY
+  MTLS
+  TOKEN
+}
+
+enum ProbeCredentialStatus {
+  ACTIVE
+  INACTIVE
+  REVOKED
+}
+
+enum ProbeEventType {
+  HEARTBEAT
+  EVIDENCE
+  FAILURE
+  DEPLOYMENT
+  RUN
+}

@@ -6,9 +6,10 @@ import { accountRoutes } from "@/features/account";
 import { adminRoutes } from "@/features/admin";
 import { authLandingRoute, authRoutes, ProtectedRoute } from "@/features/auth";
 import { homeRoutes } from "@/features/home";
+import { probeRoutes } from "@/features/probes";
 import { ErrorPage, statusRoutes, unknownStatusRoute } from "@/features/status-pages";
 
-const defaultLayoutRoutes = [...homeRoutes, ...accountRoutes, ...adminRoutes];
+const defaultLayoutRoutes = [...homeRoutes, ...accountRoutes, ...adminRoutes, ...probeRoutes];
 
 export const router = createBrowserRouter([
   authLandingRoute,

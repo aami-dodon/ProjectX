@@ -89,7 +89,21 @@ The UI covers the most common admin workflows. When you need to automate changes
 
 All endpoints require a valid access token. Tokens issued to admins or compliance officers inherit the Casbin permissions seeded through the UI.
 
-## 6. Troubleshooting
+## 6. Probe Management permissions
+
+Probe Management APIs follow the same RBAC pipeline. The table below summarises the new permissions surfaced by `/api/probes`:
+
+| Resource | Action(s) | Purpose | Default roles |
+| --- | --- | --- | --- |
+| `probes:registry` | `read`, `create` | List probes, review metadata, and register new collectors. | Admin, Compliance Officer (read), Engineer (read/create) |
+| `probes:deployments` | `read`, `create` | Inspect rollout history or initiate a new deployment. | Admin (read/create), Engineer (read/create), Compliance Officer (read) |
+| `probes:schedules` | `read`, `create` | View cron/event definitions or add new schedules bound to controls. | Admin (read/create), Compliance Officer (read/create) |
+| `probes:runs` | `execute` | Fire an ad-hoc run tied to an incident or remediation ticket. | Admin, Compliance Officer |
+| `probes:metrics` | `read` | Load heartbeat/failure telemetry for dashboards and audits. | Admin, Compliance Officer, Engineer |
+
+Each permission maps 1:1 with the corresponding router middleware in `server/src/modules/probes/api/probes.router.js`, so you can reason about access directly from the policy grid. Extend the Casbin policies if your organisation needs finer-grained tenant controls.
+
+## 7. Troubleshooting
 
 | Symptom | Recommended action |
 | --- | --- |
