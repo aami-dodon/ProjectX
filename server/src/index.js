@@ -4,6 +4,7 @@ const { createApp } = require('@/app');
 const { env } = require('@/config/env');
 const { ensureDefaultAdmin } = require('@/modules/auth/seed-default-admin');
 const { ensureEnforcer } = require('@/modules/auth/rbac-enforcer');
+const { runDemoSeed } = require('@/modules/demo/demo.seed');
 const { createLogger } = require('@/utils/logger');
 
 const logger = createLogger('server');
@@ -23,6 +24,16 @@ ensureEnforcer().catch((error) => {
     error: error.message,
   });
 });
+
+if (env.DEMO_FLAG) {
+  runDemoSeed().catch((error) => {
+    logger.error('Failed to seed demo data', {
+      error: error.message,
+    });
+  });
+} else {
+  logger.info('Demo data seeding skipped (DEMO_FLAG disabled)');
+}
 
 const server = app.listen(env.SERVER_PORT, () => {
   logger.info('Server is listening', {

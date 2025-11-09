@@ -45,7 +45,7 @@
 | `docs/04-developer-instructions/backend` | Backend module playbooks covering Express patterns, Prisma usage, and testing. |
 | `client/tests` | Vitest setup (`tests/setup.js`) plus component and hook specs. |
 | `server/tests` | Jest + Supertest suites that exercise routers end-to-end. |
-| `scripts/` | Automation helpers for docs generation and operational chores, including `scripts/demo-data.js`, a Prisma-backed tool that seeds every table with coherent demo content or removes it with `--clear`. |
+| `scripts/` | Automation helpers for docs generation and operational chores. Demo data seeding now lives in `server/src/modules/demo/demo.seed.js` and is driven by the `DEMO_FLAG` env toggle during server startup. |
 | `docker-compose.yml` | Local orchestration entry point for running client and server containers against external PostgreSQL and MinIO services. |
 
 Keep the monorepo JavaScript-only per the root `agents.md` brief. Shared frontend logic belongs in `client/src/shared`, and server-wide helpers belong under `server/src/utils`.
@@ -134,5 +134,5 @@ By following this onboarding guide you’ll align with the existing workflows, k
 
 ## 8. Demo data seeding
 
-- Use `node scripts/demo-data.js` (run from the repo root) to populate the database with fully coherent sample data that spans every schema model. The script reads `.env` for the `DATABASE_URL`, creates linked records for auth, governance, probes, evidence, reporting, and audit trails, and then logs success.
-- Pass `--clear` or `--delete` to the same command to remove all demo data before you seed again or reset your development database. The cleanup routine respects FK order so the bare database stays usable for other workflows.
+- Keep `DEMO_FLAG=true` in `.env` (the default) to have the server seed the entire demo workspace automatically when `server/src/index.js` boots. The seeder in `server/src/modules/demo/demo.seed.js` wipes prior demo-tagged records and repopulates auth, governance, probes, evidence, reporting, and audit trails for a consistent sandbox.
+- Set `DEMO_FLAG=false` whenever you want to run against a clean database or production-like data. Re-enable the flag and restart the server to rehydrate the deterministic demo dataset.

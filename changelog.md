@@ -1,3 +1,6 @@
+## 2025-11-10 05:08:58 IST
+- Added a `DEMO_FLAG` environment toggle so the server auto-seeds (and refreshes) the full demo workspace during startup via `server/src/modules/demo/demo.seed.js`, removed the old `scripts/demo-data.js`, and refreshed the backend/onboarding docs to describe the flag-driven workflow.
+
 ## 2025-11-10 04:52:22 IST
 - Corrected the governance posture score cards so the home overview and governance overview surfaces scale the value as a 0–100 percentage instead of 100× too large, ensuring the trend, delta, and summary metrics now show realistic posture percentages.
 
@@ -5,7 +8,7 @@
 - Added an access & authentication guide (`docs/05-user-guides/00-platform-access.md`) describing login, password changes, and resets, and captured actual login/change/reset screenshots from the running frontend (`docs/05-user-guides/images/{login,change-password,reset-password}.png`) so the documentation references real UI state.
 
 ## 2025-11-10 04:35:46 IST
-- Added role-specific end-user guides for Compliance Officer, Risk & Audit Manager, AI/ML Engineer, IT/Security Administrator, Product/Business Owner, and System Administrator in `docs/05-user-guides`, each outlining workflows, troubleshooting, and referenced screenshots to help users run the platform.
+- Added role-specific end-user guides for Compliance Officer, Risk & Audit Manager, AI/ML Engineer, IT/Security Administrator, Product/Business Owner, and System Administrator in `docs/05-user-guides`, each outlining workflows, troubleshooting, and referenced screenshots, and captured every referenced UI (governance overview, review queue, probes registry, access control, dashboards, and system health) to keep the guides aligned with the live frontend.
 
 ## 2025-11-10 04:40:22 IST
 - Replaced the `/home` dashboard mock (SectionCards/ChartArea/DataTable) with the live governance overview: the page now loads `useGovernanceOverview`, surfaces summary cards, trend, review queue, spotlight controls, runs, and evidence links, and all placeholder components/data files were removed.

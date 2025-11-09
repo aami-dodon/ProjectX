@@ -1,27 +1,10 @@
-#!/usr/bin/env node
-
-const path = require("node:path");
 const { randomUUID } = require("node:crypto");
 
-const prismaClientPath = path.join(__dirname, "../server/node_modules/@prisma/client");
-const bcryptPath = path.join(__dirname, "../server/node_modules/bcryptjs");
-const dotenvPath = path.join(__dirname, "../server/node_modules/dotenv");
+const bcrypt = require("bcryptjs");
+const { prisma } = require("@/integrations/prisma");
+const { createLogger } = require("@/utils/logger");
 
-const { PrismaClient } = require(prismaClientPath);
-const bcrypt = require(bcryptPath);
-const dotenv = require(dotenvPath);
-
-dotenv.config({ path: path.join(__dirname, "../.env") });
-
-const args = process.argv.slice(2);
-const shouldClear = args.includes("--clear") || args.includes("--delete");
-const shouldShowHelp = args.includes("--help") || args.includes("-h");
-
-if (shouldShowHelp) {
-  console.log("Usage: node scripts/demo-data.js [--clear | --delete]");
-  console.log("  --clear, --delete     Remove only the demo data created by this script.");
-  process.exit(0);
-}
+const logger = createLogger("demo-seed");
 
 const DEMO = {
   seedId: "project-x-demo-seed",
@@ -138,7 +121,6 @@ const MODEL_CHECK_LIST = [
   "healthProbe"
 ];
 
-const prisma = new PrismaClient();
 const jsonDemoFilter = { path: ["demoSeedId"], equals: DEMO.seedId };
 const demoUserEmails = Object.values(DEMO.users).map((user) => user.email);
 const demoRoleNames = Object.values(DEMO.roles);
@@ -239,14 +221,14 @@ async function removeDemoData(client) {
 
 async function seedDemoData(client) {
   await ensureTablesExist(client);
-  console.log("Removing any existing demo data (without touching user content)...");
+  logger.info("Removing any existing demo data (without touching user content)...");
   await removeDemoData(client);
 
   const now = new Date();
   const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
   const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
-  console.log("Seeding demo workspace settings...");
+  logger.info("Seeding demo workspace settings...");
   await client.customerBrandingSetting.create({
     data: {
       id: DEMO.brandingId,
@@ -261,7 +243,7 @@ async function seedDemoData(client) {
     data: { id: DEMO.healthProbeId }
   });
 
-  console.log("Creating demo users, roles, and policies...");
+  logger.info("Creating demo users, roles, and policies...");
   const passwordHash = bcrypt.hashSync("DemoPass123!", 10);
 
   const adminUser = await client.authUser.create({
@@ -412,7 +394,7 @@ async function seedDemoData(client) {
     }
   });
 
-  console.log("Creating demo frameworks, controls, and mappings...");
+  logger.info("Creating demo frameworks, controls, and mappings...");
   const aiFramework = await client.framework.create({
     data: {
       slug: DEMO.frameworks.primarySlug,
@@ -605,7 +587,7 @@ async function seedDemoData(client) {
     }
   });
 
-  console.log("Creating demo checks and evidence...");
+  logger.info("Creating demo checks and evidence...");
   const check = await client.check.create({
     data: {
       name: DEMO.checkName,
@@ -743,7 +725,7 @@ async function seedDemoData(client) {
     }
   });
 
-  console.log("Creating demo tasks and attachments...");
+  logger.info("Creating demo tasks and attachments...");
   const task = await client.task.create({
     data: {
       title: DEMO.task.title,
@@ -806,7 +788,7 @@ async function seedDemoData(client) {
     }
   });
 
-  console.log("Creating demo reporting metrics...");
+  logger.info("Creating demo reporting metrics...");
   await client.reportScore.create({
     data: {
       framework: { connect: { id: aiFramework.id } },
@@ -863,7 +845,7 @@ async function seedDemoData(client) {
     }
   });
 
-  console.log("Creating demo probe stack...");
+  logger.info("Creating demo probe stack...");
   const probe = await client.probe.create({
     data: {
       slug: DEMO.probeSlug,
@@ -930,23 +912,22 @@ async function seedDemoData(client) {
     }
   });
 
-  console.log("Demo data seeding complete.");
+  logger.info("Demo data seeding complete.");
 }
 
-(async () => {
-  try {
-    if (shouldClear) {
-      await ensureTablesExist(prisma);
-      await removeDemoData(prisma);
-      console.log("Demo data removed.");
-      return;
-    }
+const runDemoSeed = async () => {
+  logger.info("Demo flag enabled — seeding demo dataset.");
+  await seedDemoData(prisma);
+};
 
-    await seedDemoData(prisma);
-  } catch (error) {
-    console.error("Demo data script failed:", error);
-    process.exitCode = 1;
-  } finally {
-    await prisma.$disconnect();
-  }
-})();
+const clearDemoSeed = async () => {
+  logger.info("Clearing demo dataset.");
+  await ensureTablesExist(prisma);
+  await removeDemoData(prisma);
+  logger.info("Demo data removed.");
+};
+
+module.exports = {
+  runDemoSeed,
+  clearDemoSeed
+};
