@@ -5,7 +5,6 @@ import {
   IconChecklist,
   IconDashboard,
   IconDatabase,
-  IconFileAi,
   IconFileDescription,
   IconPalette,
   IconFolder,
@@ -18,7 +17,6 @@ import {
   IconUsers,
 } from "@tabler/icons-react";
 import { useCurrentUser } from "@/features/auth";
-import { NavDocuments } from "@/shared/components/nav-documents";
 import { NavMain } from "@/shared/components/nav-main";
 import { NavSecondary } from "@/shared/components/nav-secondary";
 import { NavAdministration } from "@/shared/components/nav-administration";
@@ -38,45 +36,45 @@ import { ScrollArea } from "@/shared/components/ui/scroll-area";
 /* -----------------------------------------
    📘 Configurable Navigation Data
 ------------------------------------------ */
-const SHARED_DOCUMENTS = [
-  { name: "Incident Playbooks", url: "#", icon: IconFileDescription },
-  { name: "AI Guidance", url: "#", icon: IconFileAi },
-  { name: "Data Sources", url: "#", icon: IconDatabase },
-];
-
 const NAVIGATION_CONFIG = {
   MAIN: [
-    {
-      title: "Overview",
-      url: "/home",
-      icon: IconDashboard,
-    },
+    { title: "Overview", url: "/home", icon: IconDashboard },
     {
       title: "Dashboards",
       icon: IconChartBar,
       items: [
-        { title: "Framework Posture", url: "/dashboards/frameworks", icon: IconShieldCheck },
-        { title: "Control Health", url: "/dashboards/control-health", icon: IconShield },
-        { title: "Remediation", url: "/dashboards/remediation", icon: IconReport },
+        { title: "Framework Scores", url: "/dashboards/frameworks", icon: IconShieldCheck },
+        { title: "Control Health", url: "/dashboards/control-health", icon: IconHeartbeat },
+        { title: "Remediation Insight", url: "/dashboards/remediation", icon: IconReport },
         { title: "Evidence Coverage", url: "/dashboards/evidence", icon: IconFileDescription },
       ],
     },
     {
-      title: "Intelligence",
-      icon: IconFileAi,
+      title: "Governance",
+      icon: IconShield,
       items: [
-        { title: "Insights Hub", url: "#", icon: IconChartBar },
-        { title: "Knowledge Base", url: "#", icon: IconDatabase },
-        { title: "Prompt Library", url: "#", icon: IconFileAi },
+        { title: "Governance Overview", url: "/governance", icon: IconDashboard },
+        { title: "Control Catalog", url: "/governance/controls", icon: IconShieldCheck },
+        { title: "Control Scoreboard", url: "/governance/controls/scoreboard", icon: IconChartBar },
+        { title: "Check Catalog", url: "/governance/checks", icon: IconChecklist },
+        { title: "Review Queue", url: "/governance/review-queue", icon: IconReport },
+        { title: "Result Explorer", url: "/governance/results", icon: IconFileDescription },
       ],
     },
     {
-      title: "Collaboration",
-      icon: IconUsers,
+      title: "Frameworks",
+      icon: IconPalette,
       items: [
-        { title: "Teams", url: "#", icon: IconUsers },
-        { title: "Projects", url: "#", icon: IconFolder },
-        { title: "Approvals", url: "#", icon: IconFileDescription },
+        { title: "Framework Catalog", url: "/frameworks", icon: IconFolder },
+      ],
+    },
+    {
+      title: "Evidence",
+      icon: IconFileDescription,
+      items: [
+        { title: "Evidence Library", url: "/evidence", icon: IconFolder },
+        { title: "Upload Evidence", url: "/evidence/upload", icon: IconUpload },
+        { title: "Retention Policies", url: "/evidence/retention", icon: IconShield },
       ],
     },
     {
@@ -87,27 +85,27 @@ const NAVIGATION_CONFIG = {
         { title: "Task Board", url: "/tasks/board", icon: IconReport },
       ],
     },
+    {
+      title: "Probes",
+      icon: IconDatabase,
+      items: [
+        { title: "Probe Registry", url: "/probes", icon: IconDatabase },
+      ],
+    },
   ],
   ADMIN: {
     title: "Administration",
     icon: IconSettings,
     items: [
       { title: "User Management", url: "/admin/users", icon: IconUsers },
+      { title: "Access Control", url: "/admin/access-control", icon: IconShieldCheck },
       { title: "Health Checks", url: "/admin/health", icon: IconHeartbeat },
-      { title: "Probe Management", url: "/probes", icon: IconDatabase },
-      { title: "Framework Catalog", url: "/frameworks", icon: IconFolder },
-      { title: "Access Control", url: "/admin/access-control", icon: IconShield },
-      { title: "Governance Overview", url: "/governance", icon: IconDashboard },
-      { title: "Control Catalog", url: "/governance/controls", icon: IconShieldCheck },
       { title: "Design System", url: "/admin/design-system", icon: IconPalette },
-      { title: "Evidence Library", url: "/evidence", icon: IconFileDescription },
-      { title: "Upload Evidence", url: "/evidence/upload", icon: IconUpload },
-      { title: "Retention", url: "/evidence/retention", icon: IconShield },
-      { title: "Check Catalog", url: "/governance/checks", icon: IconChecklist },
-      { title: "Review Queue", url: "/governance/review-queue", icon: IconReport },
-      { title: "Result Explorer", url: "/governance/results", icon: IconFileDescription },
     ],
   },
+  SECONDARY: [
+    { title: "Account Settings", url: "/account", icon: IconSettings },
+  ],
 };
 
 /* -----------------------------------------
@@ -141,15 +139,13 @@ export function AppSidebar({ customerTitle = "Customer Name", ...props }) {
     };
   }, [currentUser]);
 
-  const navigation = React.useMemo(
-    () => ({
+  const navigation = React.useMemo(() => {
+    return {
       navMain: NAVIGATION_CONFIG.MAIN,
-      navSecondary: [],
-      documents: SHARED_DOCUMENTS,
+      navSecondary: NAVIGATION_CONFIG.SECONDARY,
       ...(canAccessAdminNav && { navAdmin: NAVIGATION_CONFIG.ADMIN }),
-    }),
-    [canAccessAdminNav]
-  );
+    };
+  }, [canAccessAdminNav]);
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
@@ -170,7 +166,6 @@ export function AppSidebar({ customerTitle = "Customer Name", ...props }) {
           <div className="flex h-full flex-col gap-2">
             <NavMain items={navigation.navMain} />
             {navigation.navAdmin && <NavAdministration section={navigation.navAdmin} />}
-            <NavDocuments items={navigation.documents} />
             <NavSecondary items={navigation.navSecondary} className="mt-auto" />
           </div>
         </ScrollArea>

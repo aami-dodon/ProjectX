@@ -140,6 +140,10 @@ Tailwind CSS v4 powers all styling. The global stylesheet (`client/src/index.css
 
 Favor Tailwind utility classes in JSX and fall back to custom CSS variables only when a utility cannot express the design. If you need composable class strings, use the shared `cn` helper (`client/src/shared/lib/utils.js`) which wraps `clsx` and `tailwind-merge` to deduplicate classes.
 
+### Layout and spacing
+
+The protected layout defined in `client/src/app/layouts/DefaultLayout.jsx` now applies `px-4 lg:px-6` to the `main` wrapper and nests every route inside a centered `div` that caps the width at `max-w-screen-2xl`. This keeps the content width identical to `/admin/users` (and identical across every page) while still allowing per-section spacing inside individual pages. Status and error pages opt out of this layout stack and may handle their spacing independently.
+
 ## 4. shadcn/ui and Tailwind Components
 
 The design system components are sourced from shadcn/ui and live under `client/src/shared/components/ui`. They are plain JavaScript files generated against the configuration in `client/components.json`, which:

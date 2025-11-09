@@ -19,8 +19,10 @@ export default function DefaultLayout() {
         <ScrollArea
           className="flex-1 h-[calc(100vh-var(--header-height))]"
           viewportClassName="h-full">
-          <main className="flex min-h-full flex-col">
-            <Outlet />
+          <main className="flex min-h-full flex-col px-4 lg:px-6">
+            <div className="mx-auto w-full max-w-screen-2xl">
+              <Outlet />
+            </div>
           </main>
         </ScrollArea>
       </SidebarInset>
