@@ -1,3 +1,5 @@
+const { z } = require('zod');
+
 const { createLogger } = require('@/utils/logger');
 const { createNotFoundError } = require('@/utils/errors');
 const {
@@ -168,6 +170,12 @@ const aggregateResults = ({
   return buckets;
 };
 
+const BATCH_RECALC_SCHEMA = z.object({
+  controlIds: z.array(z.string().uuid()).min(1, 'At least one controlId is required'),
+  granularity: z.enum(['DAILY', 'WEEKLY', 'MONTHLY']).default('DAILY'),
+  limit: z.coerce.number().int().min(3).max(90).default(30),
+});
+
 const getControlScoreHistory = async ({ controlId, query = {} } = {}) => {
   const context = await getControlScoringContext(controlId);
   if (!context) {
@@ -181,7 +189,7 @@ const getControlScoreHistory = async ({ controlId, query = {} } = {}) => {
     limit: parsed.limit,
   });
 
-  if (existingSnapshots.length >= parsed.limit) {
+  if (!parsed.forceRefresh && existingSnapshots.length >= parsed.limit) {
     return formatResponse(existingSnapshots, context, parsed.granularity);
   }
 
@@ -247,6 +255,52 @@ const getControlScoreHistory = async ({ controlId, query = {} } = {}) => {
   return formatResponse(refreshed, context, parsed.granularity);
 };
 
+const recalculateControlScores = async ({ controlIds = [], granularity, limit } = {}) => {
+  const parsed = BATCH_RECALC_SCHEMA.parse({
+    controlIds,
+    granularity,
+    limit,
+  });
+
+  const uniqueIds = Array.from(new Set(parsed.controlIds));
+  const results = [];
+
+  for (const controlId of uniqueIds) {
+    try {
+      const snapshot = await getControlScoreHistory({
+        controlId,
+        query: {
+          granularity: parsed.granularity,
+          limit: parsed.limit,
+          forceRefresh: true,
+        },
+      });
+      results.push({
+        controlId,
+        status: 'updated',
+        summary: snapshot.summary,
+      });
+    } catch (error) {
+      logger.warn('Control score recalculation failed', {
+        controlId,
+        error: error.message,
+      });
+      results.push({
+        controlId,
+        status: 'failed',
+        error: error.message,
+      });
+    }
+  }
+
+  return {
+    total: uniqueIds.length,
+    updated: results.filter((entry) => entry.status === 'updated').length,
+    results,
+  };
+};
+
 module.exports = {
   getControlScoreHistory,
+  recalculateControlScores,
 };

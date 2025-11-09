@@ -1,3 +1,6 @@
+## 2025-11-10 00:24:09 IST
+- Delivered the Governance Engine overview experience end-to-end: new Express endpoints for `/api/governance/overview`, batch `/runs`, and score `/recalculate` (with refreshed RBAC/doc coverage) plus the React governance dashboard (scorecard, trend chart, remediation + evidence matrix, batch operations panel, and sidebar entry) so compliance teams can monitor posture, trigger reruns, and refresh control scores from a single screen.
+
 ## 2025-11-09 21:58:33 IST
 - Delivered the end-to-end Evidence Management system with new Prisma models/migrations, Express routers/services (`/api/evidence` list/upload/metadata/link/retention endpoints), and the React evidence workspace (library, upload wizard, detail timeline/linking panel, retention dashboard, shared API hooks/components) plus updated RBAC seeds and documentation so compliance teams can collect, govern, and audit artifacts alongside controls and checks.
 

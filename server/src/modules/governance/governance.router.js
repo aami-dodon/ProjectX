@@ -28,12 +28,47 @@ const {
   listQueueItems,
   completeQueueItem,
 } = require('./controllers/review-queue.controller');
+const {
+  getOverview,
+  triggerBatchRuns,
+} = require('./controllers/governance.controller');
+const { recalculateScores } = require('./controllers/scoring.controller');
 
 const router = express.Router();
 
 router.use(authenticateRequest, attachAuditContext);
 
 const allowGovernanceRoles = ['admin', 'compliance officer'];
+
+router.get(
+  '/overview',
+  requirePermission({
+    resource: 'governance:overview',
+    action: 'read',
+    allowRoles: allowGovernanceRoles,
+  }),
+  getOverview,
+);
+
+router.post(
+  '/runs',
+  requirePermission({
+    resource: 'governance:checks',
+    action: 'execute',
+    allowRoles: allowGovernanceRoles,
+  }),
+  triggerBatchRuns,
+);
+
+router.post(
+  '/recalculate',
+  requirePermission({
+    resource: 'governance:scoring',
+    action: 'recalculate',
+    allowRoles: allowGovernanceRoles,
+  }),
+  recalculateScores,
+);
 
 router.get(
   '/controls',

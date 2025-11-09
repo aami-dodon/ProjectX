@@ -1,5 +1,6 @@
 import { RequirePermission } from "@/shared/components/guards/RequirePermission";
 
+import { GovernanceOverviewPage } from "@/features/governance/overview";
 import { CheckCatalogPage } from "@/features/governance/checks/pages/CheckCatalogPage";
 import { ReviewQueuePage } from "@/features/governance/checks/pages/ReviewQueuePage";
 import { ResultExplorerPage } from "@/features/governance/checks/pages/ResultExplorerPage";
@@ -19,6 +20,10 @@ const guard = (resource, action, element) => (
 );
 
 export const governanceRoutes = [
+  {
+    path: "/governance",
+    element: guard("governance:overview", "read", <GovernanceOverviewPage />),
+  },
   {
     path: "/governance/controls",
     element: guard("governance:controls", "read", <ControlCatalogPage />),

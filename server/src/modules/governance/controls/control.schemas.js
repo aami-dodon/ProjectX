@@ -59,6 +59,18 @@ const CONTROL_MAPPING_SET_SCHEMA = z.object({
 const CONTROL_SCORE_QUERY_SCHEMA = z.object({
   granularity: z.enum(['DAILY', 'WEEKLY', 'MONTHLY']).default('DAILY'),
   limit: z.coerce.number().int().min(3).max(90).default(30),
+  forceRefresh: z
+    .union([z.boolean(), z.string()])
+    .optional()
+    .transform((value) => {
+      if (typeof value === 'boolean') {
+        return value;
+      }
+      if (typeof value === 'string') {
+        return value.toLowerCase() === 'true';
+      }
+      return false;
+    }),
 });
 
 module.exports = {

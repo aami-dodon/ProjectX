@@ -112,6 +112,8 @@ The Check Management system introduces three new permission resources aligned wi
 | `governance:checks` | `read`, `create`, `update`, `activate`, `execute` | Manage the definition catalogue, promote checks through lifecycle states, and trigger ad-hoc executions. | Admin (all), Compliance Officer (read/update/activate/execute) |
 | `governance:results` | `read`, `publish` | Review execution history, drill into evidence, and promote validated findings to published dashboards. | Admin, Compliance Officer |
 | `governance:review-queue` | `read`, `complete` | Manage manual/hybrid review tasks, capture approvals, and close the governance queue. | Admin, Compliance Officer |
+| `governance:overview` | `read` | Load the governance posture dashboard, scorecards, framework coverage, and evidence matrices. | Admin, Compliance Officer |
+| `governance:scoring` | `recalculate` | Force control score recomputation and refresh cached aggregates used by dashboards. | Admin (recalculate), Compliance Officer (recalculate) |
 
 Permissions are enforced server-side via `governance.router.js`, and the frontend reuses `<RequirePermission>` so the catalog, review queue, and result explorer hide automatically when the user lacks access. Update the tables above whenever you add another action (e.g., `retire`) so admins can mirror the change in Casbin.
 

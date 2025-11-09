@@ -1,5 +1,6 @@
 const { z } = require('zod');
 
+const { createLogger } = require('@/utils/logger');
 const {
   createValidationError,
   createNotFoundError,
@@ -18,6 +19,8 @@ const {
 } = require('../repositories/review-queue.repository');
 const { calculateNextRunAt } = require('../schedulers/governance.scheduler');
 const { publishCheckFailed } = require('../events/check.failed');
+
+const logger = createLogger('governance-check-execution');
 
 const RESULT_LIST_SCHEMA = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(25),
@@ -71,6 +74,13 @@ const RUN_SCHEMA = z.object({
       metadata: z.record(z.any()).optional(),
     })
     .optional(),
+});
+
+const BATCH_RUN_SCHEMA = z.object({
+  checkIds: z.array(z.string().uuid()).min(1, 'At least one checkId is required'),
+  triggerSource: z.string().optional(),
+  context: z.string().optional(),
+  requiresReview: z.boolean().optional(),
 });
 
 const normalizeList = (value) => {
@@ -229,8 +239,52 @@ const runCheckExecution = async ({ checkId, payload, actorId }) => {
   };
 };
 
+const runBatchExecutions = async ({ payload, actorId }) => {
+  const parsed = BATCH_RUN_SCHEMA.parse(payload ?? {});
+  const uniqueCheckIds = Array.from(new Set(parsed.checkIds));
+
+  const results = [];
+
+  for (const checkId of uniqueCheckIds) {
+    try {
+      const response = await runCheckExecution({
+        checkId,
+        payload: {
+          triggerSource: parsed.triggerSource ?? 'governance:batch',
+          context: parsed.context ?? undefined,
+          requiresReview: parsed.requiresReview,
+        },
+        actorId,
+      });
+      results.push({
+        checkId,
+        status: 'scheduled',
+        resultId: response?.result?.id ?? null,
+        nextRunAt: response?.nextRunAt ?? null,
+      });
+    } catch (error) {
+      logger.warn('Failed to schedule governance batch run', {
+        checkId,
+        error: error.message,
+      });
+      results.push({
+        checkId,
+        status: 'failed',
+        error: error.message,
+      });
+    }
+  }
+
+  return {
+    total: uniqueCheckIds.length,
+    scheduled: results.filter((entry) => entry.status === 'scheduled').length,
+    results,
+  };
+};
+
 module.exports = {
   getCheckResults,
   runCheckExecution,
+  runBatchExecutions,
   serializeResult,
 };

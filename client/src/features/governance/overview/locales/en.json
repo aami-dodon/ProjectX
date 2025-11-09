@@ -1,0 +1,10 @@
+{
+  "operationsTitle": "Operations",
+  "operationsDescription": "Run targeted batches or force score recomputation.",
+  "batchRunLabel": "Batch run checks",
+  "batchRunPlaceholder": "check-id-a, check-id-b",
+  "batchRunCta": "Trigger batch run",
+  "recalculateLabel": "Recalculate controls",
+  "recalculatePlaceholder": "control-id-a, control-id-b",
+  "recalculateCta": "Recalculate scores"
+}
