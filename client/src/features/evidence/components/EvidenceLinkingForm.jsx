@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { IconLink, IconTrash } from "@tabler/icons-react";
 import { toast } from "sonner";
 
+import { fetchControls } from "@/features/governance/controls/api/controlsClient";
+import { fetchChecks } from "@/features/governance/checks/api/checksClient";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import {
   Table,
   TableBody,
@@ -24,6 +27,67 @@ const INITIAL_FORM = {
 
 export function EvidenceLinkingForm({ links = [], onAdd, onRemove, isSubmitting = false }) {
   const [formState, setFormState] = useState(INITIAL_FORM);
+  const [controlOptions, setControlOptions] = useState([]);
+  const [checkOptions, setCheckOptions] = useState([]);
+  const [isLoadingControls, setIsLoadingControls] = useState(false);
+  const [isLoadingChecks, setIsLoadingChecks] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadControls = async () => {
+      setIsLoadingControls(true);
+      try {
+        const response = await fetchControls({ limit: 100, status: "ACTIVE" });
+        if (isMounted) {
+          setControlOptions(response.data ?? []);
+        }
+      } catch (error) {
+        console.error("Unable to load controls", error);
+      } finally {
+        if (isMounted) {
+          setIsLoadingControls(false);
+        }
+      }
+    };
+
+    const loadChecks = async () => {
+      setIsLoadingChecks(true);
+      try {
+        const response = await fetchChecks({ limit: 100, status: "ACTIVE" });
+        if (isMounted) {
+          setCheckOptions(response.data ?? []);
+        }
+      } catch (error) {
+        console.error("Unable to load checks", error);
+      } finally {
+        if (isMounted) {
+          setIsLoadingChecks(false);
+        }
+      }
+    };
+
+    loadControls();
+    loadChecks();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const normalizedControlOptions = useMemo(() => {
+    if (!formState.controlId || controlOptions.some((control) => control.id === formState.controlId)) {
+      return controlOptions;
+    }
+    return [...controlOptions, { id: formState.controlId, title: "Linked control" }];
+  }, [controlOptions, formState.controlId]);
+
+  const normalizedCheckOptions = useMemo(() => {
+    if (!formState.checkId || checkOptions.some((check) => check.id === formState.checkId)) {
+      return checkOptions;
+    }
+    return [...checkOptions, { id: formState.checkId, name: "Linked check" }];
+  }, [checkOptions, formState.checkId]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -66,24 +130,48 @@ export function EvidenceLinkingForm({ links = [], onAdd, onRemove, isSubmitting 
       <CardContent className="space-y-4">
         <form onSubmit={handleSubmit} className="grid gap-3 md:grid-cols-4">
           <div className="space-y-1 text-sm">
-            <Label htmlFor="link-control">Control ID</Label>
-            <Input
-              id="link-control"
-              name="controlId"
-              value={formState.controlId}
-              onChange={handleChange}
-              placeholder="control-uuid"
-            />
+            <Label htmlFor="link-control">Control</Label>
+            <Select
+              value={formState.controlId || "__none"}
+              onValueChange={(value) =>
+                setFormState((previous) => ({ ...previous, controlId: value === "__none" ? "" : value }))
+              }
+              disabled={isSubmitting || isLoadingControls}
+            >
+              <SelectTrigger id="link-control">
+                <SelectValue placeholder={isLoadingControls ? "Loading controls…" : "Select a control"} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__none">No control</SelectItem>
+                {normalizedControlOptions.map((control) => (
+                  <SelectItem key={control.id} value={control.id}>
+                    {control.title ?? control.slug ?? control.id}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-1 text-sm">
-            <Label htmlFor="link-check">Check ID</Label>
-            <Input
-              id="link-check"
-              name="checkId"
-              value={formState.checkId}
-              onChange={handleChange}
-              placeholder="check-uuid"
-            />
+            <Label htmlFor="link-check">Check</Label>
+            <Select
+              value={formState.checkId || "__none"}
+              onValueChange={(value) =>
+                setFormState((previous) => ({ ...previous, checkId: value === "__none" ? "" : value }))
+              }
+              disabled={isSubmitting || isLoadingChecks}
+            >
+              <SelectTrigger id="link-check">
+                <SelectValue placeholder={isLoadingChecks ? "Loading checks…" : "Select a check"} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__none">No check</SelectItem>
+                {normalizedCheckOptions.map((check) => (
+                  <SelectItem key={check.id} value={check.id}>
+                    {check.name ?? check.slug ?? check.id}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-1 text-sm">
             <Label htmlFor="link-task">Task reference</Label>

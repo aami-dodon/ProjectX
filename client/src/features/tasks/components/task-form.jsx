@@ -1,6 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { IconClockHour4, IconUserPlus } from "@tabler/icons-react";
 
+import { fetchControls } from "@/features/governance/controls/api/controlsClient";
+import { fetchChecks } from "@/features/governance/checks/api/checksClient";
+import { fetchFrameworks } from "@/features/frameworks/api/frameworks-client";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
@@ -40,10 +43,97 @@ const DEFAULT_VALUES = {
 export function TaskForm({ initialValues = {}, onSubmit, onCancel, isSubmitting = false, className }) {
   const [values, setValues] = useState({ ...DEFAULT_VALUES, ...initialValues });
   const [touched, setTouched] = useState({});
+  const [controlOptions, setControlOptions] = useState([]);
+  const [checkOptions, setCheckOptions] = useState([]);
+  const [frameworkOptions, setFrameworkOptions] = useState([]);
+  const [isLoadingOptions, setIsLoadingOptions] = useState({
+    controls: false,
+    checks: false,
+    frameworks: false,
+  });
 
   const derived = useMemo(() => ({
     canSubmit: Boolean(values.title?.trim()),
   }), [values.title]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadControls = async () => {
+      setIsLoadingOptions((previous) => ({ ...previous, controls: true }));
+      try {
+        const response = await fetchControls({ limit: 100, status: "ACTIVE" });
+        if (isMounted) {
+          setControlOptions(response.data ?? []);
+        }
+      } catch (error) {
+        console.error("Unable to load control options", error);
+      } finally {
+        if (isMounted) {
+          setIsLoadingOptions((previous) => ({ ...previous, controls: false }));
+        }
+      }
+    };
+
+    const loadChecks = async () => {
+      setIsLoadingOptions((previous) => ({ ...previous, checks: true }));
+      try {
+        const response = await fetchChecks({ limit: 100, status: "ACTIVE" });
+        if (isMounted) {
+          setCheckOptions(response.data ?? []);
+        }
+      } catch (error) {
+        console.error("Unable to load check options", error);
+      } finally {
+        if (isMounted) {
+          setIsLoadingOptions((previous) => ({ ...previous, checks: false }));
+        }
+      }
+    };
+
+    const loadFrameworks = async () => {
+      setIsLoadingOptions((previous) => ({ ...previous, frameworks: true }));
+      try {
+        const response = await fetchFrameworks({ limit: 100, status: "ACTIVE" });
+        if (isMounted) {
+          setFrameworkOptions(response.data ?? []);
+        }
+      } catch (error) {
+        console.error("Unable to load framework options", error);
+      } finally {
+        if (isMounted) {
+          setIsLoadingOptions((previous) => ({ ...previous, frameworks: false }));
+        }
+      }
+    };
+
+    loadControls();
+    loadChecks();
+    loadFrameworks();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const normalizedControlOptions = useMemo(
+    () => ensureSelectionPresence(values.controlId, controlOptions, (id) => ({ id, title: "Linked control" })),
+    [controlOptions, values.controlId]
+  );
+
+  const normalizedCheckOptions = useMemo(
+    () => ensureSelectionPresence(values.checkId, checkOptions, (id) => ({ id, name: "Linked check" })),
+    [checkOptions, values.checkId]
+  );
+
+  const normalizedFrameworkOptions = useMemo(
+    () =>
+      ensureSelectionPresence(values.frameworkId, frameworkOptions, (id) => ({
+        id,
+        title: "Linked framework",
+      })),
+    [frameworkOptions, values.frameworkId]
+  );
 
   const handleChange = (field, value) => {
     setValues((previous) => ({ ...previous, [field]: value }));
@@ -162,30 +252,63 @@ export function TaskForm({ initialValues = {}, onSubmit, onCancel, isSubmitting 
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
               <Label htmlFor="task-control">Control ID</Label>
-              <Input
-                id="task-control"
-                placeholder="Control UUID"
-                value={values.controlId}
-                onChange={(event) => handleChange("controlId", event.target.value)}
-              />
+              <Select
+                value={values.controlId || "__none"}
+                onValueChange={(nextValue) => handleChange("controlId", nextValue === "__none" ? "" : nextValue)}
+                disabled={isSubmitting || isLoadingOptions.controls}
+              >
+                <SelectTrigger id="task-control">
+                  <SelectValue placeholder={isLoadingOptions.controls ? "Loading controls…" : "Select control"} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none">No control</SelectItem>
+                  {normalizedControlOptions.map((control) => (
+                    <SelectItem key={control.id} value={control.id}>
+                      {control.title ?? control.slug ?? control.id}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="task-check">Check ID</Label>
-              <Input
-                id="task-check"
-                placeholder="Check UUID"
-                value={values.checkId}
-                onChange={(event) => handleChange("checkId", event.target.value)}
-              />
+              <Select
+                value={values.checkId || "__none"}
+                onValueChange={(nextValue) => handleChange("checkId", nextValue === "__none" ? "" : nextValue)}
+                disabled={isSubmitting || isLoadingOptions.checks}
+              >
+                <SelectTrigger id="task-check">
+                  <SelectValue placeholder={isLoadingOptions.checks ? "Loading checks…" : "Select check"} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none">No check</SelectItem>
+                  {normalizedCheckOptions.map((check) => (
+                    <SelectItem key={check.id} value={check.id}>
+                      {check.name ?? check.slug ?? check.id}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="task-framework">Framework ID</Label>
-              <Input
-                id="task-framework"
-                placeholder="Framework UUID"
-                value={values.frameworkId}
-                onChange={(event) => handleChange("frameworkId", event.target.value)}
-              />
+              <Select
+                value={values.frameworkId || "__none"}
+                onValueChange={(nextValue) => handleChange("frameworkId", nextValue === "__none" ? "" : nextValue)}
+                disabled={isSubmitting || isLoadingOptions.frameworks}
+              >
+                <SelectTrigger id="task-framework">
+                  <SelectValue placeholder={isLoadingOptions.frameworks ? "Loading frameworks…" : "Select framework"} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none">No framework</SelectItem>
+                  {normalizedFrameworkOptions.map((framework) => (
+                    <SelectItem key={framework.id} value={framework.id}>
+                      {framework.title ?? framework.slug ?? framework.id}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <div className="space-y-2">
@@ -209,4 +332,15 @@ export function TaskForm({ initialValues = {}, onSubmit, onCancel, isSubmitting 
       </form>
     </Card>
   );
+}
+
+function ensureSelectionPresence(currentValue, options, factory) {
+  if (!currentValue) {
+    return options;
+  }
+  if (options.some((option) => option.id === currentValue)) {
+    return options;
+  }
+  const placeholder = factory?.(currentValue) ?? { id: currentValue, title: currentValue };
+  return [...options, placeholder];
 }

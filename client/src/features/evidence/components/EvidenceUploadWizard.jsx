@@ -1,14 +1,18 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { IconShieldPlus } from "@tabler/icons-react";
 import { toast } from "sonner";
 
 import { useEvidenceUpload } from "@/features/evidence/hooks/useEvidenceUpload";
+import { fetchControls } from "@/features/governance/controls/api/controlsClient";
+import { fetchChecks } from "@/features/governance/checks/api/checksClient";
+import { fetchTasks } from "@/features/tasks/api/tasks-client";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { Textarea } from "@/shared/components/ui/textarea";
+import { MultiSelect } from "@/shared/components/ui/multi-select";
 
 const RETENTION_STATES = [
   { value: "ACTIVE", label: "Active" },
@@ -31,6 +35,93 @@ export function EvidenceUploadWizard({ onCompleted }) {
     reset,
   } = useEvidenceUpload({ onSuccess: onCompleted });
   const [fileError, setFileError] = useState(null);
+  const [controlOptions, setControlOptions] = useState([]);
+  const [checkOptions, setCheckOptions] = useState([]);
+  const [taskOptions, setTaskOptions] = useState([]);
+  const [isLoadingOptions, setIsLoadingOptions] = useState({
+    controls: false,
+    checks: false,
+    tasks: false,
+  });
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadControls = async () => {
+      setIsLoadingOptions((previous) => ({ ...previous, controls: true }));
+      try {
+        const response = await fetchControls({ limit: 100, status: "ACTIVE" });
+        if (isMounted) {
+          setControlOptions(response.data ?? []);
+        }
+      } catch (error) {
+        console.error("Unable to load control options", error);
+      } finally {
+        if (isMounted) {
+          setIsLoadingOptions((previous) => ({ ...previous, controls: false }));
+        }
+      }
+    };
+
+    const loadChecks = async () => {
+      setIsLoadingOptions((previous) => ({ ...previous, checks: true }));
+      try {
+        const response = await fetchChecks({ limit: 100, status: "ACTIVE" });
+        if (isMounted) {
+          setCheckOptions(response.data ?? []);
+        }
+      } catch (error) {
+        console.error("Unable to load check options", error);
+      } finally {
+        if (isMounted) {
+          setIsLoadingOptions((previous) => ({ ...previous, checks: false }));
+        }
+      }
+    };
+
+    const loadTasks = async () => {
+      setIsLoadingOptions((previous) => ({ ...previous, tasks: true }));
+      try {
+        const response = await fetchTasks({ limit: 100, offset: 0, sort: "createdAt:desc" });
+        if (isMounted) {
+          setTaskOptions(response.data ?? []);
+        }
+      } catch (error) {
+        console.error("Unable to load task options", error);
+      } finally {
+        if (isMounted) {
+          setIsLoadingOptions((previous) => ({ ...previous, tasks: false }));
+        }
+      }
+    };
+
+    loadControls();
+    loadChecks();
+    loadTasks();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const controlOptionsWithSelection = useMemo(
+    () => ensureOptionCoverage(formState.controlIds, controlOptions, (id) => ({ id, title: "Linked control" })),
+    [controlOptions, formState.controlIds]
+  );
+
+  const checkOptionsWithSelection = useMemo(
+    () => ensureOptionCoverage(formState.checkIds, checkOptions, (id) => ({ id, name: "Linked check" })),
+    [checkOptions, formState.checkIds]
+  );
+
+  const taskOptionsWithSelection = useMemo(
+    () =>
+      ensureOptionCoverage(formState.taskReferences, taskOptions, (id) => ({
+        id,
+        title: "Linked task",
+      })),
+    [formState.taskReferences, taskOptions]
+  );
 
   const handleFileChange = async (event) => {
     const file = event.target.files?.[0] ?? null;
@@ -107,24 +198,28 @@ export function EvidenceUploadWizard({ onCompleted }) {
                   placeholder="risk, q4, payroll"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="upload-controls">Control IDs</Label>
-                <Input
-                  id="upload-controls"
-                  value={formState.controlIds}
-                  onChange={(event) => updateField("controlIds", event.target.value)}
-                  placeholder="comma-separated UUIDs"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="upload-checks">Check IDs</Label>
-                <Input
-                  id="upload-checks"
-                  value={formState.checkIds}
-                  onChange={(event) => updateField("checkIds", event.target.value)}
-                  placeholder="comma-separated UUIDs"
-                />
-              </div>
+              <MultiSelect
+                label="Control IDs"
+                placeholder={isLoadingOptions.controls ? "Loading controls…" : "Select controls"}
+                value={formState.controlIds}
+                options={controlOptionsWithSelection}
+                onChange={(selection) => updateField("controlIds", selection)}
+                isLoading={isLoadingOptions.controls}
+                getOptionValue={(option) => option.id}
+                getOptionLabel={(option) => option.title ?? option.slug ?? option.id}
+                getOptionDescription={(option) => option.slug ?? option.id}
+              />
+              <MultiSelect
+                label="Check IDs"
+                placeholder={isLoadingOptions.checks ? "Loading checks…" : "Select checks"}
+                value={formState.checkIds}
+                options={checkOptionsWithSelection}
+                onChange={(selection) => updateField("checkIds", selection)}
+                isLoading={isLoadingOptions.checks}
+                getOptionValue={(option) => option.id}
+                getOptionLabel={(option) => option.name ?? option.slug ?? option.id}
+                getOptionDescription={(option) => option.type ? `${option.type} • ${option.status}` : option.slug ?? option.id}
+              />
               <div className="space-y-2">
                 <Label>Retention state</Label>
                 <Select value={formState.retentionState} onValueChange={(value) => updateField("retentionState", value)}>
@@ -144,15 +239,20 @@ export function EvidenceUploadWizard({ onCompleted }) {
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="upload-tasks">Task references</Label>
-              <Input
-                id="upload-tasks"
-                value={formState.taskReferences}
-                onChange={(event) => updateField("taskReferences", event.target.value)}
-                placeholder="ticket-42"
-              />
-            </div>
+            <MultiSelect
+              label="Task references"
+              placeholder={isLoadingOptions.tasks ? "Loading tasks…" : "Select tasks"}
+              value={formState.taskReferences}
+              options={taskOptionsWithSelection}
+              onChange={(selection) => updateField("taskReferences", selection)}
+              isLoading={isLoadingOptions.tasks}
+              getOptionValue={(option) => option.id}
+              getOptionLabel={(option) => option.title ?? option.id}
+              getOptionDescription={(option) =>
+                option.priority ? `${option.priority} • ${option.status ?? "PENDING"}` : option.id
+              }
+              description="Task references help downstream workflows trace remediation ownership."
+            />
             <div className="space-y-2">
               <Label htmlFor="upload-checksum">Checksum (SHA-256)</Label>
               <Input id="upload-checksum" value={checksum} readOnly placeholder="Calculated automatically" />
@@ -166,4 +266,25 @@ export function EvidenceUploadWizard({ onCompleted }) {
       </CardContent>
     </Card>
   );
+}
+
+function ensureOptionCoverage(selectedValues = [], options = [], factory) {
+  if (!Array.isArray(selectedValues) || !selectedValues.length) {
+    return options;
+  }
+
+  const missing = selectedValues.filter(
+    (selected) => !options.some((option) => (option.id ?? option.value) === selected)
+  );
+
+  if (!missing.length) {
+    return options;
+  }
+
+  const placeholders = missing.map((id) => {
+    const fallback = factory?.(id);
+    return fallback ?? { id, title: id };
+  });
+
+  return [...options, ...placeholders];
 }

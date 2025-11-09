@@ -5,9 +5,9 @@ import { requestEvidenceUpload } from "@/features/evidence/api/evidenceClient";
 const DEFAULT_FORM = {
   description: "",
   tags: "",
-  controlIds: "",
-  checkIds: "",
-  taskReferences: "",
+  controlIds: [],
+  checkIds: [],
+  taskReferences: [],
   retentionState: "ACTIVE",
   retentionPolicyId: undefined,
 };
@@ -76,9 +76,11 @@ export function useEvidenceUpload({ onSuccess } = {}) {
         checksum,
         description: formState.description || undefined,
         tags: Array.isArray(formState.tags) ? formState.tags : toArray(formState.tags),
-        controlIds: toArray(formState.controlIds),
-        checkIds: toArray(formState.checkIds),
-        taskReferences: toArray(formState.taskReferences),
+        controlIds: Array.isArray(formState.controlIds) ? formState.controlIds : toArray(formState.controlIds),
+        checkIds: Array.isArray(formState.checkIds) ? formState.checkIds : toArray(formState.checkIds),
+        taskReferences: Array.isArray(formState.taskReferences)
+          ? formState.taskReferences
+          : toArray(formState.taskReferences),
         retentionState: formState.retentionState,
         retentionPolicyId: formState.retentionPolicyId || undefined,
       };
