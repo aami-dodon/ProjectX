@@ -83,6 +83,17 @@ Control governance UI now lives at `client/src/features/governance/controls/` al
 
 When you extend control workflows (e.g., new coverage badges, remediation UX, or score visualisations), update the hooks/components above instead of re-implementing state in pages. Keep new API calls inside `controlsClient` and ensure any RBAC/resource changes align with the backend router.
 
+### Task Management feature
+
+Remediation UI lives in `client/src/features/tasks/` and mirrors the backend task module:
+
+- `api/tasks-client.js` fronts `/api/tasks` while hooks such as `useTaskInbox`, `useTaskDetail`, `useTaskMutations`, and `useSlaMetrics` encapsulate fetching, pagination, optimistic updates, and SLA polling. Import these hooks anywhere you need task state instead of wiring Axios manually.
+- Components (`TaskForm`, `TaskTimeline`, `EvidenceAttachmentList`, `EscalationBanner`, `ExternalSyncStatus`) power the inbox, board, and detail pages. Keep new remediation widgets here so other governance screens can reuse them without diving into page-level code.
+- Pages (`TaskInboxPage`, `TaskBoardPage`, `TaskDetailPage`) register their routes via `features/tasks/routes.jsx`. The board uses `@dnd-kit/core` to support drag-and-drop lifecycle transitions, while the detail page composes the evidence list, timeline, and integration status cards.
+- Shared governance components (e.g., `@/components/governance/TaskControlPanel`) surface metrics for dashboards and the inbox. Update them alongside the hooks whenever you add new SLA summaries or escalation visuals.
+
+Remember to wrap pages with `<RequirePermission>` inside `tasksRoutes` so RBAC matches the backend router (`tasks:records`, `tasks:assignments`, `tasks:evidence`, `tasks:metrics`, `tasks:integrations`). Update this section plus `docs/03-systems/13-task-management-system/readme.md` when the remediation UI workflows evolve.
+
 ### Framework Mapping feature
 
 Framework lifecycle management sits in `client/src/features/frameworks/` and mirrors the backend spec:

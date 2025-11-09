@@ -142,7 +142,21 @@ The Evidence Management system introduces three new resources aligned with `/api
 
 Update the Casbin policy file whenever you add new evidence actions so the router middleware stays in sync with the UI affordances documented in `docs/03-systems/11-evidence-management-system/readme.md`.
 
-## 10. Troubleshooting
+## 10. Task Management permissions
+
+The Task Management system enforces dedicated permissions for `/api/tasks` routes:
+
+| Resource | Action(s) | Purpose | Default roles |
+| --- | --- | --- | --- |
+| `tasks:records` | `read`, `create`, `update` | List remediation tasks, create manual work items, and edit metadata or lifecycle fields. | Admin (all), Compliance Officer (read/update), Operator (read/create/update) |
+| `tasks:assignments` | `update` | Reassign owners, delegate to teams, or revoke delegations. | Admin, Compliance Officer, Operator |
+| `tasks:evidence` | `update` | Link or remove evidence artifacts from a task prior to verification. | Admin, Compliance Officer |
+| `tasks:metrics` | `read` | Load SLA summaries and escalation dashboards surfaced in the frontend. | Admin, Compliance Officer |
+| `tasks:integrations` | `sync` | Push updates to Jira/ServiceNow or refresh the external issue state. | Admin, Compliance Officer |
+
+Extend these resources whenever you add new workflow endpoints (for example, `tasks:verification`). Keep the table aligned with `server/src/modules/tasks/tasks.router.js` so administrators can seed matching Casbin policies.
+
+## 11. Troubleshooting
 
 | Symptom | Recommended action |
 | --- | --- |

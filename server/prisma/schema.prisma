@@ -33,6 +33,12 @@ model AuthUser {
   authoredPolicies AuthPolicy[]          @relation("AuthPolicyCreatedBy")
   policyRevisions  AuthPolicyRevision[]  @relation("AuthPolicyRevisionCreatedBy")
   evidenceUploads  Evidence[]
+  tasksCreated     Task[]                @relation("TaskCreatedBy")
+  tasksAssigned    Task[]                @relation("TaskAssignedUser")
+  taskEvents       TaskEvent[]           @relation("TaskEventActor")
+  taskAssignments  TaskAssignment[]      @relation("TaskAssignmentUser")
+  taskDelegations  TaskAssignment[]      @relation("TaskDelegatedBy")
+  taskEvidenceReviews TaskEvidenceLink[] @relation("TaskEvidenceReviewer")
 
   @@map("auth_users")
   @@index([status])
@@ -454,6 +460,7 @@ model Check {
   controlLinks    CheckControlLink[]
   notifications   CheckNotification[]
   evidenceLinks   EvidenceLink[]
+  tasks           Task[]
   control         Control?     @relation(fields: [controlId], references: [id], onDelete: SetNull)
 
   @@map("checks")
@@ -604,6 +611,7 @@ model Control {
   auditEvents            ControlAuditEvent[]
   results                CheckResult[]
   evidenceLinks          EvidenceLink[]
+  tasks                  Task[]
 
   @@map("controls")
   @@index([status])
@@ -885,6 +893,7 @@ model Evidence {
   events             EvidenceEvent[]
   versions           EvidenceVersion[]
   uploader           AuthUser               @relation(fields: [uploaderId], references: [id], onDelete: Restrict)
+  taskLinks          TaskEvidenceLink[]
 
   @@map("evidence")
   @@index([retentionState])
@@ -971,6 +980,7 @@ model Framework {
   imports          FrameworkImport[]
   exports          FrameworkExport[]
   auditLogs        FrameworkAuditLog[]
+  tasks            Task[]
 
   @@map("frameworks")
   @@index([status])
@@ -1127,4 +1137,150 @@ model FrameworkAuditLog {
   @@map("framework_audit_log")
   @@index([frameworkId])
   @@index([entityType])
+}
+
+enum TaskStatus {
+  DRAFT
+  OPEN
+  IN_PROGRESS
+  AWAITING_EVIDENCE
+  PENDING_VERIFICATION
+  RESOLVED
+  CLOSED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum TaskSource {
+  CHECK_FAILURE
+  CONTROL_REMEDIATION
+  MANUAL
+  IMPORT
+  OTHER
+}
+
+enum TaskEvidenceStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Task {
+  id                      String            @id @default(uuid())
+  title                   String
+  description             String?
+  priority                TaskPriority      @default(MEDIUM)
+  status                  TaskStatus        @default(DRAFT)
+  source                  TaskSource        @default(MANUAL)
+  controlId               String?           @map("control_id")
+  checkId                 String?           @map("check_id")
+  frameworkId             String?           @map("framework_id")
+  createdById             String?           @map("created_by")
+  assigneeId              String?           @map("assignee_id")
+  teamId                  String?           @map("team_id")
+  delegationExpiresAt     DateTime?         @map("delegation_expires_at")
+  slaDueAt                DateTime?         @map("sla_due_at")
+  escalationLevel         Int               @default(0) @map("escalation_level")
+  externalIssueKey        String?           @map("external_issue_key")
+  externalProvider        String?           @map("external_provider")
+  verificationRequired    Boolean           @default(true) @map("verification_required")
+  verificationCompletedAt DateTime?         @map("verification_completed_at")
+  createdAt               DateTime          @default(now()) @map("created_at")
+  updatedAt               DateTime          @updatedAt @map("updated_at")
+  resolvedAt              DateTime?         @map("resolved_at")
+  closedAt                DateTime?         @map("closed_at")
+  control                 Control?          @relation(fields: [controlId], references: [id], onDelete: SetNull)
+  check                   Check?            @relation(fields: [checkId], references: [id], onDelete: SetNull)
+  framework               Framework?        @relation(fields: [frameworkId], references: [id], onDelete: SetNull)
+  createdBy               AuthUser?         @relation("TaskCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  assignee                AuthUser?         @relation("TaskAssignedUser", fields: [assigneeId], references: [id], onDelete: SetNull)
+  events                  TaskEvent[]
+  assignments             TaskAssignment[]
+  evidenceLinks           TaskEvidenceLink[]
+  metrics                 TaskSlaMetric?    @relation("TaskMetrics")
+
+  @@map("tasks")
+  @@index([status])
+  @@index([assigneeId])
+  @@index([teamId])
+  @@index([slaDueAt])
+  @@index([escalationLevel])
+}
+
+model TaskEvent {
+  id        String    @id @default(uuid())
+  taskId    String    @map("task_id")
+  eventType String    @map("event_type")
+  payload   Json?
+  actorId   String?   @map("actor_id")
+  actorType String?   @map("actor_type")
+  origin    String?   @map("origin")
+  createdAt DateTime  @default(now()) @map("created_at")
+  task      Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  actor     AuthUser? @relation("TaskEventActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@map("task_events")
+  @@index([taskId])
+  @@index([eventType])
+  @@index([actorId])
+}
+
+model TaskAssignment {
+  id                   String    @id @default(uuid())
+  taskId               String    @map("task_id")
+  assigneeId           String?   @map("assignee_id")
+  teamId               String?   @map("team_id")
+  delegatedById        String?   @map("delegated_by")
+  delegationExpiresAt  DateTime? @map("delegation_expires_at")
+  justification        String?
+  createdAt            DateTime  @default(now()) @map("created_at")
+  revokedAt            DateTime? @map("revoked_at")
+  task                 Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  assignee             AuthUser? @relation("TaskAssignmentUser", fields: [assigneeId], references: [id], onDelete: SetNull)
+  delegatedBy          AuthUser? @relation("TaskDelegatedBy", fields: [delegatedById], references: [id], onDelete: SetNull)
+
+  @@map("task_assignments")
+  @@index([taskId])
+  @@index([assigneeId])
+  @@index([teamId])
+}
+
+model TaskEvidenceLink {
+  id                 String             @id @default(uuid())
+  taskId             String             @map("task_id")
+  evidenceId         String             @map("evidence_id")
+  linkType           String?            @map("link_type")
+  reviewerId         String?            @map("reviewer_id")
+  verificationStatus TaskEvidenceStatus @default(PENDING) @map("verification_status")
+  verifiedAt         DateTime?          @map("verified_at")
+  createdAt          DateTime           @default(now()) @map("created_at")
+  task               Task               @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  evidence           Evidence           @relation(fields: [evidenceId], references: [id], onDelete: Cascade)
+  reviewer           AuthUser?          @relation("TaskEvidenceReviewer", fields: [reviewerId], references: [id], onDelete: SetNull)
+
+  @@map("task_evidence_links")
+  @@unique([taskId, evidenceId])
+  @@index([verificationStatus])
+}
+
+model TaskSlaMetric {
+  id                 String   @id @default(uuid())
+  taskId             String   @map("task_id")
+  timeToAcknowledge  Int?     @map("time_to_acknowledge")
+  timeInStatus       Json?    @map("time_in_status")
+  timeToClose        Int?     @map("time_to_close")
+  breachCount        Int      @default(0) @map("breach_count")
+  lastBreachAt       DateTime? @map("last_breach_at")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+  task               Task     @relation("TaskMetrics", fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@map("task_sla_metrics")
+  @@unique([taskId])
+  @@index([lastBreachAt])
 }

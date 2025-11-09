@@ -72,6 +72,18 @@ Control governance lives beside the check stack in `server/src/modules/governanc
 
 Whenever you add new control states, coverage levels, or scoring dimensions, update `prisma/schema.prisma`, regenerate the client, and adjust both the service logic and the developer docs so the frontend dashboard and automation remain in lockstep.
 
+### Task Management module
+
+Remediation workflows now live under `server/src/modules/tasks/`. The module mirrors the same layering pattern as governance/evidence, but adds schedulers and external sync adapters:
+
+- **Structure:** Controllers (`controllers/tasks.controller.js`, `assignments.controller.js`, `integrations.controller.js`) sit above services (`task.service.js`, `lifecycle.service.js`, `escalation.service.js`, `evidence-sync.service.js`) and repositories (`task.repository.js`, `task-assignment.repository.js`, `task-metric.repository.js`). Keep Prisma access inside repositories so lifecycle/event logic stays deterministic.
+- **Router & RBAC:** `tasks.router.js` mounts at `/api/tasks` and guards endpoints with `requirePermission` resources `tasks:records`, `tasks:assignments`, `tasks:evidence`, `tasks:metrics`, and `tasks:integrations`. Update `docs/05-user-guides/02-rbac.md` whenever you add a new verb so admins can seed matching Casbin policies.
+- **Events & workflows:** SLA automation runs through `workflows/sla.scheduler.js` (hourly by default) and escalation logic in `escalation.service.js`. Verification requests enqueue via `workflows/verification.queue.js`, while external syncs fan out to the adapters in `integrations/jira.adapter.js` and `integrations/servicenow.adapter.js`. Publish lifecycle events with the helpers in `events/task.*.js` so notifications/dashboards can subscribe once.
+- **Schema:** New Prisma models (`tasks`, `task_events`, `task_assignments`, `task_evidence_links`, `task_sla_metrics`) live at the bottom of `prisma/schema.prisma` with a matching migration. Regenerate the Prisma client after editing enums like `TaskStatus`, `TaskPriority`, or `TaskEvidenceStatus`.
+- **Configuration:** Three env knobs control automation cadence—`TASK_SLA_CHECK_INTERVAL_MINUTES`, `TASK_ESCALATION_THRESHOLDS_MINUTES`, and `TASK_VERIFICATION_QUEUE_CONCURRENCY`. Keep them defined in `server/src/config/env.js` and `.env.example`, and document any new scheduler/settings in the same files.
+
+Use this module whenever failed checks or manual remediation work needs a first-class API. Always append entries to `task_events` for auditability and emit `ApplicationError` instances so the frontend receives predictable payloads.
+
 ### Evidence Management module
 
 The evidence backend lives under `server/src/modules/evidence/` and mirrors the same router/controller/service layering used elsewhere.

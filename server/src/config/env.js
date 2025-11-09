@@ -25,6 +25,11 @@ const splitCommaSeparated = (value) =>
     .map((item) => item.trim())
     .filter(Boolean);
 
+const splitCommaSeparatedNumbers = (value) =>
+  splitCommaSeparated(value)
+    .map((item) => Number(item))
+    .filter((item) => Number.isFinite(item));
+
 const LOG_LEVEL_VALUES = ['error', 'warn', 'info', 'http', 'verbose', 'debug', 'silly'];
 
 // ✅ Default values (safe for local dev only)
@@ -68,6 +73,9 @@ const defaults = {
   PROBE_DEPLOYMENT_TOPIC: 'probe.rollouts',
   PROBE_SDK_VERSION_MIN: '1.0.0',
   PROBE_SDK_VERSION_TARGET: '1.2.0',
+  TASK_SLA_CHECK_INTERVAL_MINUTES: '60',
+  TASK_ESCALATION_THRESHOLDS_MINUTES: '60,240,720',
+  TASK_VERIFICATION_QUEUE_CONCURRENCY: '5',
 };
 
 const optionalFromString = (schema) =>
@@ -122,6 +130,19 @@ const EnvSchema = z.object({
   PROBE_DEPLOYMENT_TOPIC: z.string().min(1),
   PROBE_SDK_VERSION_MIN: z.string().min(1),
   PROBE_SDK_VERSION_TARGET: z.string().min(1),
+  TASK_SLA_CHECK_INTERVAL_MINUTES: z.coerce.number().int().min(5),
+  TASK_ESCALATION_THRESHOLDS_MINUTES: z
+    .string()
+    .min(1)
+    .transform((value) => {
+      const parsed = splitCommaSeparatedNumbers(value);
+      if (parsed.length === 0) {
+        throw new Error('TASK_ESCALATION_THRESHOLDS_MINUTES must include at least one numeric value');
+      }
+
+      return parsed;
+    }),
+  TASK_VERIFICATION_QUEUE_CONCURRENCY: z.coerce.number().int().min(1),
   LOG_LEVEL: z.enum(LOG_LEVEL_VALUES),
   AUTH_DEFAULT_ADMIN_EMAIL: optionalFromString(z.string().email()),
   AUTH_DEFAULT_ADMIN_PASSWORD: optionalFromString(z.string().min(12)),

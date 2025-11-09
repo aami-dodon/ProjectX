@@ -2,8 +2,27 @@ import { apiClient } from "@/shared/lib/client";
 
 const basePath = "/api/evidence";
 
+const normalizeParams = (params = {}) =>
+  Object.entries(params).reduce((acc, [key, value]) => {
+    if (value === undefined || value === null) {
+      return acc;
+    }
+
+    if (typeof value === "string") {
+      const trimmed = value.trim();
+      if (!trimmed) {
+        return acc;
+      }
+      acc[key] = trimmed;
+      return acc;
+    }
+
+    acc[key] = value;
+    return acc;
+  }, {});
+
 export async function listEvidence(params = {}) {
-  const response = await apiClient.get(basePath, { params });
+  const response = await apiClient.get(basePath, { params: normalizeParams(params) });
   return response?.data ?? { data: [], pagination: { total: 0, limit: 25, offset: 0 }, summary: { retention: {} } };
 }
 
