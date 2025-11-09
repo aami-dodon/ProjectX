@@ -2,6 +2,7 @@ import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/shared/components/ui/chart";
+import { formatPercent, toPercentValue } from "@/shared/lib/score-format";
 
 const chartConfig = {
   posture: {
@@ -51,16 +52,14 @@ export function FrameworkTrendChart({ trend, summary }) {
             No trend data yet. Run controls to populate this chart.
           </div>
         )}
-        {summary ? (
-          <div className="mt-4 text-sm text-muted-foreground">
-            Last score:{" "}
-            <span className="font-medium text-foreground">
-              {typeof summary?.postureScore === "number"
-                ? `${Math.round(summary.postureScore * 1000) / 10}%`
-                : "—"}
-            </span>
-          </div>
-        ) : null}
+            {summary ? (
+              <div className="mt-4 text-sm text-muted-foreground">
+                Last score:{" "}
+                <span className="font-medium text-foreground">
+                  {formatPercent(summary?.postureScore) ?? "—"}
+                </span>
+              </div>
+            ) : null}
       </CardContent>
     </Card>
   );
@@ -70,9 +69,10 @@ function buildTrendData(trend) {
   if (!trend?.labels?.length) return [];
   return trend.labels.map((label, index) => {
     const value = trend.values?.[index] ?? 0;
+    const percent = toPercentValue(value);
     return {
       label: formatLabel(label),
-      posture: Math.max(0, Math.min(100, Math.round(value * 1000) / 10)),
+      posture: Math.max(0, Math.min(100, percent ?? 0)),
     };
   });
 }

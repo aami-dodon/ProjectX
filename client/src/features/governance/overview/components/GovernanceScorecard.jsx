@@ -4,6 +4,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { cn } from "@/shared/lib/utils";
+import { formatPercentDelta, toPercentValue } from "@/shared/lib/score-format";
 
 const CLASS_LABEL = {
   PASSING: "Healthy posture",
@@ -18,10 +19,9 @@ const CLASS_COLORS = {
 };
 
 export function GovernanceScorecard({ summary, checks, onRefresh, isRefreshing }) {
-  const posturePercent =
-    typeof summary?.postureScore === "number" ? Math.round(summary.postureScore * 1000) / 10 : null;
-  const deltaPercent =
-    typeof summary?.postureChange === "number" ? Math.round(summary.postureChange * 1000) / 10 : null;
+  const posturePercent = toPercentValue(summary?.postureScore);
+  const deltaPercent = toPercentValue(summary?.postureChange);
+  const deltaDisplay = formatPercentDelta(summary?.postureChange);
   const classification = summary?.postureClassification ?? null;
 
   return (
@@ -54,7 +54,7 @@ export function GovernanceScorecard({ summary, checks, onRefresh, isRefreshing }
           />
           <Metric
             label="Change vs. last run"
-            value={deltaPercent !== null ? `${deltaPercent > 0 ? "+" : ""}${deltaPercent}%` : "—"}
+            value={deltaDisplay ?? "—"}
             description="Signals improvement or regression from the prior run."
             icon={<IconArrowUpRight className={cn("h-4 w-4", deltaPercent < 0 && "rotate-90")} />}
           />

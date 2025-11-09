@@ -1,7 +1,7 @@
 import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
-import { FrameworkCoverageHeatmap } from "@/components/governance/FrameworkCoverageHeatmap";
+import { FrameworkCoverageHeatmap } from "@/features/governance/components/FrameworkCoverageHeatmap";
 
 export function ControlDetailPanel({ control, isLoading }) {
   if (isLoading) {

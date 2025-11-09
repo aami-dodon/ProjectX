@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
-import { ExportSchedulerModal } from "@/components/reports/ExportSchedulerModal";
+import { ExportSchedulerModal } from "@/features/reports/ExportSchedulerModal";
 import { ScoreGauge } from "@/features/dashboards/components/ScoreGauge";
 import { useFrameworkScores } from "@/features/dashboards/hooks/useFrameworkScores";
 import { useReportExport } from "@/features/dashboards/hooks/useReportExport";

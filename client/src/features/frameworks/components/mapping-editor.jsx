@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CoverageMatrixChart } from "@/components/governance/coverage-matrix-chart";
+import { CoverageMatrixChart } from "@/features/governance/components/coverage-matrix-chart";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card";

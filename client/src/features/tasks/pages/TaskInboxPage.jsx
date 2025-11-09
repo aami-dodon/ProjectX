@@ -15,7 +15,7 @@ import { Label } from "@/shared/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
-import { TaskControlPanel } from "@/components/governance/TaskControlPanel";
+import { TaskControlPanel } from "@/features/governance/components/TaskControlPanel";
 
 const STATUS_FILTERS = [
   { value: "ALL", label: "All statuses" },

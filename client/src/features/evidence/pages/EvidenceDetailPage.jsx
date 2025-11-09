@@ -7,7 +7,7 @@ import { EvidenceDownloadButton } from "@/features/evidence/components/EvidenceD
 import { EvidenceLinkingForm } from "@/features/evidence/components/EvidenceLinkingForm";
 import { EvidenceMetadataPanel } from "@/features/evidence/components/EvidenceMetadataPanel";
 import { fetchEvidenceDetail, updateEvidenceMetadata, addEvidenceLinks, removeEvidenceLink } from "@/features/evidence/api/evidenceClient";
-import { EvidenceTimeline } from "@/components/governance/EvidenceTimeline";
+import { EvidenceTimeline } from "@/features/governance/components/EvidenceTimeline";
 import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";

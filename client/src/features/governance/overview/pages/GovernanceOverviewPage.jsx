@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
-import { EvidenceControlMatrix } from "@/components/governance/EvidenceControlMatrix";
+import { EvidenceControlMatrix } from "@/features/governance/components/EvidenceControlMatrix";
 import { GovernanceScorecard } from "@/features/governance/overview/components/GovernanceScorecard";
 import { FrameworkTrendChart } from "@/features/governance/overview/components/FrameworkTrendChart";
 import { ControlDrilldownPanel } from "@/features/governance/overview/components/ControlDrilldownPanel";

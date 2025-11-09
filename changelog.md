@@ -1,3 +1,15 @@
+## 2025-11-10 04:52:22 IST
+- Corrected the governance posture score cards so the home overview and governance overview surfaces scale the value as a 0–100 percentage instead of 100× too large, ensuring the trend, delta, and summary metrics now show realistic posture percentages.
+
+## 2025-11-10 04:39:47 IST
+- Added an access & authentication guide (`docs/05-user-guides/00-platform-access.md`) describing login, password changes, and resets, and captured actual login/change/reset screenshots from the running frontend (`docs/05-user-guides/images/{login,change-password,reset-password}.png`) so the documentation references real UI state.
+
+## 2025-11-10 04:35:46 IST
+- Added role-specific end-user guides for Compliance Officer, Risk & Audit Manager, AI/ML Engineer, IT/Security Administrator, Product/Business Owner, and System Administrator in `docs/05-user-guides`, each outlining workflows, troubleshooting, and referenced screenshots to help users run the platform.
+
+## 2025-11-10 04:40:22 IST
+- Replaced the `/home` dashboard mock (SectionCards/ChartArea/DataTable) with the live governance overview: the page now loads `useGovernanceOverview`, surfaces summary cards, trend, review queue, spotlight controls, runs, and evidence links, and all placeholder components/data files were removed.
+
 ## 2025-11-10 04:11:33 IST
 - Hardened `scripts/demo-data.js` so it tags every seeded record with a demo marker, removes only those records (instead of truncating tables or deleting existing users), and fails fast when migrations are missing—making the demo workflow safe to run in populated environments.
 

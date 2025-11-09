@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
-import { ControlCoverageChart } from "@/components/governance/ControlCoverageChart";
+import { ControlCoverageChart } from "@/features/governance/components/ControlCoverageChart";
 import { Button } from "@/shared/components/ui/button";
 import { CheckCatalogTable } from "@/features/governance/checks/components/CheckCatalogTable";
 import { CheckDefinitionForm } from "@/features/governance/checks/components/CheckDefinitionForm";

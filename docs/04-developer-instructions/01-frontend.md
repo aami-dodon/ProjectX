@@ -32,7 +32,7 @@ This behavior keeps protected screens responsive during normal access token expi
 Every folder under `client/src/features` represents a self-contained feature slice. Use the existing modules as references:
 
 - **`pages/`** — top-level route components (e.g. `HomePage.jsx`, `LoginPage.jsx`, `HealthPage.jsx`).
-- **`components/`** — reusable, feature-specific view components (e.g. the home dashboard charts, the auth layout wrapper).
+- **`components/`** — reusable, feature-specific view components (e.g. the home overview summary cards + review queue panel that reuse `useGovernanceOverview`, the auth layout wrapper).
 - **`hooks/`** — React hooks that encapsulate data fetching or state logic (e.g. `health/hooks/useHealthStatus.js`).
 - **`routes.jsx`** — optional router configuration exported as part of the feature (used by the auth stack to provide nested routes and layout composition).
 - **`index.js`** — the module surface that re-exports pages, hooks, and route definitions for easy import elsewhere.
