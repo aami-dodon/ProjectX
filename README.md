@@ -1,5 +1,7 @@
 Project X is positioned as the AI Compliance Cloud that automates governance, risk, and compliance for enterprise AI. It brings together evidence collection, automated scoring, and actionable response so organizations can prove trustworthiness, surface risks early, and stay aligned with the fastest-moving global standards.
 
+![Screenshot](docs/screenshot.png)
+
 ## What the platform surfaces
 
 - **Framework-aware governance**: Compliance scoring is aligned with the EU AI Act, NIST AI RMF, and ISO/IEC 42001—Project X helps teams see how every control maps to the frameworks regulators care about.
