@@ -132,7 +132,7 @@ const withDemoMetadata = (extra = {}) => ({
 
 async function ensureTablesExist(client) {
   const runtimeModels = client._runtimeDataModel?.models ?? {};
-  const missing = [];
+  const tableChecks = [];
 
   for (const model of MODEL_CHECK_LIST) {
     const pascalName = model.charAt(0).toUpperCase() + model.slice(1);
@@ -143,9 +143,23 @@ async function ensureTablesExist(client) {
 
     const tableName = runtime.dbName ?? runtime.name ?? pascalName;
     const qualified = `public."${tableName.replace(/"/g, '""')}"`;
-    const [result] = await client.$queryRaw`SELECT (to_regclass(${qualified}) IS NOT NULL) AS present`;
+    tableChecks.push({ model, tableName, qualified });
+  }
 
-    if (!result?.present) {
+  if (tableChecks.length === 0) {
+    return;
+  }
+
+  const presenceCheck = await client.$queryRaw`
+    SELECT name, to_regclass(name) IS NOT NULL AS present
+    FROM UNNEST(${tableChecks.map(({ qualified }) => qualified)}) AS name(name)
+  `;
+
+  const presenceMap = new Map(presenceCheck.map((entry) => [entry?.name, entry?.present]));
+  const missing = [];
+
+  for (const { model, tableName, qualified } of tableChecks) {
+    if (!presenceMap.get(qualified)) {
       missing.push(`${tableName} (${model})`);
     }
   }
