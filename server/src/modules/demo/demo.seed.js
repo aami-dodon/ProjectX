@@ -150,9 +150,10 @@ async function ensureTablesExist(client) {
     return;
   }
 
+  const qualifiedNames = tableChecks.map(({ qualified }) => qualified);
   const presenceCheck = await client.$queryRaw`
     SELECT name, to_regclass(name) IS NOT NULL AS present
-    FROM UNNEST(${tableChecks.map(({ qualified }) => qualified)}) AS name(name)
+    FROM UNNEST(${qualifiedNames}) AS name(name)
   `;
 
   const presenceMap = new Map(presenceCheck.map((entry) => [entry?.name, entry?.present]));
