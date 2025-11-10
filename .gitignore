@@ -27,3 +27,4 @@ pdf/
 server/logs/
 client/logs/
 server.log
+.vscode
