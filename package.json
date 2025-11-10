@@ -1,8 +1,0 @@
-{
-  "name": "project-x",
-  "version": "0.0.0",
-  "private": true,
-  "scripts": {
-    "test": "npm run test --prefix client && npm run test --prefix server"
-  }
-}
