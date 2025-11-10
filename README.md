@@ -52,3 +52,15 @@ AI governance is essential yet complex. Project X makes it operational by keepin
    The client and server read from the same `.env`, so ensure values such as API URLs and credentials stay aligned.
 
 3. Before committing, run linting, formatting, and tests in both workspaces to keep quality gates passing. This keeps both sides consistent as the project evolves.
+
+## Demo Access
+
+You can try the live demo of **Project X** here:
+
+**Demo URL:** [https://projectx.dodon.in](https://projectx.dodon.in)  
+**User ID:** `admin@example.com`  
+**Password:** `projectX`
+
+> ⚠️ **Disclaimer:** The demo environment is for evaluation purposes only.  
+> All data is **erased periodically** and will **not be persistent** between sessions.
+
