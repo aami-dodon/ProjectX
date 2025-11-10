@@ -59,7 +59,7 @@ You can try the live demo of **Project X** here:
 
 **Demo URL:** [https://projectx.dodon.in](https://projectx.dodon.in)  
 **User ID:** `admin@example.com`  
-**Password:** `projectX`
+**Password:** `projectXpassword`
 
 > ⚠️ **Disclaimer:** The demo environment is for evaluation purposes only.  
 > All data is **erased periodically** and will **not be persistent** between sessions.
